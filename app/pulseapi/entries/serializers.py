@@ -1,17 +1,17 @@
 """Serialize the models"""
 from rest_framework import serializers
 
-from pulseapi.projects.models import(
-    Project
+from pulseapi.entries.models import(
+    Entry
 )
 
-class ProjectSerializer(serializers.ModelSerializer):
+class EntrySerializer(serializers.ModelSerializer):
     """
-    Serializes a project with embeded information including
-    list of tags, categories and links associated with that project
+    Serializes an entry with embeded information including
+    list of tags, categories and links associated with that entry
     as simple strings. It also includes a list of hyperlinks to events
-    that are associated with this project as well as hyperlinks to users
-    that are involved with the project
+    that are associated with this entry as well as hyperlinks to users
+    that are involved with the entry
     """
     title = serializers.CharField()
     description = serializers.CharField()
@@ -23,5 +23,5 @@ class ProjectSerializer(serializers.ModelSerializer):
         """
         Meta class. Because
         """
-        model = Project
+        model = Entry
         fields = ("title", "description", "content_url", "thumbnail_url", "tags",)

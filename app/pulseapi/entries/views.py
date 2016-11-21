@@ -3,31 +3,31 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 # from rest_framework.pagination import PageNumberPagination
 # from rest_framework import filters
 
-from pulseapi.projects.models import Project
-from pulseapi.projects.serializers import (
-    ProjectSerializer,
-    Project,
+from pulseapi.entries.models import Entry
+from pulseapi.entries.serializers import (
+    EntrySerializer,
+    Entry,
 )
 
-class ProjectsListView(ListAPIView):
+class EntriesListView(ListAPIView):
     """
     A view that permits a GET to allow listing all the projects
     in the database
 
-    **Route** - `/projects`
+    **Route** - `/entries`
 
     **Query Parameters** -
 
     - `?search=` - Allows search terms
-    - `?sort=` - Allows sorting of projects.
+    - `?sort=` - Allows sorting of entries.
         - date_created - `?sort=date_created`
         - date_updated - `?sort=date_updated`
 
         *To sort in descending order, prepend the field with a '-', for e.g.
         `?sort=-date_updated`*
 
-    - `?tags=` - Allows filtering projects by a specific tag
-    - `?categories=` - Allows filtering projects by a specific category
+    - `?tags=` - Allows filtering entries by a specific tag
+    - `?categories=` - Allows filtering entries by a specific category
     - `?expand=` -
     Forces the response to include basic
     information about a relation instead of just
@@ -38,7 +38,7 @@ class ProjectsListView(ListAPIView):
            `?expand=events` and `?expand=leads,events`
 
     """
-    queryset = Project.objects.all()
+    queryset = Entry.objects.all()
     # pagination_class = PageNumberPagination
     # filter_backends = (
     #     filters.DjangoFilterBackend,
@@ -55,7 +55,7 @@ class ProjectsListView(ListAPIView):
         'description',
         '=tags__name',
     )
-    serializer_class = ProjectSerializer
+    serializer_class = EntrySerializer
 
     # def get_serializer_class(self):
     #     expand = self.request.query_params.get('expand')
@@ -68,9 +68,9 @@ class ProjectsListView(ListAPIView):
     #         elif 'events' in expand and 'leads' in expand:
     #             return ProjectExpandAllSerializer
     #         else:
-    #             return ProjectSerializer
+    #             return EntrySerializer
     #     else:
-    #         return ProjectSerializer
+    #         return EntrySerializer
 
 
 # def serializer_class(self):

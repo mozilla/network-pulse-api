@@ -15,11 +15,11 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from pulseapi.projects.views import (
-    ProjectsListView,
+from pulseapi.entries.views import (
+    EntriesListView,
 )
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url('^projects/', ProjectsListView.as_view()),
+    url('^entries/', EntriesListView.as_view()),
 ]

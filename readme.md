@@ -1,0 +1,1 @@
+`./manage.py migrate --run-syncdb` fixed things with DB that were broken
