@@ -9,6 +9,9 @@ class EntryQuerySet(models.query.QuerySet):
     """
 
     def public(self):
+        """
+        Return all entries to start
+        """
         return self
 
 class Entry(models.Model):

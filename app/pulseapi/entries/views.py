@@ -1,16 +1,45 @@
-# import django_filters
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+"""
+Views to get entries
+"""
+
+import django_filters
+from rest_framework.generics import ListCreateAPIView, RetrieveAPIView
 # from rest_framework.pagination import PageNumberPagination
-# from rest_framework import filters
+from rest_framework import filters
 
 from pulseapi.entries.models import Entry
 from pulseapi.entries.serializers import (
     EntrySerializer,
-    Entry,
 )
 
-class EntriesListView(ListAPIView):
+
+class EntryCustomFilter(filters.FilterSet):
     """
+    We add custom filtering to allow you to filter by:
+        * Tag - pass the `?tags=` query parameter
+    Accepts only one filter value i.e. one tag and/or one
+    category.
+    """
+    tags = django_filters.CharFilter(
+        name='tags__name',
+        lookup_expr='iexact',
+    )
+
+    class Meta:
+        model = Entry
+        fields = ['tags']
+
+class  EntryView(RetrieveAPIView):
+    """
+    A view to retrieve individual entries
+    """
+    queryset = Entry.objects.public()
+    serializer_class = EntrySerializer
+    pagination_class = None
+
+class EntriesListView(ListCreateAPIView):
+    """
+    This is copied from Science
     A view that permits a GET to allow listing all the projects
     in the database
 
@@ -38,14 +67,14 @@ class EntriesListView(ListAPIView):
            `?expand=events` and `?expand=leads,events`
 
     """
-    queryset = Entry.objects.all()
+    queryset = Entry.objects.public()
     # pagination_class = PageNumberPagination
-    # filter_backends = (
-    #     filters.DjangoFilterBackend,
-    #     ProjectSearchFilter,
-    #     filters.OrderingFilter,
-    # )
-    # filter_class = ProjectCustomFilter
+    filter_backends = (
+        # filters.DjangoFilterBackend,
+        filters.SearchFilter,
+        # filters.OrderingFilter,
+    )
+    filter_class = EntryCustomFilter
     ordering_fields = (
         'date_created',
         'date_updated',
@@ -53,7 +82,6 @@ class EntriesListView(ListAPIView):
     search_fields = (
         'title',
         'description',
-        '=tags__name',
     )
     serializer_class = EntrySerializer
 
@@ -89,36 +117,6 @@ class EntriesListView(ListAPIView):
 #         return ProjectWithGithubSerializer
 
 
-# class ProjectSearchFilter(filters.SearchFilter):
-#     """
-#     We use a custom search filter to search based on a query
-#     like so - `?search=my_search_term`
-#     """
-#     def get_search_terms(self, request):
-#         params = request.query_params.get(self.search_param, '')
-#         return params.split('&&')
-
-
-# class ProjectCustomFilter(filters.FilterSet):
-#     """
-#     We add custom filtering to allow you to filter by:
-#         * Category - pass the `?categories=` query parameter
-#         * Tag - pass the `?tags=` query parameter
-#     Both accept only one filter value i.e. one tag and/or one
-#     category.
-#     """
-#     tags = django_filters.CharFilter(
-#         name='tags__name',
-#         lookup_expr='iexact',
-#     )
-#     categories = django_filters.CharFilter(
-#         name='categories__name',
-#         lookup_expr='iexact',
-#     )
-
-#     class Meta:
-#         model = Project
-#         fields = ['tags', 'categories']
 
 
 
