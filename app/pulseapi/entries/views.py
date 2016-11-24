@@ -70,7 +70,7 @@ class EntriesListView(ListCreateAPIView):
     queryset = Entry.objects.public()
     # pagination_class = PageNumberPagination
     filter_backends = (
-        # filters.DjangoFilterBackend,
+        filters.DjangoFilterBackend,
         filters.SearchFilter,
         # filters.OrderingFilter,
     )
