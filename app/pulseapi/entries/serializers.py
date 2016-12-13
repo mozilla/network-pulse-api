@@ -18,10 +18,11 @@ class EntrySerializer(serializers.ModelSerializer):
     content_url = serializers.URLField()
     thumbnail_url = serializers.URLField()
     tags = serializers.StringRelatedField(many=True)
+    issues = serializers.StringRelatedField(many=True)
 
     class Meta:
         """
         Meta class. Because
         """
         model = Entry
-        fields = ("title", "description", "content_url", "thumbnail_url", "tags",)
+        fields = ("title", "description", "content_url", "thumbnail_url", "tags", "issues",)

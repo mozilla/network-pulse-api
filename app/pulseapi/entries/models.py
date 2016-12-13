@@ -31,6 +31,10 @@ class Entry(models.Model):
         related_name='entries',
         blank=True,
     )
+    get_involved = models.CharField(max_length=300)
+    get_involved_url = models.URLField()
+    interest = models.CharField(max_length=300)
+    featured = models.BooleanField()
     objects = EntryQuerySet.as_manager()
     issues = models.ManyToManyField(
         Issue,
