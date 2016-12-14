@@ -4,6 +4,12 @@ from rest_framework import serializers
 from pulseapi.entries.models import(
     Entry,
 )
+from pulseapi.tags.models import(
+    Tag,
+)
+from pulseapi.issues.models import(
+    Issue,
+)
 
 class EntrySerializer(serializers.ModelSerializer):
     """
@@ -13,16 +19,14 @@ class EntrySerializer(serializers.ModelSerializer):
     that are associated with this entry as well as hyperlinks to users
     that are involved with the entry
     """
-    title = serializers.CharField()
-    description = serializers.CharField()
-    content_url = serializers.URLField()
-    thumbnail_url = serializers.URLField()
-    tags = serializers.StringRelatedField(many=True)
-    issues = serializers.StringRelatedField(many=True)
+    tags = serializers.SlugRelatedField(many=True, slug_field='name', queryset=Tag.objects)
+    issues = serializers.SlugRelatedField(many=True,
+                                          slug_field='name',
+                                          queryset=Issue.objects)
 
     class Meta:
         """
         Meta class. Because
         """
         model = Entry
-        fields = ("title", "description", "content_url", "thumbnail_url", "tags", "issues",)
+        exclude = ('internal_notes',)

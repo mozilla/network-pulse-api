@@ -22,8 +22,8 @@ class Entry(models.Model):
     """
     A pulse entry
     """
-    title = models.CharField(max_length=100)
-    description = models.CharField(max_length=200)
+    title = models.CharField(max_length=140)
+    description = models.CharField(max_length=300)
     content_url = models.URLField()
     thumbnail_url = models.URLField()
     tags = models.ManyToManyField(
@@ -35,18 +35,25 @@ class Entry(models.Model):
     get_involved_url = models.URLField()
     interest = models.CharField(max_length=300)
     featured = models.BooleanField()
-    objects = EntryQuerySet.as_manager()
+    internal_notes = models.TextField()
     issues = models.ManyToManyField(
         Issue,
         related_name='entries',
         blank=True,
     )
+    submitted_by = models.CharField(max_length=100)
+    # published_by = models.ManyToManyField(
+    #     User,
+    #     related_name='entries',
+    #     blank=False
+    # )
+    objects = EntryQuerySet.as_manager()
 
     class Meta:
         """
         Make plural not be wrong
         """
         verbose_name_plural = "entries"
-        
+
     def __str__(self):
         return str(self.title)
