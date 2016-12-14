@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^entries/', include('pulseapi.entries.urls')),
     url(r'^tags/', include('pulseapi.tags.urls')),
+    url(r'^issues/', include('pulseapi.issues.urls')),
     # /entries filter by tag text and issues - POST, GET
     # /entries/:id GET
     # /tags - list of tags used across all entries in db GET

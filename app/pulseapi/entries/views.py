@@ -26,6 +26,9 @@ class EntryCustomFilter(filters.FilterSet):
     )
 
     class Meta:
+        """
+        Required Meta class
+        """
         model = Entry
         fields = ['tags']
 
