@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -19,14 +20,20 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'l1g5e7=igo=w=366=ygmsxi$1165wg1n&+9)v2#1w^!n&*)zzj'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# This needs to be a real domain for google auth purposes. As such,
+# you may need to add a "127.0.0.1    test.stuff.com" to your
+# host file, so that google's redirect works. This is the same
+# domain you will be specifying in your Flow credentials, and
+# associated client_secrets.json
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'test.stuff.com,localhost').split(',')
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 31
+SECRET_KEY = 'Oh my god I love cake so much holy shit how amazing is cake; like, seriously?'
 
 # Application definition
 
@@ -41,6 +48,7 @@ INSTALLED_APPS = [
     'pulseapi.entries',
     'pulseapi.tags',
     'pulseapi.issues',
+    'pulseapi.users',
 ]
 
 MIDDLEWARE = [
@@ -53,12 +61,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+AUTH_USER_MODEL = 'users.EmailUser'
+
 ROOT_URLCONF = 'pulseapi.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR,'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -84,23 +94,28 @@ DATABASES = {
     }
 }
 
+DATABASE_URL = os.getenv('DATABASE_URL', False)
+
+if DATABASE_URL is not False:
+    DATABASES['default'].update(dj_database_url.config())
+
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+#    {
+#        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+#    },
+#    {
+#        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+#    },
+#    {
+#        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+#    },
+#    {
+#        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+#    },
 ]
 
 

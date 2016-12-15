@@ -73,3 +73,9 @@ dump_*
 
 # Static files from python manage.py collectstatic
 app/staticfiles/
+
+# google oauth client_secrets
+client_secrets.json
+
+# virtualenv
+venv
