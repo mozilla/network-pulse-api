@@ -3,15 +3,17 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+from pulseapi.issues.models import Issue
 
 def forwards_func(apps, schema_editor):
     # We get the model from the versioned app registry;
     # if we directly import it, it'll be the wrong version
-    Issue = apps.get_model("issues", "Issue")
+    # issue = apps.get_model("issues", "Issue")
     db_alias = schema_editor.connection.alias
     Issue.objects.using(db_alias).bulk_create([
-        Issue(name="Web Literacy",
-              description="People have the skills to read, write and participate in the digital world. Together, these informed digital citizens move beyond just consuming content — to creating, shaping and defending the web."),
+        Issue(
+            name="Web Literacy",
+            description="People have the skills to read, write and participate in the digital world. Together, these informed digital citizens move beyond just consuming content — to creating, shaping and defending the web."),
         Issue(name="Online Privacy & Security",
               description="People understand and can meaningfully control how their data is collected and used online — and trust that it’s safe. Companies and governments work to protect our data and enhance our ownership over our digital identities."),
         Issue(name="Digital Inclusion",

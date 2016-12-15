@@ -13,7 +13,9 @@ from pulseapi.issues.models import Issue
 
 class IssueListView(ListAPIView):
     """
-    A view to retrieve all Issues
+    A view to retrieve all Issues.
+    Append `/{issueName}` to URL to get more details for an issue
+    Editable only via django admin
     """
     queryset = Issue.objects.public()
     serializer_class = IssueSerializer
