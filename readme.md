@@ -2,7 +2,7 @@
 
 ... text goes here!...
 
-## getting up and running for local development
+## Getting up and running for local development
 
 You'll need `python` (v3) with `pip` (latest) and optionally `virtualenv` (python3 comes with a way to build virtual environments, but you can also install `virtualenv` as a dedicated library if you prefer)
 
@@ -31,15 +31,15 @@ password (again): admin
 
 because it's easy to remember and doesn't require any kind of password management beyond "the browser itself".
 
-## running the server
+## Running the server
 
 As a Django server, this API server is run like any other Django server:
 
 - `python manage.py runserver`
 
-## running the "3rd party library" text
+## Running the "3rd party library" text
 
-Fire up a localhost server with port 8080 in the root directory and point your browser to [http://localhost:8080/testform.html](http://localhost:8080/testform.html). If all went well (but read this README.md to the end, first) you should be able to post to the API server running "on" http://test.example.com:8000
+Fire up a localhost server with port 8080 pointing at the `public` directory (some localhost servers like [http-server](https://npmjs.com/package/http-server) do this automatically for you) and point your browser to [http://localhost:8080](http://localhost:8080). If all went well (but read this README.md to the end, first) you should be able to post to the API server running "on" http://test.example.com:8000
 
 ## Using a localhost rebinding to a "real" domain
 
