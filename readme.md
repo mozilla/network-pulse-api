@@ -37,11 +37,11 @@ As a Django server, this API server is run like any other Django server:
 
 - `python manage.py runserver`
 
-## Running the "3rd party library" text
+## Testing the API using the "3rd party library" test file
 
 Fire up a localhost server with port 8080 pointing at the `public` directory (some localhost servers like [http-server](https://npmjs.com/package/http-server) do this automatically for you) and point your browser to [http://localhost:8080](http://localhost:8080). If all went well (but read this README.md to the end, first) you should be able to post to the API server running "on" http://test.example.com:8000
 
-## Using a localhost rebinding to a "real" domain
+## **Important**: using a localhost rebinding to a "real" domain
 
 Google Auth does not like oauth2 to `localhost`, so you will need to set up a host binding such that 127.0.0.1 looks like a real domain. You can do this by editing your `hosts` file (in `/etc/hosts` on most unix-like systems, or `Windows\System32\Drivers\etc\hosts` in Windows). Add the following rule:
 
