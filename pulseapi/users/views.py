@@ -36,7 +36,7 @@ class FlowHandler:
                 ]),
 
                 # this url-to-codepath binding is set up in ./users/urls.py
-                redirect_uri=os.getenv('redirect_uris', 'http://test.stuff.com:8000/oauth2callback').split(',')[0],
+                redirect_uri=os.getenv('redirect_uris', 'http://test.example.com:8000/oauth2callback').split(',')[0],
             )
 
         return self.flow
@@ -57,7 +57,21 @@ def new_nonce_value(request):
 
     request.session['nonce'] = EmailUser.objects.make_random_password()
 
+# API ROUTE: /nonce
+def nonce(request):
+    """
+    set a new random nonce to act as form post identifier
+    """
+    if not request.user.is_authenticated():
+        return HttpResponseNotFound()
 
+    new_nonce_value(request)
+    return render(request, 'users/formprotection.json', {
+        'user': request.user,
+        'nonce': request.session['nonce']
+    }, content_type="application/json")
+
+# API ROUTE: /
 def index(request):
     """
     Initial page with a link that lets us sign in through Google
@@ -73,7 +87,7 @@ def index(request):
         'nonce': request.session['nonce']
     })
 
-
+# API Route: /logout (immediately directs to /)
 def force_logout(request):
     """
     An explicit logout route.
@@ -85,6 +99,7 @@ def force_logout(request):
     return redirect("/")
 
 
+# API Route: /oauth2callback (Redirects to / on success)
 def callback(request):
     """
     The callback route that Google will send the user to when authentication
@@ -148,54 +163,3 @@ def callback(request):
 
     return HttpResponseNotFound("callback happened without an error or code query argument: wtf")
 
-def post_validate(request):
-    """
-    Security helper function to ensure that a post request is session, CSRF, and nonce protected
-    """
-
-    user = request.user
-    csrf_token = request.POST.get('csrfmiddlewaretoken', False)
-    nonce = request.POST.get('nonce', False)
-
-    # ignore post attempts without a CSRF token
-    if csrf_token is False:
-        return "No CSRF token in POST data."
-
-    # ignore post attempts without a known form id
-    if nonce is False:
-        return "No form identifier in POST data."
-
-    # ignore post attempts by clients that are not logged in
-    if not user.is_authenticated:
-        return "Anonymous posting is not supported."
-
-    # ignore unexpected post attempts (i.e. missing the session-based unique form id)
-    if nonce != request.session['nonce']:
-        # invalidate the nonce entirely, so people can't retry until there's an id collision
-        request.session['nonce'] = False
-        return "Forms cannot be auto-resubmitted (e.g. by reloading)."
-
-    return True
-
-
-@csrf_protect
-def post_test(request):
-    """
-    Testing route for POSTing to the Django database
-    """
-    validation_result = post_validate(request)
-
-    if validation_result is True:
-        # invalidate the nonce, so this form cannot be resubmitted with the current id
-        request.session['nonce'] = False
-
-        context = {
-            'user': request.user,
-            'name': request.POST['name'],
-            'url': request.POST['url'],
-        }
-
-        return render(request, 'users/submissions.html', context)
-
-    else:
-        return HttpResponseNotFound(validation_result)

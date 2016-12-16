@@ -25,11 +25,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEBUG = True
 
 # This needs to be a real domain for google auth purposes. As such,
-# you may need to add a "127.0.0.1    test.stuff.com" to your
+# you may need to add a "127.0.0.1    test.example.com" to your
 # host file, so that google's redirect works. This is the same
 # domain you will be specifying in your Flow credentials, and
 # associated client_secrets.json
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'test.stuff.com,localhost').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'test.example.com,localhost').split(',')
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 31
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'rest_framework',
     'pulseapi.entries',
     'pulseapi.tags',
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -137,3 +139,22 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+#
+# CORS settings
+#
+
+# we want to restrict API calls to domains we know
+CORS_ORIGIN_ALLOW_ALL = False
+
+# we also want cookie data, because we use CSRF tokens
+CORS_ALLOW_CREDENTIALS = True
+
+# by default the whitelist is localhost and the test.example.com domain
+CORS_ORIGIN_WHITELIST = (
+    'localhost:8000',
+    'localhost:8080',
+    'test.example.com:8000',
+)
+
+CORS_ORIGIN_REGEX_WHITELIST = []
