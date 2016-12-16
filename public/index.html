@@ -120,9 +120,6 @@
 						console.log("Error", submit.status);
 					}
 				}
-				//submit.onerror = e => {
-				//	console.error(e);
-				//}
 				submit.withCredentials = true;
 				submit.send(formdata);
 			};
