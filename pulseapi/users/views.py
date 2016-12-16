@@ -10,22 +10,36 @@ from apiclient.discovery import build
 
 from .models import EmailUser
 
-"""
-The flow variable is used to run through oauth2 workflows.
-"""
-FLOW = client.flow_from_clientsecrets(
-    # we keep the creds in a separate file that we don't check in.
-    'client_secrets.json',
+class FlowHandler:
+    """
+    To prevent compilation errors due to a missing client_secrets.json,
+    especially during "manage.py migrate" and the like, we initialise
+    the flow object as None and only assign it once it needs to be used.
+    """
 
-    # we want to be able to get a user's name and email
-    scope=' '.join([
-        'https://www.googleapis.com/auth/userinfo.email',
-        'https://www.googleapis.com/auth/userinfo.profile'
-    ]),
+    flow = None
 
-    # this url-to-codepath binding is set up in ./users/urls.py
-    redirect_uri=os.getenv('redirect_uris', 'http://test.stuff.com:8000/oauth2callback').split(',')[0],
-)
+    @classmethod
+    def get_flow(self):
+        """
+        get the class-level-bound flow handler
+        """
+        if self.flow is None:
+            self.flow = client.flow_from_clientsecrets(
+                # we keep the creds in a separate file that we don't check in.
+                'client_secrets.json',
+
+                # we want to be able to get a user's name and email
+                scope=' '.join([
+                    'https://www.googleapis.com/auth/userinfo.email',
+                    'https://www.googleapis.com/auth/userinfo.profile'
+                ]),
+
+                # this url-to-codepath binding is set up in ./users/urls.py
+                redirect_uri=os.getenv('redirect_uris', 'http://test.stuff.com:8000/oauth2callback').split(',')[0],
+            )
+
+        return self.flow
 
 
 def new_state_value(request):
@@ -51,11 +65,11 @@ def index(request):
     new_state_value(request)
     new_nonce_value(request)
 
-    FLOW.params['state'] = request.session['state']
+    FlowHandler.get_flow().params['state'] = request.session['state']
 
     return render(request, 'users/index.html', {
         'user': request.user,
-        'auth_url': FLOW.step1_get_authorize_url(),
+        'auth_url': FlowHandler.get_flow().step1_get_authorize_url(),
         'nonce': request.session['nonce']
     })
 
@@ -101,7 +115,7 @@ def callback(request):
             return HttpResponse("Questionable login: incorrect state value in callback.")
 
         # get the authenticating user's name and email address from the Google API
-        credentials = FLOW.step2_exchange(auth_code)
+        credentials = FlowHandler.get_flow().step2_exchange(auth_code)
         http_auth = credentials.authorize(Http())
         service = build('oauth2', 'v2', http=http_auth)
         userinfo = service.userinfo().get().execute()
