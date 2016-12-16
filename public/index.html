@@ -1,137 +1,137 @@
 <!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<title>Test page for hitting the API</title>
-		<style>
-			form fieldset { border: none; margin: 0; padding: 0; }
-			form fieldset + fieldset { margin-top: 0.5em;}
-			form span { display: inline-block; width: 10em; }
-		</style>
-	</head>
-	<body>
-	  <h1>A test post to http://test.example.com:8000/entries</h1>
+  <head>
+    <meta charset="utf-8">
+    <title>Test page for hitting the API</title>
+    <style>
+      form fieldset { border: none; margin: 0; padding: 0; }
+      form fieldset + fieldset { margin-top: 0.5em;}
+      form span { display: inline-block; width: 10em; }
+    </style>
+  </head>
+  <body>
+    <h1>A test post to http://test.example.com:8000/entries</h1>
 
-	  <form name="entries" method="POST">
-	    <fieldset>
-	    	<label>
-	    		<span>title</span>
-	    		<input type="text" id="title" name="title" value="title">
-	    	</label>
-	    </fieldset>
+    <form name="entries" method="POST">
+      <fieldset>
+        <label>
+          <span>title</span>
+          <input type="text" id="title" name="title" value="title">
+        </label>
+      </fieldset>
 
-	    <fieldset>
-	    	<label>
-	    		<span>description</span>
-	    		<input type="text" id="description" name="description" value="description">
-	    	</label>
-	    </fieldset>
+      <fieldset>
+        <label>
+          <span>description</span>
+          <input type="text" id="description" name="description" value="description">
+        </label>
+      </fieldset>
 
-	    <fieldset>
-	    	<label>
-	    		<span>content url</span>
-	    		<input type="text" id="content_url" name="content_url" value="http://test.example.com">
-	    	</label>
-	    </fieldset>
+      <fieldset>
+        <label>
+          <span>content url</span>
+          <input type="text" id="content_url" name="content_url" value="http://test.example.com">
+        </label>
+      </fieldset>
 
-	    <fieldset>
-	    	<label>
-	    		<span>thumbnail url</span>
-	    		<input type="text" id="thumbnail_url" name="thumbnail_url" value="http://test.example.com/thumb.png">
-	    	</label>
-	    </fieldset>
+      <fieldset>
+        <label>
+          <span>thumbnail url</span>
+          <input type="text" id="thumbnail_url" name="thumbnail_url" value="http://test.example.com/thumb.png">
+        </label>
+      </fieldset>
 
-	    <fieldset>
-	    	<label>
-	    		<span>get involved</span>
-	    		<input type="text" id="get_involved" name="get_involved" value="get involved">
-	    	</label>
-	    </fieldset>
+      <fieldset>
+        <label>
+          <span>get involved</span>
+          <input type="text" id="get_involved" name="get_involved" value="get involved">
+        </label>
+      </fieldset>
 
-	    <fieldset>
-	    	<label>
-	    		<span>url for getting involved</span>
-	    		<input type="text" id="get_involved_url" name="get_involved_url" value="http://test.example.com/getinvolved">
-	    	</label>
-	    </fieldset>
+      <fieldset>
+        <label>
+          <span>url for getting involved</span>
+          <input type="text" id="get_involved_url" name="get_involved_url" value="http://test.example.com/getinvolved">
+        </label>
+      </fieldset>
 
-	    <fieldset>
-	    	<label>
-	    		<span>tags</span>
-	    		<input type="text" id="tags" name="tags" value="tag1,tag2,tag3">
-	    	</label>
-	    </fieldset>
+      <fieldset>
+        <label>
+          <span>tags</span>
+          <input type="text" id="tags" name="tags" value="tag1,tag2,tag3">
+        </label>
+      </fieldset>
 
-	    <fieldset>
-	    	<label>
-	    		<span>issues</span>
-	    		<input type="text" id="issues" name="issues" value="Open Innovation">
-	    	</label>
-	    </fieldset>
+      <fieldset>
+        <label>
+          <span>issues</span>
+          <input type="text" id="issues" name="issues" value="Open Innovation">
+        </label>
+      </fieldset>
 
-	    <fieldset>
-	    	<label>
-	    		<span>interest</span>
-	    		<input type="text" id="interest" name="interest" value="interest">
-	    	</label>
-	    </fieldset>
+      <fieldset>
+        <label>
+          <span>interest</span>
+          <input type="text" id="interest" name="interest" value="interest">
+        </label>
+      </fieldset>
 
 
-	    <!-- 'featured' is set through administration -->
+      <!-- 'featured' is set through administration -->
 
-	    <fieldset>
-		    <input type="hidden" id="nonce" name="nonce" value="">
-		    <input type="hidden" id="csrf" name="csrfmiddlewaretoken" value="">
-		  	<button id="submit" disabled="disabled">submit</button>
+      <fieldset>
+        <input type="hidden" id="nonce" name="nonce" value="">
+        <input type="hidden" id="csrf" name="csrfmiddlewaretoken" value="">
+        <button id="submit" disabled="disabled">submit</button>
 
-		  	<!-- this value SHOULD be set by the API server instead -->
-		    <input type="hidden" id="user" name="submitted_by" value="">
-	    </fieldset>
-	  </form>
+        <!-- this value SHOULD be set by the API server instead -->
+        <input type="hidden" id="user" name="submitted_by" value="">
+      </fieldset>
+    </form>
 
-	<script>
-		// don't let the browser submit this form. We'll handle it.
-		document.forms.entries.onsubmit = () => false;
+  <script>
+    // don't let the browser submit this form. We'll handle it.
+    document.forms.entries.onsubmit = () => false;
 
-		// first, we need a nonce:
-		var getnonce = new XMLHttpRequest();
-		getnonce.open("GET", "http://test.example.com:8000/nonce", true);
-		getnonce.onload = () => {
-			// get data or error out of the whole thing
-			var data = getnonce.response;
-			try { data = JSON.parse(data); }
-			catch (e) { return console.error(e); }
+    // first, we need a nonce:
+    var getnonce = new XMLHttpRequest();
+    getnonce.open("GET", "http://test.example.com:8000/nonce", true);
+    getnonce.onload = () => {
+      // get data or error out of the whole thing
+      var data = getnonce.response;
+      try { data = JSON.parse(data); }
+      catch (e) { return console.error(e); }
 
-			document.querySelector("#user").value = data.user;
-			document.querySelector("#nonce").value = data.nonce;
-			document.querySelector("#csrf").value = data.csrf_token;
+      document.querySelector("#user").value = data.user;
+      document.querySelector("#nonce").value = data.nonce;
+      document.querySelector("#csrf").value = data.csrf_token;
 
-			// when we have a nonce, set up actual form handling
-			var btn = document.querySelector("#submit");
-			btn.onclick = evt => {
+      // when we have a nonce, set up actual form handling
+      var btn = document.querySelector("#submit");
+      btn.onclick = evt => {
                 let formdata = new FormData(document.forms.entries);
                 let submit = new XMLHttpRequest();
-				submit.open("POST", "http://test.example.com:8000/entries/", true);
-				submit.onload = e => {
-					if (submit.status === 200) {
-						console.log(e);
-						document.forms.entries.innerHTML = "<div>Form submitted successfully!</div>";
-					} else {
-						console.log("Error", submit.status);
-					}
-				}
-				submit.withCredentials = true;
-				submit.send(formdata);
-			};
+        submit.open("POST", "http://test.example.com:8000/entries/", true);
+        submit.onload = e => {
+          if (submit.status === 200) {
+            console.log(e);
+            document.forms.entries.innerHTML = "<div>Form submitted successfully!</div>";
+          } else {
+            console.log("Error", submit.status);
+          }
+        }
+        submit.withCredentials = true;
+        submit.send(formdata);
+      };
 
-			// and then allow users to hit submit
-			btn.removeAttribute("disabled");
-		}
-		getnonce.withCredentials = true
-		getnonce.send(null);
+      // and then allow users to hit submit
+      btn.removeAttribute("disabled");
+    }
+    getnonce.withCredentials = true
+    getnonce.send(null);
 
 
-	</script>
-	</body>
+  </script>
+  </body>
 </html>
 
