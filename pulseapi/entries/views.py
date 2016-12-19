@@ -113,6 +113,8 @@ class EntriesListView(ListCreateAPIView):
             # invalidate the nonce, so this form cannot be resubmitted with the current id
             request.session['nonce'] = False
 
+            print(request.data)
+
             serializer = EntrySerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()

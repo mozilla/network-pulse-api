@@ -158,3 +158,13 @@ CORS_ORIGIN_WHITELIST = (
 )
 
 CORS_ORIGIN_REGEX_WHITELIST = []
+
+#
+# Rest Framework settings - don't leave this to "magic" choices
+#
+
+REST_FRAMEWORK = {
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.MultiPartParser',
+    )
+}
