@@ -11,7 +11,7 @@ class CreatorQuerySet(models.query.QuerySet):
 
     def public(self):
         """
-        Returns all creators to start
+        Returns all creators. Mainly a starting point for the search query for use with suggestions
         """
         return self
 
