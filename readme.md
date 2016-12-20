@@ -52,3 +52,16 @@ and then use `http://test.example.com:8000` instead of `http://localhost:8000` e
 ### Why "test.example.com"?
 
 Example.com and example.org are "special" domains in that they *cannot* resolve to a real domain as part of the policy we, as the internet-connected world, agreed on. This means that if you forget to set that `hosts` binding, visiting test.example.com will be a guaranteed failure. Any other domain may in fact exist, and you don't want to be hitting a real website when you're doing login and authentication.
+
+
+## Deploying to Heroku
+
+There is a Procfile in place for deploying to Heroku, but in order for the codebase to work you will need to specify the following environment variables for any Heroku instance:
+
+ - `CLIENT_ID`: The client_id that Google gives you in the credentials console.
+ - `CLIENT_SECRET`: The client_secret that Google gives you in the credentials console.
+ - `REDIRECT_URIS`: This should match the redirect uri that you provided in the Google credentials console. For local testing this will be 'http://test.example.com:8000/oauth2callback' but for a Heroku instance you will need to replace `http://test.example.com:8000` with your Heroku url, and you'll have to make sure that your Google credentials use that same uri.
+ - `AUTH_URI`: optional, defaults to 'https://accounts.google.com/o/oauth2/auth' and there is no reason to change it.
+ - `TOKEN_URI`: optional, defaults to 'https://accounts.google.com/o/oauth2/token' and there is no reason to change it.
+ 
+ Heroku provisions some environmnets on its own, like a `PORT` and `DATABASE_URL` variable, which this codebase will make use of if it sees them, but these values are only really relevant to Heroku deployments and not something you need to mess with for local development purposes.
