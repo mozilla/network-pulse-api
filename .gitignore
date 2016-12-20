@@ -79,3 +79,6 @@ client_secrets.json
 
 # virtualenv
 venv
+
+#Editor
+/.vscode/

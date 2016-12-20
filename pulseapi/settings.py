@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'pulseapi.tags',
     'pulseapi.issues',
     'pulseapi.users',
+    'pulseapi.creators',
 ]
 
 MIDDLEWARE = [

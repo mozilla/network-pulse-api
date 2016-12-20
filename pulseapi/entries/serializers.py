@@ -45,4 +45,4 @@ class EntrySerializer(serializers.ModelSerializer):
         Meta class. Because
         """
         model = Entry
-        exclude = ('internal_notes',)
+        exclude = ('internal_notes', 'published_by',)
