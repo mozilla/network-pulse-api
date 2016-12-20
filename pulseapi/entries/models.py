@@ -16,8 +16,6 @@ class EntryQuerySet(models.query.QuerySet):
         """
         return self
 
-
-
 class Entry(models.Model):
     """
     A pulse entry
@@ -47,6 +45,7 @@ class Entry(models.Model):
     #     related_name='entries',
     #     blank=False
     # )
+
     objects = EntryQuerySet.as_manager()
 
     class Meta:

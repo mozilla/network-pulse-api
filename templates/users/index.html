@@ -1,0 +1,26 @@
+{% if user.is_authenticated %}
+    <p>Hello {{user.email}}! Would you like to <a href="logout">log out</a>?</p>
+
+    <h2>Let's try a form</h2>
+    <form method="post" action="/post">
+      {% csrf_token %}
+      <input type="hidden" name="nonce" value="{{ nonce }}">
+      <fieldset>
+        <label>
+            Name:
+            <input type="text" name="name" value="">
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <label>
+            URL:
+            <input type="text" name="url" value="" placeholder="https://...">
+        </label>
+      </fieldset>
+
+      <input type="submit" value="submit">
+    </form>
+{% else %}
+    <p>Not logged in. Want to <a href="{{ auth_url }}">log in</a>?</p>
+{% endif %}

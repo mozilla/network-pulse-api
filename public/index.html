@@ -1,0 +1,160 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Test page for hitting the API</title>
+    <style>
+      form fieldset { border: none; margin: 0; padding: 0; }
+      form fieldset + fieldset { margin-top: 0.5em;}
+      form span { display: inline-block; width: 10em; }
+    </style>
+  </head>
+  <body>
+    <h1>A test post to http://test.example.com:8000/entries</h1>
+
+    <form name="entries" method="POST">
+      <fieldset>
+        <label>
+          <span>title</span>
+          <input type="text" id="title" name="title" value="title">
+        </label>
+      </fieldset>
+      <fieldset>
+        <label>
+          <span>description</span>
+          <input type="text" id="description" name="description" value="description">
+        </label>
+      </fieldset>
+      <fieldset>
+        <label>
+          <span>content url</span>
+          <input type="text" id="content_url" name="content_url" value="http://test.example.com">
+        </label>
+      </fieldset>
+      <fieldset>
+        <label>
+          <span>thumbnail url</span>
+          <input type="text" id="thumbnail_url" name="thumbnail_url" value="http://test.example.com/thumb.png">
+        </label>
+      </fieldset>
+      <fieldset>
+        <label>
+          <span>get involved</span>
+          <input type="text" id="get_involved" name="get_involved" value="get involved">
+        </label>
+      </fieldset>
+      <fieldset>
+        <label>
+          <span>url for getting involved</span>
+          <input type="text" id="get_involved_url" name="get_involved_url" value="http://test.example.com/getinvolved">
+        </label>
+      </fieldset>
+      <fieldset>
+        <label>
+          <span>tags</span>
+          <input type="text" id="tags" name="tags" value="tag1,tag2,tag3">
+        </label>
+      </fieldset>
+      <fieldset>
+        <label>
+          <span>issues</span>
+          <input type="text" id="issues" name="issues" value="Open Innovation">
+        </label>
+      </fieldset>
+      <fieldset>
+        <label>
+          <span>interest</span>
+          <input type="text" id="interest" name="interest" value="interest">
+        </label>
+      </fieldset>
+      <!-- 'featured' is set through administration -->
+      <fieldset>
+        <input type="hidden" id="nonce" name="nonce" value="">
+        <input type="hidden" id="csrf" name="csrfmiddlewaretoken" value="">
+        <button id="submit" disabled="disabled">submit</button>
+        <!-- this value SHOULD be set by the API server instead, but we do it here for now -->
+        <input type="hidden" id="user" name="submitted_by" value="">
+      </fieldset>
+    </form>
+
+  <script>
+    // don't let the browser submit this form. We'll handle it.
+    document.forms.entries.onsubmit = () => false;
+
+    // handler for the form submission result
+    var finaliseSumbit = evt => {
+      if (submit.status === 200) {
+        console.log(evt);
+        document.forms.entries.innerHTML = "<div>Form submitted successfully!</div>";
+      } else {
+        console.log("Error", submit.status);
+      }
+    };
+
+    // what to do when "submit" is clicked
+    var submitForm = evt => {
+      // we need to turn "tags" into a multiple value field,
+      // so we copy the form, substitute the tags input element
+      // with a <select multiple> instead, populate that with 
+      // the user's tags, and then make sure they're all selected
+      // before packing the form as a FormData object for POSTing.
+      let copy = document.forms.entries.cloneNode(true);
+      let df = document.createDocumentFragment();
+      df.appendChild(copy);
+      let form = df.querySelector('form');
+      let tags = form.querySelector('[name=tags]');
+      let parent = tags.parentNode;
+      let tagset = document.createElement("select");
+      tagset.setAttribute("multiple","multiple");
+      let tagarray = tags.value.split(/\s*,\s*/).map(v => v.trim());
+      tagarray.forEach(tag => {
+        let opt = document.createElement("option");
+        opt.value = tag;
+        opt.textContent = tag;
+        opt.selected = true;
+        tagset.appendChild(opt);
+      });
+      parent.replaceChild(tagset, tags);
+
+      // now we do a plain form post, but with our off-screen form
+      let formdata = new FormData();
+      let submit = new XMLHttpRequest();
+      submit.open("POST", "http://test.example.com:8000/entries/", true);
+      submit.onload = finaliseSumbit
+      submit.withCredentials = true;
+      submit.send(formdata);
+    };
+
+    // put all the API server values in the form and enable submission
+    var setFormValues = (evt) => {
+      var data = evt.target.response;
+      try { data = JSON.parse(data); }
+      catch (e) { return console.error(e); }
+
+      document.querySelector("#user").value = data.user;
+      document.querySelector("#nonce").value = data.nonce;
+      document.querySelector("#csrf").value = data.csrf_token;
+
+      // when we have a nonce, set up actual form handling
+      var btn = document.querySelector("#submit");
+      btn.onclick = submitForm
+
+      // and then allow users to hit submit
+      btn.removeAttribute("disabled");
+    }
+
+    // as the API server for a nonce with associated csrf and user info
+    var getNonce = () => {
+      var getnonce = new XMLHttpRequest();
+      getnonce.open("GET", "http://test.example.com:8000/nonce", true);
+      getnonce.onload = setFormValues
+      getnonce.withCredentials = true
+      getnonce.send(null);
+    }
+
+    // Let's kick it off!
+    getNonce();
+  </script>
+  </body>
+</html>
+
