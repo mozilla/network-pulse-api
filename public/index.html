@@ -93,16 +93,31 @@
 
     // what to do when "submit" is clicked
     var submitForm = evt => {
-      let formdata = new FormData(document.forms.entries);
+      // we need to turn "tags" into a multiple value field,
+      // so we copy the form, substitute the tags input element
+      // with a <select multiple> instead, populate that with 
+      // the user's tags, and then make sure they're all selected
+      // before packing the form as a FormData object for POSTing.
+      let copy = document.forms.entries.cloneNode(true);
+      var df = document.createDocumentFragment();
+      df.appendChild(copy);
+      let form = df.querySelector('form');
+      let tags = form.querySelector('[name=tags]');
+      let parent = tags.parentNode;
+      let tagset = document.createElement("select");
+      tagset.setAttribute("multiple","multiple");
+      let tagarray = tags.value.split(/\s*,\s*/).map(v => v.trim());
+      tagarray.forEach(tag => {
+        let opt = document.createElement("option");
+        opt.value = tag;
+        opt.textContent = tag;
+        opt.selected = true;
+        tagset.appendChild(opt);
+      });
+      parent.replaceChild(tagset, tags);
 
-      // We violate the name[] convention for array data,
-      // and instead tack on lots of individual values
-      // all named "tags", because Django doesn't do the
-      // array notation apparently... (wtf?)
-      let tags = formdata.get('tags').split(',');
-      formdata.delete('tags');
-      tags.forEach(tag => formdata.append('tags', tag));
-
+      // now we do a plain form post, but with our off-screen form
+      let formdata = new FormData();
       let submit = new XMLHttpRequest();
       submit.open("POST", "http://test.example.com:8000/entries/", true);
       submit.onload = finaliseSumbit
