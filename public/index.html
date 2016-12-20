@@ -99,7 +99,7 @@
       // the user's tags, and then make sure they're all selected
       // before packing the form as a FormData object for POSTing.
       let copy = document.forms.entries.cloneNode(true);
-      var df = document.createDocumentFragment();
+      let df = document.createDocumentFragment();
       df.appendChild(copy);
       let form = df.querySelector('form');
       let tags = form.querySelector('[name=tags]');
