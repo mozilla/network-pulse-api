@@ -83,25 +83,26 @@
 
     // handler for the form submission result
     var finaliseSumbit = evt => {
-      if (submit.status === 200) {
-        console.log(evt);
+      let xhr = evt.target;
+      if (xhr.status === 200) {
         document.forms.entries.innerHTML = "<div>Form submitted successfully!</div>";
       } else {
-        console.log("Error", submit.status);
+        console.log("Error", xhr.status);
       }
     };
 
-    // what to do when "submit" is clicked
-    var submitForm = evt => {
+    var getProcessedForm = () => {
+      let fields = Array.from(document.querySelectorAll("form fieldset"));
+      let form = document.createElement("form");
+      fields.forEach(field => {
+        let clone = field.cloneNode(true);
+        form.appendChild(clone)
+      });
       // we need to turn "tags" into a multiple value field,
       // so we copy the form, substitute the tags input element
-      // with a <select multiple> instead, populate that with 
+      // with a <select multiple> instead, populate that with
       // the user's tags, and then make sure they're all selected
       // before packing the form as a FormData object for POSTing.
-      let copy = document.forms.entries.cloneNode(true);
-      let df = document.createDocumentFragment();
-      df.appendChild(copy);
-      let form = df.querySelector('form');
       let tags = form.querySelector('[name=tags]');
       let parent = tags.parentNode;
       let tagset = document.createElement("select");
@@ -115,9 +116,12 @@
         tagset.appendChild(opt);
       });
       parent.replaceChild(tagset, tags);
+      return form;
+    }
 
-      // now we do a plain form post, but with our off-screen form
-      let formdata = new FormData();
+    // what to do when "submit" is clicked
+    var submitForm = evt => {
+      let formdata = new FormData(getProcessedForm());
       let submit = new XMLHttpRequest();
       submit.open("POST", "http://test.example.com:8000/entries/", true);
       submit.onload = finaliseSumbit
