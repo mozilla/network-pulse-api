@@ -3,6 +3,8 @@
 from django.db import models
 from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
+from pulseapi.creators.models import Creator
+from pulseapi.users.models import EmailUser
 
 # Create your models here.
 class EntryQuerySet(models.query.QuerySet):
@@ -39,12 +41,15 @@ class Entry(models.Model):
         related_name='entries',
         blank=True,
     )
-    submitted_by = models.CharField(max_length=100)
-    # published_by = models.ManyToManyField(
-    #     User,
-    #     related_name='entries',
-    #     blank=False
-    # )
+    creators = models.ManyToManyField(
+        Creator,
+        related_name='entries',
+        blank=True
+    )
+    published_by = models.ForeignKey(
+        EmailUser,
+        related_name='entries',
+    )
 
     objects = EntryQuerySet.as_manager()
 
@@ -56,3 +61,4 @@ class Entry(models.Model):
 
     def __str__(self):
         return str(self.title)
+        
