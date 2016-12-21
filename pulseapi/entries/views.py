@@ -8,6 +8,7 @@ from rest_framework.decorators import detail_route
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework_tracking.mixins import LoggingMixin
 
 from pulseapi.entries.models import Entry
 from pulseapi.entries.serializers import EntrySerializer
@@ -67,7 +68,7 @@ class EntryCustomFilter(filters.FilterSet):
         fields = ['tags', 'issues',]
 
 
-class EntryView(RetrieveAPIView):
+class EntryView(LoggingMixin, RetrieveAPIView):
     """
     A view to retrieve individual entries
     """
@@ -76,7 +77,7 @@ class EntryView(RetrieveAPIView):
     pagination_class = None
 
 
-class EntriesListView(ListCreateAPIView):
+class EntriesListView(LoggingMixin, ListCreateAPIView):
     """
     A view that permits a GET to allow listing all the entries
     in the database
