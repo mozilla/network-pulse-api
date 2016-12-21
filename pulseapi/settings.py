@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'pulseapi.issues',
     'pulseapi.users',
     'pulseapi.creators',
+    'rest_framework_tracking',
 ]
 
 MIDDLEWARE = [
