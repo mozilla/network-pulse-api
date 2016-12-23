@@ -35,7 +35,7 @@ class Entry(models.Model):
     get_involved_url = models.URLField()
     interest = models.CharField(max_length=300)
     featured = models.BooleanField()
-    internal_notes = models.TextField()
+    internal_notes = models.TextField(blank=True)
     issues = models.ManyToManyField(
         Issue,
         related_name='entries',

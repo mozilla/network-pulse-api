@@ -9,13 +9,14 @@ faker = FakerFactory.create()
 
 
 class EntryFactory(factory.DjangoModelFactory):
+
+    # def __init__(self, tags=['foo','bar']):
+    #     self.tags = tags
+    #     print(self.tags)
+
     title = factory.LazyAttribute(lambda o: ' '.join(faker.words(nb=4)))
     description = factory.LazyAttribute(lambda o: ' '.join(faker.sentence(nb_words=20)))
-    content_url = 'http://mozilla.org/image.png'
-
-    # tags = []
-    # for _ in range(0, 2):
-    #     factory.LazyAttribute("tag")
+    content_url = 'http://example.org/image.png'
 
     # get_involved = factory.LazyAttribute(lambda o: ' '.join(faker.sentence(nb_words=20)))
     # get_involved_url = factory.LazyAttribute(lambda o: '{a}.com'.format(a=o.name.lower()))
