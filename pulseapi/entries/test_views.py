@@ -14,20 +14,30 @@ class TestEntryView(TestCase):
         self.entries = [EntryFactory() for i in range(2)]
         for entry in self.entries:
             entry.save()
-            # print(entry.tags)
 
         email = "test@example.org"
         password = "password1234"
         user = EmailUserFactory(email=email, password=password, name="test user")
         user.save()
 
-        client = Client()
-        client.force_login(user)
-        foo = client.get('/nonce/')
+        self.client = Client()
+        self.client.force_login(user);
 
-        values = json.loads(str(foo.content, 'utf-8'))
+    def test_get_single_entry_data(self):
+        """
+        Check if we can get a single entry by its `id`
+        """
 
-        postresponse = client.post('/entries/', data={
+        id = self.entries[0].id
+        response = self.client.get(reverse('entry', kwargs={'pk': id}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_minimum_entry(self):
+        """
+        Test posting an entry with minimum amount of content
+        """
+        values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
+        postresponse = self.client.post('/entries/', data={
             'title': 'test entry 1',
             'description': 'description',
             'nonce': values['nonce'],
@@ -39,40 +49,115 @@ class TestEntryView(TestCase):
             'content_url': 'http://example.com/',
         })
 
-        print(postresponse.content)
+        self.assertEqual(postresponse.status_code, 200)
 
-        print( Entry.objects.all() )
+    def test_post_full_entry(self):
+        """Entry with all content"""
 
-    def test_get_single_entry_data(self):
+        values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
+        postresponse = self.client.post('/entries/', data={
+            'title': 'test full entry',
+            'description': 'description full entry',
+            'nonce': values['nonce'],
+            'csrfmiddlewaretoken': values['csrf_token'],
+            'tags': ['tag1', 'tag2'],
+            'interest': 'interest field',
+            'get_involved': 'get involved text field',
+            'get_involved_url': 'http://example.com/getinvolved',
+            'thumbnail_url': 'http://example.com/',
+            'content_url': 'http://example.com/',
+            'internal_notes': 'Some internal notes',
+            'featured': True,
+            'issues': 'Decentralization',
+            'creators': ['Pomax', 'Alan']
+        })
+        self.assertEqual(postresponse.status_code, 200)
+
+    def test_post_entry_with_mixed_tags(self):
         """
-        Check if we can get a single entry by its `id`
+        Post entries with some existing tags, some new tags
+        See if tags endpoint has proper results afterwards
         """
+        values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
+        postresponse = self.client.post('/entries/', data={
+            'title': 'title test_post_entry_with_mixed_tags1',
+            'description': 'description test_post_entry_with_mixed_tags',
+            'nonce': values['nonce'],
+            'csrfmiddlewaretoken': values['csrf_token'],
+            'tags': ['tag1', 'tag2'],
+            'interest': 'interest field',
+            'get_involved': 'get involved text field',
+            'get_involved_url': 'http://example.com/getinvolved',
+            'thumbnail_url': 'http://example.com/',
+            'content_url': 'http://example.com/',
+            'internal_notes': 'Some internal notes'
+        })
+        values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
+        postresponse = self.client.post('/entries/', data={
+            'title': 'title test_post_entry_with_mixed_tags2',
+            'description': 'description test_post_entry_with_mixed_tags',
+            'nonce': values['nonce'],
+            'csrfmiddlewaretoken': values['csrf_token'],
+            'tags': ['tag2', 'tag3'],
+            'interest': 'interest field',
+            'get_involved': 'get involved text field',
+            'get_involved_url': 'http://example.com/getinvolved',
+            'thumbnail_url': 'http://example.com/',
+            'content_url': 'http://example.com/',
+            'internal_notes': 'Some internal notes'
+        })
 
-        id = self.entries[0].id
-        response = self.client.get(reverse('entry', kwargs={'pk': id}))
-        self.assertEqual(response.status_code, 200)
+        tagList = json.loads(str(self.client.get('/tags/').content, 'utf-8'))
+        self.assertEqual(tagList, ['tag1','tag2','tag3'])
 
-    # def test_post_minimum_entry(self):
-    #     #Entry with minimum amount of content (title, description?)
 
-    # def test_post_full_entry(self):
-    #     #Entry with all content
+    def test_post_entry_with_mixed_creators(self):
+        """
+        Post entries with some existing creators, some new creators
+        See if creators endpoint has proper results afterwards
+        """
+        values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
+        postresponse = self.client.post('/entries/', data={
+            'title': 'title test_post_entry_with_mixed_tags1',
+            'description': 'description test_post_entry_with_mixed_tags',
+            'nonce': values['nonce'],
+            'csrfmiddlewaretoken': values['csrf_token'],
+            'creators': 'Pomax',
+            'interest': 'interest field',
+            'get_involved': 'get involved text field',
+            'get_involved_url': 'http://example.com/getinvolved',
+            'thumbnail_url': 'http://example.com/',
+            'content_url': 'http://example.com/',
+            'internal_notes': 'Some internal notes'
+        })
+        values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
+        postresponse = self.client.post('/entries/', data={
+            'title': 'title test_post_entry_with_mixed_tags2',
+            'description': 'description test_post_entry_with_mixed_tags',
+            'nonce': values['nonce'],
+            'csrfmiddlewaretoken': values['csrf_token'],
+            'creators': ['Pomax','Alan'],
+            'interest': 'interest field',
+            'get_involved': 'get involved text field',
+            'get_involved_url': 'http://example.com/getinvolved',
+            'thumbnail_url': 'http://example.com/',
+            'content_url': 'http://example.com/',
+            'internal_notes': 'Some internal notes'
+        })
 
-    # def test_post_entry_with_mixed_tags(self):
-    #     #Entry with some existing tags, some new tags
-
-    # def test_post_entry_with_mixed_creators(self):
-    #     #Entry with some existing creators, some new creators
+        creatorList = json.loads(str(self.client.get('/creators/').content, 'utf-8'))
+        self.assertEqual(creatorList, ['Pomax','Alan'])
 
     # def test_get_entries_list(self):
     #     #Get /entries endpoint
 
-    # def test_get_tag_list(self):
-    #     #maybe for another view. But tags list should have multiple tags, some with multiple entries associated
-    #     #do we need an endpoint for /tags/{tagname} that has the associated entries? or does /entries/?tag=foo work?
+    def test_get_tag_list(self):
+        tagList = self.client.get('/tags/')
+        self.assertEqual(tagList.status_code, 200)
 
-    # def test_get_creator_list(self):
-    #     #same as above, for creators
+    def test_get_creator_list(self):
+        creatorList = self.client.get('/creators/')
+        self.assertEqual(creatorList.status_code, 200)
 
     # def test_entries_search(self):
     #     #test searching entries

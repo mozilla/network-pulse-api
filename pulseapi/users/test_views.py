@@ -8,10 +8,8 @@ from pulseapi.users.test_models import EmailUserFactory
 class TestUserView(TestCase):
     def setUp(self):
         self.users = [EmailUserFactory() for i in range(2)]
-        print(self.users)
         for user in self.users:
             user.save()
-            print(user)
 
     # def test_list_users_returns_user_data(self):
     #     """

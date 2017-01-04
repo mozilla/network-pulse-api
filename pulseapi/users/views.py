@@ -62,7 +62,6 @@ def nonce(request):
     """
     set a new random nonce to act as form post identifier
     """
-    print(request.user)
     if not request.user.is_authenticated():
         return HttpResponseNotFound()
 

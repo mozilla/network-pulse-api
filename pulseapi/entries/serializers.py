@@ -12,6 +12,9 @@ from pulseapi.tags.models import(
 from pulseapi.issues.models import(
     Issue,
 )
+from pulseapi.creators.models import(
+    Creator
+)
 
 class CreatableSlugRelatedField(serializers.SlugRelatedField):
     """
@@ -39,6 +42,9 @@ class EntrySerializer(serializers.ModelSerializer):
     issues = serializers.SlugRelatedField(many=True,
                                           slug_field='name',
                                           queryset=Issue.objects)
+    creators = CreatableSlugRelatedField(many=True,
+                                            slug_field='name',
+                                            queryset=Creator.objects)
 
     class Meta:
         """

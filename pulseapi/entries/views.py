@@ -16,7 +16,6 @@ def post_validate(request):
     """
     Security helper function to ensure that a post request is session, CSRF, and nonce protected
     """
-
     user = request.user
     csrf_token = request.POST.get('csrfmiddlewaretoken', False)
     nonce = request.POST.get('nonce', False)
@@ -112,8 +111,6 @@ class EntriesListView(ListCreateAPIView):
         if validation_result is True:
             # invalidate the nonce, so this form cannot be resubmitted with the current id
             request.session['nonce'] = False
-
-            print(request.data)
 
             serializer = EntrySerializer(data=request.data)
             if serializer.is_valid():

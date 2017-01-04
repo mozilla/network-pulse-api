@@ -15,9 +15,12 @@ class CreatorQuerySet(models.query.QuerySet):
         """
         return self
 
+    def slug(self, slug):
+        return self.filter(name=slug)
+
 class Creator(models.Model):
     """
-    A pulse entry
+    Person responsible for doing the thing an entry is about
     """
     name = models.CharField(max_length=140)
     user = models.ForeignKey(

@@ -14,8 +14,8 @@ class EntryFactory(factory.DjangoModelFactory):
     #     self.tags = tags
     #     print(self.tags)
 
-    title = factory.LazyAttribute(lambda o: ' '.join(faker.words(nb=4)))
-    description = factory.LazyAttribute(lambda o: ' '.join(faker.sentence(nb_words=20)))
+    title = factory.LazyAttribute(lambda o: 'title '+' '.join(faker.words(nb=1)))
+    description = factory.LazyAttribute(lambda o: 'description '+''.join(faker.sentence(nb_words=20)))
     content_url = 'http://example.org/image.png'
 
     # get_involved = factory.LazyAttribute(lambda o: ' '.join(faker.sentence(nb_words=20)))

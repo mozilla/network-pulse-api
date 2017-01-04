@@ -27,6 +27,12 @@
       </fieldset>
       <fieldset>
         <label>
+          <span>creators</span>
+          <input type="text" id="creators" name="creators" value="Pomax">
+        </label>
+      </fieldset>
+      <fieldset>
+        <label>
           <span>content url</span>
           <input type="text" id="content_url" name="content_url" value="http://test.example.com">
         </label>
@@ -91,6 +97,24 @@
       }
     };
 
+    var commaSeparatedStringIntoForm = (fields, newForm, nodeName) => {
+      let node = newForm.querySelector(`[name=${nodeName}]`);
+      let parent = node.parentNode;
+      let select = document.createElement("select");
+      //The new selct element needs a name attribute to work with FormData
+      select.name = nodeName;
+      select.setAttribute("multiple","multiple");
+      let valueArray = node.value.split(/\s*,\s*/).map(v => v.trim());
+      valueArray.forEach(value => {
+        let opt = document.createElement("option");
+        opt.value = value;
+        opt.textContent = value;
+        opt.selected = true;
+        select.appendChild(opt);
+      });
+      parent.replaceChild(select, node);
+    }
+
     var getProcessedForm = () => {
       let fields = Array.from(document.querySelectorAll("form fieldset"));
       let form = document.createElement("form");
@@ -103,19 +127,9 @@
       // with a <select multiple> instead, populate that with
       // the user's tags, and then make sure they're all selected
       // before packing the form as a FormData object for POSTing.
-      let tags = form.querySelector('[name=tags]');
-      let parent = tags.parentNode;
-      let tagset = document.createElement("select");
-      tagset.setAttribute("multiple","multiple");
-      let tagarray = tags.value.split(/\s*,\s*/).map(v => v.trim());
-      tagarray.forEach(tag => {
-        let opt = document.createElement("option");
-        opt.value = tag;
-        opt.textContent = tag;
-        opt.selected = true;
-        tagset.appendChild(opt);
-      });
-      parent.replaceChild(tagset, tags);
+      commaSeparatedStringIntoForm(fields, form,'tags')
+      commaSeparatedStringIntoForm(fields, form,'creators')
+
       return form;
     }
 
