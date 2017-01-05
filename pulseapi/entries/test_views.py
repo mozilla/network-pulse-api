@@ -23,6 +23,24 @@ class TestEntryView(TestCase):
         self.client = Client()
         self.client.force_login(user);
 
+        values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
+        # Set up with some curated data for all tests to use
+        postresponse = self.client.post('/entries/', data={
+            'title': 'title setUp1',
+            'description': 'description setUp',
+            'nonce': values['nonce'],
+            'csrfmiddlewaretoken': values['csrf_token'],
+            'creators': 'Pomax',
+            'tags': ['tag1', 'tag2'],
+            'interest': 'interest field',
+            'issues': 'Open Innovation',
+            'get_involved': 'get involved text field',
+            'get_involved_url': 'http://example.com/getinvolved',
+            'thumbnail_url': 'http://example.com/',
+            'content_url': 'http://example.com/',
+            'internal_notes': 'Some internal notes'
+        })
+
     def test_get_single_entry_data(self):
         """
         Check if we can get a single entry by its `id`
@@ -80,20 +98,6 @@ class TestEntryView(TestCase):
         """
         values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
         postresponse = self.client.post('/entries/', data={
-            'title': 'title test_post_entry_with_mixed_tags1',
-            'description': 'description test_post_entry_with_mixed_tags',
-            'nonce': values['nonce'],
-            'csrfmiddlewaretoken': values['csrf_token'],
-            'tags': ['tag1', 'tag2'],
-            'interest': 'interest field',
-            'get_involved': 'get involved text field',
-            'get_involved_url': 'http://example.com/getinvolved',
-            'thumbnail_url': 'http://example.com/',
-            'content_url': 'http://example.com/',
-            'internal_notes': 'Some internal notes'
-        })
-        values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
-        postresponse = self.client.post('/entries/', data={
             'title': 'title test_post_entry_with_mixed_tags2',
             'description': 'description test_post_entry_with_mixed_tags',
             'nonce': values['nonce'],
@@ -113,23 +117,9 @@ class TestEntryView(TestCase):
 
     def test_post_entry_with_mixed_creators(self):
         """
-        Post entries with some existing creators, some new creators
+        Post entry with some existing creators, some new creators
         See if creators endpoint has proper results afterwards
         """
-        values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
-        postresponse = self.client.post('/entries/', data={
-            'title': 'title test_post_entry_with_mixed_tags1',
-            'description': 'description test_post_entry_with_mixed_tags',
-            'nonce': values['nonce'],
-            'csrfmiddlewaretoken': values['csrf_token'],
-            'creators': 'Pomax',
-            'interest': 'interest field',
-            'get_involved': 'get involved text field',
-            'get_involved_url': 'http://example.com/getinvolved',
-            'thumbnail_url': 'http://example.com/',
-            'content_url': 'http://example.com/',
-            'internal_notes': 'Some internal notes'
-        })
         values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
         postresponse = self.client.post('/entries/', data={
             'title': 'title test_post_entry_with_mixed_tags2',
@@ -144,41 +134,133 @@ class TestEntryView(TestCase):
             'content_url': 'http://example.com/',
             'internal_notes': 'Some internal notes'
         })
-
         creatorList = json.loads(str(self.client.get('/creators/').content, 'utf-8'))
         self.assertEqual(creatorList, ['Pomax','Alan'])
 
-    # def test_get_entries_list(self):
-    #     #Get /entries endpoint
+    def test_get_entries_list(self):
+        """Get /entries endpoint"""
+        entryList = self.client.get('/entries/')
+        self.assertEqual(entryList.status_code, 200)
 
     def test_get_tag_list(self):
+        """Make sure we can get a list of tags"""
         tagList = self.client.get('/tags/')
         self.assertEqual(tagList.status_code, 200)
 
     def test_get_creator_list(self):
+        """Make sure we can get a list of creators"""
         creatorList = self.client.get('/creators/')
         self.assertEqual(creatorList.status_code, 200)
 
-    # def test_entries_search(self):
-    #     #test searching entries
+    def test_entries_search(self):
+        """Make sure filtering searches works"""
+        searchList = self.client.get('/entries/?search=setup')
+        entriesJson = json.loads(str(searchList.content, 'utf-8'))
+        self.assertEqual(len(entriesJson), 1)
 
-    # def test_entries_tags(self):
-    #     #test filtering entries by tag
+    def test_entries_search(self):
+        """Make sure filtering searches works"""
+        searchList = self.client.get('/entries/?tag=tag1')
+        entriesJson = json.loads(str(searchList.content, 'utf-8'))
+        self.assertEqual(len(entriesJson), 1)
 
-    # def test_entries_issue(self):
-    #     #test filtering entires by issue
+    def test_tag_filtering(self):
+        ""
+        values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
+        postresponse = self.client.post('/entries/', data={
+            'title': 'title test_tag_filtering',
+            'description': 'description test_tag_filtering',
+            'nonce': values['nonce'],
+            'csrfmiddlewaretoken': values['csrf_token'],
+            'tags' : 'test tag',
+            'interest': 'interest field',
+            'get_involved': 'get involved text field',
+            'get_involved_url': 'http://example.com/getinvolved',
+            'thumbnail_url': 'http://example.com/',
+            'content_url': 'http://example.com/',
+            'internal_notes': 'Some internal notes'
+        })
+        tagList = self.client.get('/tags/?search=te')
+        tagsJson = json.loads(str(tagList.content, 'utf-8'))
+        self.assertEqual(len(tagsJson), 1)
 
-    # def test_post_entry_new_issue(self):
-    #     #posting an entry with a new Issue should result in an error. Permission denied?
+    def test_entries_issue(self):
+        """test filtering entires by issue"""
+        values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
+        postresponse = self.client.post('/entries/', data={
+            'title': 'title test_entries_issue',
+            'description': 'description test_entries_issue',
+            'nonce': values['nonce'],
+            'csrfmiddlewaretoken': values['csrf_token'],
+            'creators': ['Pomax','Alan'],
+            'interest': 'interest field',
+            'issues': 'Decentralization',
+            'get_involved': 'get involved text field',
+            'get_involved_url': 'http://example.com/getinvolved',
+            'thumbnail_url': 'http://example.com/',
+            'content_url': 'http://example.com/',
+            'internal_notes': 'Some internal notes'
+        })
+        searchList = self.client.get('/entries/?issue=Decentralization')
+        entriesJson = json.loads(str(searchList.content, 'utf-8'))
+        self.assertEqual(len(entriesJson), 1)
 
-    # def test_check_for_issues(self):
-    #     #make sure 5 issues are in the database. Does testing use a "real" database?
+    def test_post_entry_new_issue(self):
+        """posting an entry with a new Issue should result in an error. Permission denied?"""
+        values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
+        postresponse = self.client.post('/entries/', data={
+            'title': 'title test_entries_issue',
+            'description': 'description test_entries_issue',
+            'nonce': values['nonce'],
+            'csrfmiddlewaretoken': values['csrf_token'],
+            'creators': ['Pomax','Alan'],
+            'interest': 'interest field',
+            'issues': 'Privacy',
+            'get_involved': 'get involved text field',
+            'get_involved_url': 'http://example.com/getinvolved',
+            'thumbnail_url': 'http://example.com/',
+            'content_url': 'http://example.com/',
+            'internal_notes': 'Some internal notes'
+        })
+        self.assertEqual(postresponse.status_code, 400)
 
-    # def test_post_authentication_requirement(self):
-    #     #uhhhh how do we do this?
+    def test_check_for_issues(self):
+        """make sure 5 issues are in the database."""
+        issues = self.client.get('/issues/')
+        issuesJson = json.loads(str(issues.content, 'utf-8'))
+        self.assertEqual(issues.status_code, 200)
+        self.assertEqual(len(issuesJson), 5)
 
-    # def test_tag_filtering(self):
-    #     # search tags
+    def test_post_authentication_requirement(self):
+        """Make sure you can't post without using the nonce"""
+        postresponse = self.client.post('/entries/', data={
+            'title': 'title this test should fail',
+            'description': 'description this test should fail',
+            'tags': ['tag2', 'tag3'],
+            'interest': 'interest field',
+            'get_involved': 'get involved text field',
+            'get_involved_url': 'http://example.com/getinvolved',
+            'thumbnail_url': 'http://example.com/',
+            'content_url': 'http://example.com/',
+            'internal_notes': 'Some internal notes'
+        })
+        self.assertEqual(postresponse.status_code, 400)
 
-    # def test_creator_filtering(self):
-    #     # search creators, for autocomplete
+    def test_creator_filtering(self):
+        """search creators, for autocomplete"""
+        values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
+        postresponse = self.client.post('/entries/', data={
+            'title': 'title test_creator_filtering',
+            'description': 'description test_creator_filtering',
+            'nonce': values['nonce'],
+            'csrfmiddlewaretoken': values['csrf_token'],
+            'creators': ['Pomax','Alan'],
+            'interest': 'interest field',
+            'get_involved': 'get involved text field',
+            'get_involved_url': 'http://example.com/getinvolved',
+            'thumbnail_url': 'http://example.com/',
+            'content_url': 'http://example.com/',
+            'internal_notes': 'Some internal notes'
+        })
+        creatorList = json.loads(str(self.client.get('/creators/?search=A').content, 'utf-8'))
+        self.assertEqual(creatorList, ['Alan'])
