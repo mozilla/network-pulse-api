@@ -38,13 +38,17 @@ class EntrySerializer(serializers.ModelSerializer):
     that are involved with the entry
     """
 
-    tags = CreatableSlugRelatedField(many=True, slug_field='name', queryset=Tag.objects)
+    tags = CreatableSlugRelatedField(many=True,
+                                     slug_field='name',
+                                     queryset=Tag.objects)
+
     issues = serializers.SlugRelatedField(many=True,
                                           slug_field='name',
                                           queryset=Issue.objects)
+
     creators = CreatableSlugRelatedField(many=True,
-                                            slug_field='name',
-                                            queryset=Creator.objects)
+                                         slug_field='name',
+                                         queryset=Creator.objects)
 
     class Meta:
         """
