@@ -12,7 +12,7 @@ from pulseapi.creators.models import Creator
 
 class CreatorListView(ListAPIView):
     """
-    A view to retrieve all tags
+    A view to retrieve all creators
 
     Query Params:
     • search - a partial match filter based on the start the tag name
