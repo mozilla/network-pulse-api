@@ -156,16 +156,7 @@ CORS_ORIGIN_WHITELIST = (
     'localhost:8000',
     'localhost:8080',
     'test.example.com:8000',
+    'test.example.com:8080',
 )
 
 CORS_ORIGIN_REGEX_WHITELIST = []
-
-#
-# Rest Framework settings - don't leave this to "magic" choices
-#
-
-REST_FRAMEWORK = {
-    'DEFAULT_PARSER_CLASSES': (
-        'rest_framework.parsers.MultiPartParser',
-    )
-}

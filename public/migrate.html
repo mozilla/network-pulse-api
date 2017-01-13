@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Test page for hitting the API</title>
+    <style>
+      form fieldset { border: none; margin: 0; padding: 0; }
+      form fieldset + fieldset { margin-top: 0.5em;}
+      form span { display: inline-block; width: 10em; }
+    </style>
+  </head>
+  <body>
+    <h1>A test post to http://test.example.com:8000/entries</h1>
+
+    <form name="entries" method="POST">
+      <fieldset>
+        <label>
+          <div>JSON array of entries</div>
+          <textarea style="width: 100%" rows=30 id="entryArray" name="entryArray">
+          </textarea>
+        </label>
+      </fieldset>
+      <!-- 'featured' is set through administration -->
+      <fieldset>
+        <button id="submit" disabled="disabled">submit</button>
+        <div>Can't submit? Check your syntax</div>
+      </fieldset>
+    </form>
+
+  <script>
+
+    var currentNonce,
+        currentCSRF,
+        currentUser;
+      
+    var entries;
+    
+    //Sample:
+        //[{
+        //     "title": "test full entry 1",
+        //     "description": "description full entry",
+        //     "tags": ["tag1", "tag2"],
+        //     "interest": "interest field",
+        //     "get_involved": "get involved text field",
+        //     "get_involved_url": "http://example.com/getinvolved",
+        //     "thumbnail_url": "http://example.com/",
+        //     "content_url": "http://example.com/",
+        //     "internal_notes": "Some internal notes",
+        //     "featured": true,
+        //     "issues": ["Decentralization"],
+        //     "creators": ["Pomax", "Alan"]
+        // },
+        // {
+        //     "title": "test full entry 2",
+        //     "description": "description full entry",
+        //     "tags": ["tag1", "tag2"],
+        //     "interest": "interest field",
+        //     "get_involved": "get involved text field",
+        //     "get_involved_url": "http://example.com/getinvolved",
+        //     "thumbnail_url": "http://example.com/",
+        //     "content_url": "http://example.com/",
+        //     "internal_notes": "Some internal notes",
+        //     "featured": true,
+        //     "issues": ["Decentralization"],
+        //     "creators": ["Pomax", "Alan"]
+        // }];
+
+    // what to do when "submit" is clicked
+    var submitForm = () => {
+      document.querySelector("#submit").setAttribute("disabled", "disabled");
+      entries = JSON.parse(document.getElementById("entryArray").value);
+      getNonce(postAnEntry);
+    };
+
+    // don't let the browser submit this form. We'll handle it.
+    document.forms.entries.onsubmit = () => false;
+    document.querySelector("#submit").onclick = submitForm;
+    var textBox = document.getElementById("entryArray");
+    var submitBtn = document.querySelector("#submit");
+    textBox.addEventListener("input", (e) => {
+      dataSet = e.target.value;
+      console.log(dataSet)
+      try {
+        JSON.parse(dataSet)
+        submitBtn.removeAttribute("disabled");
+      } catch (e){
+        submitBtn.setAttribute("disabled", "disabled");
+      }
+    }
+    );
+
+    // as the API server for a nonce with associated csrf and user info
+    var getNonce = (callback) => {
+      var getnonce = new XMLHttpRequest();
+      getnonce.open("GET", "http://test.example.com:8000/nonce", true);
+      getnonce.onload = callback
+      getnonce.withCredentials = true
+      getnonce.send(null);
+    }
+
+    // handler for the form submission result
+    var finaliseSumbit = evt => {
+      let xhr = evt.target;
+      if (xhr.status === 200) {
+        if(entries.length){
+          getNonce(postAnEntry);
+        } else {
+          document.forms.entries.innerHTML = "<div>Form submitted successfully!</div>";
+        }
+      } else {
+        console.log("Error", xhr.response);
+      }
+    };
+
+    var postAnEntry = (evt) => {
+      var data = evt.target.response;
+      var entry;
+      if(entries.length){
+        entry = entries.pop()
+      } else {finaliseSubmit()}
+      
+      try {
+        data = JSON.parse(data);
+
+        entry.user = data.user;
+        entry.nonce = data.nonce;
+        entry.csrfmiddlewaretoken = data.csrf_token;
+
+      } catch (e) {
+          document.forms.entries.innerHTML = "<div>Crap, something went wrong in the middle.</div>";
+      }
+
+      let submit = new XMLHttpRequest();
+      submit.open("POST", "http://test.example.com:8000/entries/", true);
+      submit.setRequestHeader("Content-Type", "application/json");
+      submit.setRequestHeader("X-CSRFToken", entry.csrfmiddlewaretoken );
+      submit.onload = finaliseSumbit
+      submit.withCredentials = true;
+      submit.send(JSON.stringify(entry));
+    } 
+
+  </script>
+  </body>
+</html>
+
