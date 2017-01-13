@@ -77,7 +77,7 @@
     document.querySelector("#submit").onclick = submitForm;
     var textBox = document.getElementById("entryArray");
     var submitBtn = document.querySelector("#submit");
-    textBox.onkeyup = (e) => {
+    textBox.addEventListener("input", (e) => {
       dataSet = e.target.value;
       console.log(dataSet)
       try {
@@ -87,6 +87,7 @@
         submitBtn.setAttribute("disabled", "disabled");
       }
     }
+    );
 
     // as the API server for a nonce with associated csrf and user info
     var getNonce = (callback) => {
