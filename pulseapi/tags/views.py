@@ -15,8 +15,7 @@ class TagListView(ListAPIView):
     A view to retrieve all tags
 
     Query Params:
-    • search - a partial match filter based on the start the tag name
-
+    * search - a partial match filter based on the start the tag name
     POST new tags by adding new entries with them
     """
     queryset = Tag.objects.public()

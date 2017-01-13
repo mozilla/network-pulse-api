@@ -15,8 +15,7 @@ class CreatorListView(ListAPIView):
     A view to retrieve all creators
 
     Query Params:
-    • search - a partial match filter based on the start the tag name
-
+    * search - a partial match filter based on the start the tag name
     POST new creators by adding new entries with them
     """
     queryset = Creator.objects.public()

@@ -29,7 +29,7 @@ DEBUG = True
 # host file, so that google's redirect works. This is the same
 # domain you will be specifying in your Flow credentials, and
 # associated client_secrets.json
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'test.example.com,localhost').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'test.example.com,localhost,network-pulse-api-staging.herokuapp.com').split(',')
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 31
@@ -140,6 +140,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
 
 #
 # CORS settings
