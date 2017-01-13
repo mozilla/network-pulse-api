@@ -22,11 +22,8 @@
       </fieldset>
       <!-- 'featured' is set through administration -->
       <fieldset>
-        <input type="hidden" id="nonce" name="nonce" value="">
-        <input type="hidden" id="csrf" name="csrfmiddlewaretoken" value="">
         <button id="submit" disabled="disabled">submit</button>
-        <!-- this value SHOULD be set by the API server instead, but we do it here for now -->
-        <input type="hidden" id="user" name="submitted_by" value="">
+        <div>Can't submit? Check your syntax</div>
       </fieldset>
     </form>
 
@@ -68,8 +65,28 @@
         //     "creators": ["Pomax", "Alan"]
         // }];
 
+    // what to do when "submit" is clicked
+    var submitForm = () => {
+      document.querySelector("#submit").setAttribute("disabled", "disabled");
+      entries = JSON.parse(document.getElementById("entryArray").value);
+      getNonce(postAnEntry);
+    };
+
     // don't let the browser submit this form. We'll handle it.
     document.forms.entries.onsubmit = () => false;
+    document.querySelector("#submit").onclick = submitForm;
+    var textBox = document.getElementById("entryArray");
+    var submitBtn = document.querySelector("#submit");
+    textBox.onkeyup = (e) => {
+      dataSet = e.target.value;
+      console.log(dataSet)
+      try {
+        JSON.parse(dataSet)
+        submitBtn.removeAttribute("disabled");
+      } catch (e){
+        submitBtn.setAttribute("disabled", "disabled");
+      }
+    }
 
     // as the API server for a nonce with associated csrf and user info
     var getNonce = (callback) => {
@@ -78,26 +95,6 @@
       getnonce.onload = callback
       getnonce.withCredentials = true
       getnonce.send(null);
-    }
-
-    // put all the API server values in the form and enable submission
-    var confirmAuthentication = (evt) => {
-      var data = evt.target.response;
-      try {
-        data = JSON.parse(data);
-        currentUser = data.user;
-        currentNonce = data.nonce;
-        currentCSRF = data.csrf_token;
-
-        // when we have a nonce, set up actual form handling
-        var btn = document.querySelector("#submit");
-        btn.onclick = submitForm
-
-        // and then allow users to hit submit
-        btn.removeAttribute("disabled");
-      } catch (e) {
-          document.forms.entries.innerHTML = "<div>You do not appear to be logged in: please <a href='http://test.example.com:8000' target='_blank'>log in first</a>.</div>";
-      }
     }
 
     // handler for the form submission result
@@ -114,47 +111,33 @@
       }
     };
 
-    var postAnEntry = (e) => {
-      setFormValues(e);
+    var postAnEntry = (evt) => {
+      var data = evt.target.response;
       var entry;
       if(entries.length){
         entry = entries.pop()
-      }
-      let submit = new XMLHttpRequest();
-      submit.open("POST", "http://test.example.com:8000/entries/", true);
-      submit.setRequestHeader("Content-Type", "application/json");
-      submit.setRequestHeader("X-CSRFToken", currentCSRF );
-      submit.onload = finaliseSumbit
-      submit.withCredentials = true;
-      entry.nonce = currentNonce;
-      entry.csrfmiddlewaretoken = currentCSRF;
-      entry.user = currentUser;
-      submit.send(JSON.stringify(entry));
-    } 
-    // what to do when "submit" is clicked
-    var submitForm = (e) => {
-      entries = JSON.parse(document.getElementById("entryArray").value);
-      postAnEntry(e);
-    };
-
-    var setFormValues = (evt) => {
-      var data = evt.target.response;
+      } else {finaliseSubmit()}
+      
       try {
         data = JSON.parse(data);
 
-        currentUser = data.user;
-        currentNonce = data.nonce;
-        currentCSRF = data.csrf_token;
+        entry.user = data.user;
+        entry.nonce = data.nonce;
+        entry.csrfmiddlewaretoken = data.csrf_token;
+
       } catch (e) {
           document.forms.entries.innerHTML = "<div>Crap, something went wrong in the middle.</div>";
       }
-    }
 
+      let submit = new XMLHttpRequest();
+      submit.open("POST", "http://test.example.com:8000/entries/", true);
+      submit.setRequestHeader("Content-Type", "application/json");
+      submit.setRequestHeader("X-CSRFToken", entry.csrfmiddlewaretoken );
+      submit.onload = finaliseSumbit
+      submit.withCredentials = true;
+      submit.send(JSON.stringify(entry));
+    } 
 
-
-
-    // Let's kick it off!
-    getNonce(confirmAuthentication);
   </script>
   </body>
 </html>
