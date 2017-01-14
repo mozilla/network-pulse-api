@@ -9,7 +9,7 @@ You'll need `python` (v3) with `pip` (latest) and optionally `virtualenv` (pytho
 1. clone this repo
 2. set up a virtual environment in the `network-pulse-api` directory
 3. set up a Google client (https://console.developers.google.com/apis/credentials)
-4. generate a `client_secrets.json` by running `> python generate_client_secrets.json`, then edit this file so that it has your client's `client_id` and `client_secret`, with `http://test.example.com:8000/oauth2callback` as your callback URI (double check that's what it's set to. It should be, but it's super important you check this).
+4. generate a `client_secrets.json` by running `> python generate_client_secrets.py`, then edit this file so that it has your client's `client_id` and `client_secret`, with `http://test.example.com:8000/oauth2callback` as your callback URI (double check that's what it's set to. It should be, but it's super important you check this).
 5. bootstrap the Django setup:
 
 - `python manage.py migrate` (or `python manage.py migrate --run-syncdb` on subsequent rebootstrap attempts, if things in the DB are broken)
