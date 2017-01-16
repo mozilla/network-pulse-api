@@ -152,10 +152,25 @@ def callback(request):
         # get the authenticating user's name and email address from the Google API
         credentials = FlowHandler.get_flow().step2_exchange(auth_code)
         http_auth = credentials.authorize(Http())
+
+        # get a user's full name
         service = build('oauth2', 'v2', http=http_auth)
         userinfo = service.userinfo().get().execute()
         name = userinfo['name']
         email = userinfo['email']
+
+        # For now, we only allow mozilla.com, mozilla.org,
+        # and mozillafoundation.org accounts.
+        domain = email.split("@")[1]
+        cleared = [
+            'mozilla.com',
+            'mozilla.org',
+            'mozillafoundation.org'
+        ]
+
+        # Any user outside these domains is redirected to the main page.
+        if domain not in cleared:
+            return redirect('/')
 
         try:
             # Get the db record for this user and make sure their
