@@ -46,6 +46,16 @@ class EmailUser(AbstractBaseUser):
     # Is this user a valid Django administrator?
     is_staff = models.BooleanField(default=False)
 
+    # "user X bookmarked entry Y" is a many to many relation,
+    # for which we also want to know *when* a user bookmarked
+    # a specific entry. As such, we use a helper class that
+    # tracks this relation as well as the time it's created.
+    bookmarks = models.ManyToManyField(
+        'entries.Entry',
+        through='UserBookmarks',
+        related_name='bookmark_by'
+    )
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 
@@ -74,3 +84,26 @@ class EmailUser(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return True
+
+
+class UserBookmarks(models.Model):
+    """
+    This class is used to link users and entries through a
+    "bookmark" relation. One user can bookmark many entries,
+    and one entry can have bookmarks from many users.
+    """
+    entry = models.ForeignKey(
+        'entries.Entry',
+        on_delete=models.CASCADE,
+        related_name='bookmarked_by'
+    )
+
+    user = models.ForeignKey(
+        EmailUser,
+        on_delete=models.CASCADE,
+        related_name='bookmark_entries'
+    )
+
+    timestamp = models.DateTimeField(
+        auto_now=True,
+    )

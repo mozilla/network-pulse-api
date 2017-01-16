@@ -4,13 +4,48 @@ Views to get entries
 
 import django_filters
 from rest_framework import (filters, status)
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, api_view
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from pulseapi.entries.models import Entry
 from pulseapi.entries.serializers import EntrySerializer
+from pulseapi.users.models import UserBookmarks
+
+@api_view(['PUT'])
+def toggle_bookmark(request, entryid):
+    """
+    Toggle whether or not this user "bookmarked" the url-indicated entry.
+    This is currently defined outside of the entry class, as functionality
+    that is technically independent of entries themselves. We might
+    change this in the future.
+    """
+    user = request.user
+
+    if user.is_authenticated():
+        entry = None
+
+        # find the entry for this id
+        try:
+            entry = Entry.objects.get(id=entryid)
+        except Entry.DoesNotExist:
+            return Response("No such entry", status=status.HTTP_404_NOT_FOUND)
+
+        # find is there is already a {user,entry,(timestamp)} triple
+        bookmarks = entry.bookmarked_by.filter(user=user)
+        exists = bookmarks.count() > 0
+
+        # if there is a bookmark, remove it. Otherwise, make one.
+        if exists:
+            for bookmark in bookmarks:
+                bookmark.delete()
+        else:
+            bookmark = UserBookmarks(entry=entry, user=user)
+            bookmark.save()
+
+        return Response("Toggled bookmark.", status=status.HTTP_204_NO_CONTENT)
+    return Response("Anonymous bookmarks cannot be saved.", status=status.HTTP_403_FORBIDDEN)
 
 def post_validate(request):
     """

@@ -15,6 +15,13 @@ from pulseapi.issues.models import(
 from pulseapi.creators.models import(
     Creator
 )
+from pulseapi.users.models import(
+    EmailUser,
+    UserBookmarks
+)
+from pulseapi.users.serializers import(
+    UserBookmarksSerializer
+)
 
 class CreatableSlugRelatedField(serializers.SlugRelatedField):
     """
@@ -45,6 +52,35 @@ class EntrySerializer(serializers.ModelSerializer):
     issues = serializers.SlugRelatedField(many=True,
                                           slug_field='name',
                                           queryset=Issue.objects)
+
+    creators = CreatableSlugRelatedField(many=True,
+                                         slug_field='name',
+                                         queryset=Creator.objects)
+
+    bookmark_count = serializers.SerializerMethodField()
+
+    def get_bookmark_count(self, instance):
+        """
+        Get the total number of bookmarks this entry received
+        """
+        return instance.bookmarked_by.count()
+
+    is_bookmarked = serializers.SerializerMethodField()
+
+    def get_is_bookmarked(self, instance):
+        """
+        Check whether the current user has bookmarked this
+        Entry. Anonymous users always see False
+        """
+        request = self.context['request']
+
+        if hasattr(request, 'user'):
+            user = request.user
+            if user.is_authenticated():
+                res = instance.bookmarked_by.filter(user=user)
+                return res.count() > 0
+
+        return False
 
     creators = CreatableSlugRelatedField(many=True,
                                          slug_field='name',

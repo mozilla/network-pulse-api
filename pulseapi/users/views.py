@@ -210,7 +210,6 @@ def callback(request):
             # changed since last time we saw this user.
             user.name = name
             user.save()
-            print("found user in database based on email address.")
 
         except EmailUser.DoesNotExist:
             # Create a new database entry for this user.
@@ -218,7 +217,6 @@ def callback(request):
                 name=name,
                 email=email
             )
-            print("user not found: created user based on email address.")
 
         # As this user just authenticated, we mark this user as logged in
         # for the duration of this session.
