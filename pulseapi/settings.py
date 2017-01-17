@@ -159,6 +159,7 @@ CORS_ORIGIN_WHITELIST = (
     'localhost:8080',
     'test.example.com:8000',
     'test.example.com:8080',
+    'pulse-react.herokuapp.com',
 )
 
 CORS_ORIGIN_REGEX_WHITELIST = []
