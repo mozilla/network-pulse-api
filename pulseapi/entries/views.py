@@ -21,8 +21,8 @@ def post_validate(request):
     nonce = False
 
     if request.data:
-        csrf_token = request.data['csrfmiddlewaretoken']
-        nonce = request.data['nonce']
+        csrf_token = request.data.get('csrfmiddlewaretoken', False)
+        nonce = request.data.get('nonce', False)
     else:
         csrf_token = request.POST.get('csrfmiddlewaretoken', False)
         nonce = request.POST.get('nonce', False)
