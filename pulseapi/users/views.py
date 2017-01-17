@@ -2,6 +2,8 @@ import os
 from httplib2 import Http
 from oauth2client import client
 
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 from django.http import (HttpResponse, HttpResponseNotFound)
 from django.shortcuts import (redirect, render)
 from django.contrib.auth import login, logout
@@ -76,16 +78,34 @@ def index(request):
     """
     Initial page with a link that lets us sign in through Google
     """
-    new_state_value(request)
-    new_nonce_value(request)
 
+    # generic state value
+    new_state_value(request)
     FlowHandler.get_flow().params['state'] = request.session['state']
 
     return render(request, 'users/index.html', {
-        'user': request.user,
-        'auth_url': FlowHandler.get_flow().step1_get_authorize_url(),
-        'nonce': request.session['nonce']
+        'user': request.user
     })
+
+# API ROUTE: /login
+def start_auth(request):
+    """
+    Specific login call for logging in through another front-end
+    """
+    original_url = request.GET.get('original_url', False)
+
+    if original_url is False:
+        new_state_value(request)
+        original_url = request.session['state']
+
+    else:
+        request.session['state'] = original_url
+
+    # record the url to send the user back to post-authentication
+    # in the state value.
+    FlowHandler.get_flow().params['state'] = original_url
+    auth_url = FlowHandler.get_flow().step1_get_authorize_url()
+    return redirect(auth_url)
 
 # API Route: /logout (immediately directs to /)
 def force_logout(request):
@@ -159,7 +179,17 @@ def callback(request):
         # for the duration of this session.
         login(request, user)
 
+        # Do we need to redirect the user to some explicit URL after login?
+        try:
+            validator = URLValidator()
+            validator(state)
+            return redirect(state)
+
+        except ValidationError:
+            pass
+
+        # We do not, just redirect them to the main page.
         return redirect('/')
 
-    return HttpResponseNotFound("callback happened without an error or code query argument: wtf")
+    return HttpResponseNotFound("callback happened without an error or code query argument: this should not be possible.")
 
