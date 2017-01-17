@@ -1,6 +1,59 @@
 # The Mozilla Foundation Network Pulse API Server
 
-... text goes here!...
+This is the REST API server for the Mozilla Network Pulse project.
+
+## Current API end points
+
+### GET /entries/ with optional ?format=json
+
+This retrieves the full list of entries as stored in the database. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+
+### GET /nonce/
+
+This gets the current user's session information and a "nonce" value for performing an Entry form post with. Every time a user posts an entry, this nonce gets invalidated, to prevent repeat-posting.
+
+The call response is a 404 for not authenticated users, or a JSON object of the form:
+
+```
+{
+  user: <string: user email address>,
+  csrf_token: <string: the user's session CSRF value>,
+  nonce: <string: one-time-use value>
+}
+```
+
+### POST /entries/
+
+POSTing of entries requires sending the following payload object:
+
+```
+{
+  csrfmiddlewaretoken: '<csrf token>'
+  nonce: '<nonce value obtained from [GET /nonce]>',
+  data: {
+    title: ...
+    ...
+
+  }
+}
+```
+
+### GET /entries/<id=number>/ with optional ?format=json
+
+This retrieves a single entry with the indicated `id` as stored in the database. As a base URL call this returns an HTML page with formatted result, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+
+### PUT /entries/<id=number>/favorite
+
+This toggles the "favorited" status for an entry for an authenticated user. No payload is expected, and no response is sent other than an HTTP 204 on success, HTTP 403 for not authenticated users, and HTTP 500 if something went terribly wrong on the server side.
+
+### GET /login?original_url=<url>
+
+This will kick off a Google OAuth2 login process. This process is entirely based on browser redirects, and once this process completes the user will be redirect to `original_url` with an additional url query argument `loggedin=True` or `loggedin=False` depending on whether the login attemp succeeded or not.
+
+### GET /logout
+
+This will log out a user if they have an authenticated session going.
+
 
 ## Getting up and running for local development
 
@@ -63,5 +116,5 @@ There is a Procfile in place for deploying to Heroku, but in order for the codeb
  - `REDIRECT_URIS`: This should match the redirect uri that you provided in the Google credentials console. For local testing this will be 'http://test.example.com:8000/oauth2callback' but for a Heroku instance you will need to replace `http://test.example.com:8000` with your Heroku url, and you'll have to make sure that your Google credentials use that same uri.
  - `AUTH_URI`: optional, defaults to 'https://accounts.google.com/o/oauth2/auth' and there is no reason to change it.
  - `TOKEN_URI`: optional, defaults to 'https://accounts.google.com/o/oauth2/token' and there is no reason to change it.
- 
+
  Heroku provisions some environmnets on its own, like a `PORT` and `DATABASE_URL` variable, which this codebase will make use of if it sees them, but these values are only really relevant to Heroku deployments and not something you need to mess with for local development purposes.
