@@ -119,6 +119,36 @@ def force_logout(request):
     return redirect("/")
 
 
+def do_final_redirect(state, loggedin, msg):
+    """
+    As final step in the oauth callback process, redirect the user either to
+    the api root, or if there was an original_url to indicate where the user
+    was when they started the oauth process, move them back to that url instead.
+
+    This redirect is accompanied by a URL query pair "loggedin=..." which can
+    either be 'true' or 'false', and can be used to determine whether the login
+    attempd succeeded or not.
+    """
+    redirectUrl = '/'
+
+    # Do we need to redirect the user to some explicit URL after login?
+    try:
+        validator = URLValidator()
+        validator(state)
+        redirectUrl = state
+    except ValidationError:
+        pass
+
+    # Add the result of the login attempt to the redirect URL as query pair
+    if '?' in redirectUrl:
+        redirectUrl += '&'
+    else:
+        redirectUrl += '?'
+    redirectUrl += 'loggedin=' + str(loggedin)
+
+    return redirect(redirectUrl)
+
+
 # API Route: /oauth2callback (Redirects to / on success)
 def callback(request):
     """
@@ -170,7 +200,7 @@ def callback(request):
 
         # Any user outside these domains is redirected to the main page.
         if domain not in cleared:
-            return redirect('/')
+            return do_final_redirect(state, False, "Domain not in whitelist")
 
         try:
             # Get the db record for this user and make sure their
@@ -194,17 +224,6 @@ def callback(request):
         # for the duration of this session.
         login(request, user)
 
-        # Do we need to redirect the user to some explicit URL after login?
-        try:
-            validator = URLValidator()
-            validator(state)
-            return redirect(state)
-
-        except ValidationError:
-            pass
-
-        # We do not, just redirect them to the main page.
-        return redirect('/')
+        return do_final_redirect(state, True, "User logged in")
 
     return HttpResponseNotFound("callback happened without an error or code query argument: this should not be possible.")
-
