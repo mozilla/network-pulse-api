@@ -28,18 +28,10 @@ class PulseTestCase(TestCase):
         values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
         payload = {
             'title': 'default title',
-            'description': 'description default',
             'nonce': values['nonce'],
             'csrfmiddlewaretoken': values['csrf_token'],
-            'creators': 'Pomax',
-            'tags': ['tag1', 'tag2'],
-            'interest': 'interest field',
-            'issues': 'Open Innovation',
-            'get_involved': 'get involved text field',
-            'get_involved_url': 'http://example.com/getinvolved',
-            'thumbnail_url': 'http://example.com/',
             'content_url': 'http://example.com/',
-            'internal_notes': 'Some internal notes'
+            'tags': ['tag1', 'tag2']
         }
         for key in data:
             payload[key] = data[key]
