@@ -4,11 +4,11 @@ This is the REST API server for the Mozilla Network Pulse project.
 
 ## Current API end points
 
-### GET /entries/ with optional ?format=json
+### `GET /entries/` with optional `?format=json`
 
 This retrieves the full list of entries as stored in the database. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
-### GET /nonce/
+### `GET /nonce/`
 
 This gets the current user's session information and a "nonce" value for performing an Entry form post with. Every time a user posts an entry, this nonce gets invalidated, to prevent repeat-posting.
 
@@ -22,7 +22,7 @@ The call response is a 404 for not authenticated users, or a JSON object of the 
 }
 ```
 
-### POST /entries/
+### `POST /entries/`
 
 POSTing of entries requires sending the following payload object:
 
@@ -38,19 +38,19 @@ POSTing of entries requires sending the following payload object:
 }
 ```
 
-### GET /entries/<id=number>/ with optional ?format=json
+### `GET /entries/<id=number>/` with optional `?format=json`
 
 This retrieves a single entry with the indicated `id` as stored in the database. As a base URL call this returns an HTML page with formatted result, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
-### PUT /entries/<id=number>/favorite
+### `PUT /entries/<id=number>/favorite`
 
 This toggles the "favorited" status for an entry for an authenticated user. No payload is expected, and no response is sent other than an HTTP 204 on success, HTTP 403 for not authenticated users, and HTTP 500 if something went terribly wrong on the server side.
 
-### GET /login?original_url=<url>
+### `GET /login?original_url=<url>`
 
 This will kick off a Google OAuth2 login process. This process is entirely based on browser redirects, and once this process completes the user will be redirect to `original_url` with an additional url query argument `loggedin=True` or `loggedin=False` depending on whether the login attemp succeeded or not.
 
-### GET /logout
+### `GET /logout`
 
 This will log out a user if they have an authenticated session going.
 
