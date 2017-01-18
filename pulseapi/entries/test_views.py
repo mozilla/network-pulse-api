@@ -33,7 +33,7 @@ class TestEntryView(PulseTestCase):
         postresponse = self.client.post('/entries/', data=self.generatePostPayload(data=payload))
         entriesJson = json.loads(str(self.client.get('/entries/').content, 'utf-8'))
         self.assertEqual(postresponse.status_code, 200)
-        self.assertEqual(len(entriesJson), 4)
+        self.assertEqual(len(entriesJson['results']), 4)
 
     def test_post_empty_title(self):
         """Make sure entries require a title"""
@@ -134,13 +134,13 @@ class TestEntryView(PulseTestCase):
         """Make sure filtering searches works"""
         searchList = self.client.get('/entries/?search=setup')
         entriesJson = json.loads(str(searchList.content, 'utf-8'))
-        self.assertEqual(len(entriesJson), 1)
+        self.assertEqual(len(entriesJson['results']), 1)
 
     def test_entries_search(self):
         """Make sure filtering searches by tag works"""
         searchList = self.client.get('/entries/?tag=tag1')
         entriesJson = json.loads(str(searchList.content, 'utf-8'))
-        self.assertEqual(len(entriesJson), 1)
+        self.assertEqual(len(entriesJson['results']), 1)
 
 
     def test_entries_issue(self):
@@ -154,7 +154,7 @@ class TestEntryView(PulseTestCase):
         postresponse = self.client.post('/entries/', data=self.generatePostPayload(data=payload))
         searchList = self.client.get('/entries/?issue=Decentralization')
         entriesJson = json.loads(str(searchList.content, 'utf-8'))
-        self.assertEqual(len(entriesJson), 1)
+        self.assertEqual(len(entriesJson['results']), 1)
 
     def test_post_entry_new_issue(self):
         """posting an entry with a new Issue should result in an error. Permission denied?"""
