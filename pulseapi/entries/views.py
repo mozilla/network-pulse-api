@@ -47,6 +47,13 @@ def post_validate(request):
 
     return True
 
+class EntriesPagination(PageNumberPagination):
+    """
+    Add support for pagination and custom page size
+    """
+    page_size = 50
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
 
 class EntryCustomFilter(filters.FilterSet):
     """
@@ -93,15 +100,17 @@ class EntriesListView(ListCreateAPIView):
 
     **Route** - `/entries`
 
-    **Query Parameters** -
+    #Query Parameters -
 
     - `?search=` - Allows search terms
     - `?tag=` - Allows filtering entries by a specific tag
     - `?issue=` - Allows filtering entries by a specific issue
     - `?featured=True` (or False) - both capitalied. Boolean is set in admin UI
+    - `?page=` - Page number, default size of 50
+    - `?page_size=` - Change the number of results on a page
     """
     queryset = Entry.objects.public()
-    pagination_class = PageNumberPagination
+    pagination_class = EntriesPagination
     filter_backends = (
         filters.DjangoFilterBackend,
         filters.SearchFilter,

@@ -32,9 +32,9 @@
     var currentNonce,
         currentCSRF,
         currentUser;
-      
+
     var entries;
-    
+
     //Sample:
         //[{
         //     "title": "test full entry 1",
@@ -63,7 +63,7 @@
         //     "featured": true,
         //     "issues": ["Decentralization"],
         //     "creators": ["Pomax", "Alan"]
-        // }];
+        // }]
 
     // what to do when "submit" is clicked
     var submitForm = () => {
@@ -118,7 +118,7 @@
       if(entries.length){
         entry = entries.pop()
       } else {finaliseSubmit()}
-      
+
       try {
         data = JSON.parse(data);
 
@@ -137,7 +137,7 @@
       submit.onload = finaliseSumbit
       submit.withCredentials = true;
       submit.send(JSON.stringify(entry));
-    } 
+    }
 
   </script>
   </body>
