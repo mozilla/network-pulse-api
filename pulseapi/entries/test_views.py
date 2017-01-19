@@ -92,7 +92,7 @@ class TestEntryView(PulseTestCase):
         postresponse = self.client.post('/entries/', data=self.generatePostPayload(data=payload))
         searchList = self.client.get('/entries/?featured=True')
         entriesJson = json.loads(str(searchList.content, 'utf-8'))
-        self.assertEqual(len(entriesJson), 1)
+        self.assertEqual(len(entriesJson['results']), 1)
 
     def test_post_entry_with_mixed_tags(self):
         """
@@ -135,6 +135,16 @@ class TestEntryView(PulseTestCase):
         searchList = self.client.get('/entries/?search=setup')
         entriesJson = json.loads(str(searchList.content, 'utf-8'))
         self.assertEqual(len(entriesJson['results']), 1)
+
+    def test_entries_pagination(self):
+        """Make sure pagination works"""
+        page1 = self.client.get('/entries/?page=1&page_size=1')
+        page2 = self.client.get('/entries/?page=2&page_size=1')
+        page1Json = json.loads(str(page1.content, 'utf-8'))
+        page2Json = json.loads(str(page2.content, 'utf-8'))
+        self.assertEqual(len(page1Json['results']), 1)
+        self.assertEqual(len(page2Json['results']), 1)
+        self.assertNotEqual(page1Json['results'][0]['title'], page2Json['results'][0]['title'])
 
     def test_entries_search(self):
         """Make sure filtering searches by tag works"""
