@@ -47,6 +47,14 @@ def post_validate(request):
 
     return True
 
+class EntriesPagination(PageNumberPagination):
+    """
+    Add support for pagination and custom page size
+    """
+    # page size decided in https://github.com/mozilla/network-pulse-api/issues/39
+    page_size = 48
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
 
 class EntryCustomFilter(filters.FilterSet):
     """
@@ -74,7 +82,7 @@ class EntryCustomFilter(filters.FilterSet):
         Required Meta class
         """
         model = Entry
-        fields = ['tags', 'issues', 'featured']
+        fields = ['tags', 'issues', 'featured',]
 
 
 class EntryView(RetrieveAPIView):
@@ -93,15 +101,17 @@ class EntriesListView(ListCreateAPIView):
 
     **Route** - `/entries`
 
-    **Query Parameters** -
+    #Query Parameters -
 
     - `?search=` - Allows search terms
     - `?tag=` - Allows filtering entries by a specific tag
     - `?issue=` - Allows filtering entries by a specific issue
     - `?featured=True` (or False) - both capitalied. Boolean is set in admin UI
+    - `?page=` - Page number, defaults to 1
+    - `?page_size=` - Number of results on a page. Defaults to 48
     """
     queryset = Entry.objects.public()
-    pagination_class = PageNumberPagination
+    pagination_class = EntriesPagination
     filter_backends = (
         filters.DjangoFilterBackend,
         filters.SearchFilter,
