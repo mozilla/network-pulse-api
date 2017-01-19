@@ -24,7 +24,7 @@ class Entry(models.Model):
     """
     title = models.CharField(max_length=140)
     description = models.CharField(max_length=300, blank=True)
-    content_url = models.URLField(blank=True)
+    content_url = models.URLField()
     thumbnail_url = models.URLField(blank=True)
     tags = models.ManyToManyField(
         Tag,
