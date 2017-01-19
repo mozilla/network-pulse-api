@@ -50,6 +50,9 @@ class Entry(models.Model):
         EmailUser,
         related_name='entries',
     )
+    timestamp = models.DateTimeField(
+        auto_now=True,
+    )
 
     objects = EntryQuerySet.as_manager()
 
