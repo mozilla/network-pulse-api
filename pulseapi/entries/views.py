@@ -53,6 +53,7 @@ class EntryCustomFilter(filters.FilterSet):
     We add custom filtering to allow you to filter by:
         * Tag - pass the `?tag=` query parameter
         * Issue - pass the `?issue=` query parameter
+        * Featured - `?featured=True` (or False) - both capitalied
     Accepts only one filter value i.e. one tag and/or one
     category.
     """
@@ -64,13 +65,16 @@ class EntryCustomFilter(filters.FilterSet):
         name='issues__name',
         lookup_expr='iexact',
     )
+    featured = django_filters.BooleanFilter(
+        name='featured'
+    )
 
     class Meta:
         """
         Required Meta class
         """
         model = Entry
-        fields = ['tags', 'issues',]
+        fields = ['tags', 'issues', 'featured']
 
 
 class EntryView(RetrieveAPIView):
@@ -94,6 +98,7 @@ class EntriesListView(ListCreateAPIView):
     - `?search=` - Allows search terms
     - `?tag=` - Allows filtering entries by a specific tag
     - `?issue=` - Allows filtering entries by a specific issue
+    - `?featured=True` (or False) - both capitalied. Boolean is set in admin UI
     """
     queryset = Entry.objects.public()
     pagination_class = PageNumberPagination

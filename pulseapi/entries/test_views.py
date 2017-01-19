@@ -73,6 +73,27 @@ class TestEntryView(PulseTestCase):
         postresponse = self.client.post('/entries/', data=self.generatePostPayload(data=payload))
         self.assertEqual(postresponse.status_code, 200)
 
+    def test_featured_filter(self):
+        """Entry with all content"""
+        payload = {
+            'title': 'test full entry',
+            'description': 'description full entry',
+            'tags': ['tag1', 'tag2'],
+            'interest': 'interest field',
+            'get_involved': 'get involved text field',
+            'get_involved_url': 'http://example.com/getinvolved',
+            'thumbnail_url': 'http://example.com/',
+            'content_url': 'http://example.com/',
+            'internal_notes': 'Some internal notes',
+            'featured': True,
+            'issues': 'Decentralization',
+            'creators': ['Pomax', 'Alan']
+        }
+        postresponse = self.client.post('/entries/', data=self.generatePostPayload(data=payload))
+        searchList = self.client.get('/entries/?featured=True')
+        entriesJson = json.loads(str(searchList.content, 'utf-8'))
+        self.assertEqual(len(entriesJson), 1)
+
     def test_post_entry_with_mixed_tags(self):
         """
         Post entries with some existing tags, some new tags
