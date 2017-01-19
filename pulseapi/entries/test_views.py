@@ -36,18 +36,20 @@ class TestEntryView(PulseTestCase):
         self.assertEqual(len(entriesJson), 4)
 
     def test_post_empty_title(self):
-        """Make sure entries require a title and content_url"""
-
+        """Make sure entries require a title"""
         payload = {
             'title':''
         }
-        payload2 = {
+        postresponse = self.client.post('/entries/', data=self.generatePostPayload(data=payload))
+        self.assertEqual(postresponse.status_code, 400)
+
+    def test_post_content_url_empty(self):
+        """Make sure entries require a content_url"""
+        payload = {
             'content_url':''
         }
         postresponse = self.client.post('/entries/', data=self.generatePostPayload(data=payload))
-        postresponse2 = self.client.post('/entries/', data=self.generatePostPayload(data=payload2))
         self.assertEqual(postresponse.status_code, 400)
-        self.assertEqual(postresponse2.status_code, 400)
 
     def test_post_full_entry(self):
         """Entry with all content"""
