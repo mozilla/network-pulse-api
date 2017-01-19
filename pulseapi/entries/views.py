@@ -117,13 +117,13 @@ class EntryView(RetrieveAPIView):
     pagination_class = None
 
 
-class FavoriteEntries(ListAPIView):
+class BookmarkedEntries(ListAPIView):
 
     def get_queryset(self):
         entries = set()
         user = self.request.user.id
-        for f in UserFavorites.objects.filter(user=user).select_related('entry'):
-            entries.add(f.entry)
+        for bookmark in UserBookmarks.objects.filter(user=user).select_related('entry'):
+            entries.add(bookmark.entry)
         return entries
 
     serializer_class = EntrySerializer
