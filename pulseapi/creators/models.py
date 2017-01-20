@@ -20,7 +20,7 @@ class CreatorQuerySet(models.query.QuerySet):
 
 class Creator(models.Model):
     """
-    Person recognized as the creator of the thing an entry links out to
+    Person recognized as the creator of the thing an entry links out to.
     """
     name = models.CharField(max_length=140)
     user = models.ForeignKey(

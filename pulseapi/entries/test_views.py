@@ -2,6 +2,7 @@ import json
 
 from django.core.urlresolvers import reverse
 
+from pulseapi.entries.models import Entry
 from pulseapi.tests import PulseTestCase
 
 
@@ -187,3 +188,49 @@ class TestEntryView(PulseTestCase):
             'internal_notes': 'Some internal notes'
         })
         self.assertEqual(postresponse.status_code, 400)
+
+    def test_put_bookmark_entry_without_login(self):
+        """
+        Verify that anonymous users cannot bookmark entries.
+        """
+        self.client.logout();
+        postresponse = self.client.put('/entries/1/bookmark')
+        self.assertEqual(postresponse.status_code, 403)
+
+        # verify bookmark count is zero
+        entry = Entry.objects.get(id=1)
+        bookmarks = entry.bookmarked_by.count()
+        self.assertEqual(bookmarks, 0)
+
+    def test_put_bookmark_entry_with_login(self):
+        """
+        Verify that authenticated users can (un)bookmark an entry.
+        """
+        postresponse = self.client.put('/entries/1/bookmark')
+        self.assertEqual(postresponse.status_code, 204)
+
+        # verify bookmark count is now one
+        entry = Entry.objects.get(id=1)
+        bookmarks = entry.bookmarked_by.count()
+        self.assertEqual(bookmarks, 1)
+
+        # put again, which should clear the bookmark flag for this user
+        postresponse = self.client.put('/entries/1/bookmark')
+        self.assertEqual(postresponse.status_code, 204)
+
+        # verify bookmark count is now zero
+        bookmarks = entry.bookmarked_by.count()
+        self.assertEqual(bookmarks, 0)
+
+    def test_bookmarked_entries_view(self):
+        """
+        Verify that authenticated users can see a list of bookmarks.
+        """
+        postresponse = self.client.put('/entries/1/bookmark')
+
+        # verify bookmark count is now one
+        bookmarkResponse = self.client.get('/entries/bookmarks/')
+        self.assertEqual(bookmarkResponse.status_code, 200)
+
+        bookmarkJson = json.loads(str(bookmarkResponse.content, 'utf-8'))
+        self.assertEqual(len(bookmarkJson), 1)
