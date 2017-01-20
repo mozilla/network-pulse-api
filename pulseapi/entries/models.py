@@ -5,6 +5,7 @@ from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.creators.models import Creator
 from pulseapi.users.models import EmailUser
+from django.utils import timezone
 
 # Create your models here.
 class EntryQuerySet(models.query.QuerySet):
@@ -51,7 +52,7 @@ class Entry(models.Model):
         related_name='entries',
     )
     timestamp = models.DateTimeField(
-        auto_now=True,
+        default = timezone.now,
     )
 
     objects = EntryQuerySet.as_manager()
