@@ -42,9 +42,13 @@ POSTing of entries requires sending the following payload object:
 
 This retrieves a single entry with the indicated `id` as stored in the database. As a base URL call this returns an HTML page with formatted result, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
-### `PUT /entries/<id=number>/favorite`
+### `PUT /entries/<id=number>/bookmark`
 
-This toggles the "favorited" status for an entry for an authenticated user. No payload is expected, and no response is sent other than an HTTP 204 on success, HTTP 403 for not authenticated users, and HTTP 500 if something went terribly wrong on the server side.
+This toggles the "bookmarked" status for an entry for an authenticated user. No payload is expected, and no response is sent other than an HTTP 204 on success, HTTP 403 for not authenticated users, and HTTP 500 if something went terribly wrong on the server side.
+
+### `GET /entries/bookmarks`
+
+Get the list of all entries that have been bookmarked by the currently authenticated user. Calling this as anonymous user yields an empty list.
 
 ### `GET /login?original_url=<url>`
 
