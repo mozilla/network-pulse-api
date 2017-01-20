@@ -19,7 +19,7 @@ class TestEntryView(PulseTestCase):
         """
         Test posting an entry with minimum amount of content
         """
-        payload = self.generatePostPayload(data={'title':'title test_post_minimum_entry'})
+        payload = self.generatePostPayload(data={'title':'title test_post_minimum_entry', 'tags':''})
         postresponse = self.client.post('/entries/', payload)
 
         self.assertEqual(postresponse.status_code, 200)
@@ -37,19 +37,16 @@ class TestEntryView(PulseTestCase):
 
     def test_post_empty_title(self):
         """Make sure entries require a title"""
-
         payload = {
             'title':''
         }
         postresponse = self.client.post('/entries/', data=self.generatePostPayload(data=payload))
         self.assertEqual(postresponse.status_code, 400)
 
-    def test_post_empty_description(self):
-        """Make sure entries require a description"""
-
+    def test_post_content_url_empty(self):
+        """Make sure entries require a content_url"""
         payload = {
-            'title': 'title empty description',
-            'description': '',
+            'content_url':''
         }
         postresponse = self.client.post('/entries/', data=self.generatePostPayload(data=payload))
         self.assertEqual(postresponse.status_code, 400)

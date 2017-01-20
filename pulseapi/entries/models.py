@@ -23,17 +23,17 @@ class Entry(models.Model):
     A pulse entry
     """
     title = models.CharField(max_length=140)
-    description = models.CharField(max_length=300)
+    description = models.CharField(max_length=300, blank=True)
     content_url = models.URLField()
-    thumbnail_url = models.URLField()
+    thumbnail_url = models.URLField(blank=True)
     tags = models.ManyToManyField(
         Tag,
         related_name='entries',
         blank=True,
     )
-    get_involved = models.CharField(max_length=300)
-    get_involved_url = models.URLField()
-    interest = models.CharField(max_length=300)
+    get_involved = models.CharField(max_length=300, blank=True)
+    get_involved_url = models.URLField(blank=True)
+    interest = models.CharField(max_length=300, blank=True)
     featured = models.BooleanField()
     internal_notes = models.TextField(blank=True)
     issues = models.ManyToManyField(
