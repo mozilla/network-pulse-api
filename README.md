@@ -46,9 +46,9 @@ This retrieves a single entry with the indicated `id` as stored in the database.
 
 This toggles the "bookmarked" status for an entry for an authenticated user. No payload is expected, and no response is sent other than an HTTP 204 on success, HTTP 403 for not authenticated users, and HTTP 500 if something went terribly wrong on the server side.
 
-### `GET /entries/bookmarks`
+### `GET /entries/bookmarks` with optional `?format=json`
 
-Get the list of all entries that have been bookmarked by the currently authenticated user. Calling this as anonymous user yields an empty list.
+Get the list of all entries that have been bookmarked by the currently authenticated user. Calling this as anonymous user yields an empty list.  As a base URL call this returns an HTML page with formatted result, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
 ### `GET /login?original_url=<url>`
 
