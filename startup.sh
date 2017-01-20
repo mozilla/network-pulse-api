@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Ensure a client_secrets.json file for google authentication
+python generate_client_secrets.py
+
 # Make Django migrations, just in case...
 python manage.py makemigrations
 
