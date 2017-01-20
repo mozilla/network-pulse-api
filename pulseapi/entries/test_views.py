@@ -193,3 +193,16 @@ class TestEntryView(PulseTestCase):
         # verify bookmark count is now zero
         bookmarks = entry.bookmarked_by.count()
         self.assertEqual(bookmarks, 0)
+
+    def test_bookmarked_entries_view(self):
+        """
+        Verify that authenticated users can see a list of bookmarks.
+        """
+        postresponse = self.client.put('/entries/1/bookmark')
+
+        # verify bookmark count is now one
+        bookmarkResponse = self.client.get('/entries/bookmarks/')
+        self.assertEqual(bookmarkResponse.status_code, 200)
+
+        bookmarkJson = json.loads(str(bookmarkResponse.content, 'utf-8'))
+        self.assertEqual(len(bookmarkJson), 1)

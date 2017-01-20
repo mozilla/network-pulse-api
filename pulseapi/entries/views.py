@@ -5,7 +5,7 @@ Views to get entries
 import django_filters
 from rest_framework import (filters, status)
 from rest_framework.decorators import detail_route, api_view
-from rest_framework.generics import ListCreateAPIView, RetrieveAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, ListAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
@@ -116,6 +116,17 @@ class EntryView(RetrieveAPIView):
     serializer_class = EntrySerializer
     pagination_class = None
 
+
+class BookmarkedEntries(ListAPIView):
+
+    def get_queryset(self):
+        entries = set()
+        user = self.request.user.id
+        for bookmark in UserBookmarks.objects.filter(user=user).select_related('entry'):
+            entries.add(bookmark.entry)
+        return entries
+
+    serializer_class = EntrySerializer
 
 class EntriesListView(ListCreateAPIView):
     """
