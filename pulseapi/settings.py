@@ -153,13 +153,7 @@ CORS_ORIGIN_ALLOW_ALL = False
 # we also want cookie data, because we use CSRF tokens
 CORS_ALLOW_CREDENTIALS = True
 
-# by default the whitelist is localhost and the test.example.com domain
-CORS_ORIGIN_WHITELIST = (
-    'localhost:8000',
-    'localhost:8080',
-    'test.example.com:8000',
-    'test.example.com:8080',
-    'pulse-react.herokuapp.com',
-)
+# and we want origin whitelisting
+CORS_ORIGIN_WHITELIST = os.getenv('CORS_ORIGIN_WHITELIST', 'localhost:3000,localhost:8000,localhost:8080,test.example.com:8000,test.example.com:8080,pulse-react.herokuapp.com').split(',')
 
 CORS_ORIGIN_REGEX_WHITELIST = []
