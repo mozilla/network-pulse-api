@@ -112,11 +112,10 @@ def force_logout(request):
     """
     An explicit logout route.
     """
-
     user = request.user
     if user.is_authenticated:
         logout(request)
-    return redirect("/")
+    return HttpResponse("User is no longer logged in.")
 
 
 def do_final_redirect(state, loggedin, msg):
