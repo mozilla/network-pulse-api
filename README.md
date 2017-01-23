@@ -10,15 +10,27 @@ This retrieves the full list of entries as stored in the database. As a base URL
 
 ### `GET /nonce/`
 
-This gets the current user's session information and a "nonce" value for performing an Entry form post with. Every time a user posts an entry, this nonce gets invalidated, to prevent repeat-posting.
+This gets a current user's session information in the form of their CSRF token, as well as a "nonce" value for performing a one-time post operation. Every time a user POSTs data to the /entry route, this nonce gets invalidated (whether it matches or not) to prevent repeat-posting. As such, is a user is to post several entries, they will need to call `/nonce` as many times.
 
-The call response is a 404 for not authenticated users, or a JSON object of the form:
+The call response is a 403 for not authenticated users, or a JSON object when authenticated, of the form:
 
 ```
 {
-  user: <string: user email address>,
   csrf_token: <string: the user's session CSRF value>,
   nonce: <string: one-time-use value>
+}
+```
+
+### `GET /userstatus/`
+
+This gets the current user's session information in the form of their full name and email address. **This data should never be cached persistently**. Do not store this in localStorage, cookies, or any other persistent data store. When the user terminates their client, or logs out, this information should immediately be lost.
+
+The call response is a 403 for not authenticated users, or a JSON object when authenticated, of the form:
+
+```
+{
+  username: <string: the user's full name according to Google>,
+  email: <string: the user's google-login-associated email address>
 }
 ```
 
