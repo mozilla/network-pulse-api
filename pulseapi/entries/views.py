@@ -150,6 +150,7 @@ class EntriesListView(ListCreateAPIView):
     #Query Parameters -
 
     - `?search=` - Allows search terms
+    - `?ids=` - Filter only for entries with specific ids. Argument must be a comma-separated list of integer ids.
     - `?tag=` - Allows filtering entries by a specific tag
     - `?issue=` - Allows filtering entries by a specific issue
     - `?featured=True` (or False) - both capitalied. Boolean is set in admin UI
@@ -169,7 +170,7 @@ class EntriesListView(ListCreateAPIView):
     serializer_class = EntrySerializer
 
     # Custom queryset handling: if the route was called as
-    # /entries/ids=1,2,3,4,... only return those entires.
+    # /entries/?ids=1,2,3,4,... only return those entires.
     # Otherwise, return all entries (with pagination)
     def get_queryset(self):
         ids = self.request.query_params.get('ids', None)
