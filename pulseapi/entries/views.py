@@ -155,12 +155,14 @@ class EntriesListView(ListCreateAPIView):
     - `?featured=True` (or False) - both capitalied. Boolean is set in admin UI
     - `?page=` - Page number, defaults to 1
     - `?page_size=` - Number of results on a page. Defaults to 48
+    - `?ordering=` - Property you'd like to order the results by. Prepend with `-` to reverse. e.g. `?ordering=-title`
     """
     queryset = Entry.objects.public()
     pagination_class = EntriesPagination
     filter_backends = (
         filters.DjangoFilterBackend,
         filters.SearchFilter,
+        filters.OrderingFilter,
     )
     filter_class = EntryCustomFilter
     search_fields = (
