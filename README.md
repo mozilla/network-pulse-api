@@ -31,14 +31,18 @@ This gets the current user's session information in the form of their full name 
 
 **This data should never be cached persistently**. Do not store this in localStorage, cookies, or any other persistent data store. When the user terminates their client, or logs out, this information should immediately be lost. Also do not store this in a global namespace like `window` or `document`, or in anything that isn't protected by a closure.
 
-The call response is a 403 for not authenticated users, or a JSON object when authenticated, of the form:
+The call response is a JSON object of the following form:
 
 ```
 {
   username: <string: the user's full name according to Google>,
   email: <string: the user's google-login-associated email address>
+  loggedin: <boolean: whether this user is logged in or not>
 }
 ```
+
+If a user is authenticated, all three fields will be present. If a user is not authenticated, the response object will only contain the `loggedin` key, with value `false`.
+
 
 ### `POST /entries/`
 
