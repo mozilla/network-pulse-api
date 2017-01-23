@@ -142,3 +142,12 @@ There is a Procfile in place for deploying to Heroku, but in order for the codeb
  - `TOKEN_URI`: optional, defaults to 'https://accounts.google.com/o/oauth2/token' and there is no reason to change it.
 
  Heroku provisions some environmnets on its own, like a `PORT` and `DATABASE_URL` variable, which this codebase will make use of if it sees them, but these values are only really relevant to Heroku deployments and not something you need to mess with for local development purposes.
+
+
+## Resetting your database because of incompatible model changes
+
+When working across multiple branches with multiple model changes, it sometimes becomes necessary to reset migrations and build a new database from scratch. You can either do this manually by deleting your `db.sqlite3` as well as all model migration files that start with a number (**except** for the 0001 migration for `issues`, which comes also instantiates various entries and should never be deleted), but because this is inconvenient, there is a helper script to do this for you.
+
+Simply run `python reset_database.py` and the steps mentioned above will be run automatically.
+
+**Note:** This does wipe *everything* so you will still need to call `python manage.py createsuperuser` to make sure you have a super user set up again. 
