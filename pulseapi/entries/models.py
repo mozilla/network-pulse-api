@@ -5,6 +5,7 @@ from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.creators.models import Creator
 from pulseapi.users.models import EmailUser
+from django.utils import timezone
 
 # Create your models here.
 class EntryQuerySet(models.query.QuerySet):
@@ -23,7 +24,7 @@ class Entry(models.Model):
     A pulse entry
     """
     title = models.CharField(max_length=140)
-    description = models.CharField(max_length=300, blank=True)
+    description = models.CharField(max_length=600, blank=True)
     content_url = models.URLField()
     thumbnail_url = models.URLField(blank=True)
     tags = models.ManyToManyField(
@@ -33,7 +34,7 @@ class Entry(models.Model):
     )
     get_involved = models.CharField(max_length=300, blank=True)
     get_involved_url = models.URLField(blank=True)
-    interest = models.CharField(max_length=300, blank=True)
+    interest = models.CharField(max_length=600, blank=True)
     featured = models.BooleanField()
     internal_notes = models.TextField(blank=True)
     issues = models.ManyToManyField(
@@ -50,8 +51,8 @@ class Entry(models.Model):
         EmailUser,
         related_name='entries',
     )
-    timestamp = models.DateTimeField(
-        auto_now=True,
+    created = models.DateTimeField(
+        default = timezone.now,
     )
 
     objects = EntryQuerySet.as_manager()
