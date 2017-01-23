@@ -150,6 +150,7 @@ class EntriesListView(ListCreateAPIView):
     #Query Parameters -
 
     - `?search=` - Allows search terms
+    - `?ids=` - Filter only for entries with specific ids. Argument must be a comma-separated list of integer ids.
     - `?tag=` - Allows filtering entries by a specific tag
     - `?issue=` - Allows filtering entries by a specific issue
     - `?featured=True` (or False) - both capitalied. Boolean is set in admin UI
@@ -157,7 +158,6 @@ class EntriesListView(ListCreateAPIView):
     - `?page_size=` - Number of results on a page. Defaults to 48
     - `?ordering=` - Property you'd like to order the results by. Prepend with `-` to reverse. e.g. `?ordering=-title`
     """
-    queryset = Entry.objects.public()
     pagination_class = EntriesPagination
     filter_backends = (
         filters.DjangoFilterBackend,
@@ -170,6 +170,18 @@ class EntriesListView(ListCreateAPIView):
         'description',
     )
     serializer_class = EntrySerializer
+
+    # Custom queryset handling: if the route was called as
+    # /entries/?ids=1,2,3,4,... only return those entires.
+    # Otherwise, return all entries (with pagination)
+    def get_queryset(self):
+        ids = self.request.query_params.get('ids', None)
+        if ids is not None:
+            ids = [ int(x) for x in ids.split(',') ]
+            queryset = Entry.objects.filter(pk__in=ids)
+        else:
+            queryset = Entry.objects.public()
+        return queryset
 
     # When people POST to this route, we want to do some
     # custom validation involving CSRF and nonce validation,

@@ -8,6 +8,10 @@ This is the REST API server for the Mozilla Network Pulse project.
 
 This retrieves the full list of entries as stored in the database. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
+#### Filters
+
+Please run the server and see [http://localhost:8000/entries](http://localhost:8000/entries) for all supported filters.
+
 ### `GET /nonce/`
 
 This gets a current user's session information in the form of their CSRF token, as well as a "nonce" value for performing a one-time post operation. Every time a user POSTs data to the /entry route, this nonce gets invalidated (whether it matches or not) to prevent repeat-posting. As such, is a user is to post several entries, they will need to call `/nonce` as many times.
