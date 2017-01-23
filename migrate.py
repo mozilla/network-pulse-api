@@ -13,7 +13,7 @@ def stringify(oldKey):
 
 def arrayify(oldKey):
     newData = entry[oldKey]
-    if(type(newData) is unicode and len(newData) > 0):
+    if(type(newData) is str and len(newData) > 0):
         newData = [newData]
     if(len(newData) is 0):
         return []
@@ -22,7 +22,7 @@ def arrayify(oldKey):
 
 for entry in entries:
     newEntry = {}
-    newEntry["timestamp"] = entry["Timestamp"]
+    newEntry["created"] = entry["Timestamp"]
 
     featured = False
     if(entry["Featured"] == True):
@@ -39,7 +39,7 @@ for entry in entries:
     newEntry["tags"] = arrayify("Tags")
     newEntry["issues"] = arrayify("Issues")
     newEntry["thumbnail_url"] = entry["Thumbnail URL"]
-    newEntry["internal_notes"] = stringify("Suggestions & Feedback")
+    newEntry["internal_notes"] = stringify("Network connection") + " Origin: " + stringify("Origin")
 
     massagedData.append(newEntry)
 

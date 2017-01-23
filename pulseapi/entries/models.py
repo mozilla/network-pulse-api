@@ -51,7 +51,7 @@ class Entry(models.Model):
         EmailUser,
         related_name='entries',
     )
-    timestamp = models.DateTimeField(
+    created = models.DateTimeField(
         default = timezone.now,
     )
 
