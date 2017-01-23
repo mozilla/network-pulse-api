@@ -10,13 +10,7 @@ This retrieves the full list of entries as stored in the database. As a base URL
 
 #### Filters
 
-Please run the server and see [http://localhost:8000/entries](http://localhost:8000/entries) for all supported filters
-
-#### Special filters
-
-In addition to basic Django Rest Framework filtering, the following special filters are supported:
-
-1. `?ids=1,2,3,...` -- retrieve a list of specific entries by specifying their id as comma-separated list.
+Please run the server and see [http://localhost:8000/entries](http://localhost:8000/entries) for all supported filters.
 
 ### `GET /nonce/`
 
