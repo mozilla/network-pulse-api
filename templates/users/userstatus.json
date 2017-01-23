@@ -1,0 +1,5 @@
+{
+{% if loggedin %}	"username": "{{ username }}",
+{% endif %}{% if loggedin %}	"email": "{{ email }}",
+{% endif %}	"loggedin": {% if loggedin %}true{% else %}false{% endif %}
+}

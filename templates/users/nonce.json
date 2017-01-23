@@ -1,5 +1,4 @@
 {
-	"user": "{{ user }}",
 	"nonce": "{{ nonce }}",
 	"csrf_token": "{{ csrf_token }}"
 }

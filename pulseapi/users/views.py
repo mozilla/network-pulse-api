@@ -63,15 +63,40 @@ def new_nonce_value(request):
 def nonce(request):
     """
     set a new random nonce to act as form post identifier
+    and inform the user what this value is so they can use
+    it for signing their POST for a new entry.
     """
     if not request.user.is_authenticated():
-        return HttpResponseNotFound()
+        return HttpResponse('Not authorized', status=403)
 
     new_nonce_value(request)
-    return render(request, 'users/formprotection.json', {
-        'user': request.user,
+    return render(request, 'users/nonce.json', {
         'nonce': request.session['nonce']
     }, content_type="application/json")
+
+
+# API ROUTE: /userstatus
+def userstatus(request):
+    """
+    Get the login status associated with a session. If the
+    status is "logged in", also include the user name and
+    user email. NOTE: these values should never be persistently
+    cached by applications, for obvious reasons.
+    """
+    name = False
+    email = False
+    loggedin = request.user.is_authenticated()
+
+    if loggedin:
+        name = request.user.name
+        email = request.user.email
+
+    return render(request, 'users/userstatus.json', {
+        'username': name,
+        'email': email,
+        'loggedin': loggedin
+    }, content_type="application/json")
+
 
 # API ROUTE: /
 def index(request):
