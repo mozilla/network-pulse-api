@@ -146,8 +146,8 @@ There is a Procfile in place for deploying to Heroku, but in order for the codeb
 
 ## Resetting your database because of incompatible model changes
 
-When working across multiple branches with multiple model changes, it sometimes becomes necessary to reset migrations and build a new database from scratch. You can either do this manually by deleting your `db.sqlite3` as well as all model migration files that start with a number (**except** for the 0001 migration for `issues`, which comes also instantiates various entries and should never be deleted), but because this is inconvenient, there is a helper script to do this for you.
+When working across multiple branches with multiple model changes, it sometimes becomes necessary to reset migrations and build a new database from scratch. You can either do this manually by deleting your `db.sqlite3` as well as all model migration files that start with a number (**except** for the 0001 migration for `issues`, which instantiates various records in addition to simply boostrapping the issues table, and should never be deleted), but because this is inconvenient, there is a helper script to do this for you.
 
 Simply run `python reset_database.py` and the steps mentioned above will be run automatically.
 
-**Note:** This does wipe *everything* so you will still need to call `python manage.py createsuperuser` to make sure you have a super user set up again. 
+**Note:** This does wipe *everything* so you will still need to call `python manage.py createsuperuser` to make sure you have a super user set up again.
