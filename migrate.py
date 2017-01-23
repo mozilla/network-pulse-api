@@ -1,6 +1,6 @@
 import json
 
-json_data=open('./migrationData.json').read()
+json_data=open('./migrationData.json', encoding="utf8").read()
 entries = json.loads(json_data)["Form Responses 1"]
 
 massagedData = []
