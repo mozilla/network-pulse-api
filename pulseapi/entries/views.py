@@ -149,7 +149,7 @@ class EntriesListView(ListCreateAPIView):
 
     #Query Parameters -
 
-    - `?search=` - Allows search terms
+    - `?search=` - Search by title, description, creator, and tag.
     - `?ids=` - Filter only for entries with specific ids. Argument must be a comma-separated list of integer ids.
     - `?tag=` - Allows filtering entries by a specific tag
     - `?issue=` - Allows filtering entries by a specific issue
@@ -168,6 +168,8 @@ class EntriesListView(ListCreateAPIView):
     search_fields = (
         'title',
         'description',
+        'tags__name',
+        'creators__name',
     )
     serializer_class = EntrySerializer
 
