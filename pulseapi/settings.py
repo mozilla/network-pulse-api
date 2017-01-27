@@ -29,7 +29,7 @@ DEBUG = True
 # host file, so that google's redirect works. This is the same
 # domain you will be specifying in your Flow credentials, and
 # associated client_secrets.json
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'test.example.com,localhost,network-pulse-api-staging.herokuapp.com').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'test.example.com,localhost,network-pulse-api-staging.herokuapp.com, network-pulse-api-production.herokuapp.com').split(',')
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 31
