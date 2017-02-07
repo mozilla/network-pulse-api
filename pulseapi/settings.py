@@ -16,20 +16,27 @@ import dj_database_url
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+import environ
+
+environ.Env.read_env(os.path.join(BASE_DIR,'.env'))
+env = environ.Env(
+    DEBUG=(bool, False),
+    SECURE_SSL_REDIRECT=(bool, True),
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
 # This needs to be a real domain for google auth purposes. As such,
 # you may need to add a "127.0.0.1    test.example.com" to your
 # host file, so that google's redirect works. This is the same
 # domain you will be specifying in your Flow credentials, and
 # associated client_secrets.json
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'test.example.com,localhost,network-pulse-api-staging.herokuapp.com, network-pulse-api-production.herokuapp.com').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'test.example.com,localhost,network-pulse-api-staging.herokuapp.com,network-pulse-api-production.herokuapp.com').split(',')
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 31
@@ -56,6 +63,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -157,3 +165,12 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = os.getenv('CORS_ORIGIN_WHITELIST', 'localhost:3000,localhost:8000,localhost:8080,test.example.com:8000,test.example.com:8080,pulse-react.herokuapp.com').split(',')
 
 CORS_ORIGIN_REGEX_WHITELIST = []
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
+SECURE_BROWSER_XSS_FILTER = True
+SESSION_COOKIE_SECURE = True
+X_FRAME_OPTIONS = "DENY"
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_SSL_REDIRECT = env('SECURE_SSL_REDIRECT')
+SECURE_HSTS_SECONDS = 60*60*24*31*6
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
