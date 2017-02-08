@@ -1,0 +1,29 @@
+{
+  "name": "network-pulse-api",
+  "scripts": {
+  },
+  "env": {
+    "client_id": {
+      "required": true
+    },
+    "client_secret": {
+      "required": true
+    },
+    "CORS_ORIGIN_WHITELIST": {
+      "required": true
+    },
+    "redirect_uris": {
+      "required": true
+    }
+  },
+  "formation": {
+  },
+  "addons": [
+    "heroku-postgresql"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
