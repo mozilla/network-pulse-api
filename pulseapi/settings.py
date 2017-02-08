@@ -174,4 +174,5 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_SSL_REDIRECT = env('SECURE_SSL_REDIRECT')
 SECURE_HSTS_SECONDS = 60*60*24*31*6
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# Heroku goes into an infinite redirect loop without this. So it's kind of necessary. See https://docs.djangoproject.com/en/1.10/ref/settings/#secure-ssl-redirect
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
