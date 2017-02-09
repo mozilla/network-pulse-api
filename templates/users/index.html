@@ -1,5 +1,10 @@
 {% if user.is_authenticated %}
     <p>Hello {{user.email}}! Would you like to <a href="logout">log out</a>?</p>
 {% else %}
-    <p>Not logged in. Want to <a href="/login?original_url=http://test.example.com:8000">log in</a>?</p>
+    <p>Not logged in. Want to <a id="loginLink">log in</a>?</p>
+    <script>
+    var domain = window.location.toString();
+    var link = document.getElementById('loginLink')
+    link.setAttribute('href', `/login?original_url=${domain}`);
+    </script>
 {% endif %}

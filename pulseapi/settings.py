@@ -23,6 +23,7 @@ env = environ.Env(
     DEBUG=(bool, False),
     SSL_PROTECTION=(bool, True),
 )
+SSL_PROTECTION = env('SSL_PROTECTION')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -165,15 +166,15 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = os.getenv('CORS_ORIGIN_WHITELIST', 'localhost:3000,localhost:8000,localhost:8080,test.example.com:8000,test.example.com:8080,pulse-react.herokuapp.com').split(',')
 
 CORS_ORIGIN_REGEX_WHITELIST = []
-CSRF_COOKIE_SECURE = env('SSL_PROTECTION')
-CSRF_COOKIE_HTTPONLY = env('SSL_PROTECTION')
-SECURE_BROWSER_XSS_FILTER = env('SSL_PROTECTION')
-SESSION_COOKIE_SECURE = env('SSL_PROTECTION')
-X_FRAME_OPTIONS = "DENY"
-SECURE_CONTENT_TYPE_NOSNIFF = env('SSL_PROTECTION')
-SECURE_SSL_REDIRECT = env('SSL_PROTECTION')
+CSRF_COOKIE_HTTPONLY = env('CSRF_COOKIE_HTTPONLY', default=SSL_PROTECTION)
+CSRF_COOKIE_SECURE = env('CSRF_COOKIE_SECURE', default=SSL_PROTECTION)
+SECURE_BROWSER_XSS_FILTER = env('SECURE_BROWSER_XSS_FILTER', default=SSL_PROTECTION)
+SECURE_CONTENT_TYPE_NOSNIFF = env('SECURE_CONTENT_TYPE_NOSNIFF', default=SSL_PROTECTION)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=SSL_PROTECTION)
 SECURE_HSTS_SECONDS = 60*60*24*31*6
-SECURE_HSTS_INCLUDE_SUBDOMAINS = env('SSL_PROTECTION')
+SECURE_SSL_REDIRECT = env('SECURE_SSL_REDIRECT', default=SSL_PROTECTION)
+SESSION_COOKIE_SECURE = env('SESSION_COOKIE_SECURE', default=SSL_PROTECTION)
 # Heroku goes into an infinite redirect loop without this. So it's kind of necessary. See https://docs.djangoproject.com/en/1.10/ref/settings/#secure-ssl-redirect
-if env('SSL_PROTECTION') is True:
+if SSL_PROTECTION is True:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+X_FRAME_OPTIONS = "DENY"
