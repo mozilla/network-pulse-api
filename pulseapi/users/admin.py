@@ -18,7 +18,7 @@ class EmailUserAdmin(admin.ModelAdmin):
     """
     Show a list of entries a user has submitted in the EmailUser Admin app
     """
-    fields = ('password', 'last_login', 'email', 'name', 'entries','bookmarks')
+    fields = ('password', 'last_login', 'email', 'name', 'entries','bookmarks', 'is_staff')
     readonly_fields = ('entries','bookmarks')
 
     # this allows us to create/edit/delete/etc bookmarks:
