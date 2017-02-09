@@ -21,7 +21,7 @@ import environ
 environ.Env.read_env(os.path.join(BASE_DIR,'.env'))
 env = environ.Env(
     DEBUG=(bool, False),
-    SECURE_SSL_REDIRECT=(bool, True),
+    SSL_PROTECTION=(bool, True),
 )
 
 # Quick-start development settings - unsuitable for production
@@ -165,14 +165,15 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = os.getenv('CORS_ORIGIN_WHITELIST', 'localhost:3000,localhost:8000,localhost:8080,test.example.com:8000,test.example.com:8080,pulse-react.herokuapp.com').split(',')
 
 CORS_ORIGIN_REGEX_WHITELIST = []
-CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_HTTPONLY = True
-SECURE_BROWSER_XSS_FILTER = True
-SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = env('SSL_PROTECTION')
+CSRF_COOKIE_HTTPONLY = env('SSL_PROTECTION')
+SECURE_BROWSER_XSS_FILTER = env('SSL_PROTECTION')
+SESSION_COOKIE_SECURE = env('SSL_PROTECTION')
 X_FRAME_OPTIONS = "DENY"
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_SSL_REDIRECT = env('SECURE_SSL_REDIRECT')
+SECURE_CONTENT_TYPE_NOSNIFF = env('SSL_PROTECTION')
+SECURE_SSL_REDIRECT = env('SSL_PROTECTION')
 SECURE_HSTS_SECONDS = 60*60*24*31*6
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env('SSL_PROTECTION')
 # Heroku goes into an infinite redirect loop without this. So it's kind of necessary. See https://docs.djangoproject.com/en/1.10/ref/settings/#secure-ssl-redirect
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+if env('SSL_PROTECTION') is True:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
