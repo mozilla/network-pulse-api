@@ -3,7 +3,7 @@
 {% else %}
     <p>Not logged in. Want to <a id="loginLink">log in</a>?</p>
     <script>
-    var domain = window.location.origin;
+    var domain = window.location.toString();
     var link = document.getElementById('loginLink')
     link.setAttribute('href', `/login?original_url=${domain}`);
     </script>
