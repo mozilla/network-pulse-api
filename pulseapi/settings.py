@@ -21,7 +21,7 @@ import environ
 environ.Env.read_env(os.path.join(BASE_DIR,'.env'))
 env = environ.Env(
     DEBUG=(bool, False),
-    SSL_PROTECTION=(bool, True),
+    SSL_PROTECTION=(bool, False),
 )
 SSL_PROTECTION = env('SSL_PROTECTION')
 
