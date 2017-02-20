@@ -53,15 +53,39 @@ POSTing of entries requires sending the following payload object:
 
 ```
 {
-  csrfmiddlewaretoken: '<csrf token>'
-  nonce: '<nonce value obtained from [GET /nonce]>',
-  data: {
-    title: ...
-    ...
+  csrfmiddlewaretoken: required csrf token string obtained from [GET /nonce]
+  nonce: required nonce string obtained from [GET /nonce]
 
-  }
+  title: required string
+  content_url: required url string
+
+  description: optional string (max length 600 characters)
+  thumbnail_url: optional URL for a thumbnail image for this entry
+  get_involved: optional 'how to get involved' string (max length 300 characters)
+  get_involved_url: optional URL that people can visit to get involved
+  interest: optional subject string (Free form, max length 600 characters)
+  featured: optional boolean to set the "shown on featured page" flag
+
+  tags: optional array of strings
+  issues: optional array of strings, must match values from [GET /issues?format=json]
+  creators: optional array of names of creators for the content linked to
 }
 ```
+Also note that this POST **must** be accompanied by the following header:
+
+```
+X-CSRFToken: csrfmiddlewaretoken as used above
+```
+
+A successful post will yield a JSON object:
+
+```
+{
+  status: "submitted"
+}
+```
+
+A failed post will yield an HTTP 400 response.
 
 ### `GET /entries/<id=number>/` with optional `?format=json`
 
