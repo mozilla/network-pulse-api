@@ -44,6 +44,6 @@ for entry in entries:
     massagedData.append(newEntry)
 
 with open('massagedData.json', 'w') as outfile:
-    json.dump(massagedData, outfile)
+    json.dump(massagedData, outfile, ensure_ascii=False)
 
 # print(massagedData)
