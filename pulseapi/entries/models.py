@@ -23,20 +23,26 @@ class Entry(models.Model):
     """
     A pulse entry
     """
+
+    # required fields
     title = models.CharField(max_length=140)
-    description = models.CharField(max_length=600, blank=True)
     content_url = models.URLField()
+
+    # optional fields
+    description = models.CharField(max_length=600, blank=True)
     thumbnail_url = models.URLField(blank=True)
+    get_involved = models.CharField(max_length=300, blank=True)
+    get_involved_url = models.URLField(blank=True)
+    interest = models.CharField(max_length=600, blank=True)
+    featured = models.BooleanField(default=False)
+    internal_notes = models.TextField(blank=True)
+
+    # crosslink fields
     tags = models.ManyToManyField(
         Tag,
         related_name='entries',
         blank=True,
     )
-    get_involved = models.CharField(max_length=300, blank=True)
-    get_involved_url = models.URLField(blank=True)
-    interest = models.CharField(max_length=600, blank=True)
-    featured = models.BooleanField()
-    internal_notes = models.TextField(blank=True)
     issues = models.ManyToManyField(
         Issue,
         related_name='entries',
@@ -47,6 +53,8 @@ class Entry(models.Model):
         related_name='entries',
         blank=True
     )
+
+    # automatically managed fields
     published_by = models.ForeignKey(
         EmailUser,
         related_name='entries',
