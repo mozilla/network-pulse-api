@@ -197,8 +197,8 @@ class EntriesListView(ListCreateAPIView):
 
             serializer = EntrySerializer(data=request.data)
             if serializer.is_valid():
-                serializer.save(published_by=request.user)
-                return Response({'status': 'submitted'})
+                savedEntry = serializer.save(published_by=request.user)
+                return Response({'status': 'submitted', 'id': savedEntry.id})
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
