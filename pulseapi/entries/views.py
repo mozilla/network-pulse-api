@@ -197,7 +197,9 @@ class EntriesListView(ListCreateAPIView):
 
             serializer = EntrySerializer(data=request.data)
             if serializer.is_valid():
-                savedEntry = serializer.save(published_by=request.user)
+                # ensure that the published_by is always the user doing the posting,
+                # and set 'featured' to false (see https://github.com/mozilla/network-pulse-api/issues/83)
+                savedEntry = serializer.save(published_by=request.user, featured=False)
                 return Response({'status': 'submitted', 'id': savedEntry.id})
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
