@@ -88,6 +88,17 @@ class TestEntryView(PulseTestCase):
             'creators': ['Pomax', 'Alan']
         }
         postresponse = self.client.post('/entries/', data=self.generatePostPayload(data=payload))
+        responseobj = json.loads(str(postresponse.content,'utf-8'))
+        entryId = responseobj['id']
+        # this entry should not be featured automatically
+        searchList = self.client.get('/entries/?featured=True')
+        entriesJson = json.loads(str(searchList.content, 'utf-8'))
+        self.assertEqual(len(entriesJson['results']), 0)
+        # toggle this entry's feature flag
+        entry = Entry.objects.get(id=entryId)
+        entry.featured = True
+        entry.save()
+        # This entry should now show up as featured
         searchList = self.client.get('/entries/?featured=True')
         entriesJson = json.loads(str(searchList.content, 'utf-8'))
         self.assertEqual(len(entriesJson['results']), 1)
