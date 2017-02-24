@@ -51,7 +51,7 @@ class Entry(models.Model):
     creators = models.ManyToManyField(
         Creator,
         related_name='entries',
-        blank=True
+        blank=True,
     )
 
     # automatically managed fields

@@ -47,15 +47,18 @@ class EntrySerializer(serializers.ModelSerializer):
 
     tags = CreatableSlugRelatedField(many=True,
                                      slug_field='name',
-                                     queryset=Tag.objects)
+                                     queryset=Tag.objects,
+                                     required=False,)
 
     issues = serializers.SlugRelatedField(many=True,
                                           slug_field='name',
-                                          queryset=Issue.objects)
+                                          queryset=Issue.objects,
+                                          required=False,)
 
     creators = CreatableSlugRelatedField(many=True,
                                          slug_field='name',
-                                         queryset=Creator.objects)
+                                         queryset=Creator.objects,
+                                         required=False,)
 
     bookmark_count = serializers.SerializerMethodField()
 
@@ -81,10 +84,6 @@ class EntrySerializer(serializers.ModelSerializer):
                 return res.count() > 0
 
         return False
-
-    creators = CreatableSlugRelatedField(many=True,
-                                         slug_field='name',
-                                         queryset=Creator.objects)
 
     class Meta:
         """
