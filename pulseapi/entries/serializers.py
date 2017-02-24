@@ -48,17 +48,17 @@ class EntrySerializer(serializers.ModelSerializer):
     tags = CreatableSlugRelatedField(many=True,
                                      slug_field='name',
                                      queryset=Tag.objects,
-                                     required=False,)
+                                     required=False)
 
     issues = serializers.SlugRelatedField(many=True,
                                           slug_field='name',
                                           queryset=Issue.objects,
-                                          required=False,)
+                                          required=False)
 
     creators = CreatableSlugRelatedField(many=True,
                                          slug_field='name',
                                          queryset=Creator.objects,
-                                         required=False,)
+                                         required=False)
 
     bookmark_count = serializers.SerializerMethodField()
 
