@@ -41,12 +41,12 @@ class Entry(models.Model):
     tags = models.ManyToManyField(
         Tag,
         related_name='entries',
-        blank=True,
+        blank=True
     )
     issues = models.ManyToManyField(
         Issue,
         related_name='entries',
-        blank=True,
+        blank=True
     )
     creators = models.ManyToManyField(
         Creator,
@@ -57,10 +57,10 @@ class Entry(models.Model):
     # automatically managed fields
     published_by = models.ForeignKey(
         EmailUser,
-        related_name='entries',
+        related_name='entries'
     )
     created = models.DateTimeField(
-        default = timezone.now,
+        default = timezone.now
     )
 
     objects = EntryQuerySet.as_manager()
