@@ -112,10 +112,11 @@ This will log out a user if they have an authenticated session going. Note that 
 You'll need `python` (v3) with `pip` (latest) and optionally `virtualenv` (python3 comes with a way to build virtual environments, but you can also install `virtualenv` as a dedicated library if you prefer)
 
 1. clone this repo
-2. set up a virtual environment in the `network-pulse-api` directory
-3. set up a Google client (https://console.developers.google.com/apis/credentials)
-4. generate a `client_secrets.json` by running `> python generate_client_secrets.py`, then edit this file so that it has your client's `client_id` and `client_secret`, with `http://test.example.com:8000/oauth2callback` as your callback URI (double check that's what it's set to. It should be, but it's super important you check this).
-5. bootstrap the Django setup:
+2. `cp sample.env .env` to turn on debug mode via environment variables.
+3. set up a virtual environment in the `network-pulse-api` directory
+4. set up a Google client (https://console.developers.google.com/apis/credentials)
+5. generate a `client_secrets.json` by running `> python generate_client_secrets.py`, then edit this file so that it has your client's `client_id` and `client_secret`, with `http://test.example.com:8000/oauth2callback` as your callback URI (double check that's what it's set to. It should be, but it's super important you check this).
+6. bootstrap the Django setup:
 
 - `python manage.py migrate` (or `python manage.py migrate --run-syncdb` on subsequent rebootstrap attempts, if things in the DB are broken)
 - `python manage.py makemigrations` (creates files that instruct django how to uplift the database to match your current models)
@@ -168,7 +169,7 @@ There is a Procfile in place for deploying to Heroku, but in order for the codeb
  - `REDIRECT_URIS`: This should match the redirect uri that you provided in the Google credentials console. For local testing this will be 'http://test.example.com:8000/oauth2callback' but for a Heroku instance you will need to replace `http://test.example.com:8000` with your Heroku url, and you'll have to make sure that your Google credentials use that same uri.
  - `AUTH_URI`: optional, defaults to 'https://accounts.google.com/o/oauth2/auth' and there is no reason to change it.
  - `TOKEN_URI`: optional, defaults to 'https://accounts.google.com/o/oauth2/token' and there is no reason to change it.
-
+ - `SSL_PROTECTION`: Defaults to `False` to make development easier, but if you're deploying you probably want this to be `True`. This sets a slew of security-related variables in `settings.py` that you can override individually if desired.
  Heroku provisions some environmnets on its own, like a `PORT` and `DATABASE_URL` variable, which this codebase will make use of if it sees them, but these values are only really relevant to Heroku deployments and not something you need to mess with for local development purposes.
 
 
