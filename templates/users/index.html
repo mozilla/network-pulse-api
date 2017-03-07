@@ -5,6 +5,9 @@
     <script>
     var domain = window.location.toString();
     var link = document.getElementById('loginLink')
-    link.setAttribute('href', `/login?original_url=${domain}admin`);
+    var adminlink = `/login?original_url=${domain}admin`;
+    // odd double slash issue
+    adminlink = adminlink.replace('//admin','/admin');
+    link.setAttribute('href', adminlink);
     </script>
 {% endif %}
