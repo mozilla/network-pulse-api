@@ -37,16 +37,23 @@ class Entry(models.Model):
     featured = models.BooleanField(default=False)
     internal_notes = models.TextField(blank=True)
 
+    # optional image field with optional S3 hosting
+    thumbnail = models.ImageField(
+        max_length=2048,
+        upload_to='images/entries',
+        blank=True
+    )
+
     # crosslink fields
     tags = models.ManyToManyField(
         Tag,
         related_name='entries',
-        blank=True
+        blank=True,
     )
     issues = models.ManyToManyField(
         Issue,
         related_name='entries',
-        blank=True
+        blank=True,
     )
     creators = models.ManyToManyField(
         Creator,
@@ -57,10 +64,10 @@ class Entry(models.Model):
     # automatically managed fields
     published_by = models.ForeignKey(
         EmailUser,
-        related_name='entries'
+        related_name='entries',
     )
     created = models.DateTimeField(
-        default = timezone.now
+        default = timezone.now,
     )
 
     objects = EntryQuerySet.as_manager()

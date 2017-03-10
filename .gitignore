@@ -82,3 +82,6 @@ venv
 
 #Editor
 /.vscode/
+
+# Storage for user generated files
+pulseapi/media/

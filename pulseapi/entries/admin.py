@@ -13,6 +13,7 @@ class EntryAdmin(admin.ModelAdmin):
         'description',
         'content_url',
         'thumbnail_url',
+        'thumbnail',
         'tags',
         'get_involved',
         'get_involved_url',
