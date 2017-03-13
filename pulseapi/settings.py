@@ -24,7 +24,7 @@ environ.Env.read_env(os.path.join(BASE_DIR,'.env'))
 env = environ.Env(
     DEBUG=(bool, False),
     SSL_PROTECTION=(bool, False),
-    USE_S3=(bool, True),
+    USE_S3=(bool, False),
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
