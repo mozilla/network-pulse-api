@@ -12,7 +12,6 @@ class EntryAdmin(admin.ModelAdmin):
         'title',
         'description',
         'content_url',
-        'thumbnail_url',
         'thumbnail',
         'thumbnail_tag',
         'tags',
