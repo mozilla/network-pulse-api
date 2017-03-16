@@ -44,15 +44,19 @@ SECRET_KEY = 'Oh my god I love cake so much holy shit how amazing is cake; like,
 # Application definition
 
 INSTALLED_APPS = [
+    # django apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
+
+    # custom apps
     'corsheaders',
     'storages',
     'rest_framework',
+
+    # pulse-related apps
     'pulseapi.entries',
     'pulseapi.tags',
     'pulseapi.issues',

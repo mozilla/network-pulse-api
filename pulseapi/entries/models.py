@@ -1,11 +1,14 @@
 """Main entry data"""
 
 from django.db import models
+from django.conf import settings
 from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.creators.models import Creator
 from pulseapi.users.models import EmailUser
 from django.utils import timezone
+from django.utils.safestring import mark_safe
+
 
 # Create your models here.
 class EntryQuerySet(models.query.QuerySet):
@@ -43,6 +46,14 @@ class Entry(models.Model):
         upload_to='images/entries',
         blank=True
     )
+
+    # A field for getting the `<img...>` HTML for the thumbnail image
+    def thumbnail_tag(self):
+        image_html_code = '<img src="{media_url}{href}" style="width: 25%">'.format(media_url=settings.MEDIA_URL, href=self.thumbnail)
+        return mark_safe(image_html_code)
+
+    thumbnail_tag.short_description = 'Thumbnail image'
+
 
     # crosslink fields
     tags = models.ManyToManyField(
