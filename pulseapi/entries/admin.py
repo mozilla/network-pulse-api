@@ -12,7 +12,8 @@ class EntryAdmin(admin.ModelAdmin):
         'title',
         'description',
         'content_url',
-        'thumbnail_url',
+        'thumbnail',
+        'thumbnail_tag',
         'tags',
         'get_involved',
         'get_involved_url',
@@ -25,7 +26,7 @@ class EntryAdmin(admin.ModelAdmin):
         'bookmark_count'
     )
 
-    readonly_fields = ('bookmark_count',)
+    readonly_fields = ('thumbnail_tag', 'bookmark_count',)
 
     def bookmark_count(self, instance):
         """

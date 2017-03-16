@@ -12,22 +12,20 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 import dj_database_url
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 import environ
+
+app = environ.Path(__file__) - 1
+root = app - 1
+
+BASE_DIR = root()
+APP_DIR = app()
 
 environ.Env.read_env(os.path.join(BASE_DIR,'.env'))
 env = environ.Env(
     DEBUG=(bool, False),
     SSL_PROTECTION=(bool, False),
+    USE_S3=(bool, False),
 )
-SSL_PROTECTION = env('SSL_PROTECTION')
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
-
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
@@ -46,14 +44,19 @@ SECRET_KEY = 'Oh my god I love cake so much holy shit how amazing is cake; like,
 # Application definition
 
 INSTALLED_APPS = [
+    # django apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
+
+    # custom apps
     'corsheaders',
+    'storages',
     'rest_framework',
+
+    # pulse-related apps
     'pulseapi.entries',
     'pulseapi.tags',
     'pulseapi.issues',
@@ -166,7 +169,8 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = os.getenv('CORS_ORIGIN_WHITELIST', 'localhost:3000,localhost:8000,localhost:8080,test.example.com:8000,test.example.com:8080,pulse-react.herokuapp.com').split(',')
 
 CORS_ORIGIN_REGEX_WHITELIST = []
-CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
+
+SSL_PROTECTION = env('SSL_PROTECTION')
 CSRF_COOKIE_HTTPONLY = env('CSRF_COOKIE_HTTPONLY', default=SSL_PROTECTION)
 CSRF_COOKIE_SECURE = env('CSRF_COOKIE_SECURE', default=SSL_PROTECTION)
 SECURE_BROWSER_XSS_FILTER = env('SECURE_BROWSER_XSS_FILTER', default=SSL_PROTECTION)
@@ -179,3 +183,21 @@ SESSION_COOKIE_SECURE = env('SESSION_COOKIE_SECURE', default=SSL_PROTECTION)
 if SSL_PROTECTION is True:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 X_FRAME_OPTIONS = "DENY"
+
+
+# image upload functionality
+
+USE_S3 = env('USE_S3')
+
+if USE_S3:
+    # Use S3 to store user files if the corresponding environment var is set
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_CUSTOM_DOMAIN = env('AWS_S3_CUSTOM_DOMAIN')
+    AWS_LOCATION = env('AWS_STORAGE_ROOT')
+else:
+    # Otherwise use the default filesystem storage
+    MEDIA_ROOT = root('pulseapi/media/')
+    MEDIA_URL = '/media/'

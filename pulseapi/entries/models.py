@@ -1,11 +1,14 @@
 """Main entry data"""
 
 from django.db import models
+from django.conf import settings
 from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.creators.models import Creator
 from pulseapi.users.models import EmailUser
 from django.utils import timezone
+from django.utils.safestring import mark_safe
+
 
 # Create your models here.
 class EntryQuerySet(models.query.QuerySet):
@@ -37,16 +40,31 @@ class Entry(models.Model):
     featured = models.BooleanField(default=False)
     internal_notes = models.TextField(blank=True)
 
+    # optional image field with optional S3 hosting
+    thumbnail = models.ImageField(
+        max_length=2048,
+        upload_to='images/entries',
+        blank=True
+    )
+
+    # A field for getting the `<img...>` HTML for the thumbnail image
+    def thumbnail_tag(self):
+        image_html_code = '<img src="{media_url}{href}" style="width: 25%">'.format(media_url=settings.MEDIA_URL, href=self.thumbnail)
+        return mark_safe(image_html_code)
+
+    thumbnail_tag.short_description = 'Thumbnail image'
+
+
     # crosslink fields
     tags = models.ManyToManyField(
         Tag,
         related_name='entries',
-        blank=True
+        blank=True,
     )
     issues = models.ManyToManyField(
         Issue,
         related_name='entries',
-        blank=True
+        blank=True,
     )
     creators = models.ManyToManyField(
         Creator,
@@ -57,10 +75,10 @@ class Entry(models.Model):
     # automatically managed fields
     published_by = models.ForeignKey(
         EmailUser,
-        related_name='entries'
+        related_name='entries',
     )
     created = models.DateTimeField(
-        default = timezone.now
+        default = timezone.now,
     )
 
     objects = EntryQuerySet.as_manager()
