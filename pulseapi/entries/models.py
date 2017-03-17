@@ -1,11 +1,21 @@
 """Main entry data"""
+import os
 
+from django.conf import settings
 from django.db import models
 from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.creators.models import Creator
 from pulseapi.users.models import EmailUser
 from django.utils import timezone
+from django.utils.html import format_html
+
+def entry_thumbnail_path(instance, filename):
+    return 'images/entries/{timestamp}{ext}'.format(
+        timestamp=str(timezone.now()),
+        ext=os.path.splitext(filename)[1]
+    )
+
 
 # Create your models here.
 class EntryQuerySet(models.query.QuerySet):
@@ -36,6 +46,24 @@ class Entry(models.Model):
     interest = models.CharField(max_length=600, blank=True)
     featured = models.BooleanField(default=False)
     internal_notes = models.TextField(blank=True)
+
+    # thumbnail image
+    thumbnail = models.ImageField(
+        max_length=2048,
+        upload_to=entry_thumbnail_path,
+        blank=True
+    )
+
+    def thumbnail_image_tag(self):
+        if not self.thumbnail:
+            return format_html('<span>No image to preview</span>')
+
+        return format_html('<img src="{media_url}{src}" style="width:25%">'.format(
+            media_url=settings.MEDIA_URL,
+            src=self.thumbnail
+        ))
+
+    thumbnail_image_tag.short_description = 'Thumbnail preview'
 
     # crosslink fields
     tags = models.ManyToManyField(
