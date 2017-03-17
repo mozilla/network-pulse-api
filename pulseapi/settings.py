@@ -17,10 +17,13 @@ import dj_database_url
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 import environ
+app = environ.Path(__file__) - 1
+root = app - 1
 
 environ.Env.read_env(os.path.join(BASE_DIR,'.env'))
 env = environ.Env(
     DEBUG=(bool, False),
+    USE_S3=(bool, False),
     SSL_PROTECTION=(bool, False),
 )
 SSL_PROTECTION = env('SSL_PROTECTION')
@@ -54,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'storages',
     'pulseapi.entries',
     'pulseapi.tags',
     'pulseapi.issues',
@@ -135,13 +139,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
@@ -179,3 +179,19 @@ SESSION_COOKIE_SECURE = env('SESSION_COOKIE_SECURE', default=SSL_PROTECTION)
 if SSL_PROTECTION is True:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 X_FRAME_OPTIONS = "DENY"
+
+
+USE_S3 = env('USE_S3')
+
+if USE_S3:
+    # Use S3 to store user files if the corresponding environment var is set
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_CUSTOM_DOMAIN = env('AWS_S3_CUSTOM_DOMAIN')
+    AWS_LOCATION = env('AWS_STORAGE_ROOT', default=None)
+else:
+    # Otherwise use the default filesystem storage
+    MEDIA_ROOT = root('media/')
+    MEDIA_URL = '/media/'

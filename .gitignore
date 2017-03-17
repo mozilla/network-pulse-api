@@ -71,8 +71,6 @@ dump_*
 # Environment
 **/.env
 
-# Static files from python manage.py collectstatic
-app/staticfiles/
 
 # google oauth client_secrets
 client_secrets.json
@@ -82,3 +80,9 @@ venv
 
 #Editor
 /.vscode/
+
+# Static files from python manage.py collectstatic
+static/
+
+# Storage for user generated files
+media/
