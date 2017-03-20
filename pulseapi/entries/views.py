@@ -199,7 +199,7 @@ class EntriesListView(ListCreateAPIView):
 
             '''
             If there is a thumbnail, and it was sent as part of an application/json payload,
-            hen we need to unpack a thumbnail object payload and convert it to a Python
+            then we need to unpack a thumbnail object payload and convert it to a Python
             ContentFile payload instead. We use a try/catch because the optional nature
             means we need to check using "if hasattr(request.data,'thumbnail'):" as we
             as "if request.data['thumnail']" and these are pretty much mutually exclusive
