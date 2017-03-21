@@ -9,9 +9,11 @@ class EntryAdmin(admin.ModelAdmin):
     """
 
     fields = (
+        'id',
         'title',
         'description',
         'content_url',
+        'thumbnail_url',
         'thumbnail',
         'thumbnail_image_tag',
         'tags',
@@ -23,12 +25,14 @@ class EntryAdmin(admin.ModelAdmin):
         'issues',
         'creators',
         'published_by',
-        'bookmark_count'
+        'bookmark_count',
     )
 
     readonly_fields = (
-        'bookmark_count',
+        'id',
+        'thumbnail_url',
         'thumbnail_image_tag',
+        'bookmark_count',
     )
 
     def bookmark_count(self, instance):
