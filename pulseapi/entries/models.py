@@ -65,7 +65,6 @@ class Entry(models.Model):
                 domain=settings.AWS_S3_CUSTOM_DOMAIN,
                 bucket=settings.AWS_LOCATION
             )
-            print("using ", media_url)
 
         return format_html('<img src="{media_url}{src}" style="width:25%">'.format(
             media_url=media_url,
