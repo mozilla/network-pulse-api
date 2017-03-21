@@ -58,8 +58,16 @@ class Entry(models.Model):
         if not self.thumbnail:
             return format_html('<span>No image to preview</span>')
 
+        media_url = settings.MEDIA_URL
+
+        if settings.USE_S3:
+            media_url = 'https://{domain}/{bucket}/'.format(
+                domain=settings.AWS_S3_CUSTOM_DOMAIN,
+                bucket=settings.AWS_STORAGE_ROOT
+            )
+
         return format_html('<img src="{media_url}{src}" style="width:25%">'.format(
-            media_url=settings.MEDIA_URL,
+            media_url=media_url,
             src=self.thumbnail
         ))
 
