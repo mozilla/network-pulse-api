@@ -10,6 +10,7 @@ class EntryAdmin(admin.ModelAdmin):
 
     fields = (
         'id',
+        'is_approved',
         'title',
         'description',
         'content_url',

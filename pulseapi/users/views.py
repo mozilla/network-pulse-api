@@ -213,19 +213,6 @@ def callback(request):
         name = userinfo['name']
         email = userinfo['email']
 
-        # For now, we only allow mozilla.com, mozilla.org,
-        # and mozillafoundation.org accounts.
-        domain = email.split("@")[1]
-        cleared = [
-            'mozilla.com',
-            'mozilla.org',
-            'mozillafoundation.org'
-        ]
-
-        # Any user outside these domains is redirected to the main page.
-        if domain not in cleared:
-            return do_final_redirect(state, False, "Domain not in whitelist")
-
         try:
             # Get the db record for this user and make sure their
             # name matches what google says it should be.
