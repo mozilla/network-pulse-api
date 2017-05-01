@@ -182,7 +182,7 @@ class EntriesListView(ListCreateAPIView):
         ids = self.request.query_params.get('ids', None)
         if ids is not None:
             ids = [ int(x) for x in ids.split(',') ]
-            queryset = Entry.objects.filter(pk__in=ids)
+            queryset = Entry.objects.filter(pk__in=ids, is_approved=True)
         else:
             queryset = Entry.objects.public()
         return queryset
