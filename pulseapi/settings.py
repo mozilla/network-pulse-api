@@ -34,6 +34,7 @@ SSL_PROTECTION = env('SSL_PROTECTION')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
+ALLOW_UNIVERSAL_LOGIN = env('ALLOW_UNIVERSAL_LOGIN', default=None)
 
 # This needs to be a real domain for google auth purposes. As such,
 # you may need to add a "127.0.0.1    test.example.com" to your
