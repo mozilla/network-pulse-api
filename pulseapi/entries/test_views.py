@@ -3,10 +3,10 @@ import json
 from django.core.urlresolvers import reverse
 
 from pulseapi.entries.models import Entry
-from pulseapi.tests import PulseTestCase
+from pulseapi.tests import PulseStaffTestCase, PulseMemberTestCase
 
 
-class TestEntryView(PulseTestCase):
+class TestEntryView(PulseStaffTestCase):
     def test_get_single_entry_data(self):
         """
         Check if we can get a single entry by its `id`
@@ -245,3 +245,22 @@ class TestEntryView(PulseTestCase):
 
         bookmarkJson = json.loads(str(bookmarkResponse.content, 'utf-8'))
         self.assertEqual(len(bookmarkJson), 1)
+
+class TestMemberEntryView(PulseMemberTestCase):
+    def test_approval_requirement(self):
+        """
+        Verify that entriest submitted by non-Mozilla emails aren't immediately visible
+        """
+        payload = self.generatePostPayload(data={'title':'title test_approval_requirement'})
+        postresponse = self.client.post('/entries/', payload)
+
+        self.assertEqual(postresponse.status_code, 200)
+
+        responseobj = json.loads(str(postresponse.content,'utf-8'))
+        entryId = str(responseobj['id'])
+
+        getresponse = self.client.get('/entries/'+ entryId, follow=True)
+        getListresponse = json.loads(str(self.client.get('/entries/').content, 'utf-8'))
+
+        self.assertEqual(len(getListresponse['results']), 2)
+        self.assertEqual(getresponse.status_code, 404)

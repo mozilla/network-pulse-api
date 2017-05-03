@@ -27,7 +27,7 @@ class EntryQuerySet(models.query.QuerySet):
         """
         Return all entries to start
         """
-        return self
+        return self.filter(is_approved=True)
 
 class Entry(models.Model):
     """
@@ -97,6 +97,10 @@ class Entry(models.Model):
     )
     created = models.DateTimeField(
         default = timezone.now
+    )
+    is_approved = models.BooleanField(
+        default=False,
+        help_text="Should this show up on the site?"
     )
 
     objects = EntryQuerySet.as_manager()

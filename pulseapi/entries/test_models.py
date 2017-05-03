@@ -15,6 +15,7 @@ class EntryFactory(factory.DjangoModelFactory):
     content_url = 'http://example.org/image.png'
     featured = False
     published_by_id = 1
+    is_approved = True
 
     class Meta:
         model = Entry

@@ -3,9 +3,9 @@ import json
 from django.test import TestCase
 from django.test import Client
 
-from pulseapi.tests import PulseTestCase
+from pulseapi.tests import PulseMemberTestCase
 
-class TestUserViews(PulseTestCase):
+class TestUserViews(PulseMemberTestCase):
 	def test_nonce_403_for_unauthenticated_user(self):
 		"""
 		Assert that an unauthenticated user calling /nonce is a 403
