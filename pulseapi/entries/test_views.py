@@ -3,10 +3,10 @@ import json
 from django.core.urlresolvers import reverse
 
 from pulseapi.entries.models import Entry
-from pulseapi.tests import PulseTestCase
+from pulseapi.tests import PulseStaffTestCase
 
 
-class TestEntryView(PulseTestCase):
+class TestEntryView(PulseStaffTestCase):
     def test_get_single_entry_data(self):
         """
         Check if we can get a single entry by its `id`

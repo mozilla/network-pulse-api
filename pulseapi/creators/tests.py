@@ -2,13 +2,13 @@ import json
 
 from django.test import TestCase
 from django.test import Client
-from pulseapi.tests import PulseTestCase
+from pulseapi.tests import PulseStaffTestCase
 
 from pulseapi.users.test_models import EmailUserFactory
 from pulseapi.entries.test_models import EntryFactory
 
 
-class TestCreators(PulseTestCase):
+class TestCreators(PulseStaffTestCase):
     def test_get_creator_list(self):
         """Make sure we can get a list of creators"""
         creatorList = self.client.get('/creators/')
