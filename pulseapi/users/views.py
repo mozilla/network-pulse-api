@@ -11,8 +11,9 @@ from django.contrib.auth import login, logout
 from django.views.decorators.csrf import csrf_protect
 from apiclient.discovery import build
 
-
 from .models import EmailUser
+
+from utility import is_moz
 
 class FlowHandler:
     """
@@ -216,15 +217,8 @@ def callback(request):
         email = userinfo['email']
 
         if settings.ALLOW_UNIVERSAL_LOGIN is None:
-            domain = email.split("@")[1]
-            cleared = [
-                'mozilla.com',
-                'mozilla.org',
-                'mozillafoundation.org'
-            ]
-
-            # Any user outside these domains is redirected to the main page.
-            if domain not in cleared:
+            # Any user outside of the cleared mozilla domains is redirected to the main page.
+            if not is_moz(email):
                 return do_final_redirect(state, False, "Domain not in whitelist")
 
         try:

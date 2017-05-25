@@ -18,6 +18,25 @@ def entry_thumbnail_path(instance, filename):
 
 
 # Create your models here.
+class ModerationState(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return str(self.name)
+
+
+def get_default_moderation_state():
+    """
+    Helper function to ensure there is a default
+    ModerationState that can be tacked onto Entries. 
+    """
+
+    default_state = ModerationState.objects.all()[0].id
+
+    return default_state
+
+
+# Create your models here.
 class EntryQuerySet(models.query.QuerySet):
     """
     A queryset for entries which returns all entries
@@ -27,7 +46,9 @@ class EntryQuerySet(models.query.QuerySet):
         """
         Return all entries to start
         """
-        return self.filter(is_approved=True)
+        approved = ModerationState.objects.get(name='Approved')
+        return self.filter(moderation_state=approved)
+
 
 class Entry(models.Model):
     """
@@ -98,10 +119,17 @@ class Entry(models.Model):
     created = models.DateTimeField(
         default = timezone.now
     )
-    is_approved = models.BooleanField(
-        default=False,
-        help_text="Should this show up on the site?"
+
+    # moderation information
+    moderation_state = models.ForeignKey(
+        ModerationState,
+        related_name='entries',
+        default=get_default_moderation_state,
+        on_delete=models.PROTECT
     )
+
+    def is_approved(self):
+        return self.moderation_state.name == 'Approved'
 
     objects = EntryQuerySet.as_manager()
 
