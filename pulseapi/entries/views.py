@@ -129,13 +129,7 @@ class EntryView(RetrieveAPIView):
     A view to retrieve individual entries
     """
 
-    #queryset = Entry.objects.public()
-
-    def get_queryset(self):
-        if is_moz(self.request.user.email):
-            return Entry.objects.all()
-        return Entry.objects.public()
-
+    queryset = Entry.objects.public()
     serializer_class = EntrySerializer
     pagination_class = None
 
@@ -195,10 +189,7 @@ class EntriesListView(ListCreateAPIView):
             ids = [ int(x) for x in ids.split(',') ]
             queryset = Entry.objects.filter(pk__in=ids, moderation_state=approved)
         else:
-            if is_moz(self.request.user.email):
-                queryset = Entry.objects.all()
-            else:
-                queryset = Entry.objects.public()
+            queryset = Entry.objects.public()
         return queryset
 
     # When people POST to this route, we want to do some

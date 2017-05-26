@@ -128,6 +128,10 @@ class Entry(models.Model):
         on_delete=models.PROTECT
     )
 
+    def setModerationState(self, state_name):
+        (moderation_state, created) = ModerationState.objects.get_or_create(name=state_name)
+        self.moderation_state = moderation_state
+
     def is_approved(self):
         return self.moderation_state.name == 'Approved'
 
