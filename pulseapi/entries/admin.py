@@ -23,6 +23,7 @@ class EntryAdmin(admin.ModelAdmin):
     """
 
     fields = (
+        'id',
         'created',
         'moderation_state',
         'title',
@@ -44,6 +45,7 @@ class EntryAdmin(admin.ModelAdmin):
     )
 
     readonly_fields = (
+        'id',
         'created',
         'thumbnail_url',
         'thumbnail_image_tag',
