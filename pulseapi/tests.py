@@ -10,7 +10,7 @@ class PulseStaffTestCase(TestCase):
     def setUp(self):
         self.entries = [EntryFactory() for i in range(2)]
         for entry in self.entries:
-            entry.setModerationState("Approved")
+            entry.set_moderation_state("Approved")
             entry.save()
 
         email = "test@mozilla.org"
