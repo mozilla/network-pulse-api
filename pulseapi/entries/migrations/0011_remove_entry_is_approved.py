@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('entries', '0008_entry_moderation_state'),
+        ('entries', '0010_migrate_approval_flags'),
     ]
 
     operations = [

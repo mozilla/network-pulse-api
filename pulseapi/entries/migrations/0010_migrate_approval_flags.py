@@ -6,7 +6,6 @@ from django.db import migrations, models
 import django.db.models.deletion
 from pulseapi.entries.models import ModerationState, Entry, get_default_moderation_state
 
-
 def forwards_func(apps, schema_editor):
     # We get the model from the versioned app registry;
     # if we directly import it, it'll be the wrong version
@@ -23,14 +22,9 @@ def forwards_func(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('entries', '0007_moderationstate'),
+        ('entries', '0009_entry_moderation_state'),
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='entry',
-            name='moderation_state',
-            field=models.ForeignKey(default=get_default_moderation_state, on_delete=django.db.models.deletion.PROTECT, related_name='entries', to='entries.ModerationState'),
-        ),
         migrations.RunPython(forwards_func),
     ]

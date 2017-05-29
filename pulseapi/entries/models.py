@@ -28,7 +28,7 @@ class ModerationState(models.Model):
 def get_default_moderation_state():
     """
     Helper function to ensure there is a default
-    ModerationState that can be tacked onto Entries. 
+    ModerationState that can be tacked onto Entries.
     """
 
     default_state = ModerationState.objects.all()[0].id
@@ -46,8 +46,17 @@ class EntryQuerySet(models.query.QuerySet):
         """
         Return all entries to start
         """
-        approved = ModerationState.objects.get(name='Approved')
-        return self.filter(moderation_state=approved)
+        try:
+            # This has to happen in a try/catch, so that migrations
+            # don't break. Presumably this is due to the fact that
+            # during migrations, Entry can exist prior to ModerationState
+            # and so if its query set is checked, it'll crash out due
+            # to the absence of the associated ModerationState table.
+            approved = ModerationState.objects.get(name='Approved')
+            return self.filter(moderation_state=approved)
+        except:
+            print("could not make use of ModerationState!")
+            return self.all()
 
 
 class Entry(models.Model):

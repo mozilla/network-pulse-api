@@ -3,19 +3,6 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-from pulseapi.entries.models import ModerationState
-
-def forwards_func(apps, schema_editor):
-    # We get the model from the versioned app registry;
-    # if we directly import it, it'll be the wrong version
-    # issue = apps.get_model("issues", "Issue")
-    db_alias = schema_editor.connection.alias
-    ModerationState.objects.using(db_alias).bulk_create([
-        ModerationState(name="Pending"),
-        ModerationState(name="In Review"),
-        ModerationState(name="Approved"),
-        ModerationState(name="Declined"),
-    ])
 
 class Migration(migrations.Migration):
 
@@ -31,5 +18,4 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100)),
             ],
         ),
-        migrations.RunPython(forwards_func),
     ]

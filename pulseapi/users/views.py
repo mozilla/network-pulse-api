@@ -12,8 +12,8 @@ from django.views.decorators.csrf import csrf_protect
 from apiclient.discovery import build
 
 from .models import EmailUser
+from utility.is_moz import is_moz
 
-from utility import is_moz
 
 class FlowHandler:
     """
