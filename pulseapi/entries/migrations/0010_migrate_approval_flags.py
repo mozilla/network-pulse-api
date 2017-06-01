@@ -4,19 +4,19 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import django.db.models.deletion
-from pulseapi.entries.models import ModerationState, Entry, get_default_moderation_state
+from pulseapi.entries.models import ModerationState, Entry
 
 def forwards_func(apps, schema_editor):
-    # We get the model from the versioned app registry;
-    # if we directly import it, it'll be the wrong version
-    # issue = apps.get_model("issues", "Issue")
-    db_alias = schema_editor.connection.alias
-    approved = ModerationState.objects.using(db_alias).get(name='Approved')
-    entries = Entry.objects.using(db_alias).all()
+    approved = ModerationState.objects.get(name='Approved')
+    entries = apps.get_model('entries', 'Entry').objects.all()
     for entry in entries:
         if entry.is_approved:
-            entry.moderation_state = approved
-            entry.save()
+            migrated_entry = Entry.objects.get(
+                title=entry.title,
+                content_url=entry.content_url
+            )
+            migrated_entry.moderation_state = approved
+            migrated_entry.save()
 
 
 class Migration(migrations.Migration):
