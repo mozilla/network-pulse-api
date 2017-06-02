@@ -8,20 +8,21 @@ import json
 # Create your tests here.
 class PulseStaffTestCase(TestCase):
     def setUp(self):
-            self.entries = [EntryFactory() for i in range(2)]
-            for entry in self.entries:
-                entry.save()
+        self.entries = [EntryFactory() for i in range(2)]
+        for entry in self.entries:
+            entry.set_moderation_state("Approved")
+            entry.save()
 
-            email = "test@mozilla.org"
-            password = "password1234"
-            user = EmailUserFactory(email=email, password=password, name="test user")
-            user.save()
+        email = "test@mozilla.org"
+        password = "password1234"
+        user = EmailUserFactory(email=email, password=password, name="test user")
+        user.save()
 
-            self.client = Client()
-            self.client.force_login(user);
+        self.client = Client()
+        self.client.force_login(user);
 
-            # Set up with some curated data for all tests to use
-            postresponse = self.client.post('/entries/', data=self.generatePostPayload())
+        # Set up with some curated data for all tests to use
+        postresponse = self.client.post('/entries/', data=self.generatePostPayload())
 
     def generatePostPayload(self, data={}):
 

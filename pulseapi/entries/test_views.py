@@ -11,7 +11,6 @@ class TestEntryView(PulseStaffTestCase):
         """
         Check if we can get a single entry by its `id`
         """
-
         id = self.entries[0].id
         response = self.client.get(reverse('entry', kwargs={'pk': id}))
         self.assertEqual(response.status_code, 200)
@@ -259,8 +258,8 @@ class TestMemberEntryView(PulseMemberTestCase):
         responseobj = json.loads(str(postresponse.content,'utf-8'))
         entryId = str(responseobj['id'])
 
-        getresponse = self.client.get('/entries/'+ entryId, follow=True)
         getListresponse = json.loads(str(self.client.get('/entries/').content, 'utf-8'))
+        self.assertEqual(len(getListresponse['results']), 0)
 
-        self.assertEqual(len(getListresponse['results']), 2)
+        getresponse = self.client.get('/entries/'+ entryId, follow=True)
         self.assertEqual(getresponse.status_code, 404)

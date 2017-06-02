@@ -1,7 +1,7 @@
 import factory
 from faker import Factory as FakerFactory
 
-from pulseapi.entries.models import Entry
+from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.users.test_models import EmailUserFactory
 
 
@@ -15,7 +15,7 @@ class EntryFactory(factory.DjangoModelFactory):
     content_url = 'http://example.org/image.png'
     featured = False
     published_by_id = 1
-    is_approved = True
+    moderation_state = ModerationState.objects.get(name='Pending')
 
     class Meta:
         model = Entry

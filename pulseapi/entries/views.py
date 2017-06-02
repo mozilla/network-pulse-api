@@ -11,9 +11,11 @@ from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, ListAPIV
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from pulseapi.entries.models import Entry
+from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.entries.serializers import EntrySerializer
 from pulseapi.users.models import UserBookmarks
+
+from utility.is_moz import is_moz
 
 @api_view(['PUT'])
 def toggle_bookmark(request, entryid):
@@ -126,9 +128,11 @@ class EntryView(RetrieveAPIView):
     """
     A view to retrieve individual entries
     """
+
     queryset = Entry.objects.public()
     serializer_class = EntrySerializer
     pagination_class = None
+
 
 
 class BookmarkedEntries(ListAPIView):
@@ -179,10 +183,11 @@ class EntriesListView(ListCreateAPIView):
     # /entries/?ids=1,2,3,4,... only return those entires.
     # Otherwise, return all entries (with pagination)
     def get_queryset(self):
+        approved = ModerationState.objects.get(name='Approved')
         ids = self.request.query_params.get('ids', None)
         if ids is not None:
             ids = [ int(x) for x in ids.split(',') ]
-            queryset = Entry.objects.filter(pk__in=ids, is_approved=True)
+            queryset = Entry.objects.filter(pk__in=ids, moderation_state=approved)
         else:
             queryset = Entry.objects.public()
         return queryset
@@ -193,29 +198,6 @@ class EntriesListView(ListCreateAPIView):
     @detail_route(methods=['post'])
 
     def post(self, request, *args, **kwargs):
-        def ismoz(email):
-            """
-            This function determines whether a particular email address is a
-            mozilla address or not. We strictly control mozilla.com and
-            mozillafoundation.org addresses, and so filtering on the email
-            domain section using exact string matching is acceptable.
-            """
-            if email is None:
-                return False
-
-            parts = email.split('@')
-            domain = parts[1]
-
-            if domain == 'mozilla.com':
-                return True
-
-            if domain == 'mozillafoundation.org':
-                return True
-
-            if domain == 'mozilla.org':
-                return True
-
-            return False
         validation_result = post_validate(request)
         if validation_result is True:
             # invalidate the nonce, so this form cannot be resubmitted with the current id
@@ -246,7 +228,17 @@ class EntriesListView(ListCreateAPIView):
             if serializer.is_valid():
                 # ensure that the published_by is always the user doing the posting,
                 # and set 'featured' to false (see https://github.com/mozilla/network-pulse-api/issues/83)
-                savedEntry = serializer.save(published_by=request.user, featured=False, is_approved=ismoz(request.user.email))
+                moderation_state = ModerationState.objects.get(name='Pending')
+
+                if (is_moz(request.user.email)):
+                    moderation_state = ModerationState.objects.get(name='Approved')
+
+                savedEntry = serializer.save(
+                    published_by=request.user,
+                    featured=False,
+                    moderation_state=moderation_state
+                )
+
                 return Response({'status': 'submitted', 'id': savedEntry.id})
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

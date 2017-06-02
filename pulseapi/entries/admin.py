@@ -1,6 +1,20 @@
 from django.contrib import admin
 
-from .models import Entry
+from .models import Entry, ModerationState
+
+
+class ModerationStateAdmin(admin.ModelAdmin):
+    """
+    Show a list of moderation states available for entry moderation
+    """
+
+    fields = (
+        'name',
+    )
+
+    ordering = (
+        'id',
+    )
 
 
 class EntryAdmin(admin.ModelAdmin):
@@ -10,7 +24,8 @@ class EntryAdmin(admin.ModelAdmin):
 
     fields = (
         'id',
-        'is_approved',
+        'created',
+        'moderation_state',
         'title',
         'description',
         'content_url',
@@ -31,9 +46,19 @@ class EntryAdmin(admin.ModelAdmin):
 
     readonly_fields = (
         'id',
+        'created',
         'thumbnail_url',
         'thumbnail_image_tag',
         'bookmark_count',
+    )
+
+    ordering = (
+        'created',
+    )
+
+    # this allows us to filter on moderation state in the admin
+    list_filter = (
+        'moderation_state',
     )
 
     def bookmark_count(self, instance):
@@ -43,4 +68,5 @@ class EntryAdmin(admin.ModelAdmin):
         return instance.bookmarked_by.count()
 
 
+admin.site.register(ModerationState, ModerationStateAdmin)
 admin.site.register(Entry, EntryAdmin)
