@@ -11,7 +11,7 @@ def forwards_func(apps, schema_editor):
     entries = apps.get_model('entries', 'Entry').objects.all()
     for entry in entries:
         if entry.is_approved:
-            migrated_entry = Entry.objects.get(
+            migrated_entry = Entry.objects.filter(
                 title=entry.title,
                 content_url=entry.content_url
             )
