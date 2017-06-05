@@ -15,8 +15,9 @@ def forwards_func(apps, schema_editor):
                 title=entry.title,
                 content_url=entry.content_url
             )
-            migrated_entry.moderation_state = approved
-            migrated_entry.save()
+            for m_entry in migrated_entry:
+                m_entry.moderation_state = approved
+                m_entry.save()
 
 
 class Migration(migrations.Migration):
