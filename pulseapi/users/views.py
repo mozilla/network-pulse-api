@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_protect
 from apiclient.discovery import build
 
 from .models import EmailUser
-from utility.is_moz import is_moz
+from pulseapi.utility.userpermissions import is_staff_address
 
 
 class FlowHandler:
@@ -218,7 +218,7 @@ def callback(request):
 
         if settings.ALLOW_UNIVERSAL_LOGIN is None:
             # Any user outside of the cleared mozilla domains is redirected to the main page.
-            if not is_moz(email):
+            if not is_staff_address(email):
                 return do_final_redirect(state, False, "Domain not in whitelist")
 
         try:

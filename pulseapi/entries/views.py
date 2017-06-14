@@ -24,7 +24,7 @@ from pulseapi.entries.serializers import (
 )
 from pulseapi.users.models import EmailUser, UserBookmarks
 
-from pulseapi.utility.is_moz import is_moz
+from pulseapi.utility.userpermissions import is_staff_address
 
 
 @api_view(['PUT'])
@@ -331,7 +331,7 @@ class EntriesListView(ListCreateAPIView):
                     name='Pending'
                 )
 
-                if (is_moz(request.user.email)):
+                if (is_staff_address(request.user.email)):
                     moderation_state = ModerationState.objects.get(
                         name='Approved'
                     )
