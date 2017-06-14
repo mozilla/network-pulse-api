@@ -372,7 +372,7 @@ class TestEntryView(PulseStaffTestCase):
         self.assertEqual(responseObj[0]['name'], "Pending")
 
 
-    def test_moderation_toggle(self):
+    def test_moderation_toggle_by_staff(self):
         entry = Entry.objects.all()[0]
         entry_id = str(entry.id)
 
@@ -420,7 +420,7 @@ class TestMemberEntryView(PulseMemberTestCase):
         self.assertEqual(len(results), 2)
         self.assertEqual(getresponse.status_code, 404)
 
-    def test_moderation_toggle(self):
+    def test_moderation_toggle_by_regular_joe(self):
         """
         Verify that only authorized users can moderate
         """

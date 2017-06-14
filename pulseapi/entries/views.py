@@ -64,7 +64,6 @@ def toggle_bookmark(request, entryid):
 
 
 @api_view(['PUT'])
-@permission_classes((AllowAny,))
 def toggle_moderation(request, entryid, stateid):
     """
     Toggle the moderation state for a specific entry,

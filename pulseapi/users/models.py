@@ -49,7 +49,10 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=1000)
 
     # Is this user a valid Django administrator?
-    is_staff = models.BooleanField(default=False)
+    is_staff = models.BooleanField(
+        default=False,
+        verbose_name="this user has complete administrative control.",
+    )
 
     # "user X bookmarked entry Y" is a many to many relation,
     # for which we also want to know *when* a user bookmarked
@@ -83,12 +86,6 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.toString()
-
-    def has_perm(self, perm, obj=None):
-        return True
-
-    def has_module_perms(self, app_label):
-        return True
 
 
 class UserBookmarks(models.Model):
