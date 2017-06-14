@@ -1,72 +1,137 @@
-from django.test import TestCase
-from pulseapi.users.test_models import EmailUserFactory
-from pulseapi.entries.test_models import EntryFactory
-from django.test import Client
 import json
 
+from django.test import TestCase, Client
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
 
-# Create your tests here.
-class PulseStaffTestCase(TestCase):
-    def setUp(self):
-        self.entries = [EntryFactory() for i in range(2)]
-        for entry in self.entries:
-            entry.set_moderation_state("Approved")
-            entry.save()
+from pulseapi.entries.models import Entry, ModerationState
+from pulseapi.entries.test_models import EntryFactory
 
-        email = "test@mozilla.org"
-        password = "password1234"
-        user = EmailUserFactory(email=email, password=password, name="test user")
-        user.save()
+from pulseapi.users.models import EmailUser
+from pulseapi.users.test_models import EmailUserFactory
 
-        self.client = Client()
-        self.client.force_login(user);
+from pulseapi.issues.models import Issue
 
-        # Set up with some curated data for all tests to use
-        postresponse = self.client.post('/entries/', data=self.generatePostPayload())
+from pulseapi.utility.userpermissions import (
+    is_staff_address,
+    assign_group_policy,
+    add_user_to_main_site,
+)
 
-    def generatePostPayload(self, data={}):
+def setup_groups():
+    staff, created = Group.objects.get_or_create(name='staff')
+    content_type = ContentType.objects.get_for_model(Entry)
 
-        values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
-        payload = {
-            'title': 'default title',
-            'nonce': values['nonce'],
-            'csrfmiddlewaretoken': values['csrf_token'],
-            'content_url': 'http://example.com/',
-            'tags': ['tag1', 'tag2']
-        }
-        for key in data:
-            payload[key] = data[key]
+    permission = Permission.objects.create(
+        codename='can_add_entry',
+        name='Can Add Entries',
+        content_type=content_type
+    )
+    staff.permissions.add(permission)
+    staff.save()
 
-        return payload
+    permission = Permission.objects.create(
+        codename='can_change_entry',
+        name='Can Change Entries',
+        content_type=content_type
+    )
+    staff.permissions.add(permission)
+    staff.save()
+
+    permission = Permission.objects.create(
+        codename='can_delete_entry',
+        name='Can Delete Entries',
+        content_type=content_type
+    )
+    staff.permissions.add(permission)
+    staff.save()
+
+
+def setup_entries(test):
+    test.entries = [EntryFactory() for i in range(2)]
+    for entry in test.entries:
+        entry.save()
+
+
+def create_logged_in_user(test, name, email, password="password1234"):
+    test.name = name
+
+    # create use instance
+    User = EmailUser
+    user = User.objects.create(name=name, email=email, password=password)
+    user.save()
+
+    # make sure this user is in the staff group, too
+    if is_staff_address(email):
+        assign_group_policy(user, "staff")
+        add_user_to_main_site(user)
+
+    # log this user in for further testing purposes
+    test.user = user
+    test.client = Client()
+    test.client.force_login(user)
+
+
+def generate_default_payload(values):
+    return {
+        'title': 'default title',
+        'nonce': values['nonce'],
+        'csrfmiddlewaretoken': values['csrf_token'],
+        'content_url': 'http://example.com/',
+        'tags': ['tag1', 'tag2']
+    }
+
+
+def generate_payload(test, data={}, payload=False):
+    values = json.loads(
+        str(test.client.get('/api/pulse/nonce/').content, 'utf-8')
+    )
+
+    if payload is False:
+        payload = generate_default_payload(values)
+
+    for key in data:
+        payload[key] = data[key]
+
+    return payload
+
+
+def boostrap(test, name, email):
+    setup_groups()
+    create_logged_in_user(
+        test,
+        name=name,
+        email=email
+    )
+    setup_entries(test)
+
 
 class PulseMemberTestCase(TestCase):
+    """
+    A test case wrapper for "plain users" without any staff or admin rights
+    """
     def setUp(self):
-            self.entries = [EntryFactory() for i in range(2)]
-            for entry in self.entries:
-                entry.save()
-
-            email = "test@example.org"
-            password = "password1234"
-            user = EmailUserFactory(email=email, password=password, name="test user")
-            user.save()
-
-            self.client = Client()
-            self.client.force_login(user);
-
-            # Set up with some curated data for all tests to use
-            postresponse = self.client.post('/entries/', data=self.generatePostPayload())
+        boostrap(
+            self,
+            name="plain user",
+            email="test@example.org"
+        )
 
     def generatePostPayload(self, data={}):
+        return generate_payload(self, data)
 
-        values = json.loads(str(self.client.get('/nonce/').content, 'utf-8'))
-        payload = {
-            'title': 'default title',
-            'nonce': values['nonce'],
-            'csrfmiddlewaretoken': values['csrf_token'],
-            'content_url': 'http://example.com/',
-            'tags': ['tag1', 'tag2']
-        }
-        for key in data:
-            payload[key] = data[key]
 
-        return payload
+class PulseStaffTestCase(TestCase):
+    """
+    A test case wrapper for "staff" users, due to having a mozilla login
+    """
+    def setUp(self):
+        boostrap(
+            self,
+            name="staff user",
+            email="test@mozilla.org"
+        )
+
+    def generatePostPayload(self, data={}):
+        return generate_payload(self, data)

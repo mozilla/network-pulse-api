@@ -2,26 +2,12 @@
 from rest_framework import serializers
 from django.utils.encoding import smart_text
 from django.core.exceptions import ObjectDoesNotExist
-
-from pulseapi.entries.models import(
-    Entry,
-)
-from pulseapi.tags.models import(
-    Tag,
-)
-from pulseapi.issues.models import(
-    Issue,
-)
-from pulseapi.creators.models import(
-    Creator
-)
-from pulseapi.users.models import(
-    EmailUser,
-    UserBookmarks
-)
-from pulseapi.users.serializers import(
-    UserBookmarksSerializer
-)
+from pulseapi.entries.models import Entry, ModerationState
+from pulseapi.tags.models import Tag
+from pulseapi.issues.models import Issue
+from pulseapi.creators.models import Creator
+from pulseapi.users.models import EmailUser, UserBookmarks
+from pulseapi.users.serializers import UserBookmarksSerializer
 
 class CreatableSlugRelatedField(serializers.SlugRelatedField):
     """
@@ -30,11 +16,26 @@ class CreatableSlugRelatedField(serializers.SlugRelatedField):
     """
     def to_internal_value(self, data):
         try:
-            return self.get_queryset().get_or_create(**{self.slug_field: data})[0]
+            qs = self.get_queryset()
+            return qs.get_or_create(**{self.slug_field: data})[0]
         except ObjectDoesNotExist:
-            self.fail('does_not_exist', slug_name=self.slug_field, value=smart_text(data))
+            self.fail(
+                'does_not_exist',
+                slug_name=self.slug_field,
+                value=smart_text(data)
+            )
         except (TypeError, ValueError):
             self.fail('invalid')
+
+
+class ModerationStateSerializer(serializers.ModelSerializer):
+    class Meta:
+        """
+        Meta class. Because
+        """
+        model = ModerationState
+        exclude = ()
+
 
 class EntrySerializer(serializers.ModelSerializer):
     """

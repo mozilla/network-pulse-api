@@ -1,6 +1,10 @@
 from __future__ import unicode_literals
 from django.db import models
-from django.contrib.auth.models import (BaseUserManager, AbstractBaseUser)
+from django.contrib.auth.models import (
+    BaseUserManager,
+    AbstractBaseUser,
+    PermissionsMixin
+)
 
 class EmailUserManager(BaseUserManager):
     def create_user(self, name, email, password=None):
@@ -21,17 +25,28 @@ class EmailUserManager(BaseUserManager):
         user.save()
         return user
 
+
+    def create_staffuser(self, name, email, password):
+        user = self.create_user(
+            name=name,
+            email=email,
+            password=password,
+        )
+        user.save()
+        return user
+
+
     def create_superuser(self, name, email, password):
         user = self.create_user(
             name=name,
             email=email,
             password=password,
         )
-        user.is_staff = True
+        user.is_superuser = True
         user.save()
         return user
 
-class EmailUser(AbstractBaseUser):
+class EmailUser(AbstractBaseUser, PermissionsMixin):
     # We treat the user's email address as their username
     email = models.CharField(
         verbose_name='email (acts as username)',
@@ -43,8 +58,11 @@ class EmailUser(AbstractBaseUser):
     # as Django's User model is not useful for world users.
     name = models.CharField(max_length=1000)
 
-    # Is this user a valid Django administrator?
+    # Is this user a staff member?
     is_staff = models.BooleanField(default=False)
+
+    # Is this user a full Django administrator?
+    is_superuser = models.BooleanField(default=False)
 
     # "user X bookmarked entry Y" is a many to many relation,
     # for which we also want to know *when* a user bookmarked
@@ -78,12 +96,6 @@ class EmailUser(AbstractBaseUser):
 
     def __str__(self):
         return self.toString()
-
-    def has_perm(self, perm, obj=None):
-        return True
-
-    def has_module_perms(self, app_label):
-        return True
 
 
 class UserBookmarks(models.Model):
