@@ -9,20 +9,22 @@ def forwards_func(apps, schema_editor):
     # We get the model from the versioned app registry;
     # if we directly import it, it'll be the wrong version
     # issue = apps.get_model("issues", "Issue")
-    db_alias = schema_editor.connection.alias
-    Issue.objects.using(db_alias).bulk_create([
-        Issue(
-            name="Web Literacy",
-            description="People have the skills to read, write and participate in the digital world. Together, these informed digital citizens move beyond just consuming content — to creating, shaping and defending the web."),
-        Issue(name="Online Privacy & Security",
-              description="People understand and can meaningfully control how their data is collected and used online — and trust that it’s safe. Companies and governments work to protect our data and enhance our ownership over our digital identities."),
-        Issue(name="Digital Inclusion",
-              description="People everywhere can access and have the opportunity to participate in building the entire internet. Everyone on the internet has the opportunity to access and shape our digital world. The internet reflects the diversity of the people who use it."),
-        Issue(name="Decentralization",
-              description="The technologies and platforms people use every day are interoperable and based on open standards. People expect and demand systems that allow seamless flow and transfer of information and content."),
-        Issue(name="Open Innovation",
-              description="Open is the default. Open source and open standards continue to be at the heart of the Internet, and influence organizations and industries products, policies and practices. As a result, entrepreneurs and everyday Internet users can create, innovate and compete online without asking permission."),
-    ])
+    Issue.objects.get_or_create(
+        name="Web Literacy",
+        description="People have the skills to read, write and participate in the digital world. Together, these informed digital citizens move beyond just consuming content — to creating, shaping and defending the web."
+    )
+    Issue.objects.get_or_create(
+        name="Online Privacy & Security",
+        description="People understand and can meaningfully control how their data is collected and used online — and trust that it’s safe. Companies and governments work to protect our data and enhance our ownership over our digital identities."
+    )
+    Issue.objects.get_or_create(
+        name="Digital Inclusion",
+        description="People everywhere can access and have the opportunity to participate in building the entire internet. Everyone on the internet has the opportunity to access and shape our digital world. The internet reflects the diversity of the people who use it."
+    )
+    Issue.objects.get_or_create(
+        name="Decentralization",
+        description="The technologies and platforms people use every day are interoperable and based on open standards. People expect and demand systems that allow seamless flow and transfer of information and content."
+    )
 
 class Migration(migrations.Migration):
 
