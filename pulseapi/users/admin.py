@@ -2,6 +2,7 @@
 Admin setings for EmailUser app
 """
 from django.contrib import admin
+from django.contrib.auth.models import Group
 from .models import EmailUser
 
 class UserBookmarksInline(admin.TabularInline):
@@ -31,3 +32,8 @@ class EmailUserAdmin(admin.ModelAdmin):
 
 
 admin.site.register(EmailUser, EmailUserAdmin)
+
+# Add the admin view bits that let us add these users to groups
+from .admin_group_editing import GroupAdmin
+admin.site.unregister(Group)
+admin.site.register(Group, GroupAdmin)
