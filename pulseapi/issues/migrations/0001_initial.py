@@ -6,9 +6,6 @@ from django.db import migrations, models
 from pulseapi.issues.models import Issue
 
 def forwards_func(apps, schema_editor):
-    # We get the model from the versioned app registry;
-    # if we directly import it, it'll be the wrong version
-    # issue = apps.get_model("issues", "Issue")
     Issue.objects.get_or_create(
         name="Web Literacy",
         description="People have the skills to read, write and participate in the digital world. Together, these informed digital citizens move beyond just consuming content — to creating, shaping and defending the web."
@@ -25,6 +22,11 @@ def forwards_func(apps, schema_editor):
         name="Decentralization",
         description="The technologies and platforms people use every day are interoperable and based on open standards. People expect and demand systems that allow seamless flow and transfer of information and content."
     )
+    Issue.objects.get_or_create(
+        name="Open Innovation",
+        description="Open is the default. Open source and open standards continue to be at the heart of the Internet, and influence organizations and industries products, policies and practices. As a result, entrepreneurs and everyday Internet users can create, innovate and compete online without asking permission."
+    )
+
 
 class Migration(migrations.Migration):
 
