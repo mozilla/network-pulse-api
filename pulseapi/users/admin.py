@@ -4,7 +4,6 @@ Admin setings for EmailUser app
 from django.contrib import admin
 from .models import EmailUser
 
-
 class UserBookmarksInline(admin.TabularInline):
     """
     We need an inline widget before we can do anything

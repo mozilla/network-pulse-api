@@ -31,12 +31,14 @@ def get_default_moderation_state():
     ModerationState that can be tacked onto Entries.
     """
 
-    default_state = ModerationState.objects.all()[0].id
+    states = ModerationState.objects.all()
+    if (len(states) == 0):
+        return -1
 
+    default_state = states[0].id
     return default_state
 
 
-# Create your models here.
 class EntryQuerySet(models.query.QuerySet):
     """
     A queryset for entries which returns all entries
@@ -96,10 +98,12 @@ class Entry(models.Model):
                 bucket=settings.AWS_LOCATION
             )
 
-        return format_html('<img src="{media_url}{src}" style="width:25%">'.format(
+        html = '<img src="{media_url}{src}" style="width:25%">'.format(
             media_url=media_url,
             src=self.thumbnail
-        ))
+        )
+
+        return format_html(html)
 
     thumbnail_image_tag.short_description = 'Thumbnail preview'
 
@@ -138,7 +142,9 @@ class Entry(models.Model):
     )
 
     def set_moderation_state(self, state_name):
-        (moderation_state, created) = ModerationState.objects.get_or_create(name=state_name)
+        (moderation_state, created) = ModerationState.objects.get_or_create(
+            name=state_name
+        )
         self.moderation_state = moderation_state
 
     def is_approved(self):

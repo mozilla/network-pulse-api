@@ -48,12 +48,14 @@ SESSION_COOKIE_AGE = 60 * 60 * 24 * 31
 SECRET_KEY = 'Oh my god I love cake so much holy shit how amazing is cake; like, seriously?'
 
 # Application definition
+SITE_ID = 1
 
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',

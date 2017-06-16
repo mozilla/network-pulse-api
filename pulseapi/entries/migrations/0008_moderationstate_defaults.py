@@ -6,16 +6,11 @@ from django.db import migrations, models
 from pulseapi.entries.models import ModerationState
 
 def forwards_func(apps, schema_editor):
-    # We get the model from the versioned app registry;
-    # if we directly import it, it'll be the wrong version
-    # issue = apps.get_model("issues", "Issue")
-    db_alias = schema_editor.connection.alias
-    ModerationState.objects.using(db_alias).bulk_create([
-        ModerationState(name="Pending"),
-        ModerationState(name="In Review"),
-        ModerationState(name="Approved"),
-        ModerationState(name="Declined"),
-    ])
+    # Set up four common moderation states if they don't exist yet
+    ModerationState.objects.get_or_create(name="Pending")
+    ModerationState.objects.get_or_create(name="In Review")
+    ModerationState.objects.get_or_create(name="Approved")
+    ModerationState.objects.get_or_create(name="Declined")
 
 class Migration(migrations.Migration):
 

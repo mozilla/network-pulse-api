@@ -1,8 +1,10 @@
 """
-The creator field for an entry. Can be empty, just a name, or linked to a pulse user
+The creator field for an entry. Can be empty, just a name,
+or linked to a pulse user
 """
 from django.db import models
 from pulseapi.users.models import EmailUser
+
 
 class CreatorQuerySet(models.query.QuerySet):
     """
@@ -11,12 +13,14 @@ class CreatorQuerySet(models.query.QuerySet):
 
     def public(self):
         """
-        Returns all creators. Mainly a starting point for the search query for use with suggestions
+        Returns all creators. Mainly a starting point for the search
+        query for use with suggestions
         """
         return self
 
     def slug(self, slug):
         return self.filter(name=slug)
+
 
 class Creator(models.Model):
     """
