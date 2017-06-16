@@ -96,7 +96,7 @@ def userstatus(request):
     moderator = user.groups.filter(name='moderator')
     is_moderator = len(moderator) > 0
 
-    if is_moderator is False
+    if is_moderator is False:
         is_moderator = user.is_superuser
 
     if loggedin:
