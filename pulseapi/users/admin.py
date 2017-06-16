@@ -33,10 +33,7 @@ class EmailUserAdmin(admin.ModelAdmin):
 
 admin.site.register(EmailUser, EmailUserAdmin)
 
-# override groups so we can add users
+# Add the admin view bits that let us add these users to groups
 from .admin_group_editing import GroupAdmin
-
-# Register the new Group ModelAdmin.
-# Unregister the original Group admin.
 admin.site.unregister(Group)
 admin.site.register(Group, GroupAdmin)
