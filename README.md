@@ -4,15 +4,19 @@ This is the REST API server for the Mozilla Network Pulse project.
 
 ## Current API end points
 
-### `GET /entries/` with optional `?format=json`
+All API routes are prefixed with `/api/pulse/`. The "pulse" might seem redundant, but this lets us move the API to different domains and fold it into other API servers without namespace conflicts.
+
+### `GET /api/pulse/entries/` with optional `?format=json`
 
 This retrieves the full list of entries as stored in the database. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+
+This route takes a swathe of optional arguments for filtering the entry set, visit this route in the browser for more detailed information on all available query arguments.
 
 #### Filters
 
 Please run the server and see [http://localhost:8000/entries](http://localhost:8000/entries) for all supported filters.
 
-### `GET /nonce/`
+### `GET /api/pulse/nonce/`
 
 This gets a current user's session information in the form of their CSRF token, as well as a "nonce" value for performing a one-time post operation. Every time a user POSTs data to the /entry route, this nonce gets invalidated (whether it matches or not) to prevent repeat-posting. As such, is a user is to post several entries, they will need to call `/nonce` as many times.
 
@@ -29,7 +33,7 @@ The call response is a 403 for not authenticated users, or a JSON object when au
 
 Also note that "the page itself" counts as global scope, so you generally don't want to put these values on the page as `<form>` elements. Instead, a form submission should be intercepted, and an in-memory form should be created with all the information of the original form, but with the nonce and csrf values copied. The submission can then use this in-memory form as basis for its POST payload instead.
 
-### `GET /userstatus/`
+### `GET /api/pulse/userstatus/`
 
 This gets the current user's session information in the form of their full name and email address.
 
@@ -47,7 +51,7 @@ If a user is authenticated, all three fields will be present. If a user is not a
 
 **This data should never be cached persistently**. Do not store this in localStorage, cookies, or any other persistent data store. When the user terminates their client, or logs out, this information should immediately be lost. Also do not store this in a global namespace like `window` or `document`, or in anything that isn't protected by a closure.
 
-### `POST /entries/`
+### `POST /api/pulse/entries/`
 
 POSTing of entries requires sending the following payload object:
 
@@ -87,11 +91,31 @@ A successful post will yield a JSON object:
 
 A failed post will yield an HTTP 400 response.
 
-### `GET /entries/<id=number>/` with optional `?format=json`
+### `GET /api/pulse/entries/moderation-states/` with optional `?format=json`
 
-This retrieves a single entry with the indicated `id` as stored in the database. As a base URL call this returns an HTML page with formatted result, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+This retrieves the list of moderation states that are used for entry moderation. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
-### `PUT /entries/<id=number>/bookmark`
+The result is of the format:
+```
+[
+{
+  id: "id number as string",
+  name: "human-readable name for this moderation state"
+},
+{...},
+...
+]
+```
+
+### `GET /api/pulse/entries/<id=number>/` with optional `?format=json`
+
+This retrieves a single entry with the indicated `id` as stored in the database. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+
+### `PUT /api/pulse/entries/<id=number>/moderate/<id=number>` with optional `?format=json`
+
+This changes the moderation state for an entry to the passed moderations state. Note that the moderation state is indicated by `id` number, **not** by moderation state name.
+
+### `PUT /api/pulse/entries/<id=number>/bookmark`
 
 This toggles the "bookmarked" status for an entry for an authenticated user. No payload is expected, and no response is sent other than an HTTP 204 on success, HTTP 403 for not authenticated users, and HTTP 500 if something went terribly wrong on the server side.
 
@@ -103,11 +127,11 @@ This operation requires a payload of the following form:
 }
 ```
 
-### `GET /entries/bookmarks` with optional `?format=json`
+### `GET /api/pulse/entries/bookmarks` with optional `?format=json`
 
 Get the list of all entries that have been bookmarked by the currently authenticated user. Calling this as anonymous user yields an empty list.  As a base URL call this returns an HTML page with formatted result, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
-### `GET /login?original_url=<url>`
+### `GET /api/pulse/login?original_url=<url>`
 
 This will kick off a Google OAuth2 login process. This process is entirely based on browser redirects, and once this process completes the user will be redirect to `original_url` with an additional url query argument `loggedin=True` or `loggedin=False` depending on whether the login attemp succeeded or not.
 
