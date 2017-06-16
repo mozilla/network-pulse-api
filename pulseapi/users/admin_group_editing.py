@@ -1,4 +1,10 @@
-# https://stackoverflow.com/questions/39485067/django-add-user-to-group-via-django-admin
+# ==========================================================
+#
+#  Custom code to add user management in group admin views.
+#
+#  See  https://stackoverflow.com/questions/39485067
+#
+# ==========================================================
 
 from django import forms
 from django.contrib import admin
@@ -39,8 +45,6 @@ class GroupAdminForm(forms.ModelForm):
         instance.save()
         return instance
 
-# Unregister the original Group admin.
-admin.site.unregister(Group)
 
 # Create a new Group admin.
 class GroupAdmin(admin.ModelAdmin):
@@ -49,5 +53,3 @@ class GroupAdmin(admin.ModelAdmin):
     # Filter permissions horizontal as well.
     filter_horizontal = ['permissions']
 
-# Register the new Group ModelAdmin.
-admin.site.register(Group, GroupAdmin)

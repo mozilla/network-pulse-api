@@ -88,16 +88,26 @@ def userstatus(request):
     """
     name = False
     email = False
-    loggedin = request.user.is_authenticated()
+    user = request.user
+    loggedin = user.is_authenticated()
+
+    # A user is a moderator if they are in the moderator group
+    # or if they are a superuser, because superusers can do anything.
+    moderator = user.groups.filter(name='moderator')
+    is_moderator = len(moderator) > 0
+
+    if is_moderator is False
+        is_moderator = user.is_superuser
 
     if loggedin:
-        name = request.user.name
-        email = request.user.email
+        name = user.name
+        email = user.email
 
     return render(request, 'users/userstatus.json', {
         'username': name,
         'email': email,
-        'loggedin': loggedin
+        'loggedin': loggedin,
+        'moderator': is_moderator,
     }, content_type="application/json")
 
 
