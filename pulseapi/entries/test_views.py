@@ -365,10 +365,13 @@ class TestEntryView(PulseStaffTestCase):
         self.assertEqual(len(bookmarkJson), 1)
 
     def test_moderation_states(self):
+        mod_set = ModerationState.objects.all()
+        mod_count = len(mod_set)
+
         url = '/api/pulse/entries/moderation-states/?format=json'
         moderation_states = self.client.get(url)
         responseObj = json.loads(str(moderation_states.content, 'utf-8'))
-        self.assertEqual(len(responseObj), 4)
+        self.assertEqual(len(responseObj), mod_count)
         self.assertEqual(responseObj[0]['name'], "Pending")
 
 

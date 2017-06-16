@@ -8,13 +8,12 @@ from django.core.files.base import ContentFile
 
 from rest_framework import (filters, status)
 from rest_framework.decorators import (
-    detail_route, api_view, permission_classes
+    detail_route, api_view
 )
 from rest_framework.generics import (
     ListCreateAPIView, RetrieveAPIView, ListAPIView
 )
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from pulseapi.entries.models import Entry, ModerationState
@@ -28,7 +27,6 @@ from pulseapi.utility.userpermissions import is_staff_address
 
 
 @api_view(['PUT'])
-@permission_classes((AllowAny,))
 def toggle_bookmark(request, entryid):
     """
     Toggle whether or not this user "bookmarked" the url-indicated entry.
@@ -226,8 +224,8 @@ class EntriesListView(ListCreateAPIView):
     - `?ordering=` - Property you'd like to order the results by. Prepend with
                      `-` to reverse. e.g. `?ordering=-title`
     - `?moderationstate=` - Filter results to only show the indicated moderation
-                            state. This will only filter if the calling user has
-                            moderation permissions.
+                            state, by name. This will only filter if the calling
+                            user has moderation permissions.
     """
     pagination_class = EntriesPagination
     filter_backends = (
@@ -243,9 +241,6 @@ class EntriesListView(ListCreateAPIView):
         'creators__name',
     )
     serializer_class = EntrySerializer
-
-    # which permissions allow this access to this model
-    permission_classes = [AllowAny]
 
     # Custom queryset handling: if the route was called as
     # /entries/?ids=1,2,3,4,... only return those entires.

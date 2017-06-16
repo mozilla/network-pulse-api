@@ -3,7 +3,6 @@ The creator field for an entry. Can be empty, just a name,
 or linked to a pulse user
 """
 from django.db import models
-from django.conf import settings
 from pulseapi.users.models import EmailUser
 
 
