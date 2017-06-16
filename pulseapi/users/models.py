@@ -51,7 +51,7 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
     # Is this user a valid Django administrator?
     is_staff = models.BooleanField(
         default=False,
-        verbose_name="this user has complete administrative control.",
+        verbose_name="this user counts as django::staff",
     )
 
     # "user X bookmarked entry Y" is a many to many relation,
