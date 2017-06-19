@@ -41,7 +41,7 @@ class FlowHandler:
                 ]),
 
                 # this url-to-codepath binding is set up in ./users/urls.py
-                redirect_uri=os.getenv('redirect_uris', 'http://test.example.com:8000/oauth2callback').split(',')[0],
+                redirect_uri=os.getenv('redirect_uris', '').split(',')[0],
             )
 
         return self.flow
