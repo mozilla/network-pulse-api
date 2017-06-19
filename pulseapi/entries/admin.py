@@ -40,7 +40,7 @@ class EntryAdmin(admin.ModelAdmin):
         'internal_notes',
         'issues',
         'creators',
-        'creator_ordering',
+        'ordered_creator_list',
         'published_by',
         'bookmark_count',
     )
@@ -50,7 +50,7 @@ class EntryAdmin(admin.ModelAdmin):
         'created',
         'thumbnail_url',
         'thumbnail_image_tag',
-        'creator_ordering',
+        'ordered_creator_list',
         'bookmark_count',
     )
 

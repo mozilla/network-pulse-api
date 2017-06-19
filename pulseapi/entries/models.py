@@ -130,7 +130,7 @@ class Entry(models.Model):
     # field to record the actual ordering that should be used
     # when presenting this entry, due to the complexity of having
     # "POST ordered" data in a many-to-many relationship.
-    creator_ordering = models.CharField(
+    ordered_creator_list = models.CharField(
         blank=True,
         max_length=9999
     )

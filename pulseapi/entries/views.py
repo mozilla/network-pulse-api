@@ -334,16 +334,16 @@ class EntriesListView(ListCreateAPIView):
                 # and a dedicated model field (the alternative is
                 # incredibly complicated "Through" modelling with
                 # insertion time recording)
-                creator_ordering = ''
+                ordered_creator_list = ''
                 if 'creators' in request.data:
-                    creator_ordering = ','.join(request.data['creators'])
+                    ordered_creator_list = ','.join(request.data['creators'])
 
                 # Save this entry with the appropriately "massaged" fields
                 savedEntry = serializer.save(
                     published_by=user,
                     featured=False,
                     moderation_state=moderation_state,
-                    creator_ordering=creator_ordering
+                    ordered_creator_list=ordered_creator_list
                 )
 
                 return Response({'status': 'submitted', 'id': savedEntry.id})
