@@ -2,6 +2,16 @@
 
 This is the REST API server for the Mozilla Network Pulse project.
 
+- [Current API end points](#current-api-end-points)
+- [Getting up and running for local development](#getting-up-and-running-for-local-development)
+- [Setting up your superuser](#setting-up-your-superuser)
+- [Using a localhost rebinding to a "real" domain](#important-using-a-localhost-rebinding-to-a-real-domain)
+- [Environment variables](#environment variables)
+- [Deploying to Heroku](#deploying-to-heroku)
+- [Migrating data](#migrating-data)
+
+## Resetting your database because of incompatible model changes
+
 ## Current API end points
 
 All API routes are prefixed with `/api/pulse/`. The "pulse" might seem redundant, but this lets us move the API to different domains and fold it into other API servers without namespace conflicts.
@@ -193,9 +203,9 @@ and then use `http://test.example.com:8000` instead of `http://localhost:8000` e
 Example.com and example.org are "special" domains in that they *cannot* resolve to a real domain as part of the policy we, as the internet-connected world, agreed on. This means that if you forget to set that `hosts` binding, visiting test.example.com will be a guaranteed failure. Any other domain may in fact exist, and you don't want to be hitting a real website when you're doing login and authentication.
 
 
-## Deploying to Heroku
+## Environment variables
 
-There is a Procfile in place for deploying to Heroku, but in order for the codebase to work you will need to specify the following environment variables for any Heroku instance:
+The following environment variables are used in this codebase
 
  - `CLIENT_ID`: The client_id that Google gives you in the credentials console.
  - `CLIENT_SECRET`: The client_secret that Google gives you in the credentials console.
@@ -204,6 +214,11 @@ There is a Procfile in place for deploying to Heroku, but in order for the codeb
  - `TOKEN_URI`: optional, defaults to 'https://accounts.google.com/o/oauth2/token' and there is no reason to change it.
  - `SSL_PROTECTION`: Defaults to `False` to make development easier, but if you're deploying you probably want this to be `True`. This sets a slew of security-related variables in `settings.py` that you can override individually if desired.
  Heroku provisions some environmnets on its own, like a `PORT` and `DATABASE_URL` variable, which this codebase will make use of if it sees them, but these values are only really relevant to Heroku deployments and not something you need to mess with for local development purposes.
+ 
+ 
+## Deploying to Heroku
+
+While for local development we provide a `sample.env` that you can use as default environment variables, for Heroku deployment all the above-stated variables need to be real things. **Make sure to add these to the Heroku config!**
 
 
 ## Resetting your database because of incompatible model changes
