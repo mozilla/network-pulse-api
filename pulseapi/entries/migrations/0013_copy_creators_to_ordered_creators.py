@@ -4,23 +4,28 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 from pulseapi.entries.models import Entry
-from pulseapi.creators.models import OrderedEntryCreator
+from pulseapi.creators.models import Creator, OrderedEntryCreator
 
 def forwards_func(apps, schema_editor):
     """
     Migrate Entry.creators to Entry.ordered_creators,
-    because Django can't do this on its own.
+    because Django can't do this on its own. Note
+    that original ordering has already been lost,
+    so we are not concerned with "Getting the order right"
+    while performing this migration.
     """
-    entries = Entry.objects.all();
+    DBEntry = apps.get_model('entries', 'Entry')
+    entries = DBEntry.objects.all();
+
     for entry in entries:
-        for creator in entry.creators:
-            entry.ordered_creators.add(
-                OrderedEntryCreator(
-                    entry=entry,
-                    creator=creator
-                )
+        for cid, creator in enumerate(entry.creators.all()):
+            refentry = Entry.objects.get(id=entry.id)
+            refcreator = Creator.objects.get(id=creator.id)
+            OrderedEntryCreator.objects.get_or_create(
+                entry=refentry,
+                creator=refcreator,
+                order=cid
             )
-        entry.save()
 
 
 class Migration(migrations.Migration):
