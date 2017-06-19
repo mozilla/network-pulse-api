@@ -53,7 +53,15 @@ class EntryAdmin(admin.ModelAdmin):
     )
 
     ordering = (
+        '-created',
+    )
+
+    list_display = (
+        'id',
+        'title',
         'created',
+        'published_by',
+        'moderation_state',
     )
 
     # this allows us to filter on moderation state in the admin
