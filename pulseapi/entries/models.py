@@ -113,15 +113,26 @@ class Entry(models.Model):
         related_name='entries',
         blank=True
     )
+
     issues = models.ManyToManyField(
         Issue,
         related_name='entries',
         blank=True
     )
+
     creators = models.ManyToManyField(
         Creator,
         related_name='entries',
         blank=True
+    )
+
+    # A special field that is used in addition to the "creators"
+    # field to record the actual ordering that should be used
+    # when presenting this entry, due to the complexity of having
+    # "POST ordered" data in a many-to-many relationship.
+    ordered_creator_list = models.CharField(
+        blank=True,
+        max_length=9999
     )
 
     # automatically managed fields

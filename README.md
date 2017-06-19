@@ -20,7 +20,7 @@ All API routes are prefixed with `/api/pulse/`. The "pulse" might seem redundant
 
 This retrieves the full list of entries as stored in the database. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
-This route takes a swathe of optional arguments for filtering the entry set, visit this route in the browser for more detailed information on all available query arguments.
+This route takes a swathe of optional arguments for filtering the entry set, visit this route in the browser for more detailed information on all available query arguments and the response form.
 
 #### Filters
 
@@ -214,8 +214,8 @@ The following environment variables are used in this codebase
  - `TOKEN_URI`: optional, defaults to 'https://accounts.google.com/o/oauth2/token' and there is no reason to change it.
  - `SSL_PROTECTION`: Defaults to `False` to make development easier, but if you're deploying you probably want this to be `True`. This sets a slew of security-related variables in `settings.py` that you can override individually if desired.
  Heroku provisions some environmnets on its own, like a `PORT` and `DATABASE_URL` variable, which this codebase will make use of if it sees them, but these values are only really relevant to Heroku deployments and not something you need to mess with for local development purposes.
- 
- 
+
+
 ## Deploying to Heroku
 
 While for local development we provide a `sample.env` that you can use as default environment variables, for Heroku deployment all the above-stated variables need to be real things. **Make sure to add these to the Heroku config!**

@@ -317,7 +317,7 @@ class EntriesListView(ListCreateAPIView):
             serializer = EntrySerializer(data=request.data)
             if serializer.is_valid():
                 user = request.user
-                # ensure that the published_by is always the user doing
+                # Ensure that the published_by is always the user doing
                 # the posting, and set 'featured' to false.
                 #
                 # see https://github.com/mozilla/network-pulse-api/issues/83
@@ -330,11 +330,22 @@ class EntriesListView(ListCreateAPIView):
                         name='Approved'
                     )
 
+                # Make sure we record the ordering for our creators
+                # and a dedicated model field (the alternative is
+                # incredibly complicated "Through" modelling with
+                # insertion time recording)
+                ordered_creator_list = ''
+                if 'creators' in request.data:
+                    ordered_creator_list = ','.join(request.data['creators'])
+
+                # Save this entry with the appropriately "massaged" fields
                 savedEntry = serializer.save(
                     published_by=user,
                     featured=False,
-                    moderation_state=moderation_state
+                    moderation_state=moderation_state,
+                    ordered_creator_list=ordered_creator_list
                 )
+
                 return Response({'status': 'submitted', 'id': savedEntry.id})
             else:
                 return Response(
