@@ -6,7 +6,7 @@ This is the REST API server for the Mozilla Network Pulse project.
 - [Getting up and running for local development](#getting-up-and-running-for-local-development)
 - [Setting up your superuser](#setting-up-your-superuser)
 - [Using a localhost rebinding to a "real" domain](#important-using-a-localhost-rebinding-to-a-real-domain)
-- [Environment variables](#environment variables)
+- [Environment variables](#environment-variables)
 - [Deploying to Heroku](#deploying-to-heroku)
 - [Migrating data](#migrating-data)
 
