@@ -50,6 +50,7 @@ class EntryAdmin(admin.ModelAdmin):
         'created',
         'thumbnail_url',
         'thumbnail_image_tag',
+        'creator_ordering',
         'bookmark_count',
     )
 
