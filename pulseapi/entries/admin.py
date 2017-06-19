@@ -40,6 +40,7 @@ class EntryAdmin(admin.ModelAdmin):
         'internal_notes',
         'issues',
         'creators',
+        'creator_ordering',
         'published_by',
         'bookmark_count',
     )
