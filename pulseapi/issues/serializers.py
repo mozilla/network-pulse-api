@@ -9,15 +9,12 @@ class IssueSerializer(serializers.ModelSerializer):
     """
     Serializes Issues
     """
-    def to_representation(self, obj):
-        return obj.name
-
     class Meta:
         """
         Meta class. Because it's required by ModelSerializer
         """
         model = Issue
-        fields = ('name', )
+        fields = ('name', 'description')
 
 class IssueDetailSerializer(serializers.ModelSerializer):
     """
