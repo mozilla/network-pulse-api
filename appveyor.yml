@@ -16,11 +16,10 @@ environment:
     SSL_PROTECTION: False
     DATABASE_URL: postgres://postgres:Password12!@localhost:5432/pulseapi
 
-matrix:
-
-    - PYTHON: "C:\\Python36"
-      PYTHON_VERSION: "3.6.1"
-      PYTHON_ARCH: "32"
+    matrix:
+      - PYTHON: "C:\\Python36"
+        PYTHON_VERSION: "3.6.1"
+        PYTHON_ARCH: "32"
 
 init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %%PYTHON_ARCH"
