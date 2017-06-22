@@ -11,10 +11,10 @@ clone_depth: 1
 build: false
 
 environment:
-    - DEBUG: True
-    - REDIRECT_URIS: http://test.example.com:8000/api/pulse/oauth2callback
-    - SSL_PROTECTION: False
-    - DATABASE_URL: postgres://postgres:Password12!@localhost:5432/pulseapi
+    DEBUG: True
+    REDIRECT_URIS: http://test.example.com:8000/api/pulse/oauth2callback
+    SSL_PROTECTION: False
+    DATABASE_URL: postgres://postgres:Password12!@localhost:5432/pulseapi
 
 matrix:
 
