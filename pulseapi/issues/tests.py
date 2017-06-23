@@ -1,6 +1,6 @@
 import json
 from django.test import TestCase
-from pulseapi.issues.models import Issue
+from .models import Issue
 
 class TestIssues(TestCase):
 
@@ -14,4 +14,4 @@ class TestIssues(TestCase):
         self.assertEqual('description' in issue_from_api, True)
 
         issue_from_db = Issue.objects.get(name=issue_from_api['name'])
-        self.assertEqual(issue_from_db['description'], issue_from_api['description'])
+        self.assertEqual(issue_from_db.description, issue_from_api['description'])
