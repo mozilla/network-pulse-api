@@ -10,7 +10,7 @@ services: postgresql
 install: "pip install -r requirements.txt"
 
 before_script:
-  # - psql -c "CREATE DATABASE pulseapi;" -U postgres
+  - psql -c "CREATE DATABASE pulseapi;" -U postgres
   - python manage.py migrate
 
 # command to run tests
