@@ -61,6 +61,14 @@ class EntrySerializer(serializers.ModelSerializer):
                                          queryset=Creator.objects,
                                          required=False)
 
+    publisher_name = serializers.SerializerMethodField()
+
+    def get_publisher_name(self, instance):
+        """
+        Get the name of the user who published this entry
+        """
+        return instance.published_by.name
+
     bookmark_count = serializers.SerializerMethodField()
 
     def get_bookmark_count(self, instance):
