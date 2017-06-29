@@ -72,7 +72,6 @@ class Entry(models.Model):
 
     # optional fields
     description = models.CharField(max_length=600, blank=True)
-    thumbnail_url = models.URLField(blank=True)
     get_involved = models.CharField(max_length=300, blank=True)
     get_involved_url = models.URLField(blank=True)
     interest = models.CharField(max_length=600, blank=True)

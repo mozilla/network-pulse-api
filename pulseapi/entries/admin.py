@@ -29,7 +29,6 @@ class EntryAdmin(admin.ModelAdmin):
         'title',
         'description',
         'content_url',
-        'thumbnail_url',
         'thumbnail',
         'thumbnail_image_tag',
         'tags',
@@ -47,7 +46,6 @@ class EntryAdmin(admin.ModelAdmin):
     readonly_fields = (
         'id',
         'created',
-        'thumbnail_url',
         'thumbnail_image_tag',
         'bookmark_count',
     )
