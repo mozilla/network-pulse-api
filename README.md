@@ -159,9 +159,10 @@ You'll need `python` (v3) with `pip` (latest) and optionally `virtualenv` (pytho
 1. clone this repo
 2. `cp sample.env .env` to turn on debug mode via environment variables.
 3. set up a virtual environment in the `network-pulse-api` directory
-4. set up a Google client (https://console.developers.google.com/apis/credentials)
-5. generate a `client_secrets.json` by running `> python generate_client_secrets.py`, then edit this file so that it has your client's `client_id` and `client_secret`, with `http://test.example.com:8000/api/pulse/oauth2callback` as your callback URI (double check that's what it's set to. It should be, but it's super important you check this).
-6. bootstrap the Django setup:
+4. run `pip install -r requirements.txt`
+5. set up a Google client (https://console.developers.google.com/apis/credentials)
+6. generate a `client_secrets.json` by running `> python generate_client_secrets.py`, then edit this file so that it has your client's `client_id` and `client_secret`, with `http://test.example.com:8000/api/pulse/oauth2callback` as your callback URI (double check that's what it's set to. It should be, but it's super important you check this).
+7. bootstrap the Django setup:
 
 - `python manage.py migrate` (or `python manage.py migrate --run-syncdb` on subsequent rebootstrap attempts, if things in the DB are broken)
 - `python manage.py makemigrations` (creates files that instruct django how to uplift the database to match your current models)
