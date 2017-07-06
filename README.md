@@ -75,11 +75,15 @@ POSTing of entries requires sending the following payload object:
   content_url: required url string
 
   description: optional string (max length 600 characters)
-  thumbnail_url: optional URL for a thumbnail image for this entry
   get_involved: optional 'how to get involved' string (max length 300 characters)
   get_involved_url: optional URL that people can visit to get involved
   interest: optional subject string (Free form, max length 600 characters)
   featured: optional boolean to set the "shown on featured page" flag
+
+  thumbnail: optional object {
+    name: name of the file,
+    base64: the base64 encoded binary representation of the file's bytes
+  }
 
   tags: optional array of strings
   issues: optional array of strings, must match values from [GET /issues?format=json]
