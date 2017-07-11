@@ -1,0 +1,25 @@
+language: python
+cache: pip
+
+python:
+  - "3.6"
+
+services: postgresql
+
+# command to install dependencies
+install: "pip install -r requirements.txt"
+
+before_script:
+  - psql -c "CREATE DATABASE pulseapi;" -U postgres
+  - python manage.py migrate
+
+# command to run tests
+script:
+  - python manage.py test
+
+env:
+  global:
+    - DEBUG=True
+    - REDIRECT_URIS=http://test.example.com:8000/api/pulse/oauth2callback
+    - SSL_PROTECTION=False
+    - DATABASE_URL=postgres://postgres:5432@localhost:5432/pulseapi

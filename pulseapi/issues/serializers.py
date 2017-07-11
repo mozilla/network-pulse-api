@@ -19,7 +19,6 @@ class IssueSerializer(serializers.ModelSerializer):
         model = Issue
         fields = ('name', 'description',)
 
-
 class IssueDetailSerializer(serializers.ModelSerializer):
     """
     Serializes Issues
