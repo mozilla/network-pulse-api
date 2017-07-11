@@ -90,7 +90,6 @@ class TestEntryView(PulseStaffTestCase):
             'interest': 'interest field',
             'get_involved': 'get involved text field',
             'get_involved_url': 'http://example.com/getinvolved',
-            'thumbnail_url': 'http://example.com/',
             'content_url': 'http://example.com/',
             'internal_notes': 'Some internal notes',
             'featured': True,
@@ -113,7 +112,6 @@ class TestEntryView(PulseStaffTestCase):
             'interest': 'interest field',
             'get_involved': 'get involved text field',
             'get_involved_url': 'http://example.com/getinvolved',
-            'thumbnail_url': 'http://example.com/',
             'content_url': 'http://example.com/',
             'internal_notes': 'Some internal notes',
             'featured': True,
@@ -293,7 +291,6 @@ class TestEntryView(PulseStaffTestCase):
             'interest': 'interest field',
             'get_involved': 'get involved text field',
             'get_involved_url': 'http://example.com/getinvolved',
-            'thumbnail_url': 'http://example.com/',
             'content_url': 'http://example.com/',
             'internal_notes': 'Some internal notes'
         })
