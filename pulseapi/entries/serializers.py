@@ -61,9 +61,9 @@ class EntrySerializer(serializers.ModelSerializer):
                                          queryset=Creator.objects,
                                          required=False)
 
-    publisher_name = serializers.SerializerMethodField()
+    published_by = serializers.SerializerMethodField()
 
-    def get_publisher_name(self, instance):
+    def get_published_by(self, instance):
         """
         Get the name of the user who published this entry
         """

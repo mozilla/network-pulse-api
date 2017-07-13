@@ -3,6 +3,7 @@ import json
 from django.core.urlresolvers import reverse
 
 from pulseapi.entries.models import Entry, ModerationState
+from pulseapi.users.models import EmailUser
 from pulseapi.tests import PulseStaffTestCase, PulseMemberTestCase
 
 
@@ -226,6 +227,14 @@ class TestEntryView(PulseStaffTestCase):
             page1Json['results'][0]['title'],
             page2Json['results'][0]['title']
         )
+
+    def test_entry_published_by(self):
+        """Make sure entry includes publisher's full name as the published_by meta"""
+
+        entry = Entry.objects.all()[0]
+        id = self.entries[0].id
+        response = self.client.get(reverse('entry', kwargs={'pk': id}))
+        self.assertEqual(entry.published_by.name, response.data['published_by'])
 
     def test_entries_search_by_tag(self):
         """Make sure filtering searches by tag works"""
