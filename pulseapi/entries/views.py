@@ -187,6 +187,7 @@ class EntryView(RetrieveAPIView):
 
 
 class BookmarkedEntries(ListAPIView):
+    pagination_class = EntriesPagination
 
     def get_queryset(self):
         user = self.request.user
