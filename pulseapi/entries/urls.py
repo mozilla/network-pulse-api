@@ -3,6 +3,7 @@ from django.conf.urls import url
 from pulseapi.entries.views import (
     toggle_bookmark,
     toggle_moderation,
+    toggle_featured,
     EntryView,
     BookmarkedEntries,
     ModerationStateView,
@@ -29,6 +30,11 @@ urlpatterns = [
         r'^(?P<entryid>[0-9]+)/moderate/(?P<stateid>[0-9]+)/?',
         toggle_moderation,
         name='moderate'
+    ),
+    url(
+        r'^(?P<entryid>[0-9]+)/feature/?',
+        toggle_featured,
+        name='feature'
     ),
     url(
     	r'^(?P<pk>[0-9]+)/',

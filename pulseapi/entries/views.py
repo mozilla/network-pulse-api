@@ -61,6 +61,31 @@ def toggle_bookmark(request, entryid):
 
 
 @api_view(['PUT'])
+def toggle_featured(request, entryid):
+    """
+    Toggle the featured status of an entry.
+    """
+    user = request.user
+
+    if user.has_perm('entries.can_change_entry'):
+
+        entry = None
+        # find the entry for this id
+        try:
+            entry = Entry.objects.get(id=entryid)
+        except Entry.DoesNotExist:
+            return Response("No such entry", status=status.HTTP_404_NOT_FOUND)
+
+        entry.featured = not entry.featured
+        entry.save()
+        return Response("Toggled featured status.",
+                        status=status.HTTP_204_NO_CONTENT)
+    return Response(
+        "You donot have permission to change entry featured status.",
+        status=status.HTTP_403_FORBIDDEN)
+
+
+@api_view(['PUT'])
 def toggle_moderation(request, entryid, stateid):
     """
     Toggle the moderation state for a specific entry,

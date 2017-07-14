@@ -381,6 +381,38 @@ class TestEntryView(PulseStaffTestCase):
         self.assertEqual(len(responseObj), mod_count)
         self.assertEqual(responseObj[0]['name'], "Pending")
 
+    def test_featured_toggle_without_login(self):
+        entry = Entry.objects.all()[0]
+        # ensure that featured status is False
+        entry.featured = False
+        entry.save()
+
+        # ensure that user is logged out
+        self.client.logout()
+
+        url = '/api/pulse/entries/{}/feature'.format(entry.id)
+        response = self.client.put(url)
+
+        self.assertEqual(response.status_code, 403)
+
+        entry.refresh_from_db()
+        self.assertEqual(entry.featured, False)
+
+    def test_featured_toggle_by_staff(self):
+        entry = Entry.objects.all()[0]
+        # ensure that featured status is False
+        entry.featured = False
+        entry.save()
+
+        url = '/api/pulse/entries/{}/feature'.format(entry.id)
+        response = self.client.put(url)
+
+        # did the call succeed?
+        self.assertEqual(response.status_code, 204)
+
+        entry.refresh_from_db()
+        self.assertEqual(entry.featured, True)
+
 
     def test_moderation_toggle_by_staff(self):
         entry = Entry.objects.all()[0]
