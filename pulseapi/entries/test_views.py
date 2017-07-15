@@ -367,6 +367,9 @@ class TestEntryView(PulseStaffTestCase):
         self.assertEqual('results' in bookmarkJson, True)
         self.assertEqual(len(bookmarkJson), 4)
 
+        # verify bookmarkJson.results has the right content
+        self.assertEqual(id, bookmarkJson['results'][0]['id'])
+
     def test_moderation_states(self):
         mod_set = ModerationState.objects.all()
         mod_count = len(mod_set)
