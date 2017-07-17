@@ -354,6 +354,7 @@ class TestEntryView(PulseStaffTestCase):
 
         self.client.put('/api/pulse/entries/' + str(id) + '/bookmark')
 
+        # verify authenticated users get a status 200 response
         bookmarkResponse = self.client.get('/api/pulse/entries/bookmarks/')
         self.assertEqual(bookmarkResponse.status_code, 200)
 
@@ -374,6 +375,16 @@ class TestEntryView(PulseStaffTestCase):
         self.client.logout()
         bookmarkResponse2 = self.client.get('/api/pulse/entries/bookmarks/')
         self.assertEqual(bookmarkResponse2.status_code, 200)
+
+        bookmarkJson2 = json.loads(str(bookmarkResponse2.content, 'utf-8'))
+
+        # verify data returned has the following properties and that 'count' is 0
+        self.assertEqual('count' in bookmarkJson2, True)
+        self.assertEqual('previous' in bookmarkJson2, True)
+        self.assertEqual('next' in bookmarkJson2, True)
+        self.assertEqual('results' in bookmarkJson2, True)
+        self.assertEqual(len(bookmarkJson2), 4)
+        self.assertEqual(bookmarkJson2['count'], 0)
 
     def test_moderation_states(self):
         mod_set = ModerationState.objects.all()
