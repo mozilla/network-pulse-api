@@ -65,6 +65,7 @@ class EntryAdmin(admin.ModelAdmin):
     # this allows us to filter on moderation state in the admin
     list_filter = (
         'moderation_state',
+        'featured'
     )
 
     def bookmark_count(self, instance):
