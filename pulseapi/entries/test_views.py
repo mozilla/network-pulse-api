@@ -345,7 +345,8 @@ class TestEntryView(PulseStaffTestCase):
 
     def test_bookmarked_entries_view(self):
         """
-        Verify that authenticated users can see a list of bookmarks.
+        Verify that both authenticated and unauthenticated users can find out
+        what their bookmarked entries are.
         """
         # get a legal entry and its associated id
         entries = Entry.objects.all()
@@ -354,11 +355,11 @@ class TestEntryView(PulseStaffTestCase):
 
         self.client.put('/api/pulse/entries/' + str(id) + '/bookmark')
 
-        # verify authenticated users get a status 200 response
+        # verify that authenticated users get a status 200 response
         bookmarkResponse = self.client.get('/api/pulse/entries/bookmarks/')
         self.assertEqual(bookmarkResponse.status_code, 200)
 
-        # verify data returned has the following properties
+        # verify that data returned has the following properties
         bookmarkJson = json.loads(str(bookmarkResponse.content, 'utf-8'))
 
         self.assertEqual('count' in bookmarkJson, True)
@@ -367,18 +368,18 @@ class TestEntryView(PulseStaffTestCase):
         self.assertEqual('results' in bookmarkJson, True)
         self.assertEqual(len(bookmarkJson), 4)
 
-        # verify bookmarkJson.results has the right content
+        # verify that bookmarkJson.results has the right content
         self.assertEqual(len(bookmarkJson['results']), 1)
         self.assertEqual(id, bookmarkJson['results'][0]['id'])
 
-        # verify unauthenticated users get a status 200 response
+        # verify that unauthenticated users get a status 200 response
         self.client.logout()
         bookmarkResponse2 = self.client.get('/api/pulse/entries/bookmarks/')
         self.assertEqual(bookmarkResponse2.status_code, 200)
 
         bookmarkJson2 = json.loads(str(bookmarkResponse2.content, 'utf-8'))
 
-        # verify data returned has the following properties and that 'count' is 0
+        # verify that data returned has the following properties and that 'count' is 0
         self.assertEqual('count' in bookmarkJson2, True)
         self.assertEqual('previous' in bookmarkJson2, True)
         self.assertEqual('next' in bookmarkJson2, True)
