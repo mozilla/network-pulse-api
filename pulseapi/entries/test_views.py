@@ -370,6 +370,11 @@ class TestEntryView(PulseStaffTestCase):
         self.assertEqual(len(bookmarkJson['results']), 1)
         self.assertEqual(id, bookmarkJson['results'][0]['id'])
 
+        # verify unauthenticated users get a status 200 response
+        self.client.logout()
+        bookmarkResponse2 = self.client.get('/api/pulse/entries/bookmarks/')
+        self.assertEqual(bookmarkResponse2.status_code, 200)
+
     def test_moderation_states(self):
         mod_set = ModerationState.objects.all()
         mod_count = len(mod_set)
