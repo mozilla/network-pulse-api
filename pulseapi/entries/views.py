@@ -190,8 +190,12 @@ class BookmarkedEntries(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
+
+        if user.is_authenticated() is False:
+            return Entry.objects.none()
+
         bookmarks = UserBookmarks.objects.filter(user=user)
-        return Entry.objects.filter(bookmarked_by__in=bookmarks).order_by('-bookmark_by')
+        return Entry.objects.filter(bookmarked_by__in=bookmarks).order_by('-bookmarked_by__timestamp')
 
     serializer_class = EntrySerializer
 

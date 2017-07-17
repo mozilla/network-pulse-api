@@ -354,7 +354,6 @@ class TestEntryView(PulseStaffTestCase):
 
         self.client.put('/api/pulse/entries/' + str(id) + '/bookmark')
 
-        # verify bookmark count is now one
         bookmarkResponse = self.client.get('/api/pulse/entries/bookmarks/')
         self.assertEqual(bookmarkResponse.status_code, 200)
 
