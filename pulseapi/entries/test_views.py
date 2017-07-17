@@ -345,8 +345,7 @@ class TestEntryView(PulseStaffTestCase):
 
     def test_bookmarked_entries_view(self):
         """
-        Verify that both authenticated and unauthenticated users can find out
-        what their bookmarked entries are.
+        Verify that authenticated users can see a list of bookmarks.
         """
         # get a legal entry and its associated id
         entries = Entry.objects.all()
@@ -371,21 +370,6 @@ class TestEntryView(PulseStaffTestCase):
         # verify that bookmarkJson.results has the right content
         self.assertEqual(len(bookmarkJson['results']), 1)
         self.assertEqual(id, bookmarkJson['results'][0]['id'])
-
-        # verify that unauthenticated users get a status 200 response
-        self.client.logout()
-        bookmarkResponse2 = self.client.get('/api/pulse/entries/bookmarks/')
-        self.assertEqual(bookmarkResponse2.status_code, 200)
-
-        bookmarkJson2 = json.loads(str(bookmarkResponse2.content, 'utf-8'))
-
-        # verify that data returned has the following properties and that 'count' is 0
-        self.assertEqual('count' in bookmarkJson2, True)
-        self.assertEqual('previous' in bookmarkJson2, True)
-        self.assertEqual('next' in bookmarkJson2, True)
-        self.assertEqual('results' in bookmarkJson2, True)
-        self.assertEqual(len(bookmarkJson2), 4)
-        self.assertEqual(bookmarkJson2['count'], 0)
 
     def test_moderation_states(self):
         mod_set = ModerationState.objects.all()
@@ -472,3 +456,23 @@ class TestMemberEntryView(PulseMemberTestCase):
         entry = Entry.objects.get(id=entry_id)
         state = ModerationState.objects.get(name="Pending")
         self.assertEqual(entry.moderation_state, state)
+
+    def test_anonymous_bookmark_route(self):
+        """
+        Verify that unauthorized users get an empty bookmark list.
+        """
+
+        # verify that unauthenticated users get a status 200 response
+        self.client.logout()
+        bookmarkResponse = self.client.get('/api/pulse/entries/bookmarks/')
+        self.assertEqual(bookmarkResponse.status_code, 200)
+
+        bookmarkJson = json.loads(str(bookmarkResponse.content, 'utf-8'))
+
+        # verify that data returned has the following properties and that 'count' is 0
+        self.assertEqual('count' in bookmarkJson, True)
+        self.assertEqual('previous' in bookmarkJson, True)
+        self.assertEqual('next' in bookmarkJson, True)
+        self.assertEqual('results' in bookmarkJson, True)
+        self.assertEqual(len(bookmarkJson), 4)
+        self.assertEqual(bookmarkJson['count'], 0)
