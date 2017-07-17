@@ -25,7 +25,6 @@ from pulseapi.users.models import EmailUser, UserBookmarks
 
 from pulseapi.utility.userpermissions import is_staff_address
 
-
 @api_view(['PUT'])
 def toggle_bookmark(request, entryid):
     """
@@ -187,11 +186,16 @@ class EntryView(RetrieveAPIView):
 
 
 class BookmarkedEntries(ListAPIView):
+    pagination_class = EntriesPagination
 
     def get_queryset(self):
         user = self.request.user
+
+        if user.is_authenticated() is False:
+            return Entry.objects.none()
+
         bookmarks = UserBookmarks.objects.filter(user=user)
-        return Entry.objects.filter(bookmarked_by__in=bookmarks)
+        return Entry.objects.filter(bookmarked_by__in=bookmarks).order_by('-bookmarked_by__timestamp')
 
     serializer_class = EntrySerializer
 

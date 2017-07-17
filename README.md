@@ -146,7 +146,7 @@ This operation requires a payload of the following form:
 
 ### `GET /api/pulse/entries/bookmarks` with optional `?format=json`
 
-Get the list of all entries that have been bookmarked by the currently authenticated user. Calling this as anonymous user yields an empty list.  As a base URL call this returns an HTML page with formatted result, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+Get the list of all entries that have been bookmarked by the currently authenticated user. Calling this as anonymous user yields an object with property `count` equals to `0`.  As a base URL call this returns an HTML page with formatted result, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
 ### `GET /api/pulse/login?original_url=<url>`
 
