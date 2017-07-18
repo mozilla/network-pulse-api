@@ -241,6 +241,8 @@ class EntriesListView(ListCreateAPIView):
     search_fields = (
         'title',
         'description',
+        'get_involved',
+        'interest',
         'tags__name',
         'creators__name',
     )
