@@ -61,6 +61,16 @@ class EntrySerializer(serializers.ModelSerializer):
                                          queryset=Creator.objects,
                                          required=False)
 
+    # overrides 'published_by' for REST purposes
+    # as we don't want to expose any user's email address
+    published_by = serializers.SerializerMethodField()
+
+    def get_published_by(self, instance):
+        """
+        Get the name of the user who published this entry
+        """
+        return instance.published_by.name
+
     bookmark_count = serializers.SerializerMethodField()
 
     def get_bookmark_count(self, instance):
