@@ -44,7 +44,7 @@ def toggle_bookmark(request, entryid):
         except Entry.DoesNotExist:
             return Response("No such entry", status=status.HTTP_404_NOT_FOUND)
 
-        # find is there is already a {user,entry,(timestamp)} triple
+        # find out if there is already a {user,entry,(timestamp)} triple
         bookmarks = entry.bookmarked_by.filter(user=user)
         exists = bookmarks.count() > 0
 
@@ -187,6 +187,7 @@ class EntryView(RetrieveAPIView):
 
 class BookmarkedEntries(ListAPIView):
     pagination_class = EntriesPagination
+    serializer_class = EntrySerializer
 
     def get_queryset(self):
         user = self.request.user
@@ -197,7 +198,53 @@ class BookmarkedEntries(ListAPIView):
         bookmarks = UserBookmarks.objects.filter(user=user)
         return Entry.objects.filter(bookmarked_by__in=bookmarks).order_by('-bookmarked_by__timestamp')
 
-    serializer_class = EntrySerializer
+    # When people POST to this route, we want to do some
+    # custom validation involving CSRF and nonce validation,
+    # so we intercept the POST handling a little.
+    @detail_route(methods=['post'])
+    def post(self, request, *args, **kwargs):
+        validation_result = post_validate(request)
+
+        if validation_result is True:
+            # invalidate the nonce, so this form cannot be
+            # resubmitted with the current id
+            request.session['nonce'] = False
+
+            user = request.user
+            ids = self.request.query_params.get('ids', None)
+
+            if ids is not None:
+                ids = [int(x) for x in ids.split(',')]
+
+            def bookmark_entry(id):
+                entry = None
+
+                # find the entry for this id
+                try:
+                    entry = Entry.objects.get(id=id)
+                except Entry.DoesNotExist:
+                    return
+
+                # find out if there is already a {user,entry,(timestamp)} triple
+                bookmarks = entry.bookmarked_by.filter(user=user)
+                exists = bookmarks.count() > 0
+
+                # make a bookmark if there isn't one already
+                if exists is False:
+                    bookmark = UserBookmarks(entry=entry, user=user)
+                    bookmark.save()
+
+            if user.is_authenticated():
+                for id in ids:
+                    bookmark_entry(id)
+
+            return Response("Entries bookmarked.", status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(
+                "put validation failed",
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
 
 
 class ModerationStateView(ListAPIView):
