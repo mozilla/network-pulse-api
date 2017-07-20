@@ -380,6 +380,80 @@ class TestEntryView(PulseStaffTestCase):
         self.assertEqual(len(bookmarkJson['results']), 1)
         self.assertEqual(id, bookmarkJson['results'][0]['id'])
 
+    def test_post_bookmark_entries_without_login(self):
+        """
+        Verify that anonymous users cannot bookmark a list of entries.
+        """
+
+        # get a legal entry and its associated id
+        entries = Entry.objects.all()
+        entry = entries[0]
+        id = entry.id
+
+        # ensure the user is logged out, then try to bookmark
+        self.client.logout()
+        url = '/api/pulse/entries/bookmarks/?ids=' + str(id)
+        postresponse = self.client.post(url)
+        self.assertEqual(postresponse.status_code, 403)
+
+        # verify bookmark count is zero
+        bookmarks = entry.bookmarked_by.count()
+        self.assertEqual(bookmarks, 0)
+
+    def test_post_bookmark_entries_with_login(self):
+        """
+        Verify that authenticated users can bookmark a list of entries.
+        """
+
+        # get a legal entry and its associated id
+        entries = Entry.objects.all()
+        entry = entries[0]
+        id = entry.id
+
+        url = '/api/pulse/entries/bookmarks/?ids=' + str(id)
+        payload = self.generatePostPayload()
+
+        postresponse = self.client.post(url,payload)
+        self.assertEqual(postresponse.status_code, 204)
+
+        # verify bookmark count is now one
+        bookmarks = entry.bookmarked_by.count()
+        self.assertEqual(bookmarks, 1)
+
+        # post again, which should not clear the bookmark flag for this user
+        payload = self.generatePostPayload()
+        postresponse = self.client.post(url,payload)
+        self.assertEqual(postresponse.status_code, 204)
+
+        # verify bookmark count is still 1
+        bookmarks = entry.bookmarked_by.count()
+        self.assertEqual(bookmarks, 1)
+
+    def test_post_bookmark_entries_with_invalid_param(self):
+        """
+        Verify that bookmarking a list of entries with invalid ids
+        will return a status 400
+        """
+
+        # get a non-existent id
+        entries = Entry.objects.all()
+        nonExistentId = len(entries) + 1
+
+        url = '/api/pulse/entries/bookmarks/?ids=' + str(nonExistentId)
+        payload = self.generatePostPayload()
+
+        postresponse = self.client.post(url,payload)
+        self.assertEqual(postresponse.status_code, 400)
+
+        # post with a non-existent id
+        invalidId = 'abc'
+
+        url = '/api/pulse/entries/bookmarks/?ids=' + invalidId
+        payload = self.generatePostPayload()
+
+        postresponse = self.client.post(url,payload)
+        self.assertEqual(postresponse.status_code, 400)
+
     def test_moderation_states(self):
         mod_set = ModerationState.objects.all()
         mod_count = len(mod_set)
