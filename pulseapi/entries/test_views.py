@@ -405,36 +405,7 @@ class TestEntryView(PulseStaffTestCase):
         Verify that authenticated users can bookmark a list of entries.
         """
 
-        # get a legal entry and its associated id
-        entries = Entry.objects.all()
-        entry = entries[0]
-        id = entry.id
-
-        url = '/api/pulse/entries/bookmarks/?ids=' + str(id)
-        payload = self.generatePostPayload()
-
-        postresponse = self.client.post(url,payload)
-        self.assertEqual(postresponse.status_code, 204)
-
-        # verify bookmark count is now one
-        bookmarks = entry.bookmarked_by.count()
-        self.assertEqual(bookmarks, 1)
-
-        # post again, which should not clear the bookmark flag for this user
-        payload = self.generatePostPayload()
-        postresponse = self.client.post(url,payload)
-        self.assertEqual(postresponse.status_code, 204)
-
-        # verify bookmark count is still 1
-        bookmarks = entry.bookmarked_by.count()
-        self.assertEqual(bookmarks, 1)
-
-    def test_post_bookmark_entries_with_multiple_ids(self):
-        """
-        Verify that authenticated users can bookmark a list of entries.
-        """
-
-        # get a legal entry and its associated id
+        # get two legal entries and their associated id
         entries = Entry.objects.all()
         entry1 = entries[0]
         id1 = entry1.id
@@ -449,14 +420,25 @@ class TestEntryView(PulseStaffTestCase):
         bookmarks2 = entry2.bookmarked_by.count()
         self.assertEqual(bookmarks2, 0)
 
-        # bulk bookmark entry1 and entry2
-        url = '/api/pulse/entries/bookmarks/?ids=' + str(id1) + ',' + str(id2)
+        # bookmark entry1
+        url = '/api/pulse/entries/bookmarks/?ids=' + str(id1)
         payload = self.generatePostPayload()
 
         postresponse = self.client.post(url,payload)
         self.assertEqual(postresponse.status_code, 204)
 
         # verify bookmark count for entry1 is now one
+        bookmarks = entry1.bookmarked_by.count()
+        self.assertEqual(bookmarks, 1)
+
+        # now we bulk bookmark entry1 and entry2
+        url = '/api/pulse/entries/bookmarks/?ids=' + str(id1) + ',' + str(id2)
+        payload = self.generatePostPayload()
+
+        postresponse = self.client.post(url,payload)
+        self.assertEqual(postresponse.status_code, 204)
+
+        # verify bookmark count for entry1 is still one
         bookmarks1 = entry1.bookmarked_by.count()
         self.assertEqual(bookmarks1, 1)
 
