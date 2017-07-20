@@ -429,6 +429,41 @@ class TestEntryView(PulseStaffTestCase):
         bookmarks = entry.bookmarked_by.count()
         self.assertEqual(bookmarks, 1)
 
+    def test_post_bookmark_entries_with_multiple_ids(self):
+        """
+        Verify that authenticated users can bookmark a list of entries.
+        """
+
+        # get a legal entry and its associated id
+        entries = Entry.objects.all()
+        entry1 = entries[0]
+        id1 = entry1.id
+        entry2 = entries[1]
+        id2 = entry2.id
+
+        # verify bookmark count for entry1 is zero
+        bookmarks1 = entry1.bookmarked_by.count()
+        self.assertEqual(bookmarks1, 0)
+
+        # verify bookmark count for entry2 is now zero
+        bookmarks2 = entry2.bookmarked_by.count()
+        self.assertEqual(bookmarks2, 0)
+
+        # bulk bookmark entry1 and entry2
+        url = '/api/pulse/entries/bookmarks/?ids=' + str(id1) + ',' + str(id2)
+        payload = self.generatePostPayload()
+
+        postresponse = self.client.post(url,payload)
+        self.assertEqual(postresponse.status_code, 204)
+
+        # verify bookmark count for entry1 is now one
+        bookmarks1 = entry1.bookmarked_by.count()
+        self.assertEqual(bookmarks1, 1)
+
+        # verify bookmark count for entry2 is now one
+        bookmarks2 = entry2.bookmarked_by.count()
+        self.assertEqual(bookmarks2, 1)
+
     def test_post_bookmark_entries_with_invalid_param(self):
         """
         Verify that bookmarking a list of entries with invalid ids
