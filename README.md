@@ -108,6 +108,34 @@ A successful post will yield a JSON object:
 
 A failed post will yield an HTTP 400 response.
 
+### `POST /api/pulse/entries/bookmarks/ids=<a comma-separated list of integer ids>`
+
+POSTing to bookmark a list of entries requires sending the following payload object:
+
+```
+{
+  csrfmiddlewaretoken: required csrf token string obtained from [GET /nonce]
+  nonce: required nonce string obtained from [GET /nonce]
+}
+```
+Also note that this POST **must** be accompanied by the following header:
+
+```
+X-CSRFToken: csrfmiddlewaretoken as used above
+```
+
+A successful post will yield a JSON object:
+
+```
+{
+  status: "Entries bookmarked."
+}
+```
+
+A failed post will yield 
+ - an HTTP 400 response if any entry id passed is invalid
+ - an HTTP 403 response if the current user is not authenticated
+
 ### `GET /api/pulse/entries/moderation-states/` with optional `?format=json`
 
 This retrieves the list of moderation states that are used for entry moderation. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
