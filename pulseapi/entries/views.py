@@ -239,23 +239,14 @@ class BookmarkedEntries(ListAPIView):
             ids = self.request.query_params.get('ids', None)
             queryset = Entry.objects.public()
 
-            if ids is not None:
-                try:
-                    ids = [int(x) for x in ids.split(',')]
-                except:
-                    return Response(
-                        "Invalid entry id",
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-
             def bookmark_entry(id):
                 entry = None
 
                 # find the entry for this id
                 try:
                     entry = Entry.objects.get(id=id)
-                except Entry.DoesNotExist:
-                    return False
+                except:
+                    return
 
                 # find out if there is already a {user,entry,(timestamp)} triple
                 bookmarks = entry.bookmarked_by.filter(user=user)
@@ -266,16 +257,9 @@ class BookmarkedEntries(ListAPIView):
                     bookmark = UserBookmarks(entry=entry, user=user)
                     bookmark.save()
 
-                return True
-
-            if user.is_authenticated():
-                for id in ids:
-                    validAndBookmarked = bookmark_entry(id)
-                    if validAndBookmarked is False:
-                        return Response(
-                            "Invalid entry id",
-                            status=status.HTTP_400_BAD_REQUEST
-                        )
+            if ids is not None and user.is_authenticated():
+                for id in ids.split(','):
+                    bookmark_entry(id)
 
             return Response("Entries bookmarked.", status=status.HTTP_204_NO_CONTENT)
         else:

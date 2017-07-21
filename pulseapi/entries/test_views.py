@@ -449,7 +449,7 @@ class TestEntryView(PulseStaffTestCase):
     def test_post_bookmark_entries_with_invalid_param(self):
         """
         Verify that bookmarking a list of entries with invalid ids
-        will return a status 400
+        will return a status 204
         """
 
         # get a non-existent id
@@ -460,7 +460,7 @@ class TestEntryView(PulseStaffTestCase):
         payload = self.generatePostPayload()
 
         postresponse = self.client.post(url,payload)
-        self.assertEqual(postresponse.status_code, 400)
+        self.assertEqual(postresponse.status_code, 204)
 
         # post with a non-existent id
         invalidId = 'abc'
@@ -469,7 +469,7 @@ class TestEntryView(PulseStaffTestCase):
         payload = self.generatePostPayload()
 
         postresponse = self.client.post(url,payload)
-        self.assertEqual(postresponse.status_code, 400)
+        self.assertEqual(postresponse.status_code, 204)
 
     def test_moderation_states(self):
         mod_set = ModerationState.objects.all()
