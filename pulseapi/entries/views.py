@@ -214,14 +214,15 @@ class BookmarkedEntries(ListAPIView):
             ids = self.request.query_params.get('ids', None)
             queryset = Entry.objects.public()
 
-            if ids is not None:
+            def parse_int(id):
                 try:
-                    ids = [int(x) for x in ids.split(',')]
-                except:
-                    return Response(
-                        "Invalid entry id",
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+                    return int(id)
+                except ValueError:
+                    return id
+
+            def remove_str(id):
+                return isinstance(id, int)
+
 
             def bookmark_entry(id):
                 entry = None
@@ -230,7 +231,7 @@ class BookmarkedEntries(ListAPIView):
                 try:
                     entry = Entry.objects.get(id=id)
                 except Entry.DoesNotExist:
-                    return False
+                    return
 
                 # find out if there is already a {user,entry,(timestamp)} triple
                 bookmarks = entry.bookmarked_by.filter(user=user)
@@ -241,16 +242,15 @@ class BookmarkedEntries(ListAPIView):
                     bookmark = UserBookmarks(entry=entry, user=user)
                     bookmark.save()
 
-                return True
+            if ids is not None:
+                # parse id from string to int
+                ids = [parse_int(id) for id in ids.split(',')]
+                # remove invalid id from the list
+                ids = filter(remove_str, ids)
 
             if user.is_authenticated():
                 for id in ids:
-                    validAndBookmarked = bookmark_entry(id)
-                    if validAndBookmarked is False:
-                        return Response(
-                            "Invalid entry id",
-                            status=status.HTTP_400_BAD_REQUEST
-                        )
+                    bookmark_entry(id)
 
             return Response("Entries bookmarked.", status=status.HTTP_204_NO_CONTENT)
         else:
@@ -340,8 +340,11 @@ class EntriesListView(ListCreateAPIView):
         ids = self.request.query_params.get('ids', None)
 
         if ids is not None:
-            ids = [int(x) for x in ids.split(',')]
-            queryset = queryset.filter(pk__in=ids)
+            try:
+                ids = [int(x) for x in ids.split(',')]
+                queryset = queryset.filter(pk__in=ids)
+            except:
+                pass
 
         return queryset
 
