@@ -217,7 +217,8 @@ class EntriesListView(ListCreateAPIView):
 
     #Query Parameters -
 
-    - `?search=` - Search by title, description, creator, and tag.
+    - `?search=` - Search by title, description, get_involved, interest,
+                   creator, and tag.
     - `?ids=` - Filter only for entries with specific ids. Argument
                 must be a comma-separated list of integer ids.
     - `?tag=` - Allows filtering entries by a specific tag
