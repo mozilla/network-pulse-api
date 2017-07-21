@@ -214,23 +214,13 @@ class BookmarkedEntries(ListAPIView):
             ids = self.request.query_params.get('ids', None)
             queryset = Entry.objects.public()
 
-            def parse_int(id):
-                try:
-                    return int(id)
-                except ValueError:
-                    return id
-
-            def remove_str(id):
-                return isinstance(id, int)
-
-
             def bookmark_entry(id):
                 entry = None
 
                 # find the entry for this id
                 try:
                     entry = Entry.objects.get(id=id)
-                except Entry.DoesNotExist:
+                except:
                     return
 
                 # find out if there is already a {user,entry,(timestamp)} triple
@@ -242,14 +232,8 @@ class BookmarkedEntries(ListAPIView):
                     bookmark = UserBookmarks(entry=entry, user=user)
                     bookmark.save()
 
-            if ids is not None:
-                # parse id from string to int
-                ids = [parse_int(id) for id in ids.split(',')]
-                # remove invalid id from the list
-                ids = filter(remove_str, ids)
-
-            if user.is_authenticated():
-                for id in ids:
+            if ids is not None and user.is_authenticated():
+                for id in ids.split(','):
                     bookmark_entry(id)
 
             return Response("Entries bookmarked.", status=status.HTTP_204_NO_CONTENT)
