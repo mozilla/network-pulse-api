@@ -12,7 +12,7 @@ class HelpTypeListView(ListAPIView):
     """
     A view to retrieve all help types.
     """
-    queryset = HelpType.objects.public()
+    queryset = HelpType.objects.all()
     serializer_class = HelpTypeSerializer
 
     filter_backends = (

@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'pulseapi.entries',
     'pulseapi.tags',
     'pulseapi.issues',
+    'pulseapi.helptypes',
     'pulseapi.users',
     'pulseapi.creators',
 ]

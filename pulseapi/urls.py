@@ -34,6 +34,7 @@ urlpatterns = [
     url(r'^entries/', include('pulseapi.entries.urls')),
     url(r'^tags/', include('pulseapi.tags.urls')),
     url(r'^issues/', include('pulseapi.issues.urls')),
+    url(r'^helptypes/', include('pulseapi.helptypes.urls')),
     url(r'^creators/', include('pulseapi.creators.urls')),
 ]
 
