@@ -64,6 +64,36 @@ If a user is authenticated, all three fields will be present. If a user is not a
 
 **This data should never be cached persistently**. Do not store this in localStorage, cookies, or any other persistent data store. When the user terminates their client, or logs out, this information should immediately be lost. Also do not store this in a global namespace like `window` or `document`, or in anything that isn't protected by a closure.
 
+### `GET /api/pulse/issues/`
+
+Gets the list of internet health issues that entries can be related to. This route yields a documentation page unless the request mimetype is set to `application/json`, or the `?format=json` query argument is passed. When requesting JSON, this route yields an object of the form:
+
+```
+[{
+  name: "issue name",
+  description: "issue description"
+},{
+  name: ...
+  description: ...
+},
+...]
+```
+
+### `GET /api/pulse/helptypes/`
+
+Gets the list of help types that are used by entries to indicate how people can get involved. This route yields a documentation page unless the request mimetype is set to `application/json`, or the `?format=json` query argument is passed. When requesting JSON, this route yields an object of the form:
+
+```
+[{
+  name: "help type name",
+  description: "help type description"
+},{
+  name: ...
+  description: ...
+},
+...]
+```
+
 ### `POST /api/pulse/entries/`
 
 POSTing of entries requires sending the following payload object:
