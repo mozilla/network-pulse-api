@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^api/pulse/entries/', include('pulseapi.entries.urls')),
     url(r'^api/pulse/tags/', include('pulseapi.tags.urls')),
     url(r'^api/pulse/issues/', include('pulseapi.issues.urls')),
+    url(r'^api/pulse/helptypes/', include('pulseapi.helptypes.urls')),
     url(r'^api/pulse/creators/', include('pulseapi.creators.urls')),
 
     # deprecated patterns
