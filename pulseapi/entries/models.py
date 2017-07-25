@@ -117,13 +117,13 @@ class Entry(models.Model):
         related_name='entries',
         blank=True
     )
-    creators = models.ManyToManyField(
-        Creator,
+    help_types = models.ManyToManyField(
+        HelpType,
         related_name='entries',
         blank=True
     )
-    help_types = models.ManyToManyField(
-        HelpType,
+    creators = models.ManyToManyField(
+        Creator,
         related_name='entries',
         blank=True
     )
