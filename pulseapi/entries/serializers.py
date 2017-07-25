@@ -5,6 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
+from pulseapi.helptypes.models import HelpType
 from pulseapi.creators.models import Creator
 from pulseapi.users.models import EmailUser, UserBookmarks
 from pulseapi.users.serializers import UserBookmarksSerializer
@@ -54,6 +55,11 @@ class EntrySerializer(serializers.ModelSerializer):
     issues = serializers.SlugRelatedField(many=True,
                                           slug_field='name',
                                           queryset=Issue.objects,
+                                          required=False)
+
+    help_types = serializers.SlugRelatedField(many=True,
+                                          slug_field='name',
+                                          queryset=HelpType.objects,
                                           required=False)
 
     creators = CreatableSlugRelatedField(many=True,
