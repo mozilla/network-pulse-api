@@ -38,6 +38,7 @@ class EntryAdmin(admin.ModelAdmin):
         'featured',
         'internal_notes',
         'issues',
+        'help_types',
         'creators',
         'published_by',
         'bookmark_count',
