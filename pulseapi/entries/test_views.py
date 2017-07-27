@@ -273,6 +273,26 @@ class TestEntryView(PulseStaffTestCase):
         entriesJson = json.loads(str(searchList.content, 'utf-8'))
         self.assertEqual(len(entriesJson['results']), 1)
 
+    def test_entries_help_type(self):
+        """test filtering entires by help_type"""
+
+        payload = {
+            'title': 'title test_entries_help_type',
+            'description': 'description test_entries_help_type',
+            'help_types': ['Write documentation', 'Code'],
+        }
+        json.loads(
+            str(self.client.get('/api/pulse/nonce/').content, 'utf-8')
+        )
+        self.client.post(
+            '/api/pulse/entries/',
+            data=self.generatePostPayload(data=payload)
+        )
+        url = '/api/pulse/entries/?help_type=Code'
+        searchList = self.client.get(url)
+        entriesJson = json.loads(str(searchList.content, 'utf-8'))
+        self.assertEqual(len(entriesJson['results']), 1)
+
     def test_post_entry_new_issue(self):
         """
         posting an entry with a new Issue should result
