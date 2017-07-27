@@ -6,7 +6,7 @@ from pulseapi.tags.helpers import lowercase_all
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tags', '0001_initial'),
+        ('tags', '0002_meta_order'),
     ]
 
     operations = [
