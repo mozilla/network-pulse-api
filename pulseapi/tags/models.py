@@ -22,6 +22,15 @@ class Tag(models.Model):
     name = models.CharField(unique=True, max_length=150)
     objects = TagQuerySet.as_manager()
 
+    def _get_entry_count(self):
+        return self.entries.count()
+
+    entry_count = property(_get_entry_count)
+
     def __str__(self):
         return str(self.name)
-        
+
+    class Meta:
+        ordering = [
+            'name',
+        ]
