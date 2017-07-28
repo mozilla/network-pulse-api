@@ -118,7 +118,8 @@ POSTing of entries requires sending the following payload object:
   }
 
   tags: optional array of strings
-  issues: optional array of strings, must match values from [GET /issues?format=json]
+  issue: optional string, must match value from [GET /issues?format=json]
+  help_type: optional string, must match value from [GET /helptypes?format=json]
   creators: optional array of names of creators for the content linked to
 }
 ```

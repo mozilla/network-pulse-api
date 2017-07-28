@@ -175,6 +175,7 @@ class EntryCustomFilter(filters.FilterSet):
     We add custom filtering to allow you to filter by:
         * Tag - pass the `?tag=` query parameter
         * Issue - pass the `?issue=` query parameter
+        * Help Type - pass the `?help_type=` query parameter
         * Featured - `?featured=True` (or False) - both capitalied
     Accepts only one filter value i.e. one tag and/or one
     category.
@@ -185,6 +186,10 @@ class EntryCustomFilter(filters.FilterSet):
     )
     issue = django_filters.CharFilter(
         name='issues__name',
+        lookup_expr='iexact',
+    )
+    help_type = django_filters.CharFilter(
+        name='help_types__name',
         lookup_expr='iexact',
     )
     featured = django_filters.BooleanFilter(
@@ -293,6 +298,7 @@ class EntriesListView(ListCreateAPIView):
                 must be a comma-separated list of integer ids.
     - `?tag=` - Allows filtering entries by a specific tag
     - `?issue=` - Allows filtering entries by a specific issue
+    - `?help_type=` - Allows filtering entries by a specific help type
     - `?featured=True` (or False) - both capitalied. Boolean is set in admin UI
     - `?page=` - Page number, defaults to 1
     - `?page_size=` - Number of results on a page. Defaults to 48
