@@ -29,7 +29,7 @@ def collapse_case():
                     # replace duplicate tag with master tag
                     entry.tags.add(master)
                 # record that we processed this tag, then delete it
-                duplicates.append(dupe)
+                duplicates.append(dupe.name)
                 dupe.delete()
 
 
