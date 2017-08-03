@@ -3,7 +3,10 @@ Admin setings for EmailUser app
 """
 from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.utils.html import format_html
+
 from .models import EmailUser
+from pulseapi.profiles.models import UserProfile
 
 class UserBookmarksInline(admin.TabularInline):
     """
@@ -18,8 +21,8 @@ class EmailUserAdmin(admin.ModelAdmin):
     """
     Show a list of entries a user has submitted in the EmailUser Admin app
     """
-    fields = ('password', 'last_login', 'email', 'name', 'entries','bookmarks', 'is_staff', 'is_superuser')
-    readonly_fields = ('entries','bookmarks')
+    fields = ('password', 'last_login', 'email', 'name', 'is_staff', 'is_superuser', 'profile', 'entries','bookmarks', )
+    readonly_fields = ('entries','bookmarks','profile')
 
     # this allows us to create/edit/delete/etc bookmarks:
     inlines = [ UserBookmarksInline ]
@@ -29,6 +32,20 @@ class EmailUserAdmin(admin.ModelAdmin):
         Show all entries as a string of titles. In the future we should make them links.
         """
         return ", ".join([str(entry) for entry in instance.entries.all()])
+
+    def profile(self, instance):
+        """
+        Link to this user's profile
+        """
+        profile = UserProfile.objects.get(user=instance)
+
+        html = '<a href="/admin/profiles/userprofile/{id}/change/">Click here for this user\'s profile</a>'.format(
+            id=profile.id,
+        )
+
+        return format_html(html)
+
+    profile.short_description = 'User profile'
 
 
 admin.site.register(EmailUser, EmailUserAdmin)

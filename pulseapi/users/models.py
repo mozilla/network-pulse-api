@@ -5,6 +5,8 @@ from django.contrib.auth.models import (
     AbstractBaseUser,
     PermissionsMixin
 )
+from pulseapi.profiles.models import UserProfile
+
 
 class EmailUserManager(BaseUserManager):
     def create_user(self, name, email, password=None):
@@ -23,6 +25,11 @@ class EmailUserManager(BaseUserManager):
         )
         user.set_password(password)
         user.save()
+
+        # Ensure that new users get a user profile associated
+        # with them, even though it'll be empty by default.
+        UserProfile.objects.get_or_create(user=user)
+
         return user
 
     def create_superuser(self, name, email, password):
