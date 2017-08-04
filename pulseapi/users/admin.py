@@ -6,17 +6,8 @@ from django.contrib.auth.models import Group
 from django.utils.html import format_html
 
 from .models import EmailUser
-from pulseapi.profiles.models import UserBookmarks
-from pulseapi.profiles.models import UserProfile
+from pulseapi.profiles.models import UserProfile, UserBookmarks
 
-
-class UserBookmarksInline(admin.TabularInline):
-    """
-    We need an inline widget before we can do anything
-    with the user/entry bookmark data.
-    """
-    model = UserBookmarks
-    verbose_name = 'UserBookmarks'
 
 
 class EmailUserAdmin(admin.ModelAdmin):
@@ -25,9 +16,6 @@ class EmailUserAdmin(admin.ModelAdmin):
     """
     fields = ('password', 'last_login', 'email', 'name', 'is_staff', 'is_superuser', 'profile', 'entries','bookmarks', )
     readonly_fields = ('entries','bookmarks','profile')
-
-    # this allows us to create/edit/delete/etc bookmarks:
-    inlines = [ UserBookmarksInline ]
 
     def entries(self, instance):
         """
@@ -46,6 +34,13 @@ class EmailUserAdmin(admin.ModelAdmin):
         )
 
         return format_html(html)
+
+    def bookmarks(self, instance):
+        """
+        Show all bookmarked entries as a string of titles. In the future we should make them links.
+        """
+        profile = UserProfile.objects.get(user=intance)
+        return ", ".join([str(bookmark.entry) for bookmark in profile.bookmarks])
 
     profile.short_description = 'User profile'
 

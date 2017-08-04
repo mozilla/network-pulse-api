@@ -12,8 +12,8 @@ class UserBookmarksAdmin(admin.ModelAdmin):
 	"""
 	...
 	"""
-	fields = ('entry', 'user', 'profile',)
-	readonly_fields = ('entry', 'user', 'profile',)
+	fields = ('entry', 'profile', 'timestamp')
+	readonly_fields = ('entry', 'profile', 'timestamp')
 
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(UserBookmarks, UserBookmarksAdmin)

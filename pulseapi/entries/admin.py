@@ -73,7 +73,7 @@ class EntryAdmin(admin.ModelAdmin):
         """
         Show the total number of bookmarks for this Entry
         """
-        return instance.bookmarked_by_profile.count()
+        return instance.bookmarked_by.count()
 
 
 admin.site.register(ModerationState, ModerationStateAdmin)

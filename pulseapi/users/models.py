@@ -61,16 +61,6 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
         verbose_name="this user counts as django::staff",
     )
 
-    # "user X bookmarked entry Y" is a many to many relation,
-    # for which we also want to know *when* a user bookmarked
-    # a specific entry. As such, we use a helper class that
-    # tracks this relation as well as the time it's created.
-    bookmarks = models.ManyToManyField(
-        'entries.Entry',
-        through='profiles.UserBookmarks',
-        related_name='bookmark_by_profile'
-    )
-
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 

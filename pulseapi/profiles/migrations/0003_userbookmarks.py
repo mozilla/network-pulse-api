@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('timestamp', models.DateTimeField(auto_now=True)),
-                ('entry', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='bookmarked_by_profile', to='entries.Entry')),
+                ('entry', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='bookmarked_by', to='entries.Entry')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='bookmark_entries_from_profile', to=settings.AUTH_USER_MODEL)),
             ],
         ),

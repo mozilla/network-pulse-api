@@ -7,6 +7,7 @@ from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.helptypes.models import HelpType
 from pulseapi.creators.models import Creator
+from pulseapi.profiles.models import UserProfile
 
 class CreatableSlugRelatedField(serializers.SlugRelatedField):
     """
@@ -81,7 +82,7 @@ class EntrySerializer(serializers.ModelSerializer):
         """
         Get the total number of bookmarks this entry received
         """
-        return instance.bookmarked_by_profile.count()
+        return instance.bookmarked_by.count()
 
     is_bookmarked = serializers.SerializerMethodField()
 
@@ -95,7 +96,8 @@ class EntrySerializer(serializers.ModelSerializer):
         if hasattr(request, 'user'):
             user = request.user
             if user.is_authenticated():
-                res = instance.bookmarked_by_profile.filter(user=user)
+                profile = UserProfile.objects.get(user=user)
+                res = instance.bookmarked_by.filter(profile=profile)
                 return res.count() > 0
 
         return False
