@@ -22,14 +22,7 @@ from pulseapi.entries.serializers import (
     ModerationStateSerializer
 )
 from pulseapi.users.models import EmailUser
-
-# ------------------------------------------------------
-#
-#  Note: This will become .profiles. once we're done
-#
-from pulseapi.users.models import UserBookmarks
-#
-# ------------------------------------------------------
+from pulseapi.profiles.models import UserProfile, UserBookmarks
 
 from pulseapi.utility.userpermissions import is_staff_address
 
@@ -45,6 +38,7 @@ def toggle_bookmark(request, entryid):
 
     if user.is_authenticated():
         entry = None
+        profile = UserProfile.objects.get(user=user)
 
         # find the entry for this id
         try:
@@ -53,7 +47,7 @@ def toggle_bookmark(request, entryid):
             return Response("No such entry", status=status.HTTP_404_NOT_FOUND)
 
         # find out if there is already a {user,entry,(timestamp)} triple
-        bookmarks = entry.bookmarked_by.filter(user=user)
+        bookmarks = entry.bookmarked_by_profile.filter(user=user)
         exists = bookmarks.count() > 0
 
         # if there is a bookmark, remove it. Otherwise, make one.
@@ -61,7 +55,7 @@ def toggle_bookmark(request, entryid):
             for bookmark in bookmarks:
                 bookmark.delete()
         else:
-            bookmark = UserBookmarks(entry=entry, user=user)
+            bookmark = UserBookmarks(entry=entry, user=user, profile=profile)
             bookmark.save()
 
         return Response("Toggled bookmark.", status=status.HTTP_204_NO_CONTENT)
@@ -233,8 +227,9 @@ class BookmarkedEntries(ListAPIView):
         if user.is_authenticated() is False:
             return Entry.objects.none()
 
-        bookmarks = UserBookmarks.objects.filter(user=user)
-        return Entry.objects.filter(bookmarked_by__in=bookmarks).order_by('-bookmarked_by__timestamp')
+        profile = UserProfile.objects.get(user=user)
+        bookmarks = UserBookmarks.objects.filter(profile=profile)
+        return Entry.objects.filter(bookmarked_by_profile__in=bookmarks).order_by('-bookmarked_by_profile__timestamp')
 
     # When people POST to this route, we want to do some
     # custom validation involving CSRF and nonce validation,
@@ -262,12 +257,13 @@ class BookmarkedEntries(ListAPIView):
                     return
 
                 # find out if there is already a {user,entry,(timestamp)} triple
-                bookmarks = entry.bookmarked_by.filter(user=user)
+                bookmarks = entry.bookmarked_by_profile.filter(user=user)
                 exists = bookmarks.count() > 0
 
                 # make a bookmark if there isn't one already
                 if exists is False:
-                    bookmark = UserBookmarks(entry=entry, user=user)
+                    profile = UserProfile.objects.get(user=user)
+                    bookmark = UserBookmarks(entry=entry, user=user, profile=profile)
                     bookmark.save()
 
             if ids is not None and user.is_authenticated():

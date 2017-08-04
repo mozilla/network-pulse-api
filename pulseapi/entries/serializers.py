@@ -81,7 +81,7 @@ class EntrySerializer(serializers.ModelSerializer):
         """
         Get the total number of bookmarks this entry received
         """
-        return instance.bookmarked_by.count()
+        return instance.bookmarked_by_profile.count()
 
     is_bookmarked = serializers.SerializerMethodField()
 
@@ -95,7 +95,7 @@ class EntrySerializer(serializers.ModelSerializer):
         if hasattr(request, 'user'):
             user = request.user
             if user.is_authenticated():
-                res = instance.bookmarked_by.filter(user=user)
+                res = instance.bookmarked_by_profile.filter(user=user)
                 return res.count() > 0
 
         return False

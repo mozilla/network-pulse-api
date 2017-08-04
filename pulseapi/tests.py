@@ -59,7 +59,7 @@ def create_logged_in_user(test, name, email, password="password1234"):
 
     # create use instance
     User = EmailUser
-    user = User.objects.create(name=name, email=email, password=password)
+    user = User.objects.create_user(name=name, email=email, password=password)
     user.save()
 
     # make sure this user is in the staff group, too

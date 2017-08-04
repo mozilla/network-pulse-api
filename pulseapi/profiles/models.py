@@ -33,7 +33,7 @@ class UserBookmarks(models.Model):
     user = models.ForeignKey(
         'users.EmailUser',
         on_delete=models.CASCADE,
-        related_name='bookmark_entries_from_profile'
+        related_name='bookmark_entries_from_user'
     )
 
     profile = models.ForeignKey(

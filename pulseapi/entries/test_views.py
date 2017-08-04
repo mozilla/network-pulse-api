@@ -342,7 +342,7 @@ class TestEntryView(PulseStaffTestCase):
         self.assertEqual(postresponse.status_code, 403)
 
         # verify bookmark count is zero
-        bookmarks = entry.bookmarked_by.count()
+        bookmarks = entry.bookmarked_by_profile.count()
         self.assertEqual(bookmarks, 0)
 
     def test_put_bookmark_entry_with_login(self):
@@ -361,7 +361,7 @@ class TestEntryView(PulseStaffTestCase):
         self.assertEqual(postresponse.status_code, 204)
 
         # verify bookmark count is now one
-        bookmarks = entry.bookmarked_by.count()
+        bookmarks = entry.bookmarked_by_profile.count()
         self.assertEqual(bookmarks, 1)
 
         # put again, which should clear the bookmark flag for this user
@@ -369,7 +369,7 @@ class TestEntryView(PulseStaffTestCase):
         self.assertEqual(postresponse.status_code, 204)
 
         # verify bookmark count is now zero
-        bookmarks = entry.bookmarked_by.count()
+        bookmarks = entry.bookmarked_by_profile.count()
         self.assertEqual(bookmarks, 0)
 
     def test_bookmarked_entries_view(self):
@@ -417,7 +417,7 @@ class TestEntryView(PulseStaffTestCase):
         self.assertEqual(postresponse.status_code, 403)
 
         # verify bookmark count is zero
-        bookmarks = entry.bookmarked_by.count()
+        bookmarks = entry.bookmarked_by_profile.count()
         self.assertEqual(bookmarks, 0)
 
     def test_post_bookmark_entries_with_login(self):
@@ -433,11 +433,11 @@ class TestEntryView(PulseStaffTestCase):
         id2 = entry2.id
 
         # verify bookmark count for entry1 is zero
-        bookmarks1 = entry1.bookmarked_by.count()
+        bookmarks1 = entry1.bookmarked_by_profile.count()
         self.assertEqual(bookmarks1, 0)
 
         # verify bookmark count for entry2 is now zero
-        bookmarks2 = entry2.bookmarked_by.count()
+        bookmarks2 = entry2.bookmarked_by_profile.count()
         self.assertEqual(bookmarks2, 0)
 
         # bookmark entry1
@@ -448,7 +448,7 @@ class TestEntryView(PulseStaffTestCase):
         self.assertEqual(postresponse.status_code, 204)
 
         # verify bookmark count for entry1 is now one
-        bookmarks = entry1.bookmarked_by.count()
+        bookmarks = entry1.bookmarked_by_profile.count()
         self.assertEqual(bookmarks, 1)
 
         # now we bulk bookmark entry1 and entry2
@@ -459,11 +459,11 @@ class TestEntryView(PulseStaffTestCase):
         self.assertEqual(postresponse.status_code, 204)
 
         # verify bookmark count for entry1 is still one
-        bookmarks1 = entry1.bookmarked_by.count()
+        bookmarks1 = entry1.bookmarked_by_profile.count()
         self.assertEqual(bookmarks1, 1)
 
         # verify bookmark count for entry2 is now one
-        bookmarks2 = entry2.bookmarked_by.count()
+        bookmarks2 = entry2.bookmarked_by_profile.count()
         self.assertEqual(bookmarks2, 1)
 
     def test_post_bookmark_entries_with_invalid_param(self):
