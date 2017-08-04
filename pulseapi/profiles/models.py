@@ -46,3 +46,10 @@ class UserBookmarks(models.Model):
     timestamp = models.DateTimeField(
         auto_now=True,
     )
+
+    def __str__(self):
+        return 'bookmark for "{e}" by {u}, with profile [{p}]'.format(
+            u=self.user,
+            e=self.entry,
+            p=self.profile.id
+        )
