@@ -7,8 +7,6 @@ from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.helptypes.models import HelpType
 from pulseapi.creators.models import Creator
-from pulseapi.users.models import EmailUser, UserBookmarks
-from pulseapi.users.serializers import UserBookmarksSerializer
 
 class CreatableSlugRelatedField(serializers.SlugRelatedField):
     """

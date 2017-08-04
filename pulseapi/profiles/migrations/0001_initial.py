@@ -6,13 +6,6 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 
-from pulseapi.users.models import EmailUser
-from pulseapi.profiles.models import UserProfile
-
-def ensure_user_profiles(app, schema_editor):
-    for user in EmailUser.objects.all():
-        (profile,created) = UserProfile.objects.get_or_create(user=user)
-
 class Migration(migrations.Migration):
 
     initial = True
@@ -29,5 +22,4 @@ class Migration(migrations.Migration):
                 ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='profile', to=settings.AUTH_USER_MODEL)),
             ],
         ),
-        migrations.RunPython(ensure_user_profiles),
     ]
