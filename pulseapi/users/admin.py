@@ -6,6 +6,7 @@ from django.contrib.auth.models import Group
 from django.utils.html import format_html
 
 from .models import EmailUser
+from pulseapi.users.models import UserBookmarks
 from pulseapi.profiles.models import UserProfile
 
 class UserBookmarksInline(admin.TabularInline):
@@ -13,7 +14,7 @@ class UserBookmarksInline(admin.TabularInline):
     We need an inline widget before we can do anything
     with the user/entry bookmark data.
     """
-    model = EmailUser.bookmarks.through
+    model = UserBookmarks
     verbose_name = 'UserBookmarks'
 
 

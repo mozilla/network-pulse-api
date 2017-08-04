@@ -21,7 +21,15 @@ from pulseapi.entries.serializers import (
     EntrySerializer,
     ModerationStateSerializer
 )
-from pulseapi.users.models import EmailUser, UserBookmarks
+from pulseapi.users.models import EmailUser
+
+# ------------------------------------------------------
+#
+#  Note: This will become .profiles. once we're done
+#
+from pulseapi.users.models import UserBookmarks
+#
+# ------------------------------------------------------
 
 from pulseapi.utility.userpermissions import is_staff_address
 
