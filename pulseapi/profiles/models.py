@@ -16,3 +16,33 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return 'profile for {}'.format(self.user.email)
+
+
+class UserBookmarks(models.Model):
+    """
+    This class is used to link users and entries through a
+    "bookmark" relation. One user can bookmark many entries,
+    and one entry can have bookmarks from many users.
+    """
+    entry = models.ForeignKey(
+        'entries.Entry',
+        on_delete=models.CASCADE,
+        related_name='bookmarked_by_profile'
+    )
+
+    user = models.ForeignKey(
+        'users.EmailUser',
+        on_delete=models.CASCADE,
+        related_name='bookmark_entries_from_profile'
+    )
+
+    profile = models.ForeignKey(
+        'profiles.UserProfile',
+        on_delete=models.CASCADE,
+        related_name='bookmark_entries_from_profile',
+        null=True
+    )
+
+    timestamp = models.DateTimeField(
+        auto_now=True,
+    )
