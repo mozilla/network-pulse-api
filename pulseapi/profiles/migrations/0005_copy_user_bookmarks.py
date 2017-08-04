@@ -7,7 +7,7 @@ from pulseapi import users, profiles
 
 
 def copy_bookmarks_from_user_to_prolfies(apps, schema_editor):
-    current_bookmarks = users.models.UserBookmarks.objects.all()
+    current_bookmarks = apps.get_model('users', 'UserBookmarks').objects.all()
     for bookmark in current_bookmarks:
         user = bookmark.user
         profile = profiles.models.UserProfile.objects.get(user=user)

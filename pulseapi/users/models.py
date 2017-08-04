@@ -67,8 +67,8 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
     # tracks this relation as well as the time it's created.
     bookmarks = models.ManyToManyField(
         'entries.Entry',
-        through='UserBookmarks',
-        related_name='bookmark_by'
+        through='profiles.UserBookmarks',
+        related_name='bookmark_by_profile'
     )
 
     USERNAME_FIELD = 'email'
@@ -93,32 +93,3 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.toString()
-
-
-class UserBookmarks(models.Model):
-    """
-    This class is used to link users and entries through a
-    "bookmark" relation. One user can bookmark many entries,
-    and one entry can have bookmarks from many users.
-    """
-    entry = models.ForeignKey(
-        'entries.Entry',
-        on_delete=models.CASCADE,
-        related_name='bookmarked_by'
-    )
-
-    user = models.ForeignKey(
-        EmailUser,
-        on_delete=models.CASCADE,
-        related_name='bookmark_entries'
-    )
-
-    timestamp = models.DateTimeField(
-        auto_now=True,
-    )
-
-    def __str__(self):
-        return 'bookmark for "{e}" by {u}'.format(
-            u=self.user,
-            e=self.entry
-        )

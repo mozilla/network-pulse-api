@@ -6,8 +6,9 @@ from django.contrib.auth.models import Group
 from django.utils.html import format_html
 
 from .models import EmailUser
-from pulseapi.users.models import UserBookmarks
+from pulseapi.profiles.models import UserBookmarks
 from pulseapi.profiles.models import UserProfile
+
 
 class UserBookmarksInline(admin.TabularInline):
     """
@@ -48,15 +49,6 @@ class EmailUserAdmin(admin.ModelAdmin):
 
     profile.short_description = 'User profile'
 
-
-class UserBookmarksAdmin(admin.ModelAdmin):
-    """
-    ...
-    """
-    fields = ('entry', 'user',)
-    readonly_fields = ('entry', 'user',)
-
-admin.site.register(UserBookmarks, UserBookmarksAdmin)
 admin.site.register(EmailUser, EmailUserAdmin)
 
 # Add the admin view bits that let us add these users to groups
