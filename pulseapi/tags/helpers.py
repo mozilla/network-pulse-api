@@ -14,7 +14,12 @@ def collapse_case():
     all_tags = Tag.objects.all()
     duplicates = []
     for master in all_tags:
-        # skip over any tags we already processed as duplicate earlier
+
+        # Skip over any tags that we already encountered earlier during
+        # duplication checking. We do this check in a case insensitive way
+        # by comparing lowercase strings.
+        # Note that this only works for languages that are well-behaved
+        # when it comes to case lowering, such as English.
         if master.name.lower() in duplicates:
             continue
 
@@ -24,12 +29,21 @@ def collapse_case():
         if len(tag_set) > 0:
             # iterate over all tag duplicates
             for dupe in tag_set:
-                # find all entries that use this duplicate
+                # find all entries that use this duplicate, and effect a
+                # "swap" of duplicate/master by first adding the master
+                # tag, and then once we've updated all entries that use
+                # the duplicate, deleting that duplicate.
                 for entry in Entry.objects.filter(tags__name=dupe.name):
-                    # replace duplicate tag with master tag
                     entry.tags.add(master)
-                # record that we processed this tag, then delete it
-                duplicates.append(dupe.name)
+
+                # Record that we processed this tag, in a way that allows
+                # for a case insensitive check. Again, note that this only
+                # works for languages that are well behaved when it comes
+                # to case lowering (such as English)
+                lname = dupe.name.lower()
+                if (lname in duplicates) is False:
+                    duplicates.append(lname)
+
                 dupe.delete()
 
 
