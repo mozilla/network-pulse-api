@@ -9,7 +9,6 @@ from .models import EmailUser
 from pulseapi.profiles.models import UserProfile, UserBookmarks
 
 
-
 class EmailUserAdmin(admin.ModelAdmin):
     """
     Show a list of entries a user has submitted in the EmailUser Admin app
@@ -39,7 +38,7 @@ class EmailUserAdmin(admin.ModelAdmin):
         """
         Show all bookmarked entries as a string of titles. In the future we should make them links.
         """
-        profile = UserProfile.objects.get(user=intance)
+        profile = UserProfile.objects.get(user=instance)
         return ", ".join([str(bookmark.entry) for bookmark in profile.bookmarks])
 
     profile.short_description = 'User profile'
