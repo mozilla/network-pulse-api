@@ -25,6 +25,9 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return 'profile for {}'.format(self.user.email)
+   
+    class Meta:
+        verbose_name = "Profile"
 
 
 class UserBookmarks(models.Model):
@@ -55,3 +58,7 @@ class UserBookmarks(models.Model):
             e=self.entry,
             p=self.profile.id
         )
+
+    class Meta:
+        verbose_name = "Bookmarks"
+        verbose_name_plural = "Bookmarks"
