@@ -3,7 +3,7 @@ from .models import UserProfile, UserBookmarks
 
 class UserProfileAdmin(admin.ModelAdmin):
     """
-    Show a list of entries a user has submitted in the EmailUser Admin app
+    Show the profile-associated user.
     """
     fields = ('user',)
     readonly_fields = ('user',)
