@@ -5,6 +5,8 @@ from django.contrib.auth.models import (
     AbstractBaseUser,
     PermissionsMixin
 )
+from pulseapi.profiles.models import UserProfile
+
 
 class EmailUserManager(BaseUserManager):
     def create_user(self, name, email, password=None):
@@ -23,6 +25,11 @@ class EmailUserManager(BaseUserManager):
         )
         user.set_password(password)
         user.save()
+
+        # Ensure that new users get a user profile associated
+        # with them, even though it'll be empty by default.
+        UserProfile.objects.get_or_create(user=user)
+
         return user
 
     def create_superuser(self, name, email, password):
@@ -54,16 +61,6 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
         verbose_name="this user counts as django::staff",
     )
 
-    # "user X bookmarked entry Y" is a many to many relation,
-    # for which we also want to know *when* a user bookmarked
-    # a specific entry. As such, we use a helper class that
-    # tracks this relation as well as the time it's created.
-    bookmarks = models.ManyToManyField(
-        'entries.Entry',
-        through='UserBookmarks',
-        related_name='bookmark_by'
-    )
-
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 
@@ -86,26 +83,3 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.toString()
-
-
-class UserBookmarks(models.Model):
-    """
-    This class is used to link users and entries through a
-    "bookmark" relation. One user can bookmark many entries,
-    and one entry can have bookmarks from many users.
-    """
-    entry = models.ForeignKey(
-        'entries.Entry',
-        on_delete=models.CASCADE,
-        related_name='bookmarked_by'
-    )
-
-    user = models.ForeignKey(
-        EmailUser,
-        on_delete=models.CASCADE,
-        related_name='bookmark_entries'
-    )
-
-    timestamp = models.DateTimeField(
-        auto_now=True,
-    )

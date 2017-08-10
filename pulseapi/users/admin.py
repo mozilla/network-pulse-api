@@ -3,26 +3,18 @@ Admin setings for EmailUser app
 """
 from django.contrib import admin
 from django.contrib.auth.models import Group
-from .models import EmailUser
+from django.utils.html import format_html
 
-class UserBookmarksInline(admin.TabularInline):
-    """
-    We need an inline widget before we can do anything
-    with the user/entry bookmark data.
-    """
-    model = EmailUser.bookmarks.through
-    verbose_name = 'UserBookmarks'
+from .models import EmailUser
+from pulseapi.profiles.models import UserProfile, UserBookmarks
 
 
 class EmailUserAdmin(admin.ModelAdmin):
     """
     Show a list of entries a user has submitted in the EmailUser Admin app
     """
-    fields = ('password', 'last_login', 'email', 'name', 'entries','bookmarks', 'is_staff', 'is_superuser')
-    readonly_fields = ('entries','bookmarks')
-
-    # this allows us to create/edit/delete/etc bookmarks:
-    inlines = [ UserBookmarksInline ]
+    fields = ('password', 'last_login', 'email', 'name', 'is_staff', 'is_superuser', 'profile', 'entries','bookmarks', )
+    readonly_fields = ('entries','bookmarks','profile')
 
     def entries(self, instance):
         """
@@ -30,6 +22,26 @@ class EmailUserAdmin(admin.ModelAdmin):
         """
         return ", ".join([str(entry) for entry in instance.entries.all()])
 
+    def profile(self, instance):
+        """
+        Link to this user's profile
+        """
+        profile = UserProfile.objects.get(user=instance)
+
+        html = '<a href="/admin/profiles/userprofile/{id}/change/">Click here for this user\'s profile</a>'.format(
+            id=profile.id,
+        )
+
+        return format_html(html)
+
+    def bookmarks(self, instance):
+        """
+        Show all bookmarked entries as a string of titles. In the future we should make them links.
+        """
+        profile = UserProfile.objects.get(user=instance)
+        return ", ".join([str(bookmark.entry) for bookmark in profile.bookmarks])
+
+    profile.short_description = 'User profile'
 
 admin.site.register(EmailUser, EmailUserAdmin)
 
