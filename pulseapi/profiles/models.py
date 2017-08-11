@@ -1,6 +1,6 @@
 from django.db import models
+from django.utils import timezone
 from django.utils.html import format_html
-
 
 def entry_thumbnail_path(instance, filename):
     return 'images/user-avatars/{timestamp}{ext}'.format(
@@ -136,8 +136,13 @@ class UserProfile(models.Model):
     # Accessing the Profile-indicated name needs various stages
     # of fallback.
     def name(self):
+        # blank values, including pure whitespace, don't count:
         if not self.custom_name:
             return self.user.name
+        if not self.custom_name.strip():
+            return self.user.name
+
+        # anything else does count.
         return self.custom_name
 
     name.short_description = 'Name that will show'
