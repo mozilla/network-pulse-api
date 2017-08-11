@@ -29,14 +29,22 @@ class Location(models.Model):
     Making this do the right thing is going to take more work than any
     initial model implementation can achieve.
     """
-    city = models.CharField(max_length=500, blank=False, null=True)
-    country  = models.CharField(max_length=500, blank=False, null=True)
+    city = models.CharField(
+        max_length=500,
+        blank=True
+    )
+
+    country  = models.CharField(
+        max_length=500,
+        blank=True
+    )
 
     # Note: in a simplistic world this would be a OneToOneField, but
     # we do not live in a simplistic world, so one profile can in fact
     # have multiple locations associated with it.
     profile = models.ForeignKey(
         'profiles.UserProfile',
+        blank=True,
         null=True
     )
 
@@ -52,12 +60,14 @@ class Location(models.Model):
 # github profile, etc. etc.
 #
 class SocialUrl(models.Model):
-    url = models.URLField()
+    url = models.URLField(
+        max_length=2048
+    )
 
     service = models.CharField(
         max_length=500,
-        blank=False,
-        null=True
+        blank=True,
+        default=''
     )
 
     profile = models.ForeignKey(
@@ -98,6 +108,9 @@ class UserProfile(models.Model):
     such as real name, social media information,
     bookmarks on the site, etc.
     """
+
+    # Note that orphaned profiles, without an associated
+    # user account, are perfectly fine in our architecture.
     user = models.ForeignKey(
         'users.EmailUser',
         on_delete=models.SET_NULL,
@@ -108,8 +121,7 @@ class UserProfile(models.Model):
     # A tweet-style user bio
     user_bio = models.CharField(
         max_length=140,
-        blank=True,
-        default=''
+        blank=True
     )
 
     # "user X bookmarked entry Y" is a many to many relation,
@@ -128,9 +140,9 @@ class UserProfile(models.Model):
     # Examples of this are nicknames, pseudonyms, and org names
     custom_name = models.CharField(
         max_length=500,
-        blank=True,
-        null=True
+        blank=True
     )
+
     custom_name.short_description = 'Custom user name'
 
     # Accessing the Profile-indicated name needs various stages
@@ -154,6 +166,7 @@ class UserProfile(models.Model):
     is_group = models.BooleanField(
         default=False
     )
+
     is_group.short_description = 'This is a group profile.'
 
     # Thumbnail image for this user; their "avatar" even though we
