@@ -1,6 +1,10 @@
+import os
+
 from django.db import models
+from django.conf import settings
 from django.utils import timezone
 from django.utils.html import format_html
+
 
 def entry_thumbnail_path(instance, filename):
     return 'images/user-avatars/{timestamp}{ext}'.format(
@@ -34,7 +38,7 @@ class Location(models.Model):
         blank=True
     )
 
-    country  = models.CharField(
+    country = models.CharField(
         max_length=500,
         blank=True
     )
@@ -158,7 +162,6 @@ class UserProfile(models.Model):
         return self.custom_name
 
     name.short_description = 'Name that will show'
-
 
     # This flag marks whether or not this profile applies to
     # "A human being", or a group of people (be that a club, org,

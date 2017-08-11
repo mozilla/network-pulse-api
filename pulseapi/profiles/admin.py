@@ -25,20 +25,20 @@ class UserProfileAdmin(admin.ModelAdmin):
     ]
 
     fields = (
-    	'user_account',
-    	'name',
+        'user_account',
+        'name',
         'custom_name',
-    	'is_group',
-    	'user_bio',
-		'bookmark_count',
+        'is_group',
+        'user_bio',
+        'bookmark_count',
         'thumbnail',
         'thumbnail_image_tag',
         'issues',
     )
 
     readonly_fields = (
-    	'user_account',
-    	'name',
+        'user_account',
+        'name',
         'thumbnail_image_tag',
         'bookmark_count',
     )
@@ -48,7 +48,7 @@ class UserProfileAdmin(admin.ModelAdmin):
             url=get_admin_url(instance.user),
             account=instance.user.email
         )
-        return format_html(html);
+        return format_html(html)
 
     def bookmark_count(self, instance):
         """
