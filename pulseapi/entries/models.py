@@ -11,6 +11,7 @@ from pulseapi.users.models import EmailUser
 from django.utils import timezone
 from django.utils.html import format_html
 
+
 def entry_thumbnail_path(instance, filename):
     return 'images/entries/{timestamp}{ext}'.format(
         timestamp=str(timezone.now()),
@@ -24,6 +25,7 @@ class ModerationState(models.Model):
 
     def __str__(self):
         return str(self.name)
+
 
 def get_default_moderation_state():
     """
@@ -134,7 +136,7 @@ class Entry(models.Model):
         related_name='entries'
     )
     created = models.DateTimeField(
-        default = timezone.now
+        default=timezone.now
     )
 
     # moderation information

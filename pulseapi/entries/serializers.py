@@ -9,6 +9,7 @@ from pulseapi.helptypes.models import HelpType
 from pulseapi.creators.models import Creator
 from pulseapi.profiles.models import UserProfile
 
+
 class CreatableSlugRelatedField(serializers.SlugRelatedField):
     """
     Override SlugRelatedField to create or update
@@ -57,9 +58,9 @@ class EntrySerializer(serializers.ModelSerializer):
                                           required=False)
 
     help_types = serializers.SlugRelatedField(many=True,
-                                          slug_field='name',
-                                          queryset=HelpType.objects,
-                                          required=False)
+                                              slug_field='name',
+                                              queryset=HelpType.objects,
+                                              required=False)
 
     creators = CreatableSlugRelatedField(many=True,
                                          slug_field='name',

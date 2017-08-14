@@ -6,25 +6,18 @@ import django_filters
 
 from django.core.files.base import ContentFile
 
-from rest_framework import (filters, status)
-from rest_framework.decorators import (
-    detail_route, api_view
-)
-from rest_framework.generics import (
-    ListCreateAPIView, RetrieveAPIView, ListAPIView
-)
+from rest_framework import filters, status
+from rest_framework.decorators import detail_route, api_view
+from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, ListAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from pulseapi.entries.models import Entry, ModerationState
-from pulseapi.entries.serializers import (
-    EntrySerializer,
-    ModerationStateSerializer
-)
-from pulseapi.users.models import EmailUser
+from pulseapi.entries.serializers import EntrySerializer, ModerationStateSerializer
 from pulseapi.profiles.models import UserProfile, UserBookmarks
 
 from pulseapi.utility.userpermissions import is_staff_address
+
 
 @api_view(['PUT'])
 def toggle_bookmark(request, entryid):
@@ -203,7 +196,7 @@ class EntryCustomFilter(filters.FilterSet):
         Required Meta class
         """
         model = Entry
-        fields = ['tags', 'issues', 'featured',]
+        fields = ['tags', 'issues', 'featured', ]
 
 
 class EntryView(RetrieveAPIView):
@@ -214,7 +207,6 @@ class EntryView(RetrieveAPIView):
     queryset = Entry.objects.public()
     serializer_class = EntrySerializer
     pagination_class = None
-
 
 
 class BookmarkedEntries(ListAPIView):
@@ -245,7 +237,10 @@ class BookmarkedEntries(ListAPIView):
 
             user = request.user
             ids = self.request.query_params.get('ids', None)
-            queryset = Entry.objects.public()
+
+            # This var was set, but never used. Commented off
+            # rather than deleted just in case:
+            # queryset = Entry.objects.public()
 
             def bookmark_entry(id):
                 entry = None
@@ -276,7 +271,6 @@ class BookmarkedEntries(ListAPIView):
                 "post validation failed",
                 status=status.HTTP_403_FORBIDDEN
             )
-
 
 
 class ModerationStateView(ListAPIView):
