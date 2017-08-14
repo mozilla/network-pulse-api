@@ -9,12 +9,22 @@ def entry_thumbnail_path(instance, filename):
     )
 
 
+# We want to capture the user or group's location, but we don't
+# want to do so in too fine a detail, so right now we mostly
+# care about city, and country that city is in.
+#
 class Location(models.Model):
     """
     THIS COMES WITH ASSUMPTION-PROBLEMS:
+
     - A country might have two or more cities with the same name, but
       in different administative regions of that country.
+
     - Some cities lie in to countries. I know, that's crazy, but some do.
+
+    - Some people live or work or associate with more than one location,
+      especially if they live near an easily crossed border such as in
+      many European countries.
 
     Making this do the right thing is going to take more work than any
     initial model implementation can achieve.
@@ -22,18 +32,36 @@ class Location(models.Model):
     city = models.CharField(max_length=500, blank=False, null=True)
     country  = models.CharField(max_length=500, blank=False, null=True)
 
+    # Note: in a simplistic world this would be a OneToOneField, but
+    # we do not live in a simplistic world, so one profile can in fact
+    # have multiple locations associated with it.
+    profile = models.ForeignKey(
+        'profiles.UserProfile',
+        null=True
+    )
+
     def __str__(self):
         return '{city}, {country}'.format(
             city=self.city,
             country=self.country
         )
 
+
+# We want users to be able to give any number of "social" URLs that are
+# relevant to them, such as facebook, linkedin, twitter, blog url,
+# github profile, etc. etc.
+#
 class SocialUrl(models.Model):
     url = models.URLField()
 
     service = models.CharField(
         max_length=500,
         blank=False,
+        null=True
+    )
+
+    profile = models.ForeignKey(
+        'profiles.UserProfile',
         null=True
     )
 
@@ -63,6 +91,7 @@ class SocialUrl(models.Model):
             service=service
         )
 
+
 class UserProfile(models.Model):
     """
     This class houses all user profile information,
@@ -77,16 +106,8 @@ class UserProfile(models.Model):
     )
 
     # A tweet-style user bio
-    user_blurp = models.CharField(
-        max_length=140,
-        blank=True,
-        default=''
-    )
-
-    # A longer user bio that can be exposed when clicking through
-    # to a user's profile because you care to know what they're about.
     user_bio = models.CharField(
-        max_length=1000,
+        max_length=140,
         blank=True,
         default=''
     )
@@ -105,22 +126,21 @@ class UserProfile(models.Model):
     # name instead.
     #
     # Examples of this are nicknames, pseudonyms, and org names
-    alternative_name = models.CharField(
+    custom_name = models.CharField(
         max_length=500,
-        blank=False,
+        blank=True,
         null=True
     )
+    custom_name.short_description = 'Custom user name'
 
     # Accessing the Profile-indicated name needs various stages
     # of fallback.
     def name(self):
-        if self.alternative_name is not None:
-            return self.alternative_name
-        if self.user is not None:
+        if not self.custom_name:
             return self.user.name
-        return ''
+        return self.custom_name
 
-    name.short_description = 'name'
+    name.short_description = 'Name that will show'
 
 
     # This flag marks whether or not this profile applies to
@@ -129,14 +149,7 @@ class UserProfile(models.Model):
     is_group = models.BooleanField(
         default=False
     )
-
-    # We want to capture the user or group's location, but we don't
-    # want to do so in too fine a detail, so right now we mostly
-    # care about city, and country that city is in.
-    location = models.ManyToManyField(
-        Location,
-        related_name="Profile"
-    )
+    is_group.short_description = 'This is a group profile.'
 
     # Thumbnail image for this user; their "avatar" even though we
     # do not have anything on the site right now where avatars
@@ -167,12 +180,6 @@ class UserProfile(models.Model):
         return format_html(html)
 
     thumbnail_image_tag.short_description = 'Thumbnail preview'
-
-    # A UserProfile can have any number of associated social urls
-    social_urls = models.ManyToManyField(
-        SocialUrl,
-        related_name='Profile'
-    )
 
     # Which issues does this user care about/are they involved in?
     issues = models.ManyToManyField('issues.Issue')

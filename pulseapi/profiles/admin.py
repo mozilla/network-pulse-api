@@ -1,5 +1,17 @@
 from django.contrib import admin
-from .models import UserProfile, UserBookmarks
+from django.utils.html import format_html
+from pulseapi.utility.get_admin_url import get_admin_url
+from .models import Location, SocialUrl, UserProfile, UserBookmarks
+
+
+class LocationInline(admin.TabularInline):
+    model = Location
+    verbose_name = 'location'
+
+
+class SocialURLInline(admin.TabularInline):
+    model = SocialUrl
+    verbose_name = 'urls'
 
 
 class UserProfileAdmin(admin.ModelAdmin):
@@ -7,32 +19,42 @@ class UserProfileAdmin(admin.ModelAdmin):
     Show the profile-associated user.
     """
 
+    inlines = [
+        LocationInline,
+        SocialURLInline,
+    ]
+
     fields = (
-    	'user',
+    	'user_account',
     	'name',
-    	'location',
+        'custom_name',
     	'is_group',
-    	'user_blurp',
     	'user_bio',
 		'bookmark_count',
         'thumbnail',
         'thumbnail_image_tag',
-        'social_urls',
         'issues',
     )
 
     readonly_fields = (
-    	'user',
+    	'user_account',
     	'name',
         'thumbnail_image_tag',
         'bookmark_count',
     )
 
+    def user_account(self, instance):
+        html = '<a href="{url}">{account}</a>'.format(
+            url=get_admin_url(instance.user),
+            account=instance.user.email
+        )
+        return format_html(html);
+
     def bookmark_count(self, instance):
         """
         Show the total number of bookmarks for this Entry
         """
-        return instance.bookmarked_by.count()
+        return instance.bookmarks_from.count()
 
 
 

@@ -24,20 +24,23 @@ class EmailUserAdmin(admin.ModelAdmin):
         'is_superuser',
         'profile',
         'entries',
-        'bookmarks',
     )
 
     readonly_fields = (
         'entries',
-        'bookmarks',
         'profile',
     )
 
     def entries(self, instance):
-        """
-        Show all entries as a string of titles. In the future we should make them links.
-        """
-        return ", ".join([str(entry) for entry in instance.entries.all()])
+        entries = Entry.objects.filter(published_by=instance)
+        rows = ['<tr><td><a href="{url}">{title} (id={id})</a></td></tr>'.format(
+                    url=get_admin_url(entry),
+                    id=entry.id,
+                    title=entry.title
+                ) for entry in entries]
+        return format_html('<table>{rows}</table>'.format(rows=''.join(rows)))
+    entries.short_description = 'Entries posted by this user'
+
 
     def profile(self, instance):
         """
@@ -50,13 +53,6 @@ class EmailUserAdmin(admin.ModelAdmin):
         )
 
         return format_html(html)
-
-    def bookmarks(self, instance):
-        """
-        Show all bookmarked entries as a string of titles. In the future we should make them links.
-        """
-        profile = UserProfile.objects.get(user=instance)
-        return ", ".join([str(bookmark.entry) for bookmark in profile.bookmarks])
 
     profile.short_description = 'User profile'
 
