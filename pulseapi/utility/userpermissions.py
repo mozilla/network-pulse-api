@@ -1,5 +1,5 @@
-from django.contrib.sites.models import Site
 from django.contrib.auth.models import Group
+
 
 def is_staff_address(email):
     """

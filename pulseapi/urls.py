@@ -40,4 +40,4 @@ urlpatterns = [
 ]
 
 if settings.USE_S3 is not True:
-    urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

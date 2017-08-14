@@ -3,7 +3,6 @@ import json
 from django.core.urlresolvers import reverse
 
 from pulseapi.entries.models import Entry, ModerationState
-from pulseapi.users.models import EmailUser
 from pulseapi.tests import PulseStaffTestCase, PulseMemberTestCase
 
 
@@ -444,7 +443,7 @@ class TestEntryView(PulseStaffTestCase):
         url = '/api/pulse/entries/bookmarks/?ids=' + str(id1)
         payload = self.generatePostPayload()
 
-        postresponse = self.client.post(url,payload)
+        postresponse = self.client.post(url, payload)
         self.assertEqual(postresponse.status_code, 204)
 
         # verify bookmark count for entry1 is now one
@@ -455,7 +454,7 @@ class TestEntryView(PulseStaffTestCase):
         url = '/api/pulse/entries/bookmarks/?ids=' + str(id1) + ',' + str(id2)
         payload = self.generatePostPayload()
 
-        postresponse = self.client.post(url,payload)
+        postresponse = self.client.post(url, payload)
         self.assertEqual(postresponse.status_code, 204)
 
         # verify bookmark count for entry1 is still one
@@ -479,7 +478,7 @@ class TestEntryView(PulseStaffTestCase):
         url = '/api/pulse/entries/bookmarks/?ids=' + str(nonExistentId)
         payload = self.generatePostPayload()
 
-        postresponse = self.client.post(url,payload)
+        postresponse = self.client.post(url, payload)
         self.assertEqual(postresponse.status_code, 204)
 
         # post with a non-existent id
@@ -488,7 +487,7 @@ class TestEntryView(PulseStaffTestCase):
         url = '/api/pulse/entries/bookmarks/?ids=' + invalidId
         payload = self.generatePostPayload()
 
-        postresponse = self.client.post(url,payload)
+        postresponse = self.client.post(url, payload)
         self.assertEqual(postresponse.status_code, 204)
 
     def test_moderation_states(self):
@@ -532,7 +531,6 @@ class TestEntryView(PulseStaffTestCase):
 
         entry.refresh_from_db()
         self.assertEqual(entry.featured, True)
-
 
     def test_moderation_toggle_by_staff(self):
         entry = Entry.objects.all()[0]

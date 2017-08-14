@@ -8,7 +8,6 @@ from django.core.exceptions import ValidationError
 from django.http import (HttpResponse, HttpResponseNotFound)
 from django.shortcuts import (redirect, render)
 from django.contrib.auth import login, logout
-from django.views.decorators.csrf import csrf_protect
 from apiclient.discovery import build
 
 from .models import EmailUser
@@ -61,6 +60,7 @@ def new_nonce_value(request):
     """
 
     request.session['nonce'] = EmailUser.objects.make_random_password()
+
 
 # API ROUTE: /nonce
 def nonce(request):
@@ -125,6 +125,7 @@ def index(request):
         'user': request.user
     })
 
+
 # API ROUTE: /login
 def start_auth(request):
     """
@@ -144,6 +145,7 @@ def start_auth(request):
     FlowHandler.get_flow().params['state'] = original_url
     auth_url = FlowHandler.get_flow().step1_get_authorize_url()
     return redirect(auth_url)
+
 
 # API Route: /logout (immediately directs to /)
 def force_logout(request):
@@ -253,4 +255,6 @@ def callback(request):
 
         return do_final_redirect(state, True, "User logged in")
 
-    return HttpResponseNotFound("callback happened without an error or code query argument: this should not be possible.")
+    return HttpResponseNotFound(
+        "callback happened without an error or code query argument: this should not be possible."
+    )

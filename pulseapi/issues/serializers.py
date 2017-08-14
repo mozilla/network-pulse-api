@@ -1,9 +1,8 @@
 """Serialize the models"""
 from rest_framework import serializers
 
-from pulseapi.issues.models import(
-    Issue,
-)
+from pulseapi.issues.models import Issue
+
 
 class IssueSerializer(serializers.ModelSerializer):
     """
@@ -18,6 +17,7 @@ class IssueSerializer(serializers.ModelSerializer):
         """
         model = Issue
         fields = ('name', 'description',)
+
 
 class IssueDetailSerializer(serializers.ModelSerializer):
     """

@@ -4,11 +4,10 @@ Get tags with filtering for autocomplete purposes
 
 from rest_framework.generics import ListAPIView
 from rest_framework import filters
-from pulseapi.tags.serializers import (
-    TagSerializer,
-)
+from pulseapi.tags.serializers import TagSerializer
 
 from pulseapi.tags.models import Tag
+
 
 class TagListView(ListAPIView):
     """

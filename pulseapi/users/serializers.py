@@ -1,8 +1,6 @@
 """Serialize the models"""
 from rest_framework import serializers
 
-from pulseapi.users.models import EmailUser
-
 
 class EmailUserSerializer(serializers.ModelSerializer):
     """

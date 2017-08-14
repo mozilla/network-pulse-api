@@ -6,6 +6,7 @@ from faker import Factory
 
 fake = Factory.create()
 
+
 class EmailUserFactory(factory.Factory):
     """Generate EmailUsers for tests"""
     name = factory.LazyAttribute(lambda o: fake.name())

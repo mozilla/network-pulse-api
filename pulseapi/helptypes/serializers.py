@@ -1,7 +1,7 @@
-"""Serialize the models"""
 from rest_framework import serializers
 
 from pulseapi.helptypes.models import HelpType
+
 
 class HelpTypeSerializer(serializers.ModelSerializer):
     """

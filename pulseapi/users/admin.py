@@ -5,16 +5,33 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.utils.html import format_html
 
+from pulseapi.profiles.models import UserProfile
+
 from .models import EmailUser
-from pulseapi.profiles.models import UserProfile, UserBookmarks
+from .admin_group_editing import GroupAdmin
 
 
 class EmailUserAdmin(admin.ModelAdmin):
     """
     Show a list of entries a user has submitted in the EmailUser Admin app
     """
-    fields = ('password', 'last_login', 'email', 'name', 'is_staff', 'is_superuser', 'profile', 'entries','bookmarks', )
-    readonly_fields = ('entries','bookmarks','profile')
+    fields = (
+        'password',
+        'last_login',
+        'email',
+        'name',
+        'is_staff',
+        'is_superuser',
+        'profile',
+        'entries',
+        'bookmarks',
+    )
+
+    readonly_fields = (
+        'entries',
+        'bookmarks',
+        'profile',
+    )
 
     def entries(self, instance):
         """
@@ -43,9 +60,9 @@ class EmailUserAdmin(admin.ModelAdmin):
 
     profile.short_description = 'User profile'
 
+
 admin.site.register(EmailUser, EmailUserAdmin)
 
 # Add the admin view bits that let us add these users to groups
-from .admin_group_editing import GroupAdmin
 admin.site.unregister(Group)
 admin.site.register(Group, GroupAdmin)

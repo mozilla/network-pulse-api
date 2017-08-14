@@ -2,11 +2,12 @@
 Show all issues and a set with descriptions
 """
 
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView
 from rest_framework import filters
-from pulseapi.helptypes.serializers import HelpTypeSerializer
 
+from pulseapi.helptypes.serializers import HelpTypeSerializer
 from pulseapi.helptypes.models import HelpType
+
 
 class HelpTypeListView(ListAPIView):
     """

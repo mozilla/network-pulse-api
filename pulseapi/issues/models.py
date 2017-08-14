@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Create your models here.
 class IssueQuerySet(models.query.QuerySet):
     """
@@ -15,6 +16,7 @@ class IssueQuerySet(models.query.QuerySet):
     def slug(self, slug):
         return self.filter(name=slug)
 
+
 class Issue(models.Model):
     """
     The Mozilla issues
@@ -25,4 +27,3 @@ class Issue(models.Model):
 
     def __str__(self):
         return str(self.name)
-        
