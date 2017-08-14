@@ -1,17 +1,12 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from pulseapi.utility.get_admin_url import get_admin_url
-from .models import Location, SocialUrl, UserProfile, UserBookmarks
+from .models import Location, UserProfile, UserBookmarks
 
 
 class LocationInline(admin.TabularInline):
     model = Location
     verbose_name = 'location'
-
-
-class SocialURLInline(admin.TabularInline):
-    model = SocialUrl
-    verbose_name = 'urls'
 
 
 class UserProfileAdmin(admin.ModelAdmin):
@@ -21,7 +16,6 @@ class UserProfileAdmin(admin.ModelAdmin):
 
     inlines = [
         LocationInline,
-        SocialURLInline,
     ]
 
     fields = (

@@ -59,53 +59,6 @@ class Location(models.Model):
         )
 
 
-# We want users to be able to give any number of "social" URLs that are
-# relevant to them, such as facebook, linkedin, twitter, blog url,
-# github profile, etc. etc.
-#
-class SocialUrl(models.Model):
-    url = models.URLField(
-        max_length=2048
-    )
-
-    service = models.CharField(
-        max_length=500,
-        blank=True,
-        default=''
-    )
-
-    profile = models.ForeignKey(
-        'profiles.UserProfile',
-        null=True
-    )
-
-    def get_service_name(self):
-        """
-        This function can "guess" at what the service name for this
-        URL is based on the domain found in the url. This lets us
-        say things like "this is twitter" or "this is facebook" or
-        "a blog", or it might be prespecified by the user, or we
-        will be unable to guess, in which case the result is False
-        """
-        if self.service is not None:
-            return self.service
-
-        # ... we would guess at the service here based on the URL...
-
-        return False
-
-    def __str__(self):
-        service = self.get_service_name()
-
-        if service is False:
-            return self.url
-
-        return '{url} ({service})'.format(
-            url=self.url,
-            service=service
-        )
-
-
 class UserProfile(models.Model):
     """
     This class houses all user profile information,
@@ -204,6 +157,27 @@ class UserProfile(models.Model):
 
     # Which issues does this user care about/are they involved in?
     issues = models.ManyToManyField('issues.Issue')
+
+    # we allow users to indicate several possible predefined service URLs
+    twitter = models.URLField(
+        max_length=2048,
+        blank=True
+    )
+
+    linkedin = models.URLField(
+        max_length=2048,
+        blank=True
+    )
+
+    github = models.URLField(
+        max_length=2048,
+        blank=True
+    )
+
+    website = models.URLField(
+        max_length=2048,
+        blank=True
+    )
 
     def __str__(self):
         return 'profile for {}'.format(self.user.email)
