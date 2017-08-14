@@ -55,7 +55,6 @@ class UserProfileAdmin(admin.ModelAdmin):
         return instance.bookmarks_from.count()
 
 
-
 class UserBookmarksAdmin(admin.ModelAdmin):
     """
     ...

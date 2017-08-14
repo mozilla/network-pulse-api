@@ -5,10 +5,14 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.utils.html import format_html
 
-from pulseapi.profiles.models import UserProfile
 
-from .models import EmailUser
+from pulseapi.entries.models import Entry
+from pulseapi.profiles.models import UserProfile
+from pulseapi.users.models import EmailUser
+from pulseapi.utility.get_admin_url import get_admin_url
+
 from .admin_group_editing import GroupAdmin
+
 
 class EmailUserAdmin(admin.ModelAdmin):
     """
@@ -40,15 +44,14 @@ class EmailUserAdmin(admin.ModelAdmin):
         return format_html('<table>{rows}</table>'.format(rows=''.join(rows)))
     entries.short_description = 'Entries posted by this user'
 
-
     def profile(self, instance):
         """
         Link to this user's profile
         """
         profile = UserProfile.objects.get(user=instance)
 
-        html = '<a href="/admin/profiles/userprofile/{id}/change/">Click here for this user\'s profile</a>'.format(
-            id=profile.id,
+        html = '<a href="{url}">Click here for this user\'s profile</a>'.format(
+            url=get_admin_url(profile)
         )
 
         return format_html(html)
