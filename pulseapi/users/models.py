@@ -43,6 +43,7 @@ class EmailUserManager(BaseUserManager):
         user.save()
         return user
 
+
 class EmailUser(AbstractBaseUser, PermissionsMixin):
     # We treat the user's email address as their username
     email = models.CharField(

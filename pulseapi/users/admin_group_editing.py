@@ -14,6 +14,7 @@ from django.contrib.auth.models import Group
 
 User = get_user_model()
 
+
 # Create ModelForm based on the Group model.
 class GroupAdminForm(forms.ModelForm):
     class Meta:
@@ -52,4 +53,3 @@ class GroupAdmin(admin.ModelAdmin):
     form = GroupAdminForm
     # Filter permissions horizontal as well.
     filter_horizontal = ['permissions']
-
