@@ -29,6 +29,15 @@ class Tag(models.Model):
 
     entry_count = property(_get_entry_count)
 
+    # Make sure tags are cleaned when saving
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super(Tag, self).save(*args, **kwargs)
+
+    # clean tags don't have leading or trailing spaces
+    def clean(self):
+        self.name = self.name.strip()
+
     def __str__(self):
         return str(self.name)
 
