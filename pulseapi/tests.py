@@ -1,23 +1,19 @@
 import json
 
 from django.test import TestCase, Client
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
-from pulseapi.entries.models import Entry, ModerationState
-from pulseapi.entries.test_models import EntryFactory
-
 from pulseapi.users.models import EmailUser
-from pulseapi.users.test_models import EmailUserFactory
-
-from pulseapi.issues.models import Issue
+from pulseapi.entries.models import Entry
+from pulseapi.entries.test_models import EntryFactory
 
 from pulseapi.utility.userpermissions import (
     is_staff_address,
     assign_group_policy,
     add_user_to_main_site,
 )
+
 
 def setup_groups():
     staff, created = Group.objects.get_or_create(name='staff')

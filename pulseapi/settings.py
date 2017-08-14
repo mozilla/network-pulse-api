@@ -12,15 +12,15 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 import dj_database_url
+import environ
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-import environ
 app = environ.Path(__file__) - 1
 root = app - 1
 
-environ.Env.read_env(os.path.join(BASE_DIR,'.env'))
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 env = environ.Env(
     DEBUG=(bool, False),
     USE_S3=(bool, False),
@@ -41,7 +41,10 @@ ALLOW_UNIVERSAL_LOGIN = env('ALLOW_UNIVERSAL_LOGIN', default=None)
 # host file, so that google's redirect works. This is the same
 # domain you will be specifying in your Flow credentials, and
 # associated client_secrets.json
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'test.example.com,localhost,network-pulse-api-staging.herokuapp.com,network-pulse-api-production.herokuapp.com').split(',')
+ALLOWED_HOSTS = os.getenv(
+    'ALLOWED_HOSTS',
+    'test.example.com,localhost,network-pulse-api-staging.herokuapp.com,network-pulse-api-production.herokuapp.com'
+).split(',')
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 31
@@ -89,7 +92,7 @@ ROOT_URLCONF = 'pulseapi.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR,'templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -125,18 +128,18 @@ if DATABASE_URL is not False:
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-#    {
-#        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-#    },
-#    {
-#        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-#    },
-#    {
-#        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-#    },
-#    {
-#        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-#    },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    # },
 ]
 
 
@@ -168,7 +171,10 @@ CORS_ORIGIN_ALLOW_ALL = False
 CORS_ALLOW_CREDENTIALS = True
 
 # and we want origin whitelisting
-CORS_ORIGIN_WHITELIST = os.getenv('CORS_ORIGIN_WHITELIST', 'localhost:3000,localhost:8000,localhost:8080,test.example.com:8000,test.example.com:8080,pulse-react.herokuapp.com').split(',')
+CORS_ORIGIN_WHITELIST = os.getenv(
+    'CORS_ORIGIN_WHITELIST',
+    'localhost:3000,localhost:8000,localhost:8080,test.example.com:8000,test.example.com:8080'
+).split(',')
 
 CORS_ORIGIN_REGEX_WHITELIST = []
 CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
@@ -180,9 +186,12 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = env('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=S
 SECURE_HSTS_SECONDS = 60*60*24*31*6
 SECURE_SSL_REDIRECT = env('SECURE_SSL_REDIRECT', default=SSL_PROTECTION)
 SESSION_COOKIE_SECURE = env('SESSION_COOKIE_SECURE', default=SSL_PROTECTION)
-# Heroku goes into an infinite redirect loop without this. So it's kind of necessary. See https://docs.djangoproject.com/en/1.10/ref/settings/#secure-ssl-redirect
+
+# Heroku goes into an infinite redirect loop without this. So it's kind of necessary.
+# See https://docs.djangoproject.com/en/1.10/ref/settings/#secure-ssl-redirect
 if SSL_PROTECTION is True:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 X_FRAME_OPTIONS = "DENY"
 
 
