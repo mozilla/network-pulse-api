@@ -2,6 +2,7 @@ import json
 from django.test import TestCase
 from .models import Issue
 
+
 class TestIssues(TestCase):
 
     def test_check_for_issues(self):

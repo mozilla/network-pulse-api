@@ -11,6 +11,7 @@ from pulseapi.issues.serializers import (
 
 from pulseapi.issues.models import Issue
 
+
 class IssueListView(ListAPIView):
     """
     A view to retrieve all Issues.
@@ -27,6 +28,7 @@ class IssueListView(ListAPIView):
     search_fields = (
         '^name',
     )
+
 
 class IssueDetailView(RetrieveAPIView):
     """
