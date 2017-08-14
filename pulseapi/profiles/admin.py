@@ -28,6 +28,10 @@ class UserProfileAdmin(admin.ModelAdmin):
         'thumbnail',
         'thumbnail_image_tag',
         'issues',
+        'twitter',
+        'linkedin',
+        'github',
+        'website',
     )
 
     readonly_fields = (
@@ -56,8 +60,8 @@ class UserBookmarksAdmin(admin.ModelAdmin):
     """
     ...
     """
-    fields = ('entry', 'profile', 'timestamp')
-    readonly_fields = ('entry', 'profile', 'timestamp')
+    fields = ('entry', 'profile', 'timestamp', )
+    readonly_fields = ('entry', 'profile', 'timestamp', )
 
 
 admin.site.register(UserProfile, UserProfileAdmin)
