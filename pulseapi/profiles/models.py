@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils.html import format_html
+
 
 def entry_thumbnail_path(instance, filename):
     return 'images/user-avatars/{timestamp}{ext}'.format(
@@ -17,15 +19,20 @@ class Location(models.Model):
     Making this do the right thing is going to take more work than any
     initial model implementation can achieve.
     """
-    city = models.CharField(max_len=500, blank=False, null=True)
-    country  = models.CharField(max_len=500, blank=False, null=True)
+    city = models.CharField(max_length=500, blank=False, null=True)
+    country  = models.CharField(max_length=500, blank=False, null=True)
 
+    def __str__(self):
+        return '{city}, {country}'.format(
+            city=self.city,
+            country=self.country
+        )
 
 class SocialUrl(models.Model):
     url = models.URLField()
 
     service = models.CharField(
-        max_len=500,
+        max_length=500,
         blank=False,
         null=True
     )
@@ -38,9 +45,23 @@ class SocialUrl(models.Model):
         "a blog", or it might be prespecified by the user, or we
         will be unable to guess, in which case the result is False
         """
-        if self.service is not Null:
+        if self.service is not None:
             return self.service
+
+        # ... we would guess at the service here based on the URL...
+
         return False
+
+    def __str__(self):
+        service = self.get_service_name()
+
+        if service is False:
+            return self.url
+
+        return '{url} ({service})'.format(
+            url=self.url,
+            service=service
+        )
 
 class UserProfile(models.Model):
     """
@@ -57,7 +78,7 @@ class UserProfile(models.Model):
 
     # A tweet-style user bio
     user_blurp = models.CharField(
-        max_len=140,
+        max_length=140,
         blank=True,
         default=''
     )
@@ -65,7 +86,7 @@ class UserProfile(models.Model):
     # A longer user bio that can be exposed when clicking through
     # to a user's profile because you care to know what they're about.
     user_bio = models.CharField(
-        max_len=1000,
+        max_length=1000,
         blank=True,
         default=''
     )
@@ -85,21 +106,21 @@ class UserProfile(models.Model):
     #
     # Examples of this are nicknames, pseudonyms, and org names
     alternative_name = models.CharField(
-        max_len=500,
+        max_length=500,
         blank=False,
         null=True
     )
 
     # Accessing the Profile-indicated name needs various stages
     # of fallback.
-    def get_name(self):
-        if self.alternative_name is not Null:
+    def name(self):
+        if self.alternative_name is not None:
             return self.alternative_name
-        if self.user is not Null:
+        if self.user is not None:
             return self.user.name
         return ''
 
-    get_name.short_description = 'name'
+    name.short_description = 'name'
 
 
     # This flag marks whether or not this profile applies to
@@ -112,7 +133,10 @@ class UserProfile(models.Model):
     # We want to capture the user or group's location, but we don't
     # want to do so in too fine a detail, so right now we mostly
     # care about city, and country that city is in.
-    location = models.ForeignKey(Location)
+    location = models.ManyToManyField(
+        Location,
+        related_name="Profile"
+    )
 
     # Thumbnail image for this user; their "avatar" even though we
     # do not have anything on the site right now where avatars
@@ -147,10 +171,7 @@ class UserProfile(models.Model):
     # A UserProfile can have any number of associated social urls
     social_urls = models.ManyToManyField(
         SocialUrl,
-        related_name='profile',
-        blank=False,
-        null=True,
-        on_delete=models.CASCADE
+        related_name='Profile'
     )
 
     # Which issues does this user care about/are they involved in?
