@@ -1,6 +1,6 @@
-"""Serialize the models"""
 from rest_framework import serializers
 from pulseapi.users.models import UserBookmarks
+
 
 class UserBookmarksSerializer(serializers.ModelSerializer):
     """

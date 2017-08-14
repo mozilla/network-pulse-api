@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class UserProfile(models.Model):
     """
     This class houses all user profile information,
@@ -25,7 +26,7 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return 'profile for {}'.format(self.user.email)
-   
+
     class Meta:
         verbose_name = "Profile"
 
