@@ -1,9 +1,8 @@
 """Serialize the models"""
 from rest_framework import serializers
 
-from pulseapi.tags.models import(
-    Tag,
-)
+from pulseapi.tags.models import Tag
+
 
 class TagSerializer(serializers.ModelSerializer):
     """

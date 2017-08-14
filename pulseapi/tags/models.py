@@ -3,6 +3,7 @@ Tags used for categorizing entries
 """
 from django.db import models
 
+
 class TagQuerySet(models.query.QuerySet):
     """
     A queryset for tags which returns all tags
@@ -13,6 +14,7 @@ class TagQuerySet(models.query.QuerySet):
         Returns all tags to start
         """
         return self
+
 
 class Tag(models.Model):
     """
