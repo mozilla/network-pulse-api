@@ -4,11 +4,10 @@ Get creators with filtering for autocomplete purposes
 
 from rest_framework.generics import ListAPIView
 from rest_framework import filters
-from pulseapi.creators.serializers import (
-    CreatorSerializer,
-)
+from pulseapi.creators.serializers import CreatorSerializer
 
 from pulseapi.creators.models import Creator
+
 
 class CreatorListView(ListAPIView):
     """

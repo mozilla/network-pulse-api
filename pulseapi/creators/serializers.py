@@ -1,9 +1,7 @@
-"""Serialize the models"""
 from rest_framework import serializers
 
-from pulseapi.creators.models import(
-    Creator,
-)
+from pulseapi.creators.models import Creator
+
 
 class CreatorSerializer(serializers.ModelSerializer):
     """
