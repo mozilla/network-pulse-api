@@ -2,6 +2,7 @@ import json
 from django.test import TestCase
 from .models import HelpType
 
+
 class TestIssues(TestCase):
 
     def test_check_for_help_types(self):
