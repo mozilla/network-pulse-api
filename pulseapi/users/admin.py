@@ -10,7 +10,6 @@ from pulseapi.profiles.models import UserProfile
 from .models import EmailUser
 from .admin_group_editing import GroupAdmin
 
-
 class EmailUserAdmin(admin.ModelAdmin):
     """
     Show a list of entries a user has submitted in the EmailUser Admin app
