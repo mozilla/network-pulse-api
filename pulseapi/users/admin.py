@@ -5,9 +5,12 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.utils.html import format_html
 
-from pulseapi.profiles.models import UserProfile
 
-from .models import EmailUser
+from pulseapi.entries.models import Entry
+from pulseapi.profiles.models import UserProfile
+from pulseapi.users.models import EmailUser
+from pulseapi.utility.get_admin_url import get_admin_url
+
 from .admin_group_editing import GroupAdmin
 
 
@@ -24,20 +27,22 @@ class EmailUserAdmin(admin.ModelAdmin):
         'is_superuser',
         'profile',
         'entries',
-        'bookmarks',
     )
 
     readonly_fields = (
         'entries',
-        'bookmarks',
         'profile',
     )
 
     def entries(self, instance):
-        """
-        Show all entries as a string of titles. In the future we should make them links.
-        """
-        return ", ".join([str(entry) for entry in instance.entries.all()])
+        entries = Entry.objects.filter(published_by=instance)
+        rows = ['<tr><td><a href="{url}">{title} (id={id})</a></td></tr>'.format(
+                    url=get_admin_url(entry),
+                    id=entry.id,
+                    title=entry.title
+                ) for entry in entries]
+        return format_html('<table>{rows}</table>'.format(rows=''.join(rows)))
+    entries.short_description = 'Entries posted by this user'
 
     def profile(self, instance):
         """
@@ -45,18 +50,11 @@ class EmailUserAdmin(admin.ModelAdmin):
         """
         profile = UserProfile.objects.get(user=instance)
 
-        html = '<a href="/admin/profiles/userprofile/{id}/change/">Click here for this user\'s profile</a>'.format(
-            id=profile.id,
+        html = '<a href="{url}">Click here for this user\'s profile</a>'.format(
+            url=get_admin_url(profile)
         )
 
         return format_html(html)
-
-    def bookmarks(self, instance):
-        """
-        Show all bookmarked entries as a string of titles. In the future we should make them links.
-        """
-        profile = UserProfile.objects.get(user=instance)
-        return ", ".join([str(bookmark.entry) for bookmark in profile.bookmarks])
 
     profile.short_description = 'User profile'
 
