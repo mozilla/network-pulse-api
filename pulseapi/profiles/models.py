@@ -188,6 +188,9 @@ class UserProfile(models.Model):
     )
 
     def __str__(self):
+        if self.user is None:
+            return 'orphan profile'
+
         return 'profile for {}'.format(self.user.email)
 
     class Meta:
