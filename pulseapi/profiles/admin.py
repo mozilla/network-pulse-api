@@ -19,6 +19,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     ]
 
     fields = (
+        'is_active',
         'user_account',
         'name',
         'custom_name',
