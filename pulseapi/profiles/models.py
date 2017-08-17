@@ -66,6 +66,14 @@ class UserProfile(models.Model):
     bookmarks on the site, etc.
     """
 
+    # This flag determines whether this profile has been
+    # activated, meaning it can be retrieved through REST
+    # API calls and might get crosslinked into data structures
+    # that rely on knowing a user or group's profile.
+    is_active = models.BooleanField(
+        default=False
+    )
+
     # Note that orphaned profiles, without an associated
     # user account, are perfectly fine in our architecture.
     user = models.ForeignKey(
