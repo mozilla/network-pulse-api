@@ -1,5 +1,7 @@
 [![Travis Build Status](https://travis-ci.org/mozilla/network-pulse-api.svg?branch=master)](https://travis-ci.org/mozilla/network-pulse-api) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/mozilla/network-pulse-api?svg=true)](https://ci.appveyor.com/project/mozillafoundation/network-pulse-api)
 
+<hr/>
+
 # The Mozilla Foundation Network Pulse API Server
 
 This is the REST API server for the Mozilla Network Pulse project.
@@ -11,6 +13,8 @@ This is the REST API server for the Mozilla Network Pulse project.
 - [Environment variables](#environment-variables)
 - [Deploying to Heroku](#deploying-to-heroku)
 - [Migrating data](#migrating-data)
+
+<hr/>
 
 ## Resetting your database because of incompatible model changes
 
@@ -24,9 +28,13 @@ This retrieves the full list of entries as stored in the database. As a base URL
 
 This route takes a swathe of optional arguments for filtering the entry set, visit this route in the browser for more detailed information on all available query arguments.
 
+<hr/>
+
 #### Filters
 
 Please run the server and see [http://localhost:8000/entries](http://localhost:8000/entries) for all supported filters.
+
+<hr/>
 
 ### `GET /api/pulse/nonce/`
 
@@ -44,6 +52,8 @@ The call response is a 403 for not authenticated users, or a JSON object when au
 **This data should never be cached persistently**. Do not store this in localStorage, cookies, or any other persistent data store. When the user terminates their client, or logs out, this information should immediately be lost. Also do not store this in a global namespace like `window` or `document`, or in anything that isn't protected by a closure.
 
 Also note that "the page itself" counts as global scope, so you generally don't want to put these values on the page as `<form>` elements. Instead, a form submission should be intercepted, and an in-memory form should be created with all the information of the original form, but with the nonce and csrf values copied. The submission can then use this in-memory form as basis for its POST payload instead.
+
+<hr/>
 
 ### `GET /api/pulse/userstatus/`
 
@@ -64,6 +74,8 @@ If a user is authenticated, all three fields will be present. If a user is not a
 
 **This data should never be cached persistently**. Do not store this in localStorage, cookies, or any other persistent data store. When the user terminates their client, or logs out, this information should immediately be lost. Also do not store this in a global namespace like `window` or `document`, or in anything that isn't protected by a closure.
 
+<hr/>
+
 ### `GET /api/pulse/issues/`
 
 Gets the list of internet health issues that entries can be related to. This route yields a documentation page unless the request mimetype is set to `application/json`, or the `?format=json` query argument is passed. When requesting JSON, this route yields an object of the form:
@@ -79,6 +91,8 @@ Gets the list of internet health issues that entries can be related to. This rou
 ...]
 ```
 
+<hr/>
+
 ### `GET /api/pulse/helptypes/`
 
 Gets the list of help types that are used by entries to indicate how people can get involved. This route yields a documentation page unless the request mimetype is set to `application/json`, or the `?format=json` query argument is passed. When requesting JSON, this route yields an object of the form:
@@ -93,6 +107,8 @@ Gets the list of help types that are used by entries to indicate how people can 
 },
 ...]
 ```
+
+<hr/>
 
 ### `POST /api/pulse/entries/`
 
@@ -139,6 +155,8 @@ A successful post will yield a JSON object:
 
 A failed post will yield an HTTP 400 response.
 
+<hr/>
+
 ### `POST /api/pulse/entries/bookmarks/ids=<a comma-separated list of integer ids>`
 
 POSTing to bookmark a list of entries requires sending the following payload object:
@@ -167,6 +185,8 @@ A failed post will yield
  - an HTTP 400 response if any entry id passed is invalid
  - an HTTP 403 response if the current user is not authenticated
 
+<hr/>
+
 ### `GET /api/pulse/entries/moderation-states/` with optional `?format=json`
 
 This retrieves the list of moderation states that are used for entry moderation. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
@@ -183,13 +203,19 @@ The result is of the format:
 ]
 ```
 
+<hr/>
+
 ### `GET /api/pulse/entries/<id=number>/` with optional `?format=json`
 
 This retrieves a single entry with the indicated `id` as stored in the database. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
+<hr/>
+
 ### `PUT /api/pulse/entries/<id=number>/moderate/<id=number>` with optional `?format=json`
 
 This changes the moderation state for an entry to the passed moderations state. Note that the moderation state is indicated by `id` number, **not** by moderation state name.
+
+<hr/>
 
 ### `PUT /api/pulse/entries/<id=number>/bookmark`
 
@@ -203,17 +229,25 @@ This operation requires a payload of the following form:
 }
 ```
 
+<hr/>
+
 ### `GET /api/pulse/entries/bookmarks` with optional `?format=json`
 
 Get the list of all entries that have been bookmarked by the currently authenticated user. Calling this as anonymous user yields an object with property `count` equals to `0`.  As a base URL call this returns an HTML page with formatted result, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+
+<hr/>
 
 ### `GET /api/pulse/login?original_url=<url>`
 
 This will kick off a Google OAuth2 login process. This process is entirely based on browser redirects, and once this process completes the user will be redirect to `original_url` with an additional url query argument `loggedin=True` or `loggedin=False` depending on whether the login attemp succeeded or not.
 
+<hr/>
+
 ### `GET /logout`
 
 This will log out a user if they have an authenticated session going. Note that this route does not have a redirect path associated with it: simply calling `/logout` with an XHR or Fetch operation is enough to immediately log the user out and invalidate their session at the API server. The only acknowledgement that callers will receive around this operation succeeding is that if an HTTP 200 status code is received, logout succeeded.
+
+<hr/>
 
 ## Getting up and running for local development
 
@@ -246,15 +280,21 @@ password (again): admin
 
 because it's easy to remember and doesn't require any kind of password management beyond "the browser itself".
 
+<hr/>
+
 ## Running the server
 
 As a Django server, this API server is run like any other Django server:
 
 - `python manage.py runserver`
 
+<hr/>
+
 ## Testing the API using the "3rd party library" test file
 
 Fire up a localhost server with port 8080 pointing at the `public` directory (some localhost servers like [http-server](https://npmjs.com/package/http-server) do this automatically for you) and point your browser to [http://localhost:8080](http://localhost:8080). If all went well (but read this README.md to the end, first) you should be able to post to the API server running "on" http://test.example.com:8000
+
+<hr/>
 
 ## **Important**: using a localhost rebinding to a "real" domain
 
@@ -264,10 +304,13 @@ Google Auth does not like oauth2 to `localhost`, so you will need to set up a ho
 
 and then use `http://test.example.com:8000` instead of `http://localhost:8000` everywhere. Google Auth should now be perfectly happy.
 
+<hr/>
+
 ### Why "test.example.com"?
 
 Example.com and example.org are "special" domains in that they *cannot* resolve to a real domain as part of the policy we, as the internet-connected world, agreed on. This means that if you forget to set that `hosts` binding, visiting test.example.com will be a guaranteed failure. Any other domain may in fact exist, and you don't want to be hitting a real website when you're doing login and authentication.
 
+<hr/>
 
 ## Environment variables
 
@@ -281,11 +324,13 @@ The following environment variables are used in this codebase
  - `SSL_PROTECTION`: Defaults to `False` to make development easier, but if you're deploying you probably want this to be `True`. This sets a slew of security-related variables in `settings.py` that you can override individually if desired.
  Heroku provisions some environmnets on its own, like a `PORT` and `DATABASE_URL` variable, which this codebase will make use of if it sees them, but these values are only really relevant to Heroku deployments and not something you need to mess with for local development purposes.
 
+<hr/>
 
 ## Deploying to Heroku
 
 While for local development we provide a `sample.env` that you can use as default environment variables, for Heroku deployment all the above-stated variables need to be real things. **Make sure to add these to the Heroku config!**
 
+<hr/>
 
 ## Resetting your database because of incompatible model changes
 
@@ -295,9 +340,13 @@ Simply run `python reset_database.py` and the steps mentioned above will be run 
 
 **Note:** This does wipe *everything* so you will still need to call `python manage.py createsuperuser` to make sure you have a super user set up again.
 
+<hr/>
+
 ## Migrating data
 
 To migrate data, export JSON from the Google Sheets db, and save it in the root directory as `migrationData.json`. Then run `python migrate.py`. This generates `massagedData.json`.
 In `public/migrate.html`, update the endpoint to be the address of the one you're trying to migrate data into. If it's a local db, leave as is.
 Spin up a server from the `public` folder on port 8080. Log in to your API using Oauth (either the hosted site or `test.example.com:8000` if doing this locally)
 Visit `http://test.example.com:8080/migrate.html`, paste the contents of `massagedData.json`, and submit. It will process the entire array of entries one at a time, POSTing them to the server. Check your developer console and network requests if it doesn't complete after a minute or two.
+
+<hr/>
