@@ -56,4 +56,3 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'bookmarks',
             'id',
         ]
-

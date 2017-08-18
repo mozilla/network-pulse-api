@@ -21,5 +21,5 @@ class UserProfileChangeAPIView(RetrieveUpdateAPIView):
     serializer_class = UserProfileSerializer
 
     def get_object(self):
-        user = self.request.user;
+        user = self.request.user
         return get_object_or_404(UserProfile, user=user)
