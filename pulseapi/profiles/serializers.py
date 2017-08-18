@@ -39,11 +39,22 @@ class UserProfileSerializer(serializers.ModelSerializer):
         queryset=Issue.objects,
         required=True
     )
-
-    twitter = serializers.URLField(max_length=2048)
-    linkedin = serializers.URLField(max_length=2048)
-    github = serializers.URLField(max_length=2048)
-    website = serializers.URLField(max_length=2048)
+    twitter = serializers.URLField(
+        max_length=2048,
+        required=False
+    )
+    linkedin = serializers.URLField(
+        max_length=2048,
+        required=False
+    )
+    github = serializers.URLField(
+        max_length=2048,
+        required=False
+    )
+    website = serializers.URLField(
+        max_length=2048,
+        required=False
+    )
 
     class Meta:
         """

@@ -23,7 +23,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
     # 'homepage'
-    url(r'^$', include('pulseapi.users.urls')),
+    url(r'^', include('pulseapi.users.urls')),
 
     # API routes
     url(r'^api/pulse/', include('pulseapi.users.urls')),
