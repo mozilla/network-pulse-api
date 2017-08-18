@@ -19,24 +19,20 @@ from django.contrib import admin
 from django.conf.urls.static import static
 
 urlpatterns = [
-    # base patterns
+    # admin patterns
     url(r'^admin/', admin.site.urls),
 
-    # new patterns
+    # 'homepage'
+    url(r'^', include('pulseapi.users.urls')),
+
+    # API routes
     url(r'^api/pulse/', include('pulseapi.users.urls')),
     url(r'^api/pulse/entries/', include('pulseapi.entries.urls')),
+    url(r'^api/pulse/profiles/', include('pulseapi.profiles.urls')),
     url(r'^api/pulse/tags/', include('pulseapi.tags.urls')),
     url(r'^api/pulse/issues/', include('pulseapi.issues.urls')),
     url(r'^api/pulse/helptypes/', include('pulseapi.helptypes.urls')),
     url(r'^api/pulse/creators/', include('pulseapi.creators.urls')),
-
-    # deprecated patterns
-    url(r'^', include('pulseapi.users.urls')),
-    url(r'^entries/', include('pulseapi.entries.urls')),
-    url(r'^tags/', include('pulseapi.tags.urls')),
-    url(r'^issues/', include('pulseapi.issues.urls')),
-    url(r'^helptypes/', include('pulseapi.helptypes.urls')),
-    url(r'^creators/', include('pulseapi.creators.urls')),
 ]
 
 if settings.USE_S3 is not True:
