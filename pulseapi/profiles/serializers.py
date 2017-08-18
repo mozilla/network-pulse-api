@@ -40,10 +40,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
         required=True
     )
 
-    twitter = serializers.models.URLField(max_length=2048)
-    linkedin = serializers.models.URLField(max_length=2048)
-    github = serializers.models.URLField(max_length=2048)
-    website = serializers.models.URLField(max_length=2048)
+    twitter = serializers.URLField(max_length=2048)
+    linkedin = serializers.URLField(max_length=2048)
+    github = serializers.URLField(max_length=2048)
+    website = serializers.URLField(max_length=2048)
 
     class Meta:
         """
