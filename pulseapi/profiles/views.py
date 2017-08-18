@@ -1,36 +1,25 @@
-from rest_framework.generics import RetrieveAPIView
-from rest_framework.decorators import detail_route, api_view
-from rest_framework.response import Response
-from rest_framework import filters, status
+from django.shortcuts import get_object_or_404
+
+from rest_framework import permissions
+from rest_framework.generics import RetrieveUpdateAPIView
 
 from pulseapi.profiles.models import UserProfile
 from pulseapi.profiles.serializers import UserProfileSerializer
 
 
-class ProfileView(RetrieveAPIView):
-    """
-    A view to retrieve individual profiles
-    """
+class IsProfileOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.user == request.user
 
-    def get_queryset(self):
-        return UserProfile.objects.all()
+
+class UserProfileChangeAPIView(RetrieveUpdateAPIView):
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsProfileOwner
+    )
 
     serializer_class = UserProfileSerializer
-    pagination_class = None
 
-	# When people POST to this route, we want to
-	# update the profile with the new information.
-    @detail_route(methods=['post'])
-    def post(self, request, *args, **kwargs):
-        profile = UserProfile.objects.get(id=self.kwargs['pk']);
-        serializer = UserProfileSerializer(profile, data=request.data)
-
-        if serializer.is_valid():
-            profile = serializer.save()
-            return Response({'status': 'updated', 'id': profile.id})
-
-        else:
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST
-            )
+    def get_object(self):
+        user = self.request.user;
+        return get_object_or_404(UserProfile, user=user)

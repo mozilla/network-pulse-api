@@ -19,10 +19,13 @@ from django.contrib import admin
 from django.conf.urls.static import static
 
 urlpatterns = [
-    # base patterns
+    # admin patterns
     url(r'^admin/', admin.site.urls),
 
-    # new patterns
+    # 'homepage'
+    url(r'^$', include('pulseapi.users.urls')),
+
+    # API routes
     url(r'^api/pulse/', include('pulseapi.users.urls')),
     url(r'^api/pulse/entries/', include('pulseapi.entries.urls')),
     url(r'^api/pulse/profiles/', include('pulseapi.profiles.urls')),
