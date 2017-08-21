@@ -37,3 +37,39 @@ class Creator(models.Model):
 
     def __str__(self):
         return str(self.name)
+
+
+class OrderedCreatorRecord(models.Model):
+    """
+    This model records creators for entries,
+    with an explicit ordering field so that
+    we can reconstruct the order in which
+    the list of creators was submitted.
+    """
+    entry = models.ForeignKey(
+        'entries.Entry',
+        on_delete=models.CASCADE,
+        related_name='bookmarked_by'
+    )
+
+    creator = models.ForeignKey(
+        'creators.Creator',
+        on_delete=models.CASCADE,
+        related_name='bookmarks_from',
+        null=True
+    )
+
+    order = models.IntegerField(
+        blank=False,
+        null=False
+    )
+
+    def __str__(self):
+        return 'ordred creator for "{entry}" by [{creator}:{order}]'.format(
+            entry=self.entry,
+            creator=self.creator,
+            order=self.order
+        )
+
+    class Meta:
+        verbose_name = "Ordered creator record"
