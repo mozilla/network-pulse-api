@@ -124,20 +124,17 @@ class Entry(models.Model):
         related_name='entries',
         blank=True
     )
-
-
-    # creators = models.ManyToManyField(
-    #     Creator,
-    #     through=OrderedCreatorRecord
-    #     related_name='entries',
-    #     blank=True
-    # )
+    creators = models.ManyToManyField(
+        Creator,
+        related_name='entries',
+        blank=True
+    )
 
     # save creators "through" the OrderedCreatorRecord
     # so that we can preserve the POST ordering when
     # entries are submitted.
-    creators = models.ManyToManyField(
-        'profiles.UserProfile',
+    orderedcreators = models.ManyToManyField(
+        'creators.Creator',
         through='creators.OrderedCreatorRecord'
     )
 

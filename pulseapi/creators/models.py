@@ -49,26 +49,29 @@ class OrderedCreatorRecord(models.Model):
     entry = models.ForeignKey(
         'entries.Entry',
         on_delete=models.CASCADE,
-        related_name='bookmarked_by'
+        related_name='created_by'
     )
 
     creator = models.ForeignKey(
         'creators.Creator',
         on_delete=models.CASCADE,
-        related_name='bookmarks_from',
+        related_name='entries_by',
         null=True
     )
 
-    order = models.IntegerField(
-        blank=False,
-        null=False
-    )
+    # Rather than an "order" field, we rely on
+    # the auto-generated `id` field, which is
+    # an auto-incrementing value that does not
+    # indicate when an entry was created, but does
+    # indicate the temporal order in which records
+    # were added into the database, allowing us
+    # to sort the list based on insertion-ordering.
 
     def __str__(self):
         return 'ordred creator for "{entry}" by [{creator}:{order}]'.format(
             entry=self.entry,
             creator=self.creator,
-            order=self.order
+            order=self.id
         )
 
     class Meta:
