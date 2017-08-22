@@ -74,6 +74,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'csp.middleware.CSPMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -209,3 +210,27 @@ else:
     # Otherwise use the default filesystem storage
     MEDIA_ROOT = root('media/')
     MEDIA_URL = '/media/'
+
+
+# CSP-related configuration options
+CSP_DEFAULT = (
+    'self',
+    'localhost:8000',
+    'test.example.com:8000',
+)
+
+CSP_DEFAULT_SRC = env('CSP_DEFAULT_SRC', default=CSP_DEFAULT)
+CSP_SCRIPT_SRC = env('CSP_SCRIPT_SRC', default=CSP_DEFAULT)
+CSP_IMG_SRC = env('CSP_IMG_SRC', default=CSP_DEFAULT)
+CSP_OBJECT_SRC = env('CSP_OBJECT_SRC', default=None)
+CSP_MEDIA_SRC = env('CSP_MEDIA_SRC', default=None)
+CSP_FRAME_SRC = env('CSP_FRAME_SRC', default=None)
+CSP_FONT_SRC = env('CSP_FONT_SRC', default=CSP_DEFAULT)
+CSP_CONNECT_SRC = env('CSP_CONNECT_SRC', default=None)
+CSP_STYLE_SRC = env('CSP_STYLE_SRC', default=CSP_DEFAULT)
+CSP_BASE_URI = env('CSP_BASE_URI', default=None)
+CSP_CHILD_SRC = env('CSP_CHILD_SRC', default=None)
+CSP_FRAME_ANCESTORS = env('CSP_FRAME_ANCESTORS', default=None)
+CSP_FORM_ACTION = env('CSP_FORM_ACTION', default=None)
+CSP_SANDBOX = env('CSP_SANDBOX', default=None)
+CSP_REPORT_URI = env('CSP_REPORT_URI', default=None)
