@@ -6,7 +6,8 @@ from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.helptypes.models import HelpType
-from pulseapi.creators.models import Creator
+from pulseapi.creators.models import Creator, OrderedCreatorRecord
+from pulseapi.creators.serializers import OrderedCreatorRecordSerializer
 from pulseapi.profiles.models import UserProfile
 
 
@@ -47,25 +48,31 @@ class EntrySerializer(serializers.ModelSerializer):
     that are involved with the entry
     """
 
-    tags = CreatableSlugRelatedField(many=True,
-                                     slug_field='name',
-                                     queryset=Tag.objects,
-                                     required=False)
+    tags = CreatableSlugRelatedField(
+        many=True,
+        slug_field='name',
+        queryset=Tag.objects,
+        required=False
+    )
 
-    issues = serializers.SlugRelatedField(many=True,
-                                          slug_field='name',
-                                          queryset=Issue.objects,
-                                          required=False)
+    issues = serializers.SlugRelatedField(
+        many=True,
+        slug_field='name',
+        queryset=Issue.objects,
+        required=False
+    )
 
-    help_types = serializers.SlugRelatedField(many=True,
-                                              slug_field='name',
-                                              queryset=HelpType.objects,
-                                              required=False)
+    help_types = serializers.SlugRelatedField(
+        many=True,
+        slug_field='name',
+        queryset=HelpType.objects,
+        required=False
+    )
 
-    creators = CreatableSlugRelatedField(many=True,
-                                         slug_field='name',
-                                         queryset=Creator.objects,
-                                         required=False)
+    creators = OrderedCreatorRecordSerializer(
+        many=True,
+        required=False
+    )
 
     # overrides 'published_by' for REST purposes
     # as we don't want to expose any user's email address

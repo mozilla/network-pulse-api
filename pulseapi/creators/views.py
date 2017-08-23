@@ -17,7 +17,7 @@ class CreatorListView(ListAPIView):
     * search - a partial match filter based on the start the tag name
     POST new creators by adding new entries with them
     """
-    queryset = Creator.objects.public()
+    queryset = Creator.objects.all()
     serializer_class = CreatorSerializer
 
     filter_backends = (

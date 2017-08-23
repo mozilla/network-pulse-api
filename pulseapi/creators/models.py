@@ -68,7 +68,7 @@ class OrderedCreatorRecord(models.Model):
     # to sort the list based on insertion-ordering.
 
     def __str__(self):
-        return 'ordred creator for "{entry}" by [{creator}:{order}]'.format(
+        return 'ordered creator for "{entry}" by [{creator}:{order}]'.format(
             entry=self.entry,
             creator=self.creator,
             order=self.id
@@ -76,3 +76,4 @@ class OrderedCreatorRecord(models.Model):
 
     class Meta:
         verbose_name = "Ordered creator record"
+        ordering = ['pk']

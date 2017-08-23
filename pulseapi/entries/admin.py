@@ -40,7 +40,6 @@ class EntryAdmin(admin.ModelAdmin):
         'issues',
         'help_types',
         'creators',
-        'orderedcreators',
         'published_by',
         'bookmark_count',
     )
@@ -48,7 +47,6 @@ class EntryAdmin(admin.ModelAdmin):
     readonly_fields = (
         'id',
         'created',
-        'orderedcreators',
         'thumbnail_image_tag',
         'creators',
         'bookmark_count',

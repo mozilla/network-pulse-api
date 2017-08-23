@@ -12,6 +12,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, ListAPIV
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
+from pulseapi.creators.models import Creator, OrderedCreatorRecord
 from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.entries.serializers import EntrySerializer, ModerationStateSerializer
 from pulseapi.profiles.models import UserProfile, UserBookmarks
@@ -367,6 +368,7 @@ class EntriesListView(ListCreateAPIView):
     @detail_route(methods=['post'])
     def post(self, request, *args, **kwargs):
 
+        request_data = request.data
         validation_result = post_validate(request)
 
         if validation_result is True:
@@ -385,17 +387,21 @@ class EntriesListView(ListCreateAPIView):
             '''
 
             try:
-                thumbnail = request.data['thumbnail']
+                thumbnail = request_data['thumbnail']
                 # do we actually need to repack as ContentFile?
                 if thumbnail['name'] and thumbnail['base64']:
                     name = thumbnail['name']
                     encdata = thumbnail['base64']
                     proxy = ContentFile(base64.b64decode(encdata), name=name)
-                    request.data['thumbnail'] = proxy
+                    request_data['thumbnail'] = proxy
             except:
                 pass
 
-            serializer = EntrySerializer(data=request.data)
+            # we need to split out creators, because it's a many-to-many
+            # relation with a Through class, so that needs manual labour:
+            creator_data = request_data.pop('creators', None)
+
+            serializer = EntrySerializer(data=request_data)
             if serializer.is_valid():
                 user = request.user
                 # ensure that the published_by is always the user doing
@@ -411,12 +417,25 @@ class EntriesListView(ListCreateAPIView):
                         name='Approved'
                     )
 
-                savedEntry = serializer.save(
+                # save the entry
+                saved_entry = serializer.save(
                     published_by=user,
                     featured=False,
                     moderation_state=moderation_state
                 )
-                return Response({'status': 'submitted', 'id': savedEntry.id})
+
+                # create entry/creator intermediaries
+                for creator_name in creator_data:
+                    # TODO: update Creator model so that it can fall through
+                    #       to a profile is the correct format to achieve this
+                    #       is specified.
+                    (creator, _) = Creator.objects.get_or_create(name=creator_name)
+                    OrderedCreatorRecord.objects.create(
+                        entry=saved_entry,
+                        creator=creator
+                    )
+
+                return Response({'status': 'submitted', 'id': saved_entry.id})
             else:
                 return Response(
                     serializer.errors,
