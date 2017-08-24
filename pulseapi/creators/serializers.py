@@ -19,9 +19,10 @@ class CreatorSerializer(serializers.ModelSerializer):
 
 
 class OrderedCreatorRecordSerializer(serializers.ModelSerializer):
+    creator = CreatorSerializer()
 
     class Meta:
         model = OrderedCreatorRecord
         fields = (
-            'pk',
+            'creator',
         )
