@@ -1,16 +1,17 @@
 from django.db import migrations
 from pulseapi.entries.models import Entry
-from pulseapi.creators.models import OrderedCreatorRecord
+from pulseapi.creators.models import Creator, OrderedCreatorRecord
 
 
 def migrate_creator_data(apps, schema_editor):
-    entries = Entry.objects.all()
+    entries = apps.get_model('entries', 'Entry').objects.all()
     for entry in entries:
+      modern_entry = Entry.objects.get(id=entry.id)
+
       for creator in entry.creators.all():
-        print (entry.title, ' <=> ', creator.name);
         link = OrderedCreatorRecord.objects.create(
-          entry=entry,
-          creator=creator
+          entry=modern_entry,
+          creator=Creator.objects.get(id=creator.id)
         );
 
 

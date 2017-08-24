@@ -648,3 +648,27 @@ class TestMemberEntryView(PulseMemberTestCase):
         id = int(response['id'])
         entry = Entry.objects.get(id=id)
         creators = [c.creator for c in entry.related_creators.all()]
+
+        self.assertEqual(creators[0].name, 'First Creator')
+        self.assertEqual(creators[1].name, 'Second Creator')
+
+        payload = self.generatePostPayload(data={
+            'title': 'title test_creator_ordering',
+            'content_url': 'http://example.org/test_creator_ordering',
+            'creators': [
+              # note that this is a different creator ordering
+              'Second Creator',
+              'First Creator',
+            ]
+        })
+
+        postresponse = self.client.post('/api/pulse/entries/', payload)
+        content = str(postresponse.content, 'utf-8')
+        response = json.loads(content)
+        id = int(response['id'])
+        entry = Entry.objects.get(id=id)
+        creators = [c.creator for c in entry.related_creators.all()]
+
+        # the same ordering should be reflected in the creator list
+        self.assertEqual(creators[0].name, 'Second Creator')
+        self.assertEqual(creators[1].name, 'First Creator')
