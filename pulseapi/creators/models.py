@@ -49,13 +49,13 @@ class OrderedCreatorRecord(models.Model):
     entry = models.ForeignKey(
         'entries.Entry',
         on_delete=models.CASCADE,
-        related_name='created_by'
+        related_name='related_creators'
     )
 
     creator = models.ForeignKey(
         'creators.Creator',
         on_delete=models.CASCADE,
-        related_name='entries_by',
+        related_name='related_entries',
         null=True
     )
 

@@ -647,4 +647,4 @@ class TestMemberEntryView(PulseMemberTestCase):
         response = json.loads(content)
         id = int(response['id'])
         entry = Entry.objects.get(id=id)
-        creators = entry.creators
+        creators = [c.creator for c in entry.related_creators.all()]

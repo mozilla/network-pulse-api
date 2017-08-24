@@ -124,14 +124,6 @@ class Entry(models.Model):
         blank=True
     )
 
-    # save creators "through" the OrderedCreatorRecord
-    # so that we can preserve the POST ordering when
-    # entries are submitted.
-    creators = models.ManyToManyField(
-        'creators.Creator',
-        through='creators.OrderedCreatorRecord'
-    )
-
     # automatically managed fields
     published_by = models.ForeignKey(
         EmailUser,

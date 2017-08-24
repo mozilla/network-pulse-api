@@ -39,7 +39,7 @@ class EntryAdmin(admin.ModelAdmin):
         'internal_notes',
         'issues',
         'help_types',
-        'creators',
+        'related_creators',
         'published_by',
         'bookmark_count',
     )
@@ -48,7 +48,7 @@ class EntryAdmin(admin.ModelAdmin):
         'id',
         'created',
         'thumbnail_image_tag',
-        'creators',
+        'related_creators',
         'bookmark_count',
     )
 

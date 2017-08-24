@@ -320,12 +320,12 @@ class EntriesListView(ListCreateAPIView):
         'get_involved',
         'interest',
         'tags__name',
-        'creators__name',
     )
     serializer_class = EntrySerializer
 
     # Custom queryset handling: if the route was called as
-    # /entries/?ids=1,2,3,4,... only return those entires.
+    # /entries/?ids=1,2,3,4,... or /entries/?creators=a,b,c...
+    # only return those entires.
     # Otherwise, return all entries (with pagination)
     def get_queryset(self):
         user = self.request.user
@@ -338,7 +338,8 @@ class EntriesListView(ListCreateAPIView):
         # either a moderator or superuser, we return all
         # entries, filtered for the indicated moderation state.
         queryset = False
-        modstate = self.request.query_params.get('moderationstate', None)
+        query_params = self.request.query_params
+        modstate = query_params.get('moderationstate', None)
 
         if modstate is not None:
             is_superuser = user.is_superuser
@@ -354,11 +355,26 @@ class EntriesListView(ListCreateAPIView):
 
         # If the query was for a set of specific entries,
         # filter the query set further.
-        ids = self.request.query_params.get('ids', None)
+        ids = query_params.get('ids', None)
 
         if ids is not None:
             ids = [int(x) for x in ids.split(',')]
             queryset = queryset.filter(pk__in=ids)
+
+        creators = query_params.get('creators', None)
+
+        # If the query was for a set of entries by specifc creators,
+        # filter the query set further.
+        if creators is not None:
+            creator_names = creators.split(',')
+            # Filter only those entries by looking at their relationship with
+            # creators using related_creators (which is the
+            # OrderedCreatorRecord relation), and then getting each relation's
+            # associated creator and making sure that the creator's name is
+            # in the list of creator names specified in the query string
+            queryset = queryset.filter(
+                related_creators__creator__name__in=creator_names
+            )
 
         return queryset
 
@@ -446,8 +462,11 @@ class EntriesListView(ListCreateAPIView):
                         )
                         print('ordered creator record built:', ocr)
 
-                print('saved_entry after .refresh_from_db():', saved_entry)
-                print('creators in that entry:', saved_entry.creators)
+                ent = Entry.objects.get(id=saved_entry.id)
+                print('saved_entry after .refresh_from_db():', ent)
+                print('creators in that entry:')
+                for c in ent.related_creators.all():
+                    print(c.creator)
 
                 return Response({'status': 'submitted', 'id': saved_entry.id})
             else:
