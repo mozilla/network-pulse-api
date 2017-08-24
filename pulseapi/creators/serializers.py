@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from pulseapi.creators.models import Creator, OrderedCreatorRecord
+from pulseapi.creators.models import Creator
 
 
 class CreatorSerializer(serializers.ModelSerializer):
@@ -16,13 +16,3 @@ class CreatorSerializer(serializers.ModelSerializer):
         """
         model = Creator
         fields = ('name', )
-
-
-class OrderedCreatorRecordSerializer(serializers.ModelSerializer):
-    creator = CreatorSerializer()
-
-    class Meta:
-        model = OrderedCreatorRecord
-        fields = (
-            'creator',
-        )

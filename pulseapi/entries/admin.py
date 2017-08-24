@@ -76,6 +76,12 @@ class EntryAdmin(admin.ModelAdmin):
         """
         return instance.bookmarked_by.count()
 
+    def creators(self, instance):
+        creators = [c.creator.name for c in instance.related_creators.all()]
+        if not creators:
+            return '-'
+        return ', '.join(creators)
+
 
 admin.site.register(ModerationState, ModerationStateAdmin)
 admin.site.register(Entry, EntryAdmin)

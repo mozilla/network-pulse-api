@@ -6,8 +6,7 @@ from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.helptypes.models import HelpType
-from pulseapi.creators.models import OrderedCreatorRecord
-from pulseapi.creators.serializers import OrderedCreatorRecordSerializer
+from pulseapi.creators.serializers import CreatorSerializer
 from pulseapi.profiles.models import UserProfile
 
 
@@ -79,19 +78,7 @@ class EntrySerializer(serializers.ModelSerializer):
 
         (see creators.models.OrderedCreatorRecord Meta class)
         """
-        serializer = OrderedCreatorRecordSerializer(
-            data=OrderedCreatorRecord.objects.filter(entry=instance),
-            many=True,
-        )
-
-        # Ensure that we have access to serializer.data by
-        # making the serializer run a validation pass
-        serializer.is_valid()
-
-        # Return the creator as a list of names, rather than
-        # as list of {creator:...} objects
-        as_list = list(item['creator'] for item in serializer.data)
-        return as_list
+        return [ocr.creator.name for ocr in instance.related_creators.all()]
 
     # overrides 'published_by' for REST purposes
     # as we don't want to expose any user's email address
