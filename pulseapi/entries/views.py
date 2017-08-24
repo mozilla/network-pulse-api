@@ -325,8 +325,9 @@ class EntriesListView(ListCreateAPIView):
 
     # Custom queryset handling: if the route was called as
     # /entries/?ids=1,2,3,4,... or /entries/?creators=a,b,c...
-    # only return those entires.
-    # Otherwise, return all entries (with pagination)
+    # only return entries filtered on those property values.
+    #
+    # Otherwise, return all entries (with pagination).
     def get_queryset(self):
         user = self.request.user
 
@@ -367,11 +368,19 @@ class EntriesListView(ListCreateAPIView):
         # filter the query set further.
         if creators is not None:
             creator_names = creators.split(',')
-            # Filter only those entries by looking at their relationship with
-            # creators using related_creators (which is the
-            # OrderedCreatorRecord relation), and then getting each relation's
-            # associated creator and making sure that the creator's name is
-            # in the list of creator names specified in the query string
+
+            # Filter only those entries by looking at their relationship
+            # with creators (using the 'related_creators' field, which is
+            # the OrderedCreatorRecord relation), and then getting each
+            # relation's associated "creator" and making sure that the
+            # creator's name is in the list of creator names specified
+            # in the query string.
+            #
+            # This is achieved by Django by relying on namespace manging,
+            # explained in the python documentation, specifically here:
+            #
+            # https://docs.python.org/3/tutorial/classes.html#private-variables-and-class-local-references
+
             queryset = queryset.filter(
                 related_creators__creator__name__in=creator_names
             )
