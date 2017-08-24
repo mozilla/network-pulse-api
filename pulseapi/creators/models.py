@@ -76,4 +76,9 @@ class OrderedCreatorRecord(models.Model):
 
     class Meta:
         verbose_name = "Ordered creator record"
-        ordering = ['pk']
+
+        # Ensure that these records are always ordred based on
+        # row ordering in the database.
+        ordering = [
+            'pk',
+        ]

@@ -73,16 +73,25 @@ class EntrySerializer(serializers.ModelSerializer):
 
     def get_creators(self, instance):
         """
-        Get the list of creators for this entry ordered by
-        when they posted the entry
+        Get the list of creators for this entry, which will
+        be ordered based on list position at the time the
+        entry got posted to Pulse
+
+        (see creators.models.OrderedCreatorRecord Meta class)
         """
         serializer = OrderedCreatorRecordSerializer(
             data=OrderedCreatorRecord.objects.filter(entry=instance),
             many=True,
         )
 
+        # Ensure that we have access to serializer.data by
+        # making the serializer run a validation pass
         serializer.is_valid()
-        return serializer.data
+
+        # Return the creator as a list of names, rather than
+        # as list of {creator:...} objects
+        as_list = list(item['creator'] for item in serializer.data)
+        return as_list
 
     # overrides 'published_by' for REST purposes
     # as we don't want to expose any user's email address

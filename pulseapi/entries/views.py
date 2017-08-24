@@ -399,7 +399,10 @@ class EntriesListView(ListCreateAPIView):
 
             # we need to split out creators, because it's a many-to-many
             # relation with a Through class, so that needs manual labour:
+            print(request_data)
             creator_data = request_data.pop('creators', None)
+
+            print(creator_data)
 
             serializer = EntrySerializer(data=request_data)
             if serializer.is_valid():
@@ -425,15 +428,26 @@ class EntriesListView(ListCreateAPIView):
                 )
 
                 # create entry/creator intermediaries
-                for creator_name in creator_data:
-                    # TODO: update Creator model so that it can fall through
-                    #       to a profile is the correct format to achieve this
-                    #       is specified.
-                    (creator, _) = Creator.objects.get_or_create(name=creator_name)
-                    OrderedCreatorRecord.objects.create(
-                        entry=saved_entry,
-                        creator=creator
-                    )
+                if creator_data is not None:
+                    print('save entry prior to creator handling:', saved_entry)
+
+                    for creator_name in creator_data:
+                        print('new creator name:', creator_name)
+
+                        # TODO: update Creator model so that it can fall through
+                        #       to a profile is the correct format to achieve this
+                        #       is specified.
+                        (creator, _) = Creator.objects.get_or_create(name=creator_name)
+                        print('creator object for "{}":'.format(creator_name), creator)
+
+                        ocr = OrderedCreatorRecord.objects.create(
+                            entry=saved_entry,
+                            creator=creator
+                        )
+                        print('ordered creator record built:', ocr)
+
+                print('saved_entry after .refresh_from_db():', saved_entry)
+                print('creators in that entry:', saved_entry.creators)
 
                 return Response({'status': 'submitted', 'id': saved_entry.id})
             else:

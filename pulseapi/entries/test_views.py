@@ -626,3 +626,25 @@ class TestMemberEntryView(PulseMemberTestCase):
         self.assertEqual('results' in bookmarkJson, True)
         self.assertEqual(len(bookmarkJson), 4)
         self.assertEqual(bookmarkJson['count'], 0)
+
+    def test_creator_ordering(self):
+        """
+        Verify that posting entries preserves the order in which creators
+        were passed to the system.
+        """
+
+        payload = self.generatePostPayload(data={
+            'title': 'title test_creator_ordering',
+            'content_url': 'http://example.org/test_creator_ordering',
+            'creators': [
+              'First Creator',
+              'Second Creator',
+            ]
+        })
+
+        postresponse = self.client.post('/api/pulse/entries/', payload)
+        content = str(postresponse.content, 'utf-8')
+        response = json.loads(content)
+        id = int(response['id'])
+        entry = Entry.objects.get(id=id)
+        creators = entry.creators

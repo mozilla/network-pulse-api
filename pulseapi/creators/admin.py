@@ -20,5 +20,6 @@ class OrderedCreatorRecordAdmin(admin.ModelAdmin):
         'creator',
     )
 
+
 admin.site.register(Creator)
 admin.site.register(OrderedCreatorRecord, OrderedCreatorRecordAdmin)
