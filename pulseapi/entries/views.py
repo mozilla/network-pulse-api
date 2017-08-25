@@ -12,6 +12,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, ListAPIV
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
+from pulseapi.creators.models import Creator, OrderedCreatorRecord
 from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.entries.serializers import EntrySerializer, ModerationStateSerializer
 from pulseapi.profiles.models import UserProfile, UserBookmarks
@@ -319,13 +320,14 @@ class EntriesListView(ListCreateAPIView):
         'get_involved',
         'interest',
         'tags__name',
-        'creators__name',
     )
     serializer_class = EntrySerializer
 
     # Custom queryset handling: if the route was called as
-    # /entries/?ids=1,2,3,4,... only return those entires.
-    # Otherwise, return all entries (with pagination)
+    # /entries/?ids=1,2,3,4,... or /entries/?creators=a,b,c...
+    # only return entries filtered on those property values.
+    #
+    # Otherwise, return all entries (with pagination).
     def get_queryset(self):
         user = self.request.user
 
@@ -337,7 +339,8 @@ class EntriesListView(ListCreateAPIView):
         # either a moderator or superuser, we return all
         # entries, filtered for the indicated moderation state.
         queryset = False
-        modstate = self.request.query_params.get('moderationstate', None)
+        query_params = self.request.query_params
+        modstate = query_params.get('moderationstate', None)
 
         if modstate is not None:
             is_superuser = user.is_superuser
@@ -353,11 +356,34 @@ class EntriesListView(ListCreateAPIView):
 
         # If the query was for a set of specific entries,
         # filter the query set further.
-        ids = self.request.query_params.get('ids', None)
+        ids = query_params.get('ids', None)
 
         if ids is not None:
             ids = [int(x) for x in ids.split(',')]
             queryset = queryset.filter(pk__in=ids)
+
+        creators = query_params.get('creators', None)
+
+        # If the query was for a set of entries by specifc creators,
+        # filter the query set further.
+        if creators is not None:
+            creator_names = creators.split(',')
+
+            # Filter only those entries by looking at their relationship
+            # with creators (using the 'related_creators' field, which is
+            # the OrderedCreatorRecord relation), and then getting each
+            # relation's associated "creator" and making sure that the
+            # creator's name is in the list of creator names specified
+            # in the query string.
+            #
+            # This is achieved by Django by relying on namespace manging,
+            # explained in the python documentation, specifically here:
+            #
+            # https://docs.python.org/3/tutorial/classes.html#private-variables-and-class-local-references
+
+            queryset = queryset.filter(
+                related_creators__creator__name__in=creator_names
+            )
 
         return queryset
 
@@ -367,6 +393,7 @@ class EntriesListView(ListCreateAPIView):
     @detail_route(methods=['post'])
     def post(self, request, *args, **kwargs):
 
+        request_data = request.data
         validation_result = post_validate(request)
 
         if validation_result is True:
@@ -385,17 +412,21 @@ class EntriesListView(ListCreateAPIView):
             '''
 
             try:
-                thumbnail = request.data['thumbnail']
+                thumbnail = request_data['thumbnail']
                 # do we actually need to repack as ContentFile?
                 if thumbnail['name'] and thumbnail['base64']:
                     name = thumbnail['name']
                     encdata = thumbnail['base64']
                     proxy = ContentFile(base64.b64decode(encdata), name=name)
-                    request.data['thumbnail'] = proxy
+                    request_data['thumbnail'] = proxy
             except:
                 pass
 
-            serializer = EntrySerializer(data=request.data)
+            # we need to split out creators, because it's a many-to-many
+            # relation with a Through class, so that needs manual labour:
+            creator_data = request_data.pop('creators', None)
+
+            serializer = EntrySerializer(data=request_data)
             if serializer.is_valid():
                 user = request.user
                 # ensure that the published_by is always the user doing
@@ -411,12 +442,27 @@ class EntriesListView(ListCreateAPIView):
                         name='Approved'
                     )
 
-                savedEntry = serializer.save(
+                # save the entry
+                saved_entry = serializer.save(
                     published_by=user,
                     featured=False,
                     moderation_state=moderation_state
                 )
-                return Response({'status': 'submitted', 'id': savedEntry.id})
+
+                # create entry/creator intermediaries
+                if creator_data is not None:
+                    for creator_name in creator_data:
+                        # TODO: update Creator model so that it can fall through
+                        #       to a profile is the correct format to achieve this
+                        #       is specified.
+                        (creator, _) = Creator.objects.get_or_create(name=creator_name)
+
+                        OrderedCreatorRecord.objects.create(
+                            entry=saved_entry,
+                            creator=creator
+                        )
+
+                return Response({'status': 'submitted', 'id': saved_entry.id})
             else:
                 return Response(
                     serializer.errors,

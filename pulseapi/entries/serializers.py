@@ -6,7 +6,6 @@ from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.helptypes.models import HelpType
-from pulseapi.creators.models import Creator
 from pulseapi.profiles.models import UserProfile
 
 
@@ -47,25 +46,38 @@ class EntrySerializer(serializers.ModelSerializer):
     that are involved with the entry
     """
 
-    tags = CreatableSlugRelatedField(many=True,
-                                     slug_field='name',
-                                     queryset=Tag.objects,
-                                     required=False)
+    tags = CreatableSlugRelatedField(
+        many=True,
+        slug_field='name',
+        queryset=Tag.objects,
+        required=False
+    )
 
-    issues = serializers.SlugRelatedField(many=True,
-                                          slug_field='name',
-                                          queryset=Issue.objects,
-                                          required=False)
+    issues = serializers.SlugRelatedField(
+        many=True,
+        slug_field='name',
+        queryset=Issue.objects,
+        required=False
+    )
 
-    help_types = serializers.SlugRelatedField(many=True,
-                                              slug_field='name',
-                                              queryset=HelpType.objects,
-                                              required=False)
+    help_types = serializers.SlugRelatedField(
+        many=True,
+        slug_field='name',
+        queryset=HelpType.objects,
+        required=False
+    )
 
-    creators = CreatableSlugRelatedField(many=True,
-                                         slug_field='name',
-                                         queryset=Creator.objects,
-                                         required=False)
+    creators = serializers.SerializerMethodField()
+
+    def get_creators(self, instance):
+        """
+        Get the list of creators for this entry, which will
+        be ordered based on list position at the time the
+        entry got posted to Pulse
+
+        (see creators.models.OrderedCreatorRecord Meta class)
+        """
+        return [ocr.creator.name for ocr in instance.related_creators.all()]
 
     # overrides 'published_by' for REST purposes
     # as we don't want to expose any user's email address

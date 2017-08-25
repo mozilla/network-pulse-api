@@ -6,7 +6,6 @@ from django.db import models
 from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.helptypes.models import HelpType
-from pulseapi.creators.models import Creator
 from pulseapi.users.models import EmailUser
 from django.utils import timezone
 from django.utils.html import format_html
@@ -121,11 +120,6 @@ class Entry(models.Model):
     )
     help_types = models.ManyToManyField(
         HelpType,
-        related_name='entries',
-        blank=True
-    )
-    creators = models.ManyToManyField(
-        Creator,
         related_name='entries',
         blank=True
     )

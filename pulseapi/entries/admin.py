@@ -48,6 +48,7 @@ class EntryAdmin(admin.ModelAdmin):
         'id',
         'created',
         'thumbnail_image_tag',
+        'creators',
         'bookmark_count',
     )
 
@@ -74,6 +75,12 @@ class EntryAdmin(admin.ModelAdmin):
         Show the total number of bookmarks for this Entry
         """
         return instance.bookmarked_by.count()
+
+    def creators(self, instance):
+        related_creator_names = [c.creator.name for c in instance.related_creators.all()]
+        if not related_creator_names:
+            return '-'
+        return ', '.join(related_creator_names)
 
 
 admin.site.register(ModerationState, ModerationStateAdmin)
