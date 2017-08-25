@@ -19,7 +19,7 @@ def migrate_creator_data(apps, schema_editor):
             link = OrderedCreatorRecord.objects.create(
                 entry=modern_entry,
                 creator=Creator.objects.get(id=creator.id)
-            );
+            )
 
 
 class Migration(migrations.Migration):
