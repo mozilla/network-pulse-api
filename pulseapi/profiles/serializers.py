@@ -29,10 +29,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         required=False
     )
     is_group = serializers.BooleanField()
-    thumbnail = serializers.ImageField(
-        max_length=2048,
-        required=False
-    )
     issues = serializers.SlugRelatedField(
         many=True,
         slug_field='name',
