@@ -1,7 +1,11 @@
 from rest_framework import serializers
 
 from pulseapi.issues.models import Issue
-from pulseapi.profiles.models import UserProfile, UserBookmarks
+from pulseapi.profiles.models import (
+    UserProfile,
+    UserBookmarks,
+)
+from pulseapi.entries.serializers import EntrySerializer
 
 
 class UserBookmarksSerializer(serializers.ModelSerializer):
@@ -63,3 +67,27 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'bookmarks',
             'id',
         ]
+
+
+class UserProfilePublicSerializer(UserProfileSerializer):
+    """
+    Serializes a user profile for public view
+    """
+    name = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='name',
+        source='user',
+    )
+    published_entries = serializers.SerializerMethodField()
+
+    def get_published_entries(self, instance):
+        return EntrySerializer(
+            instance.user.entries.public(),
+            context=self.context,
+            many=True,
+        ).data
+
+    my_profile = serializers.SerializerMethodField()
+
+    def get_my_profile(self, instance):
+        return self.context.get('request').user == instance.user

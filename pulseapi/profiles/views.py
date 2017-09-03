@@ -7,7 +7,10 @@ from rest_framework.decorators import detail_route
 from rest_framework.generics import RetrieveAPIView, RetrieveUpdateAPIView
 
 from pulseapi.profiles.models import UserProfile
-from pulseapi.profiles.serializers import UserProfileSerializer
+from pulseapi.profiles.serializers import (
+    UserProfileSerializer,
+    UserProfilePublicSerializer,
+)
 
 
 class IsProfileOwner(permissions.BasePermission):
@@ -15,9 +18,15 @@ class IsProfileOwner(permissions.BasePermission):
         return obj.user == request.user
 
 
-class UserProfileRetrieveAPIView(RetrieveAPIView):
+class UserProfilePublicAPIView(RetrieveAPIView):
     queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
+    serializer_class = UserProfilePublicSerializer
+
+
+class UserProfilePublicSelfAPIView(UserProfilePublicAPIView):
+    def get_object(self):
+        user = self.request.user
+        return get_object_or_404(self.queryset, user=user)
 
 
 class UserProfileAPIView(RetrieveUpdateAPIView):
