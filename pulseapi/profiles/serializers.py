@@ -37,7 +37,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         many=True,
         slug_field='name',
         queryset=Issue.objects,
-        required=True
+        required=False
     )
     twitter = serializers.URLField(
         max_length=2048,

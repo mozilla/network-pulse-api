@@ -164,7 +164,10 @@ class UserProfile(models.Model):
     thumbnail_image_tag.short_description = 'Thumbnail preview'
 
     # Which issues does this user care about/are they involved in?
-    issues = models.ManyToManyField('issues.Issue')
+    issues = models.ManyToManyField(
+        'issues.Issue',
+        blank=True,
+    )
 
     # we allow users to indicate several possible predefined service URLs
     twitter = models.URLField(
