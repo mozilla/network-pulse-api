@@ -163,7 +163,7 @@ A successful post will yield a JSON object:
 }
 ```
 
-A failed post will yield 
+A failed post will yield
  - an HTTP 400 response if any entry id passed is invalid
  - an HTTP 403 response if the current user is not authenticated
 
@@ -206,6 +206,40 @@ This operation requires a payload of the following form:
 ### `GET /api/pulse/entries/bookmarks` with optional `?format=json`
 
 Get the list of all entries that have been bookmarked by the currently authenticated user. Calling this as anonymous user yields an object with property `count` equals to `0`.  As a base URL call this returns an HTML page with formatted result, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+
+### `GET /api/pulse/profiles/<id=number>/` with optional `?format=json`
+
+This retrieves a single user profile with the indicated `id` as stored in the database. Any profile can be retrieved using this route even without being authenticated. The payload returned by this route also includes an array of entries published (`published_entries`) by the user owning this profile. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+
+### `GET /api/pulse/myprofile/` with optional `?format=json`
+
+This retrieves the **editable** user profile for the currently authenticated user as stored in the database. An unauthenticated user will receive an HTTP 403 Forbidden response if they try to access this route. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+
+### `PUT /api/pulse/myprofile/`
+
+Allows an authenticated user to update their profile data. The payload that needs to be passed into this PUT request is:
+
+```
+{
+  user_bio: optional string (max length 140 characters)
+  custom_name: optional string containing the user's alternative name (max length 500 characters)
+  is_group: optional boolean indicating whether this profile is owned by a group of users/organization or belongs to a single user (defaults to false)
+  thumbnail: optional object {
+    name: name of the file,
+    base64: the base64 encoded binary representation of the file's bytes
+  }
+  twitter: optional url link to twitter account
+  linkedin: optional url link to linkedin account
+  github: optional url link to github account
+  website: optional url link to the user's website
+}
+```
+
+Also note that this PUT **must** be accompanied by the following header:
+
+```
+X-CSRFToken: required csrf token string obtained from [GET /nonce]
+```
 
 ### `GET /api/pulse/login?original_url=<url>`
 

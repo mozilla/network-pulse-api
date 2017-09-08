@@ -1,13 +1,19 @@
 from django.conf.urls import url
 
 from pulseapi.profiles.views import (
-    UserProfileChangeAPIView,
+    UserProfilePublicAPIView,
+    UserProfilePublicSelfAPIView,
 )
 
 urlpatterns = [
     url(
-        r'^myprofile/',
-        UserProfileChangeAPIView.as_view(),
-        name='profile'
+        r'^(?P<pk>[0-9]+)/',
+        UserProfilePublicAPIView.as_view(),
+        name='profile',
+    ),
+    url(
+        r'^me/',
+        UserProfilePublicSelfAPIView.as_view(),
+        name='profile_self',
     )
 ]

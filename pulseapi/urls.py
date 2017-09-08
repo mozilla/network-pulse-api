@@ -18,6 +18,8 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf.urls.static import static
 
+from pulseapi.profiles.views import UserProfileAPIView
+
 urlpatterns = [
     # admin patterns
     url(r'^admin/', admin.site.urls),
@@ -33,6 +35,14 @@ urlpatterns = [
     url(r'^api/pulse/issues/', include('pulseapi.issues.urls')),
     url(r'^api/pulse/helptypes/', include('pulseapi.helptypes.urls')),
     url(r'^api/pulse/creators/', include('pulseapi.creators.urls')),
+
+    # We provide an alternative route on the main `/api/pulse` route to allow
+    # getting and editing a user's profile for the currently authenticated user
+    url(
+        r'^api/pulse/myprofile/',
+        UserProfileAPIView.as_view(),
+        name='myprofile'
+    )
 ]
 
 if settings.USE_S3 is not True:
