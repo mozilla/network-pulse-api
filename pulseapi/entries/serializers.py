@@ -90,13 +90,17 @@ class EntrySerializer(serializers.ModelSerializer):
         return instance.published_by.name
 
     # "virtual" property so that we can link to the correct profile
-    submitter_id = serializers.SerializerMethodField()
+    submitter_profile_id = serializers.SerializerMethodField()
 
-    def get_submitter_id(self, instance):
+    def get_submitter_profile_id(self, instance):
         """
         Get the id for the user who published this entry
         """
-        return instance.published_by.id
+        profiles = instance.published_by.profile.all()
+        if len(profiles) > 0:
+            profile = profiles[0]
+            return profile.id
+        return False
 
     bookmark_count = serializers.SerializerMethodField()
 
