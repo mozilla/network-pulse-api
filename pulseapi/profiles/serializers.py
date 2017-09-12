@@ -29,7 +29,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         required=False
     )
     custom_name = serializers.CharField(
-        max_length=500,
+        max_length=70,
         required=False
     )
     is_group = serializers.BooleanField()
