@@ -103,7 +103,7 @@ POSTing of entries requires sending the following payload object:
   csrfmiddlewaretoken: required csrf token string obtained from [GET /nonce]
   nonce: required nonce string obtained from [GET /nonce]
 
-  title: required string (max lengt 140 characters)
+  title: required string (max length 140 characters)
   content_url: required url string
 
   description: optional string (max length 600 characters)
@@ -222,7 +222,7 @@ Allows an authenticated user to update their profile data. The payload that need
 ```
 {
   user_bio: optional string (max length 140 characters)
-  custom_name: optional string containing the user's alternative name (max length 500 characters)
+  custom_name: optional string containing the user's alternative name (max length 70 characters)
   is_group: optional boolean indicating whether this profile is owned by a group of users/organization or belongs to a single user (defaults to false)
   thumbnail: optional object {
     name: name of the file,
