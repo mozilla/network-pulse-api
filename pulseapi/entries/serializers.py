@@ -89,6 +89,15 @@ class EntrySerializer(serializers.ModelSerializer):
         """
         return instance.published_by.name
 
+    # "virtual" property so that we can link to the correct profile
+    submitter_id = serializers.SerializerMethodField()
+
+    def get_submitter_id(self, instance):
+        """
+        Get the id for the user who published this entry
+        """
+        return instance.published_by.id
+
     bookmark_count = serializers.SerializerMethodField()
 
     def get_bookmark_count(self, instance):
@@ -120,4 +129,6 @@ class EntrySerializer(serializers.ModelSerializer):
         Meta class. Because
         """
         model = Entry
-        exclude = ('internal_notes', 'published_by',)
+        exclude = (
+            'internal_notes',
+        )
