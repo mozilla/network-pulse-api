@@ -26,11 +26,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
     """
     user_bio = serializers.CharField(
         max_length=140,
-        required=False
+        required=False,
+        allow_blank=True,
     )
     custom_name = serializers.CharField(
         max_length=70,
-        required=False
+        required=False,
+        allow_blank=True,
     )
     is_group = serializers.BooleanField()
     issues = serializers.SlugRelatedField(
@@ -41,19 +43,23 @@ class UserProfileSerializer(serializers.ModelSerializer):
     )
     twitter = serializers.URLField(
         max_length=2048,
-        required=False
+        required=False,
+        allow_blank=True,
     )
     linkedin = serializers.URLField(
         max_length=2048,
-        required=False
+        required=False,
+        allow_blank=True,
     )
     github = serializers.URLField(
         max_length=2048,
-        required=False
+        required=False,
+        allow_blank=True,
     )
     website = serializers.URLField(
         max_length=2048,
-        required=False
+        required=False,
+        allow_blank=True,
     )
 
     class Meta:
