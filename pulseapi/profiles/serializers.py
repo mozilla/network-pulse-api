@@ -34,7 +34,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         required=False,
         allow_blank=True,
     )
-    is_group = serializers.BooleanField()
+    is_group = serializers.BooleanField(read_only=True)
     issues = serializers.SlugRelatedField(
         many=True,
         slug_field='name',
