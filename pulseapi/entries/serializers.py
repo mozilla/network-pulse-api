@@ -82,7 +82,7 @@ class EntrySerializer(serializers.ModelSerializer):
 
     # Although this field has similar results to the field above (it's just
     # serialized differently), we create a new field vs. overriding the field
-    # above so that we maintain backwards compatibility
+    # above so that we maintain backward compatibility
     creators_with_profiles = serializers.SerializerMethodField()
 
     def get_creators_with_profiles(self, instance):
