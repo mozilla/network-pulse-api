@@ -7,6 +7,7 @@ from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.helptypes.models import HelpType
 from pulseapi.profiles.models import UserProfile
+from pulseapi.creators.serializers import EntryOrderedCreatorSerializer
 
 
 class CreatableSlugRelatedField(serializers.SlugRelatedField):
@@ -78,6 +79,27 @@ class EntrySerializer(serializers.ModelSerializer):
         (see creators.models.OrderedCreatorRecord Meta class)
         """
         return [ocr.creator.name for ocr in instance.related_creators.all()]
+
+    # Although this field has similar results to the field above (it's just
+    # serialized differently), we create a new field vs. overriding the field
+    # above so that we maintain backward compatibility
+    creators_with_profiles = serializers.SerializerMethodField()
+
+    def get_creators_with_profiles(self, instance):
+        """
+        Get the list of ordered creators with their associated profile info,
+        if any, for this entry. Each creator is serialized as:
+        {
+            "profile_id": <the profile id associated with the creator or null
+            if there isn't a profile associated with it>,
+            "name": <the name of the creator; uses the profile's name if there
+            is a profile>
+        }
+        """
+        return EntryOrderedCreatorSerializer(
+            instance.related_creators.all(),
+            many=True,
+        ).data
 
     # overrides 'published_by' for REST purposes
     # as we don't want to expose any user's email address
