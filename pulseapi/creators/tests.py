@@ -26,4 +26,10 @@ class TestCreators(PulseStaffTestCase):
                 '/api/pulse/creators/?search=A'
             ).content, 'utf-8')
         )
-        self.assertEqual(creatorList, ['Alice'])
+        db_creators = []
+        for creator in self.creators:
+            if creator.name.startswith('A'):
+                db_creators.append(creator.name)
+        db_creators.append('Alice')
+
+        self.assertEqual(creatorList, db_creators)
