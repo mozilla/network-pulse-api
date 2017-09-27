@@ -76,9 +76,9 @@ class UserProfile(models.Model):
 
     # Note that orphaned profiles, without an associated
     # user account, are perfectly fine in our architecture.
-    user = models.ForeignKey(
+    user = models.OneToOneField(
         'users.EmailUser',
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name='profile',
         null=True
     )

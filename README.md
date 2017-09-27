@@ -223,7 +223,6 @@ Allows an authenticated user to update their profile data. The payload that need
 {
   user_bio: optional string (max length 140 characters)
   custom_name: optional string containing the user's alternative name (max length 70 characters)
-  is_group: optional boolean indicating whether this profile is owned by a group of users/organization or belongs to a single user (defaults to false)
   thumbnail: optional object {
     name: name of the file,
     base64: the base64 encoded binary representation of the file's bytes

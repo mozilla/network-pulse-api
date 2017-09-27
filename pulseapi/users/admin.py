@@ -48,7 +48,7 @@ class EmailUserAdmin(admin.ModelAdmin):
         """
         Link to this user's profile
         """
-        profile = UserProfile.objects.get(user=instance)
+        profile = user.profile
 
         html = '<a href="{url}">Click here for this user\'s profile</a>'.format(
             url=get_admin_url(profile)

@@ -34,7 +34,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         required=False,
         allow_blank=True,
     )
-    is_group = serializers.BooleanField(read_only=True)
     thumbnail = serializers.ImageField(
         required=False,
         allow_null=True,
@@ -76,6 +75,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'user',
             'bookmarks',
             'id',
+            'is_group',
         ]
 
 
@@ -91,11 +91,13 @@ class UserProfilePublicSerializer(UserProfileSerializer):
     published_entries = serializers.SerializerMethodField()
 
     def get_published_entries(self, instance):
+        user = instance.user
+
         return EntrySerializer(
-            instance.user.entries.public(),
+            user.entries.public(),
             context=self.context,
             many=True,
-        ).data
+        ).data if user else []
 
     my_profile = serializers.SerializerMethodField()
 

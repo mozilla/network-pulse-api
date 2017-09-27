@@ -77,14 +77,6 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
     def clean(self):
         pass
 
-    def get_self_profile(self):
-        """
-        Returns the profile belonging to this user object since
-        a user can have multiple profiles attached to it that
-        represent organizations
-        """
-        return self.profile.filter(is_group=False).last()
-
     def toString(self):
         return self.email
 

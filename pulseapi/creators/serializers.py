@@ -28,7 +28,7 @@ class EntryOrderedCreatorSerializer(serializers.ModelSerializer):
     def get_profile_id(self, instance):
         user = instance.creator.user
 
-        return user.get_self_profile().id if user else None
+        return user.profile.id if user else None
 
     # The name of the creator. If the creator is a user, the user's name is
     # used instead
@@ -37,7 +37,7 @@ class EntryOrderedCreatorSerializer(serializers.ModelSerializer):
     def get_name(self, instance):
         user = instance.creator.user
 
-        return user.get_self_profile().name() if user else instance.creator.name
+        return user.profile.name() if user else instance.creator.name
 
     class Meta:
         model = OrderedCreatorRecord
