@@ -7,7 +7,6 @@ from django.utils.html import format_html
 
 
 from pulseapi.entries.models import Entry
-from pulseapi.profiles.models import UserProfile
 from pulseapi.users.models import EmailUser
 from pulseapi.utility.get_admin_url import get_admin_url
 
@@ -25,13 +24,13 @@ class EmailUserAdmin(admin.ModelAdmin):
         'name',
         'is_staff',
         'is_superuser',
-        'profile',
+        'user_profile',
         'entries',
     )
 
     readonly_fields = (
         'entries',
-        'profile',
+        'user_profile',
     )
 
     def entries(self, instance):
@@ -44,11 +43,11 @@ class EmailUserAdmin(admin.ModelAdmin):
         return format_html('<table>{rows}</table>'.format(rows=''.join(rows)))
     entries.short_description = 'Entries posted by this user'
 
-    def profile(self, instance):
+    def user_profile(self, instance):
         """
         Link to this user's profile
         """
-        profile = user.profile
+        profile = instance.profile
 
         html = '<a href="{url}">Click here for this user\'s profile</a>'.format(
             url=get_admin_url(profile)
@@ -56,7 +55,7 @@ class EmailUserAdmin(admin.ModelAdmin):
 
         return format_html(html)
 
-    profile.short_description = 'User profile'
+    user_profile.short_description = 'User profile'
 
 
 admin.site.register(EmailUser, EmailUserAdmin)

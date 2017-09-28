@@ -6,7 +6,6 @@ from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.helptypes.models import HelpType
-from pulseapi.profiles.models import UserProfile
 from pulseapi.creators.serializers import EntryOrderedCreatorSerializer
 
 
