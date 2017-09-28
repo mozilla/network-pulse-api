@@ -31,6 +31,17 @@ class Tag(models.Model):
 
     # Make sure tags are cleaned when saving
     def save(self, *args, **kwargs):
+        # We don't want to allow commas in tags, ever.
+        # As such, if self.name has commas, we split it,
+        # build new Tag instances for each term, and then
+        # update ourselves to be the first term.
+        name = self.name
+        if ',' in name:
+            terms = name.split(',')
+            self.name = terms[0]
+            for term in terms[1:]:
+                Tag.objects.create(name=term)
+
         self.full_clean()
         super(Tag, self).save(*args, **kwargs)
 
