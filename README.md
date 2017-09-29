@@ -227,7 +227,7 @@ Allows an authenticated user to update their profile data. The payload that need
   thumbnail: optional object {
     name: name of the file,
     base64: the base64 encoded binary representation of the file's bytes
-  }
+  }, if you pass in null, the thumbnail will be set to null
   twitter: optional url link to twitter account
   linkedin: optional url link to linkedin account
   github: optional url link to github account
