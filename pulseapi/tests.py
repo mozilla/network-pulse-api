@@ -5,6 +5,10 @@ from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
 from pulseapi.users.models import EmailUser
+from pulseapi.users.test_models import EmailUserFactory
+from pulseapi.profiles.test_models import UserProfileFactory
+from pulseapi.creators.models import OrderedCreatorRecord
+from pulseapi.creators.test_models import CreatorFactory
 from pulseapi.entries.models import Entry
 from pulseapi.entries.test_models import EntryFactory
 
@@ -44,10 +48,39 @@ def setup_groups():
     staff.save()
 
 
-def setup_entries(test):
-    test.entries = [EntryFactory() for i in range(2)]
-    for entry in test.entries:
+def setup_entries(test, creator_users):
+    test.entries = []
+    test.creators = []
+
+    for i in range(2):
+        entry = EntryFactory()
         entry.save()
+
+        # Create a simple creator that has no profile
+        creators = [CreatorFactory()]
+        if creator_users and len(creator_users) > i:
+            # If we were passed in users, create a creator attached to a user
+            creators.append(CreatorFactory(user=creator_users[i]))
+        for creator in creators:
+            creator.save()
+            # Connect the creator with the entry
+            OrderedCreatorRecord(entry=entry, creator=creator).save()
+
+        test.creators.extend(creators)
+        test.entries.append(entry)
+
+
+def setup_users_with_profiles(test):
+    users = [EmailUserFactory() for i in range(3)]
+    for user in users:
+        user.save()
+        profile = UserProfileFactory(
+            user=user,
+            is_active=True,
+        )
+        profile.save()
+
+    test.users_with_profiles = users
 
 
 def create_logged_in_user(test, name, email, password="password1234"):
@@ -100,7 +133,8 @@ def boostrap(test, name, email):
         name=name,
         email=email
     )
-    setup_entries(test)
+    setup_users_with_profiles(test)
+    setup_entries(test, creator_users=test.users_with_profiles)
 
 
 class PulseMemberTestCase(TestCase):

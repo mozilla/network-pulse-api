@@ -10,20 +10,14 @@ class TestCreators(PulseStaffTestCase):
 
     def test_creator_filtering(self):
         """search creators, for autocomplete"""
-        payload = {
-            'title': 'title test_creator_filtering',
-            'content_url': 'http://example.com/test_creator_filtering',
-            'description': 'description test_creator_filtering',
-            'creators': ['Alice', 'Bob', 'Carol']
-        }
-        json.loads(str(self.client.get('/api/pulse/nonce/').content, 'utf-8'))
-        self.client.post(
-            '/api/pulse/entries/',
-            data=self.generatePostPayload(data=payload)
-        )
         creatorList = json.loads(
             str(self.client.get(
                 '/api/pulse/creators/?search=A'
             ).content, 'utf-8')
         )
-        self.assertEqual(creatorList, ['Alice'])
+        db_creators = []
+        for creator in self.creators:
+            if creator.name.startswith('A'):
+                db_creators.append(creator.name)
+
+        self.assertEqual(creatorList, db_creators)

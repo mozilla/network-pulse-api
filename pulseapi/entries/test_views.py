@@ -2,7 +2,9 @@ import json
 
 from django.core.urlresolvers import reverse
 
+from pulseapi.creators.models import Creator, OrderedCreatorRecord
 from pulseapi.entries.models import Entry, ModerationState
+from pulseapi.entries.serializers import EntrySerializer
 from pulseapi.tests import PulseStaffTestCase, PulseMemberTestCase
 
 
@@ -174,10 +176,11 @@ class TestEntryView(PulseStaffTestCase):
         See if creators endpoint has proper results afterwards
         """
 
+        creators = ['Pomax', 'Alan']
         payload = {
             'title': 'title test_post_entry_with_mixed_tags2',
             'description': 'description test_post_entry_with_mixed_tags',
-            'creators': ['Pomax', 'Alan'],
+            'creators': creators,
         }
         json.loads(
             str(self.client.get('/api/pulse/nonce/').content, 'utf-8')
@@ -186,10 +189,11 @@ class TestEntryView(PulseStaffTestCase):
             '/api/pulse/entries/',
             data=self.generatePostPayload(data=payload)
         )
-        creatorList = json.loads(
+        creator_list = json.loads(
             str(self.client.get('/api/pulse/creators/').content, 'utf-8')
         )
-        self.assertEqual(creatorList, ['Pomax', 'Alan'])
+        db_creator_list = list(Creator.objects.values_list('name', flat=True))
+        self.assertEqual(db_creator_list, creator_list)
 
     def test_get_entries_list(self):
         """Get /entries endpoint"""
@@ -553,6 +557,29 @@ class TestEntryView(PulseStaffTestCase):
         # and did it change the moderation state?
         entry = Entry.objects.get(id=entry_id)
         self.assertEqual(entry.moderation_state, state)
+
+    def test_entry_serializer(self):
+        """
+        Make sure that the entry serializer contains all the custom data needed.
+        Useful test to make sure our custom fields are tested and not
+        removed during API changes
+        """
+
+        entries = self.entries
+        serialized_entries = EntrySerializer(entries, many=True).data
+
+        for i in range(len(serialized_entries)):
+            entry = entries[i]
+            serialized_entry = dict(serialized_entries[i])
+            # Make sure that the property exists in the serialized entry
+            self.assertIn('creators_with_profiles', serialized_entry)
+            creators_with_profiles = serialized_entry['creators_with_profiles']
+            # Make sure that the number of serialized creators matches the
+            # number of creators for that entry in the db
+            self.assertEqual(
+                len(creators_with_profiles),
+                OrderedCreatorRecord.objects.filter(entry=entry).count()
+            )
 
 
 class TestMemberEntryView(PulseMemberTestCase):

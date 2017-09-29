@@ -139,7 +139,9 @@ class EntrySerializer(serializers.ModelSerializer):
         Check whether the current user has bookmarked this
         Entry. Anonymous users always see False
         """
-        request = self.context['request']
+        request = None
+        if hasattr(self.context, 'request') and self.context['request']:
+            request = self.context['request']
 
         if hasattr(request, 'user'):
             user = request.user
