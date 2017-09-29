@@ -429,18 +429,14 @@ class EntriesListView(ListCreateAPIView):
             # we also want to make sure that tags are properly split
             # on commas, in case we get e.g. ['a', 'b' 'c,d']
             if 'tags' in request_data:
-                print(request_data['tags'])
                 tags = request.POST.getlist('tags')
-                print('tags', tags)
                 filtered_tags = []
                 for tag in tags:
-                    print('tag', tag)
                     if ',' in tag:
                         filtered_tags = filtered_tags + tag.split(',')
                     else:
                         filtered_tags.append(tag)
-                print('filtered', filtered_tags)
-                request_data['tags'] = str(set(filtered_tags))
+                request_data.setlist('tags', list(set(filtered_tags)))
 
             serializer = EntrySerializer(data=request_data)
             if serializer.is_valid():

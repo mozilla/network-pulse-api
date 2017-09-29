@@ -40,7 +40,7 @@ class Tag(models.Model):
             terms = name.split(',')
             self.name = terms[0]
             for term in terms[1:]:
-                Tag.objects.create(name=term)
+                Tag.objects.get_or_create(name=term)
 
         self.full_clean()
         super(Tag, self).save(*args, **kwargs)

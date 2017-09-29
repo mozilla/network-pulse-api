@@ -168,6 +168,27 @@ class TestEntryView(PulseStaffTestCase):
         )
         self.assertEqual(tagList, ['test1', 'test2', 'test3'])
 
+    def test_post_entry_with_comma_infused_tags(self):
+        """
+        Post entries with some existing tags, some new tags
+        See if tags endpoint has proper results afterwards
+        """
+
+        content_url = 'http://example.com/test_post_entry_with_comma_infused_tags'
+        payload = {
+            'title': 'title test_post_entry_with_comma_infused_tags',
+            'content_url': content_url,
+            'tags': ['test1', 'test2', 'test1,test2,test3'],
+        }
+        self.client.post(
+            '/api/pulse/entries/',
+            data=self.generatePostPayload(data=payload)
+        )
+        tagList = json.loads(
+            str(self.client.get('/api/pulse/tags/').content, 'utf-8')
+        )
+        self.assertEqual(tagList, ['test1', 'test2', 'test3'])
+
     def test_post_entry_with_mixed_creators(self):
         """
         Post entry with some existing creators, some new creators
