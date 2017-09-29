@@ -2,7 +2,7 @@ import json
 
 from django.core.urlresolvers import reverse
 
-from pulseapi.creators.models import OrderedCreatorRecord
+from pulseapi.creators.models import Creator, OrderedCreatorRecord
 from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.entries.serializers import EntrySerializer
 from pulseapi.tests import PulseStaffTestCase, PulseMemberTestCase
@@ -192,8 +192,7 @@ class TestEntryView(PulseStaffTestCase):
         creator_list = json.loads(
             str(self.client.get('/api/pulse/creators/').content, 'utf-8')
         )
-        db_creator_list = [c.name for c in self.creators]
-        db_creator_list.extend(creators)
+        db_creator_list = list(Creator.objects.values_list('name', flat=True))
         self.assertEqual(db_creator_list, creator_list)
 
     def test_get_entries_list(self):

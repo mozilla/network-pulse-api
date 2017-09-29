@@ -11,7 +11,9 @@ class UserProfileFactory(factory.Factory):
     """Generate UserProfiles for tests"""
     is_active = True
     user_bio = factory.LazyAttribute(
-        lambda o: 'user_bio {}'.format(''.join(fake.text(max_nb_chars=130)))
+        lambda o: 'user_bio {fake_bio}'.format(
+            fake_bio=''.join(fake.text(max_nb_chars=130))
+        )
     )
 
     class Meta:
