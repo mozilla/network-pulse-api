@@ -9,6 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('users', '0004_auto_20170616_1131'),
+        ('profiles', '0005_copy_user_bookmarks')
     ]
 
     operations = [

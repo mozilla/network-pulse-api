@@ -4,13 +4,13 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 from django.contrib.auth.models import Group
-from pulseapi.users.models import EmailUser
 
 def create_default_groups(apps, schema_editor):
     # Set up default groups
     Group.objects.get_or_create(name="moderator")
     Group.objects.get_or_create(name="admin")
     staff, created = Group.objects.get_or_create(name="staff")
+    EmailUser = apps.get_model('users', 'EmailUser')
 
     # Add any is_staff user to the staff group
     users = EmailUser.objects.all()

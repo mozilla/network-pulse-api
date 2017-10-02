@@ -9,8 +9,8 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0011_auto_20170929_1810'),
         ('users', '0006_remove_emailuser_bookmarks'),
+        ('profiles', '0011_auto_20170929_1810'),
     ]
 
     operations = [
