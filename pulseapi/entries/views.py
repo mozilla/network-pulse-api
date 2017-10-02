@@ -426,6 +426,18 @@ class EntriesListView(ListCreateAPIView):
             # relation with a Through class, so that needs manual labour:
             creator_data = request_data.pop('creators', None)
 
+            # we also want to make sure that tags are properly split
+            # on commas, in case we get e.g. ['a', 'b' 'c,d']
+            if 'tags' in request_data:
+                tags = request.POST.getlist('tags')
+                filtered_tags = []
+                for tag in tags:
+                    if ',' in tag:
+                        filtered_tags = filtered_tags + tag.split(',')
+                    else:
+                        filtered_tags.append(tag)
+                request_data.setlist('tags', list(set(filtered_tags)))
+
             serializer = EntrySerializer(data=request_data)
             if serializer.is_valid():
                 user = request.user

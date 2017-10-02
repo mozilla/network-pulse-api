@@ -11,17 +11,18 @@ def is_staff_address(email):
     if email is None:
         return False
 
-    parts = email.split('@')
-    domain = parts[1]
+    if '@' in email:
+        parts = email.split('@')
+        domain = parts[1]
 
-    if domain == 'mozilla.org':
-        return True
+        if domain == 'mozilla.org':
+            return True
 
-    if domain == 'mozilla.com':
-        return True
+        if domain == 'mozilla.com':
+            return True
 
-    if domain == 'mozillafoundation.org':
-        return True
+        if domain == 'mozillafoundation.org':
+            return True
 
     return False
 
