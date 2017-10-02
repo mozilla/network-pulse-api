@@ -29,7 +29,7 @@ class EmailUserManager(BaseUserManager):
 
         # Ensure that new users get a user profile associated
         # with them, even though it'll be empty by default.
-        UserProfile.objects.get_or_create(user=user)
+        UserProfile.objects.get_or_create(related_user=user)
 
         return user
 
@@ -61,6 +61,15 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(
         default=False,
         verbose_name="this user counts as django::staff",
+    )
+
+    # A user can have only zero or one profile. For social auth, the profile is
+    # automatically created for the user.
+    profile = models.OneToOneField(
+        'profiles.UserProfile',
+        on_delete=models.CASCADE,
+        related_name='related_user',
+        null=True
     )
 
     USERNAME_FIELD = 'email'

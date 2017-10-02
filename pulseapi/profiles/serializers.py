@@ -72,7 +72,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         exclude = [
             'is_active',
-            'user',
             'bookmarks',
             'id',
             'is_group',
@@ -86,12 +85,12 @@ class UserProfilePublicSerializer(UserProfileSerializer):
     name = serializers.SlugRelatedField(
         read_only=True,
         slug_field='name',
-        source='user',
+        source='related_user',
     )
     published_entries = serializers.SerializerMethodField()
 
     def get_published_entries(self, instance):
-        user = instance.user
+        user = instance.related_user
 
         return EntrySerializer(
             user.entries.public(),
@@ -102,4 +101,4 @@ class UserProfilePublicSerializer(UserProfileSerializer):
     my_profile = serializers.SerializerMethodField()
 
     def get_my_profile(self, instance):
-        return self.context.get('request').user == instance.user
+        return self.context.get('request').user == instance.related_user

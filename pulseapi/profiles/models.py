@@ -74,15 +74,6 @@ class UserProfile(models.Model):
         default=False
     )
 
-    # Note that orphaned profiles, without an associated
-    # user account, are perfectly fine in our architecture.
-    user = models.OneToOneField(
-        'users.EmailUser',
-        on_delete=models.CASCADE,
-        related_name='profile',
-        null=True
-    )
-
     # A tweet-style user bio
     user_bio = models.CharField(
         max_length=140,
@@ -112,17 +103,14 @@ class UserProfile(models.Model):
 
     # Accessing the Profile-indicated name needs various stages
     # of fallback.
+    @property
     def name(self):
         # blank values, including pure whitespace, don't count:
-        if not self.custom_name:
-            return self.user.name
-        if not self.custom_name.strip():
-            return self.user.name
+        if not self.custom_name or not self.custom_name.strip():
+            return self.related_user.name
 
         # anything else does count.
         return self.custom_name
-
-    name.short_description = 'Name that will show'
 
     # This flag marks whether or not this profile applies to
     # "A human being", or a group of people (be that a club, org,
@@ -191,10 +179,10 @@ class UserProfile(models.Model):
     )
 
     def __str__(self):
-        if self.user is None:
+        if self.related_user is None:
             return 'orphan profile'
 
-        return 'profile for {}'.format(self.user.email)
+        return 'profile for {}'.format(self.related_user.email)
 
     class Meta:
         verbose_name = "Profile"

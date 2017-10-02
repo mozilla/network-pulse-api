@@ -103,6 +103,7 @@ class EntrySerializer(serializers.ModelSerializer):
     # overrides 'published_by' for REST purposes
     # as we don't want to expose any user's email address
     published_by = serializers.SlugRelatedField(
+        source='published_by.profile',
         slug_field='name',
         read_only=True,
     )
