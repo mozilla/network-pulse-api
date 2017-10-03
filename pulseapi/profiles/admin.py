@@ -43,8 +43,9 @@ class UserProfileAdmin(admin.ModelAdmin):
     )
 
     def name(self, instance):
-        user = instance.user
-        return user.name if user else '-'
+        return instance.name or '-'
+
+    name.short_description = 'Name that will show'
 
     def user_account(self, instance):
         user = instance.user
