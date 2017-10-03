@@ -461,7 +461,7 @@ class EntriesListView(ListCreateAPIView):
                 )
 
                 # create entry/creator intermediaries
-                if saved_entry.posted_by_creator:
+                if saved_entry.published_by_creator:
                     creator_data.append(user.name)
 
                 if len(creator_data) > 0:
