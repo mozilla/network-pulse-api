@@ -224,7 +224,7 @@ class TestEntryView(PulseStaffTestCase):
         payload = {
             'title': 'title test_post_entry_as_creator',
             'description': 'description test_post_entry_as_creator',
-            'posted_by_creator': True,
+            'published_by_creator': True,
         }
         postresponse = self.client.post(
             '/api/pulse/entries/',
