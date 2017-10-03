@@ -105,12 +105,37 @@ class UserProfile(models.Model):
     # of fallback.
     @property
     def name(self):
+        custom_name = self.custom_name
+
         # blank values, including pure whitespace, don't count:
-        if not self.custom_name or not self.custom_name.strip():
-            return self.related_user.name
+        if not custom_name or not custom_name.strip():
+            user = self.user
+            return user.name if user else None
 
         # anything else does count.
-        return self.custom_name
+        return custom_name
+
+    # We provide an easy accessor to the profile's user because
+    # accessing the reverse relation (using related_name) can throw
+    # a RelatedObjectDoesNotExist exception for orphan profiles. This
+    # allows us to return None instead.
+    @property
+    def user(self):
+        # We do not import EmailUser directly so that we don't end up with
+        # a circular import. Instead, we dynamically get the model via its
+        # relationship with `UserProfile`.
+        EmailUser = self._meta.get_field('related_user').related_model
+
+        try:
+            # We have to fetch the user for this profile from the database
+            # vs. accessing `self.related_user` because `related_user` is not
+            # an actual field in the `UserProfile` model and we aren't dealing
+            # with a full instance of the model in this function through which
+            # we could have accessed reverse relations.
+            related_user = EmailUser.objects.get(profile=self)
+            return related_user
+        except EmailUser.DoesNotExist:
+            return None
 
     # This flag marks whether or not this profile applies to
     # "A human being", or a group of people (be that a club, org,
@@ -179,10 +204,10 @@ class UserProfile(models.Model):
     )
 
     def __str__(self):
-        if self.related_user is None:
+        if self.user is None:
             return 'orphan profile'
 
-        return 'profile for {}'.format(self.related_user.email)
+        return 'profile for {}'.format(self.user.email)
 
     class Meta:
         verbose_name = "Profile"

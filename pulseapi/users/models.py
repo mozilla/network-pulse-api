@@ -20,16 +20,16 @@ class EmailUserManager(BaseUserManager):
         if not password:
             password = self.make_random_password()
 
+        # Ensure that new users get a user profile associated
+        # with them, even though it'll be empty by default.
+        profile = UserProfile.objects.create()
         user = self.model(
             email=email,
-            name=name
+            name=name,
+            profile=profile,
         )
         user.set_password(password)
         user.save()
-
-        # Ensure that new users get a user profile associated
-        # with them, even though it'll be empty by default.
-        UserProfile.objects.get_or_create(related_user=user)
 
         return user
 

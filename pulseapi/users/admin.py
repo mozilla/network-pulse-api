@@ -31,6 +31,7 @@ class EmailUserAdmin(admin.ModelAdmin):
     readonly_fields = (
         'entries',
         'user_profile',
+        'name',
     )
 
     def entries(self, instance):

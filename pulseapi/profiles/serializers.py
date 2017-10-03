@@ -82,15 +82,11 @@ class UserProfilePublicSerializer(UserProfileSerializer):
     """
     Serializes a user profile for public view
     """
-    name = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='name',
-        source='related_user',
-    )
+    name = serializers.CharField(read_only=True)
     published_entries = serializers.SerializerMethodField()
 
     def get_published_entries(self, instance):
-        user = instance.related_user
+        user = instance.user
 
         return EntrySerializer(
             user.entries.public(),
@@ -101,4 +97,4 @@ class UserProfilePublicSerializer(UserProfileSerializer):
     my_profile = serializers.SerializerMethodField()
 
     def get_my_profile(self, instance):
-        return self.context.get('request').user == instance.related_user
+        return self.context.get('request').user == instance.user
