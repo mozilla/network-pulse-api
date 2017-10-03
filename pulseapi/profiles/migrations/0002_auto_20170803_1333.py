@@ -1,14 +1,14 @@
 from django.db import migrations
 
-from pulseapi.users.models import EmailUser
-from pulseapi.profiles.models import UserProfile
-
 def ensure_user_profiles(app, schema_editor):
     """
     The only thing this function does is ensure that for every user
     of the system, we have an associated user profile, even if it
     does absolutely nothing (yet).
     """
+    EmailUser = app.get_model('users', 'EmailUser')
+    UserProfile = app.get_model('profiles', 'UserProfile')
+
     users = EmailUser.objects.all()
     for user in users:
         (profile,created) = UserProfile.objects.get_or_create(user=user)

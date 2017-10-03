@@ -6,7 +6,6 @@ from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.helptypes.models import HelpType
-from pulseapi.profiles.models import UserProfile
 from pulseapi.creators.serializers import EntryOrderedCreatorSerializer
 
 
@@ -103,26 +102,18 @@ class EntrySerializer(serializers.ModelSerializer):
 
     # overrides 'published_by' for REST purposes
     # as we don't want to expose any user's email address
-    published_by = serializers.SerializerMethodField()
-
-    def get_published_by(self, instance):
-        """
-        Get the name of the user who published this entry
-        """
-        return instance.published_by.name
+    published_by = serializers.SlugRelatedField(
+        source='published_by.profile',
+        slug_field='name',
+        read_only=True,
+    )
 
     # "virtual" property so that we can link to the correct profile
-    submitter_profile_id = serializers.SerializerMethodField()
-
-    def get_submitter_profile_id(self, instance):
-        """
-        Get the id for the user who published this entry
-        """
-        profiles = instance.published_by.profile.all()
-        if len(profiles) > 0:
-            profile = profiles[0]
-            return profile.id
-        return False
+    submitter_profile_id = serializers.SlugRelatedField(
+        source='published_by.profile',
+        slug_field='id',
+        read_only=True,
+    )
 
     bookmark_count = serializers.SerializerMethodField()
 
@@ -146,8 +137,7 @@ class EntrySerializer(serializers.ModelSerializer):
         if hasattr(request, 'user'):
             user = request.user
             if user.is_authenticated():
-                profile = UserProfile.objects.get(user=user)
-                res = instance.bookmarked_by.filter(profile=profile)
+                res = instance.bookmarked_by.filter(profile=user.profile)
                 return res.count() > 0
 
         return False

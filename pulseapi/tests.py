@@ -71,14 +71,13 @@ def setup_entries(test, creator_users):
 
 
 def setup_users_with_profiles(test):
-    users = [EmailUserFactory() for i in range(3)]
-    for user in users:
-        user.save()
-        profile = UserProfileFactory(
-            user=user,
-            is_active=True,
-        )
+    users = []
+    profiles = [UserProfileFactory(is_active=True) for i in range(3)]
+    for profile in profiles:
         profile.save()
+        user = EmailUserFactory(profile=profile)
+        user.save()
+        users.append(user)
 
     test.users_with_profiles = users
 

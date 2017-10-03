@@ -20,16 +20,16 @@ class EmailUserManager(BaseUserManager):
         if not password:
             password = self.make_random_password()
 
+        # Ensure that new users get a user profile associated
+        # with them, even though it'll be empty by default.
+        profile = UserProfile.objects.create()
         user = self.model(
             email=email,
-            name=name
+            name=name,
+            profile=profile,
         )
         user.set_password(password)
         user.save()
-
-        # Ensure that new users get a user profile associated
-        # with them, even though it'll be empty by default.
-        UserProfile.objects.get_or_create(user=user)
 
         return user
 
@@ -63,6 +63,15 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
         verbose_name="this user counts as django::staff",
     )
 
+    # A user can have only zero or one profile. For social auth, the profile is
+    # automatically created for the user.
+    profile = models.OneToOneField(
+        'profiles.UserProfile',
+        on_delete=models.CASCADE,
+        related_name='related_user',
+        null=True
+    )
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 
@@ -76,14 +85,6 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
 
     def clean(self):
         pass
-
-    def get_self_profile(self):
-        """
-        Returns the profile belonging to this user object since
-        a user can have multiple profiles attached to it that
-        represent organizations
-        """
-        return self.profile.filter(is_group=False).last()
 
     def toString(self):
         return self.email

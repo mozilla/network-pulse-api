@@ -74,15 +74,6 @@ class UserProfile(models.Model):
         default=False
     )
 
-    # Note that orphaned profiles, without an associated
-    # user account, are perfectly fine in our architecture.
-    user = models.ForeignKey(
-        'users.EmailUser',
-        on_delete=models.SET_NULL,
-        related_name='profile',
-        null=True
-    )
-
     # A tweet-style user bio
     user_bio = models.CharField(
         max_length=140,
@@ -112,17 +103,39 @@ class UserProfile(models.Model):
 
     # Accessing the Profile-indicated name needs various stages
     # of fallback.
+    @property
     def name(self):
+        custom_name = self.custom_name
+
         # blank values, including pure whitespace, don't count:
-        if not self.custom_name:
-            return self.user.name
-        if not self.custom_name.strip():
-            return self.user.name
+        if not custom_name or not custom_name.strip():
+            user = self.user
+            return user.name if user else None
 
         # anything else does count.
-        return self.custom_name
+        return custom_name
 
-    name.short_description = 'Name that will show'
+    # We provide an easy accessor to the profile's user because
+    # accessing the reverse relation (using related_name) can throw
+    # a RelatedObjectDoesNotExist exception for orphan profiles. This
+    # allows us to return None instead.
+    @property
+    def user(self):
+        # We do not import EmailUser directly so that we don't end up with
+        # a circular import. Instead, we dynamically get the model via its
+        # relationship with `UserProfile`.
+        EmailUser = self._meta.get_field('related_user').related_model
+
+        try:
+            # We have to fetch the user for this profile from the database
+            # vs. accessing `self.related_user` because `related_user` is not
+            # an actual field in the `UserProfile` model and we aren't dealing
+            # with a full instance of the model in this function through which
+            # we could have accessed reverse relations.
+            related_user = EmailUser.objects.get(profile=self)
+            return related_user
+        except EmailUser.DoesNotExist:
+            return None
 
     # This flag marks whether or not this profile applies to
     # "A human being", or a group of people (be that a club, org,

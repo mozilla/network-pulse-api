@@ -42,10 +42,16 @@ class UserProfileAdmin(admin.ModelAdmin):
         'bookmark_count',
     )
 
+    def name(self, instance):
+        return instance.name or '-'
+
+    name.short_description = 'Name that will show'
+
     def user_account(self, instance):
+        user = instance.user
         html = '<a href="{url}">{account}</a>'.format(
-            url=get_admin_url(instance.user),
-            account=instance.user.email
+            url=get_admin_url(user),
+            account=user.email if user else None
         )
         return format_html(html)
 

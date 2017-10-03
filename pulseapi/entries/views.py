@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from pulseapi.creators.models import Creator, OrderedCreatorRecord
 from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.entries.serializers import EntrySerializer, ModerationStateSerializer
-from pulseapi.profiles.models import UserProfile, UserBookmarks
+from pulseapi.profiles.models import UserBookmarks
 
 from pulseapi.utility.userpermissions import is_staff_address
 
@@ -32,7 +32,7 @@ def toggle_bookmark(request, entryid):
 
     if user.is_authenticated():
         entry = None
-        profile = UserProfile.objects.get(user=user)
+        profile = user.profile
 
         # find the entry for this id
         try:
@@ -220,8 +220,7 @@ class BookmarkedEntries(ListAPIView):
         if user.is_authenticated() is False:
             return Entry.objects.none()
 
-        profile = UserProfile.objects.get(user=user)
-        bookmarks = UserBookmarks.objects.filter(profile=profile)
+        bookmarks = UserBookmarks.objects.filter(profile=user.profile)
         return Entry.objects.filter(bookmarked_by__in=bookmarks).order_by('-bookmarked_by__timestamp')
 
     # When people POST to this route, we want to do some
@@ -253,7 +252,7 @@ class BookmarkedEntries(ListAPIView):
                     return
 
                 # find out if there is already a {user,entry,(timestamp)} triple
-                profile = UserProfile.objects.get(user=user)
+                profile = user.profile
                 bookmarks = entry.bookmarked_by.filter(profile=profile)
                 exists = bookmarks.count() > 0
 
