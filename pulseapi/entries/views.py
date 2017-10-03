@@ -423,7 +423,7 @@ class EntriesListView(ListCreateAPIView):
 
             # we need to split out creators, because it's a many-to-many
             # relation with a Through class, so that needs manual labour:
-            creator_data = request_data.pop('creators', None)
+            creator_data = request_data.pop('creators', [])
 
             # we also want to make sure that tags are properly split
             # on commas, in case we get e.g. ['a', 'b' 'c,d']
@@ -461,11 +461,11 @@ class EntriesListView(ListCreateAPIView):
                 )
 
                 # create entry/creator intermediaries
-                if creator_data is not None:
+                if saved_entry.posted_by_creator:
+                    creator_data.append(user.name)
+
+                if len(creator_data) > 0:
                     for creator_name in creator_data:
-                        # TODO: update Creator model so that it can fall through
-                        #       to a profile is the correct format to achieve this
-                        #       is specified.
                         (creator, _) = Creator.objects.get_or_create(name=creator_name)
 
                         OrderedCreatorRecord.objects.create(
