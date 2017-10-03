@@ -121,7 +121,7 @@ POSTing of entries requires sending the following payload object:
   issue: optional string, must match value from [GET /issues?format=json]
   help_type: optional string, must match value from [GET /helptypes?format=json]
   creators: optional array of names of creators for the content linked to
-  posted_by_creator: optional boolean to indicate that this user is (one of) the content creator(s)
+  published_by_creator: optional boolean to indicate that this user is (one of) the content creator(s)
 }
 ```
 Also note that this POST **must** be accompanied by the following header:
