@@ -235,7 +235,7 @@ class TestEntryView(PulseStaffTestCase):
         id = str(responseobj['id'])
 
         entry_from_REST = self.client.get('/api/pulse/entries/' + id, follow=True)
-        data = json.loads(str(entry_from_REST.content, 'utf-8'));
+        data = json.loads(str(entry_from_REST.content, 'utf-8'))
         assert(self.user.name in data['creators'])
 
     def test_get_entries_list(self):
