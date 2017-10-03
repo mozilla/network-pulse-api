@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='entry',
-            name='posted_by_creator',
+            name='published_by_creator',
             field=models.BooleanField(default=False),
         ),
     ]
