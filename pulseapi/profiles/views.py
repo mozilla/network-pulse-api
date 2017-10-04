@@ -26,7 +26,7 @@ class UserProfilePublicAPIView(RetrieveAPIView):
 class UserProfilePublicSelfAPIView(UserProfilePublicAPIView):
     def get_object(self):
         user = self.request.user
-        return get_object_or_404(self.queryset, user=user)
+        return get_object_or_404(self.queryset, related_user=user)
 
 
 class UserProfileAPIView(RetrieveUpdateAPIView):
@@ -38,7 +38,7 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
 
     def get_object(self):
         user = self.request.user
-        return get_object_or_404(UserProfile, user=user)
+        return get_object_or_404(UserProfile, related_user=user)
 
     @detail_route(methods=['put'])
     def put(self, request, *args, **kwargs):
