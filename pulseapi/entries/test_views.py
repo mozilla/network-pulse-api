@@ -86,7 +86,7 @@ class TestEntryView(PulseStaffTestCase):
         """Entry with all content"""
 
         payload = {
-            'title': 'test full entry',
+            'title': 'test test_post_full_entry',
             'description': 'description full entry',
             'tags': ['tag1', 'tag2'],
             'interest': 'interest field',
@@ -108,7 +108,7 @@ class TestEntryView(PulseStaffTestCase):
         """Entry with all content"""
 
         payload = {
-            'title': 'test full entry',
+            'title': 'test test_featured_filter',
             'description': 'description full entry',
             'tags': ['tag1', 'tag2'],
             'interest': 'interest field',
@@ -147,7 +147,7 @@ class TestEntryView(PulseStaffTestCase):
 
         content_url = 'http://example.com/test_post_entry_with_mixed_tags_1'
         payload = {
-            'title': 'title test_post_entry_with_mixed_tags2',
+            'title': 'title test_post_entry_with_mixed_tags_1',
             'content_url': content_url,
             'tags': ['test1', 'test2'],
         }
@@ -157,7 +157,7 @@ class TestEntryView(PulseStaffTestCase):
         )
         content_url = 'http://example.com/test_post_entry_with_mixed_tags_2'
         payload = {
-            'title': 'title test_post_entry_with_mixed_tags2',
+            'title': 'title test_post_entry_with_mixed_tags_2',
             'content_url': content_url,
             'tags': ['test2', 'test3'],
         }
@@ -199,8 +199,8 @@ class TestEntryView(PulseStaffTestCase):
 
         creators = ['Pomax', 'Alan']
         payload = {
-            'title': 'title test_post_entry_with_mixed_tags2',
-            'description': 'description test_post_entry_with_mixed_tags',
+            'title': 'title test_post_entry_with_mixed_creators',
+            'description': 'description test_post_entry_with_mixed_creators',
             'creators': creators,
         }
         json.loads(
@@ -215,6 +215,28 @@ class TestEntryView(PulseStaffTestCase):
         )
         db_creator_list = list(Creator.objects.values_list('name', flat=True))
         self.assertEqual(db_creator_list, creator_list)
+
+    def test_post_entry_as_creator(self):
+        """
+        Post entry with some existing creators, some new creators
+        See if creators endpoint has proper results afterwards
+        """
+        payload = {
+            'title': 'title test_post_entry_as_creator',
+            'description': 'description test_post_entry_as_creator',
+            'published_by_creator': True,
+        }
+        postresponse = self.client.post(
+            '/api/pulse/entries/',
+            data=self.generatePostPayload(data=payload)
+        )
+        self.assertEqual(postresponse.status_code, 200)
+        responseobj = json.loads(str(postresponse.content, 'utf-8'))
+        id = str(responseobj['id'])
+
+        entry_from_REST = self.client.get('/api/pulse/entries/' + id, follow=True)
+        data = json.loads(str(entry_from_REST.content, 'utf-8'))
+        assert(self.user.name in data['creators'])
 
     def test_get_entries_list(self):
         """Get /entries endpoint"""

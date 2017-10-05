@@ -78,6 +78,7 @@ class Entry(models.Model):
     interest = models.CharField(max_length=600, blank=True)
     featured = models.BooleanField(default=False)
     internal_notes = models.TextField(blank=True)
+    published_by_creator = models.BooleanField(default=False)
 
     # thumbnail image
     thumbnail = models.ImageField(
