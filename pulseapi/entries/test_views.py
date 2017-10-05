@@ -213,7 +213,7 @@ class TestEntryView(PulseStaffTestCase):
         creator_list = json.loads(
             str(self.client.get('/api/pulse/creators/').content, 'utf-8')
         )
-        db_creator_list = list(Creator.objects.values_list('name', flat=True))
+        db_creator_list = [c.creator_name for c in Creator.objects.all()]
         self.assertEqual(db_creator_list, creator_list)
 
     def test_post_entry_as_creator(self):

@@ -59,8 +59,8 @@ def setup_entries(test, creator_users):
         # Create a simple creator that has no profile
         creators = [CreatorFactory()]
         if creator_users and len(creator_users) > i:
-            # If we were passed in users, create a creator attached to a user
-            creators.append(CreatorFactory(user=creator_users[i]))
+            # If we were passed in users, create a creator attached to a user profile
+            creators.append(CreatorFactory(profile=creator_users[i].profile))
         for creator in creators:
             creator.save()
             # Connect the creator with the entry
