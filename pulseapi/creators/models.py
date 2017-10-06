@@ -67,9 +67,9 @@ class Creator(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Django does not automatically call model validation on save due to
+        Django does not automatically perform model validation on save due to
         backwards compatibility. Since we have custom validation, we manually
-        call the validator on save.
+        call the validator (which calls our clean function) on save.
         """
         self.full_clean()
         super(Creator, self).save(*args, **kwargs)
