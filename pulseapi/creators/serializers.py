@@ -8,14 +8,14 @@ class CreatorSerializer(serializers.ModelSerializer):
     Serializes creators
     """
     def to_representation(self, obj):
-        return obj.name
+        return obj.creator_name
 
     class Meta:
         """
         Meta class. Because it's required by ModelSerializer
         """
         model = Creator
-        fields = ('name', )
+        fields = ('name', 'profile',)
 
 
 class EntryOrderedCreatorSerializer(serializers.ModelSerializer):
@@ -26,18 +26,17 @@ class EntryOrderedCreatorSerializer(serializers.ModelSerializer):
     profile_id = serializers.SerializerMethodField()
 
     def get_profile_id(self, instance):
-        user = instance.creator.user
+        profile = instance.creator.profile
 
-        return user.profile.id if user else None
+        return profile.id if profile else None
 
     # The name of the creator. If the creator is a user, the user's name is
     # used instead
-    name = serializers.SerializerMethodField()
-
-    def get_name(self, instance):
-        user = instance.creator.user
-
-        return user.profile.name if user else instance.creator.name
+    name = serializers.SlugRelatedField(
+        source='creator',
+        slug_field='creator_name',
+        read_only=True,
+    )
 
     class Meta:
         model = OrderedCreatorRecord

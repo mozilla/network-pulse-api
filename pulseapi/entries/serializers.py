@@ -77,7 +77,7 @@ class EntrySerializer(serializers.ModelSerializer):
 
         (see creators.models.OrderedCreatorRecord Meta class)
         """
-        return [ocr.creator.name for ocr in instance.related_creators.all()]
+        return [ocr.creator.creator_name for ocr in instance.related_creators.all()]
 
     # Although this field has similar results to the field above (it's just
     # serialized differently), we create a new field vs. overriding the field

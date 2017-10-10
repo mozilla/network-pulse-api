@@ -3,7 +3,8 @@ The creator field for an entry. Can be empty, just a name,
 or linked to a pulse user
 """
 from django.db import models
-from pulseapi.users.models import EmailUser
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 
 class CreatorQuerySet(models.query.QuerySet):
@@ -26,17 +27,55 @@ class Creator(models.Model):
     """
     Person recognized as the creator of the thing an entry links out to.
     """
-    name = models.CharField(max_length=140)
-    user = models.ForeignKey(
-        EmailUser,
-        related_name='as_creator',
+    name = models.CharField(
+        max_length=140,
         blank=True,
         null=True,
     )
+    profile = models.OneToOneField(
+        'profiles.UserProfile',
+        on_delete=models.CASCADE,
+        related_name='related_creator',
+        blank=True,
+        null=True,
+    )
+
     objects = CreatorQuerySet.as_manager()
 
+    @property
+    def creator_name(self):
+        return self.profile.name if self.profile else self.name
+
+    def clean(self):
+        """
+        We provide custom validation for the model to make sure that
+        either a profile or a name is provided for the creator since
+        a creator without either is not useful.
+        """
+        profile = self.profile
+        name = self.name
+
+        if profile is None and name is None:
+            raise ValidationError(_('Either a profile or a name must be specified for this creator.'))
+
+        if profile and name:
+            # In case both name and profile are provided, we clear the
+            # name so that the profile's name takes precedence. We do this
+            # so that if a profile's name is changed, the creator reflects
+            # the updated name.
+            self.name = None
+
+    def save(self, *args, **kwargs):
+        """
+        Django does not automatically perform model validation on save due to
+        backwards compatibility. Since we have custom validation, we manually
+        call the validator (which calls our clean function) on save.
+        """
+        self.full_clean()
+        super(Creator, self).save(*args, **kwargs)
+
     def __str__(self):
-        return str(self.name)
+        return str(self.creator_name)
 
 
 class OrderedCreatorRecord(models.Model):
