@@ -1,6 +1,4 @@
 from django.db import migrations
-from pulseapi.entries.models import Entry
-from pulseapi.creators.models import Creator, OrderedCreatorRecord
 
 
 def migrate_creator_data(apps, schema_editor):
@@ -11,14 +9,14 @@ def migrate_creator_data(apps, schema_editor):
     database, accessing it using an explicit link relation
     makes things much easier.
     """
-    entries = apps.get_model('entries', 'Entry').objects.all()
+    Entry = apps.get_model('entries', 'Entry')
+    OrderedCreatorRecord = apps.get_model('creators', 'OrderedCreatorRecord')
+    entries = Entry.objects.all()
     for entry in entries:
-        modern_entry = Entry.objects.get(id=entry.id)
-
         for creator in entry.creators.all():
-            link = OrderedCreatorRecord.objects.create(
-                entry=modern_entry,
-                creator=Creator.objects.get(id=creator.id)
+            OrderedCreatorRecord.objects.create(
+                entry=entry,
+                creator=creator,
             )
 
 
