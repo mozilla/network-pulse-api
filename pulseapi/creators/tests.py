@@ -2,9 +2,9 @@ import json
 from urllib.parse import quote
 from django.core.exceptions import ValidationError
 
+from pulseapi.profiles.test_models import UserProfileFactory
 from pulseapi.creators.models import Creator
 from pulseapi.tests import PulseStaffTestCase
-from pulseapi.creators.test_models import CreatorFactory
 
 
 class TestCreatorViews(PulseStaffTestCase):
@@ -42,16 +42,15 @@ class TestCreatorModel(PulseStaffTestCase):
         with self.assertRaises(ValidationError):
             creator.save()
 
-    def test_delete_name_when_given_profile(self):
+    def test_auto_create_creator_on_creating_profile(self):
         """
-        Make sure that when we save with a profile and also provide a
-        name, the name is set to None and the creator_name is the same
-        as the profile name
+        Make sure that when a profile is created a creator associated with
+        that profile is created whose name is set to None and whose
+        creator_name is the same as the profile name
         """
-        profile = self.user.profile
+        profile = UserProfileFactory()
+        profile.save()
 
-        creator = CreatorFactory(profile=profile)
-        creator.save()
         creator_from_db = Creator.objects.get(profile=profile)
 
         self.assertIsNone(creator_from_db.name)
