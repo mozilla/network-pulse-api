@@ -1,4 +1,7 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ObjectDoesNotExist
 
 from pulseapi.creators.models import Creator, OrderedCreatorRecord
 
@@ -25,24 +28,55 @@ class CreatorSerializer(serializers.ModelSerializer):
 
 class EntryOrderedCreatorSerializer(serializers.ModelSerializer):
     """
-    Serializes creators to be shown in entries where each creator has
-    a profile_id if the creator has a user attached to it
+    We use this serializer to serialize creators that are related to entries.
+    While the model is set to `OrderedCreatorRecord`, we only do that since we
+    inherit from `ModelSerializer`, and the output of serialization/descerialization
+    is actually a `Creator` and not an `OrderedCreatorRecord`. We do this because
+    for an entry, an `OrderedCreatorRecord` object is not useful while a `Creator`
+    object is really what we want.
     """
-    profile_id = serializers.SerializerMethodField()
+    def to_representation(self, instance):
+        """
+        Serialize an `OrderedCreatorRecord` object into something meaningful
+        """
+        creator = instance.creator
 
-    def get_profile_id(self, instance):
-        profile = instance.creator.profile
+        return {
+            'id': creator.id,
+            'profile_id': creator.profile.id if creator.profile else None,
+            'name': creator.creator_name
+        }
 
-        return profile.id if profile else None
+    def to_internal_value(self, data):
+        """
+        Deserialize data passed in into a `Creator` object that can be used to
+        create an `OrderedCreatorRecord` object.
+        If an `id` is provided, we get the corresponding `Creator` object, otherwise
+        we create a new `Creator` object with the name specified but don't actually
+        save to the database so that we don't create stale values if something
+        fails elsewhere (for e.g. in the `create` method). The `create`/`update`
+        methods are responsible for saving this object to the database.
+        """
+        has_id = 'id' in data and data['id']
+        has_name = 'name' in data and data['name']
 
-    # The name of the creator. If the creator is a user, the user's name is
-    # used instead
-    name = serializers.SlugRelatedField(
-        source='creator',
-        slug_field='creator_name',
-        read_only=True,
-    )
+        if not has_id and not has_name:
+            raise ValidationError(
+                detail=_('An id or a name must be provided.'),
+                code='missing data',
+            )
+
+        if has_id:
+            try:
+                return Creator.objects.get(id=data['id'])
+            except ObjectDoesNotExist:
+                raise ValidationError(
+                    detail=_('No creator exists for the given id.'),
+                    code='invalid',
+                )
+
+        return Creator(name=data['name'])
 
     class Meta:
         model = OrderedCreatorRecord
-        fields = ('profile_id', 'name',)
+        fields = '__all__'

@@ -428,16 +428,19 @@ class EntriesListView(ListCreateAPIView):
             # we also want to make sure that tags are properly split
             # on commas, in case we get e.g. ['a', 'b' 'c,d']
             if 'tags' in request_data:
-                tags = request.POST.getlist('tags')
+                tags = request_data['tags']
                 filtered_tags = []
                 for tag in tags:
                     if ',' in tag:
                         filtered_tags = filtered_tags + tag.split(',')
                     else:
                         filtered_tags.append(tag)
-                request_data.setlist('tags', list(set(filtered_tags)))
+                request_data['tags'] = filtered_tags
 
-            serializer = EntrySerializer(data=request_data)
+            serializer = EntrySerializer(
+                data=request_data,
+                context={'request': request},
+            )
             if serializer.is_valid():
                 user = request.user
                 # ensure that the published_by is always the user doing
@@ -460,10 +463,7 @@ class EntriesListView(ListCreateAPIView):
                     moderation_state=moderation_state
                 )
 
-                # create entry/creator intermediaries
-                if saved_entry.published_by_creator:
-                    creator_data.append(user.name)
-
+                # QUEUED FOR DEPRECATION: Use the `related_creators` property instead.
                 if len(creator_data) > 0:
                     for creator_name in creator_data:
                         (creator, _) = Creator.objects.get_or_create(name=creator_name)
@@ -482,6 +482,6 @@ class EntriesListView(ListCreateAPIView):
 
         else:
             return Response(
-                "post validation failed",
+                "post validation failed - {}".format(validation_result),
                 status=status.HTTP_400_BAD_REQUEST
             )
