@@ -64,6 +64,32 @@ If a user is authenticated, all three fields will be present. If a user is not a
 
 **This data should never be cached persistently**. Do not store this in localStorage, cookies, or any other persistent data store. When the user terminates their client, or logs out, this information should immediately be lost. Also do not store this in a global namespace like `window` or `document`, or in anything that isn't protected by a closure.
 
+### `GET /api/pulse/creators/?search=...`
+
+Gets the list of all creators whose name starts with the passed search string. This yields a response that uses the following schema:
+
+```
+{
+    "count": 123,
+    "next": "http://.../api/pulse/creators/?page=2&search=...",
+    "previous": null,
+    "results": [
+        {
+            "profile_id": number or false,
+            "name": "..."
+        },
+        ...
+    ]
+}
+```
+
+
+In this response:
+
+- `count` property represents how many hits the system knows about,
+- `next` is a URL if there are more results than fit in a single result set (set to `null` if there are no additional pages of results).
+- `results` points to an array of creator records, where each creator has a name (string data) as well as a profile_id (which is either a number if the creator has an associated profile, or `false` if the creator does not have an associated profile). By default, this array will contain 6 objects, but this number can be increased (to a maximum of 20) by adding `&page_size=...` to the query with the desired results-per-page number.
+
 ### `GET /api/pulse/issues/`
 
 Gets the list of internet health issues that entries can be related to. This route yields a documentation page unless the request mimetype is set to `application/json`, or the `?format=json` query argument is passed. When requesting JSON, this route yields an object of the form:

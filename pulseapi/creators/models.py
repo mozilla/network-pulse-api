@@ -77,6 +77,12 @@ class Creator(models.Model):
     def __str__(self):
         return str(self.creator_name)
 
+    class Meta:
+        verbose_name = "Creator"
+        ordering = [
+            'name'
+        ]
+
 
 class OrderedCreatorRecord(models.Model):
     """
