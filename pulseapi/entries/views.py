@@ -5,6 +5,7 @@ import base64
 import django_filters
 
 from django.core.files.base import ContentFile
+from django.http.request import QueryDict
 
 from rest_framework import filters, status
 from rest_framework.decorators import detail_route, api_view
@@ -393,6 +394,14 @@ class EntriesListView(ListCreateAPIView):
     def post(self, request, *args, **kwargs):
 
         request_data = request.data
+        # We do this because we get different types based on the content type.
+        # If the content-type is form data, we get a QueryDict object
+        # If the content-type is JSON, we get a dict
+        # This forces a QueryDict
+        if type(request_data) is dict:
+            request_data = QueryDict(mutable=True)
+            request_data.update(request.data)
+
         validation_result = post_validate(request)
 
         if validation_result is True:
@@ -428,14 +437,14 @@ class EntriesListView(ListCreateAPIView):
             # we also want to make sure that tags are properly split
             # on commas, in case we get e.g. ['a', 'b' 'c,d']
             if 'tags' in request_data:
-                tags = request_data['tags']
+                tags = request_data.getlist('tags', [])
                 filtered_tags = []
                 for tag in tags:
                     if ',' in tag:
                         filtered_tags = filtered_tags + tag.split(',')
                     else:
                         filtered_tags.append(tag)
-                request_data['tags'] = filtered_tags
+                request_data.setlist('tags', filtered_tags)
 
             serializer = EntrySerializer(
                 data=request_data,
