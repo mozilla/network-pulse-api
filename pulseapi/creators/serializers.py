@@ -7,8 +7,13 @@ class CreatorSerializer(serializers.ModelSerializer):
     """
     Serializes creators
     """
-    def to_representation(self, obj):
-        return obj.creator_name
+    def to_representation(self, instance):
+        id = instance.profile.id if instance.profile else False
+        return {
+          'name': instance.creator_name,
+          'creator_id': instance.id,
+          'profile_id': id
+        }
 
     class Meta:
         """

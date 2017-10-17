@@ -18,7 +18,7 @@ class TestCreatorViews(PulseStaffTestCase):
             str(self.client.get(
                 '/api/pulse/creators/?search=A'
             ).content, 'utf-8')
-        )
+        )['results']
         db_creators = []
         for creator in self.creators:
             if creator.name and creator.name.startswith('A'):
