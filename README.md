@@ -75,8 +75,9 @@ Gets the list of all creators whose name starts with the passed search string. T
     "previous": null,
     "results": [
         {
-            "profile_id": number or false,
-            "name": "..."
+            "name": "...",
+            "creator_id": number,
+            "profile_id": number or false
         },
         ...
     ]
@@ -88,7 +89,7 @@ In this response:
 
 - `count` property represents how many hits the system knows about,
 - `next` is a URL if there are more results than fit in a single result set (set to `null` if there are no additional pages of results).
-- `results` points to an array of creator records, where each creator has a name (string data) as well as a profile_id (which is either a number if the creator has an associated profile, or `false` if the creator does not have an associated profile). By default, this array will contain 6 objects, but this number can be increased (to a maximum of 20) by adding `&page_size=...` to the query with the desired results-per-page number.
+- `results` points to an array of creator records, where each creator has a `name` (string data), a `creator_id` (integer) as well as a `profile_id` (which is either an integer if the creator has an associated profile, or `false` if the creator does not have an associated profile). By default, this array will contain 6 objects, but this number can be increased (to a maximum of 20) by adding `&page_size=...` to the query with the desired results-per-page number.
 
 ### `GET /api/pulse/issues/`
 

@@ -11,6 +11,7 @@ class CreatorSerializer(serializers.ModelSerializer):
         id = instance.profile.id if instance.profile else False
         return {
           'name': instance.creator_name,
+          'creator_id': instance.id,
           'profile_id': id
         }
 
