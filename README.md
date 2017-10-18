@@ -210,7 +210,7 @@ Get the list of all entries that have been bookmarked by the currently authentic
 
 ### `GET /api/pulse/profiles/<id=number>/` with optional `?format=json`
 
-This retrieves a single user profile with the indicated `id` as stored in the database. Any profile can be retrieved using this route even without being authenticated. The payload returned by this route also includes an array of entries published (`published_entries`) by the user owning this profile. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+This retrieves a single user profile with the indicated `id` as stored in the database. Any profile can be retrieved using this route even without being authenticated. The payload returned by this route also includes an array of entries published (`published_entries`) by the user owning this profile and an array of entries created (`created_entries`) by this profile (as defined by other users when creating entries). As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
 ### `GET /api/pulse/myprofile/` with optional `?format=json`
 
