@@ -2,6 +2,8 @@ import json
 
 from django.core.urlresolvers import reverse
 from django.db.models import Q
+from django.test.client import MULTIPART_CONTENT
+from rest_framework import status
 
 from pulseapi.creators.models import Creator, OrderedCreatorRecord
 from pulseapi.entries.models import Entry, ModerationState
@@ -10,6 +12,13 @@ from pulseapi.tests import PulseStaffTestCase, PulseMemberTestCase
 
 
 class TestEntryView(PulseStaffTestCase):
+    def test_force_json(self):
+        """
+        We should only allow JSON content-types in this view and reject others
+        """
+        response = self.client.post('/api/pulse/entries/', content_type=MULTIPART_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
     def test_get_single_entry_data(self):
         """
         Check if we can get a single entry by its `id`
@@ -628,6 +637,31 @@ class TestEntryView(PulseStaffTestCase):
             db_entry_creator_count = OrderedCreatorRecord.objects.filter(entry=entry).count()
             self.assertEqual(len(creators_with_profiles), db_entry_creator_count)
             self.assertEqual(len(related_creators), db_entry_creator_count)
+
+    def test_post_entry_related_creators(self):
+        """
+        Make sure that we can post related creators with an entry
+        """
+        creator1_id = self.creators[0].id
+        creator2_name = 'Pomax'
+        payload = self.generatePostPayload(data={
+            'title': 'title test_entries_issue',
+            'description': 'description test_entries_issue',
+            'related_creators': [{
+                'id': creator1_id
+            }, {
+                'name': creator2_name
+            }]
+        })
+
+        response = self.client.post('/api/pulse/entries/', payload)
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(str(response.content, 'utf-8'))
+        entry_id = int(content['id'])
+        related_creators = OrderedCreatorRecord.objects.filter(entry__id=entry_id)
+        self.assertEqual(len(related_creators), 2)
+        self.assertEqual(related_creators[0].creator.id, creator1_id)
+        self.assertEqual(related_creators[1].creator.name, creator2_name)
 
 
 class TestMemberEntryView(PulseMemberTestCase):
