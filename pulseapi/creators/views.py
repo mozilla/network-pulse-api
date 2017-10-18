@@ -23,13 +23,7 @@ class FilterCreatorNameBackend(filters.BaseFilterBackend):
         search_term = request.query_params.get('name', None)
 
         if not search_term:
-            # If a user does not include an actual search term, we do
-            # not want a search to occur at all: if we did, that would
-            # be an excellent opportunity to fire off empty searched
-            # and grind the server to a halt while it responded to
-            # meaningless requests.
-
-            return queryset.none()
+            return queryset
 
         own_name = Q(name__startswith=search_term)
         profile_custom = Q(profile__custom_name__startswith=search_term)
