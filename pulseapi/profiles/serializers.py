@@ -100,7 +100,7 @@ class UserProfilePublicSerializer(UserProfileSerializer):
 
     def get_created_entries(self, instance):
         entry_creator_records = OrderedCreatorRecord.objects.filter(creator__profile=instance)
-        return list(map(lambda x: EntrySerializer(x.entry).data, entry_creator_records))
+        return [EntrySerializer(x.entry).data for x in entry_creator_records]
 
     my_profile = serializers.SerializerMethodField()
 

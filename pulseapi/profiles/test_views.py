@@ -29,6 +29,6 @@ class TestProfileView(PulseMemberTestCase):
             creator__profile=self.users_with_profiles[0].id
         )
 
-        created_entries = list(map(lambda x: EntrySerializer(x.entry).data, entry_creators))
+        created_entries = [EntrySerializer(x.entry).data for x in entry_creators]
 
         self.assertEqual(entriesjson['created_entries'], created_entries)
