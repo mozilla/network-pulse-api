@@ -1,6 +1,7 @@
 import json
 
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 
 from pulseapi.creators.models import Creator, OrderedCreatorRecord
 from pulseapi.entries.models import Entry, ModerationState
@@ -194,7 +195,7 @@ class TestEntryView(PulseStaffTestCase):
     def test_post_entry_with_mixed_creators(self):
         """
         Post entry with some existing creators, some new creators
-        See if creators endpoint has proper results afterwards
+        Make sure that they are in the db.
         """
 
         creators = ['Pomax', 'Alan']
@@ -210,14 +211,14 @@ class TestEntryView(PulseStaffTestCase):
             '/api/pulse/entries/',
             data=self.generatePostPayload(data=payload)
         )
-        creator_list = json.loads(
-            str(self.client.get('/api/pulse/creators/').content, 'utf-8')
-        )['results']
-        creator_list = [c['name'] for c in creator_list]
 
-        db_creator_list = [c.creator_name for c in Creator.objects.all()]
+        query_filter = Q(name=creators[0])
+        for creator in creators:
+            query_filter = query_filter | Q(name=creator)
 
-        self.assertEqual(db_creator_list, creator_list)
+        creator_list_count = Creator.objects.filter(query_filter).count()
+
+        self.assertEqual(len(creators), creator_list_count)
 
     def test_post_entry_as_creator(self):
         """
