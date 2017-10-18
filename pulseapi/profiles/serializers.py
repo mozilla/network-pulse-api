@@ -5,6 +5,7 @@ from pulseapi.profiles.models import (
     UserProfile,
     UserBookmarks,
 )
+from pulseapi.creators.models import OrderedCreatorRecord
 from pulseapi.entries.serializers import EntrySerializer
 
 
@@ -83,6 +84,7 @@ class UserProfilePublicSerializer(UserProfileSerializer):
     Serializes a user profile for public view
     """
     name = serializers.CharField(read_only=True)
+
     published_entries = serializers.SerializerMethodField()
 
     def get_published_entries(self, instance):
@@ -93,6 +95,12 @@ class UserProfilePublicSerializer(UserProfileSerializer):
             context=self.context,
             many=True,
         ).data if user else []
+
+    created_entries = serializers.SerializerMethodField()
+
+    def get_created_entries(self, instance):
+        entry_creator_records = OrderedCreatorRecord.objects.filter(creator__profile=instance)
+        return [EntrySerializer(x.entry).data for x in entry_creator_records]
 
     my_profile = serializers.SerializerMethodField()
 
