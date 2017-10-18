@@ -27,8 +27,8 @@ class TestProfileView(PulseMemberTestCase):
         created_entries = []
         entry_creators = OrderedCreatorRecord.objects.filter(
             creator__profile=self.users_with_profiles[0].id
-            )
-        for entry_creator in entry_creators:
-            created_entries.append(EntrySerializer(entry_creator.entry).data)
+        )
+
+        created_entries = list(map(lambda x: EntrySerializer(x.entry).data, entry_creators))
 
         self.assertEqual(entriesjson['created_entries'], created_entries)
