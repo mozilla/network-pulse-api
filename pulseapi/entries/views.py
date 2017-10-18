@@ -5,13 +5,13 @@ import base64
 import django_filters
 
 from django.core.files.base import ContentFile
-# from django.http.request import QueryDict
 
 from rest_framework import filters, status
 from rest_framework.decorators import detail_route, api_view
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, ListAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework.parsers import JSONParser
 
 from pulseapi.creators.models import Creator, OrderedCreatorRecord
 from pulseapi.entries.models import Entry, ModerationState
@@ -209,11 +209,13 @@ class EntryView(RetrieveAPIView):
     queryset = Entry.objects.public()
     serializer_class = EntrySerializer
     pagination_class = None
+    parser_classes = (JSONParser,)
 
 
 class BookmarkedEntries(ListAPIView):
     pagination_class = EntriesPagination
     serializer_class = EntrySerializer
+    parser_classes = (JSONParser,)
 
     def get_queryset(self):
         user = self.request.user
@@ -280,6 +282,7 @@ class ModerationStateView(ListAPIView):
     """
     queryset = ModerationState.objects.all()
     serializer_class = ModerationStateSerializer
+    parser_classes = (JSONParser,)
 
 
 class EntriesListView(ListCreateAPIView):
@@ -322,6 +325,7 @@ class EntriesListView(ListCreateAPIView):
         'tags__name',
     )
     serializer_class = EntrySerializer
+    parser_classes = (JSONParser,)
 
     # Custom queryset handling: if the route was called as
     # /entries/?ids=1,2,3,4,... or /entries/?creators=a,b,c...
@@ -392,16 +396,7 @@ class EntriesListView(ListCreateAPIView):
     # so we intercept the POST handling a little.
     @detail_route(methods=['post'])
     def post(self, request, *args, **kwargs):
-
         request_data = request.data
-        # # We do this because we get different types based on the content type.
-        # # If the content-type is form data, we get a QueryDict object
-        # # If the content-type is JSON, we get a dict
-        # # This forces a QueryDict
-        # if type(request_data) is QueryDict:
-        #     request_data = QueryDict(mutable=True)
-        #     for key in request.data:
-        #         request_data[key] = request.data[key]
 
         validation_result = post_validate(request)
 
@@ -437,17 +432,16 @@ class EntriesListView(ListCreateAPIView):
 
             # we also want to make sure that tags are properly split
             # on commas, in case we get e.g. ['a', 'b' 'c,d']
-            if 'tags' in request.POST:
-                tags = request.POST.getlist('tags', [])
+            if 'tags' in request_data:
+                tags = request_data['tags']
                 filtered_tags = []
                 for tag in tags:
                     if ',' in tag:
                         filtered_tags = filtered_tags + tag.split(',')
                     else:
                         filtered_tags.append(tag)
-                request_data.setlist('tags', filtered_tags)
+                request_data['tags'] = filtered_tags
 
-            # print(request_data)
             serializer = EntrySerializer(
                 data=request_data,
                 context={'request': request},
