@@ -96,7 +96,7 @@ class TestEntryView(PulseStaffTestCase):
             'content_url': 'http://example.com/',
             'internal_notes': 'Some internal notes',
             'featured': True,
-            'issues': 'Decentralization',
+            'issues': ['Decentralization'],
             'creators': ['Pomax', 'Alan']
         }
         postresponse = self.client.post(
@@ -118,7 +118,7 @@ class TestEntryView(PulseStaffTestCase):
             'content_url': 'http://example.com/',
             'internal_notes': 'Some internal notes',
             'featured': True,
-            'issues': 'Decentralization',
+            'issues': ['Decentralization'],
             'creators': ['Pomax', 'Alan']
         }
         postresponse = self.client.post(
@@ -309,7 +309,7 @@ class TestEntryView(PulseStaffTestCase):
         payload = {
             'title': 'title test_entries_issue',
             'description': 'description test_entries_issue',
-            'issues': 'Decentralization',
+            'issues': ['Decentralization'],
         }
         json.loads(
             str(self.client.get('/api/pulse/nonce/').content, 'utf-8')
