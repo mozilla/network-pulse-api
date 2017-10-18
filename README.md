@@ -64,9 +64,9 @@ If a user is authenticated, all three fields will be present. If a user is not a
 
 **This data should never be cached persistently**. Do not store this in localStorage, cookies, or any other persistent data store. When the user terminates their client, or logs out, this information should immediately be lost. Also do not store this in a global namespace like `window` or `document`, or in anything that isn't protected by a closure.
 
-### `GET /api/pulse/creators/?search=...`
+### `GET /api/pulse/creators/?name=...`
 
-Gets the list of all creators whose name starts with the passed search string. This yields a response that uses the following schema:
+Gets the list of all creators whose name starts with the string passed as `name` argument. This yields a response that uses the following schema:
 
 ```
 {
