@@ -1,4 +1,5 @@
 import json
+from urllib.parse import quote
 from django.core.exceptions import ValidationError
 
 from pulseapi.creators.models import Creator
@@ -14,17 +15,20 @@ class TestCreatorViews(PulseStaffTestCase):
 
     def test_creator_filtering(self):
         """search creators, for autocomplete"""
-        creatorList = json.loads(
-            str(self.client.get(
-                '/api/pulse/creators/?search=A'
-            ).content, 'utf-8')
-        )['results']
-        db_creators = []
-        for creator in self.creators:
-            if creator.name and creator.name.startswith('A'):
-                db_creators.append(creator.creator_name)
+        last = Creator.objects.last()
+        search = last.creator_name
 
-        self.assertEqual(creatorList, db_creators)
+        url = '/api/pulse/creators/?name={search}'.format(
+            search=quote(search)
+        )
+
+        creatorList = json.loads(
+            str(self.client.get(url).content, 'utf-8')
+        )
+
+        rest_result = creatorList['results'][0]
+
+        self.assertEqual(last.id, rest_result['creator_id'])
 
 
 class TestCreatorModel(PulseStaffTestCase):
