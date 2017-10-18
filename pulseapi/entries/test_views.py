@@ -216,6 +216,7 @@ class TestEntryView(PulseStaffTestCase):
         creator_list = [c['name'] for c in creator_list]
 
         db_creator_list = [c.creator_name for c in Creator.objects.all()]
+
         self.assertEqual(db_creator_list, creator_list)
 
     def test_post_entry_as_creator(self):

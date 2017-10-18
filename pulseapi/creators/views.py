@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from rest_framework import filters
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -14,6 +16,20 @@ class CreatorsPagination(PageNumberPagination):
     page_size = 6
     page_size_query_param = 'page_size'
     max_page_size = 20
+
+
+class FilterCreatorNameBackend(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        search_term = request.query_params.get('name', None)
+
+        if not search_term:
+            return queryset
+
+        own_name = Q(name__startswith=search_term)
+        profile_custom = Q(profile__custom_name__startswith=search_term)
+        profile_name = Q(profile__related_user__name__startswith=search_term)
+
+        return queryset.filter(own_name | profile_custom | profile_name)
 
 
 class CreatorListView(ListAPIView):
@@ -33,8 +49,7 @@ class CreatorListView(ListAPIView):
 
     filter_backends = (
         filters.DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
+        FilterCreatorNameBackend,
     )
 
     search_fields = (
