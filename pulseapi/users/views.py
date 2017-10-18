@@ -86,8 +86,10 @@ def userstatus(request):
     user email. NOTE: these values should never be persistently
     cached by applications, for obvious reasons.
     """
-    name = False
+    username = False
+    customname = False
     email = False
+
     user = request.user
     loggedin = user.is_authenticated()
 
@@ -100,11 +102,13 @@ def userstatus(request):
         is_moderator = user.is_superuser
 
     if loggedin:
-        name = user.name
+        username = user.name
+        customname = user.profile.custom_name
         email = user.email
 
     return render(request, 'users/userstatus.json', {
-        'username': name,
+        'username': username,
+        'customname': customname,
         'email': email,
         'loggedin': loggedin,
         'moderator': is_moderator,
