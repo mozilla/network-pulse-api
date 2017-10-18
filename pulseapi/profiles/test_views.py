@@ -3,6 +3,8 @@ import json
 from django.core.urlresolvers import reverse
 
 from pulseapi.tests import PulseMemberTestCase
+from pulseapi.entries.serializers import EntrySerializer
+from pulseapi.creators.models import OrderedCreatorRecord
 
 
 class TestProfileView(PulseMemberTestCase):
@@ -21,4 +23,12 @@ class TestProfileView(PulseMemberTestCase):
         id = self.users_with_profiles[0].id
         response = self.client.get(reverse('profile', kwargs={'pk': id}))
         entriesjson = json.loads(str(response.content, 'utf-8'))
-        self.assertGreater(len(entriesjson['created_entries']), 0)
+
+        created_entries = []
+        entry_creators = OrderedCreatorRecord.objects.filter(
+            creator__profile=self.users_with_profiles[0].id
+            )
+        for entry_creator in entry_creators:
+            created_entries.append(EntrySerializer(entry_creator.entry).data)
+
+        self.assertEqual(entriesjson['created_entries'], created_entries)
