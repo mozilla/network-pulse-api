@@ -37,7 +37,7 @@ class TestEntryView(PulseStaffTestCase):
             'title': 'title test_post_minimum_entry',
             'content_url': 'http://example.org/content/url'
         })
-        postresponse = self.client.post('/api/pulse/entries/', payload)
+        postresponse = self.client.post('/api/pulse/entries', payload, follow=True)
 
         self.assertEqual(postresponse.status_code, 200)
 
