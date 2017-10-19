@@ -25,9 +25,9 @@ class FilterCreatorNameBackend(filters.BaseFilterBackend):
         if not search_term:
             return queryset
 
-        own_name = Q(name__startswith=search_term)
-        profile_custom = Q(profile__custom_name__startswith=search_term)
-        profile_name = Q(profile__related_user__name__startswith=search_term)
+        own_name = Q(name__istartswith=search_term)
+        profile_custom = Q(profile__custom_name__istartswith=search_term)
+        profile_name = Q(profile__related_user__name__istartswith=search_term)
 
         return queryset.filter(own_name | profile_custom | profile_name)
 
