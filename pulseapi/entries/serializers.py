@@ -2,10 +2,12 @@
 from rest_framework import serializers
 from django.utils.encoding import smart_text
 from django.core.exceptions import ObjectDoesNotExist
+
 from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.helptypes.models import HelpType
+from pulseapi.creators.models import Creator, OrderedCreatorRecord
 from pulseapi.creators.serializers import EntryOrderedCreatorSerializer
 
 
@@ -67,6 +69,8 @@ class EntrySerializer(serializers.ModelSerializer):
         required=False
     )
 
+    # QUEUED FOR DEPRECATION: Use the `related_creators` property instead.
+    # See https://github.com/mozilla/network-pulse-api/issues/241
     creators = serializers.SerializerMethodField()
 
     def get_creators(self, instance):
@@ -79,6 +83,8 @@ class EntrySerializer(serializers.ModelSerializer):
         """
         return [ocr.creator.creator_name for ocr in instance.related_creators.all()]
 
+    # QUEUED FOR DEPRECATION: Use the `related_creators` property instead.
+    # See https://github.com/mozilla/network-pulse-api/issues/241
     # Although this field has similar results to the field above (it's just
     # serialized differently), we create a new field vs. overriding the field
     # above so that we maintain backward compatibility
@@ -99,6 +105,11 @@ class EntrySerializer(serializers.ModelSerializer):
             instance.related_creators.all(),
             many=True,
         ).data
+
+    related_creators = EntryOrderedCreatorSerializer(
+        required=False,
+        many=True,
+    )
 
     # overrides 'published_by' for REST purposes
     # as we don't want to expose any user's email address
@@ -130,17 +141,40 @@ class EntrySerializer(serializers.ModelSerializer):
         Check whether the current user has bookmarked this
         Entry. Anonymous users always see False
         """
-        request = None
-        if hasattr(self.context, 'request') and self.context['request']:
-            request = self.context['request']
+        user = None
+        if 'request' in self.context and hasattr(self.context['request'], 'user'):
+            user = self.context['request'].user
 
-        if hasattr(request, 'user'):
-            user = request.user
-            if user.is_authenticated():
-                res = instance.bookmarked_by.filter(profile=user.profile)
-                return res.count() > 0
+        if user and user.is_authenticated():
+            res = instance.bookmarked_by.filter(profile=user.profile)
+            return res.count() > 0
 
         return False
+
+    def create(self, validated_data):
+        """
+        We override the create method to make sure we save related creators
+        as well and setup the relationship with the created entry.
+        """
+        related_creators = validated_data.pop('related_creators', [])
+        entry = super(EntrySerializer, self).create(validated_data)
+        profile = None
+
+        if 'request' in self.context and hasattr(self.context['request'], 'user'):
+            profile = self.context['request'].user.profile
+
+        if entry.published_by_creator:
+            self_creator, created = Creator.objects.get_or_create(profile=profile)
+            related_creators.append(self_creator)
+
+        for creator in related_creators:
+            creator.save()
+            OrderedCreatorRecord.objects.create(
+                creator=creator,
+                entry=entry,
+            )
+
+        return entry
 
     class Meta:
         """

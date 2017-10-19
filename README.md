@@ -148,7 +148,7 @@ POSTing of entries requires sending the following payload object:
   tags: optional array of strings
   issue: optional string, must match value from [GET /issues?format=json]
   help_type: optional string, must match value from [GET /helptypes?format=json]
-  creators: optional array of names of creators for the content linked to
+  related_creators: optional array of objects where each object either has a creator_id or a name. The creator_id should be the id of an existing creator.
   published_by_creator: optional boolean to indicate that this user is (one of) the content creator(s)
 }
 ```

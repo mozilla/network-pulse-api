@@ -1,6 +1,9 @@
 import json
 
 from django.core.urlresolvers import reverse
+from django.db.models import Q
+from django.test.client import MULTIPART_CONTENT
+from rest_framework import status
 
 from pulseapi.creators.models import Creator, OrderedCreatorRecord
 from pulseapi.entries.models import Entry, ModerationState
@@ -9,6 +12,13 @@ from pulseapi.tests import PulseStaffTestCase, PulseMemberTestCase
 
 
 class TestEntryView(PulseStaffTestCase):
+    def test_force_json(self):
+        """
+        We should only allow JSON content-types in this view and reject others
+        """
+        response = self.client.post('/api/pulse/entries/', content_type=MULTIPART_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
     def test_get_single_entry_data(self):
         """
         Check if we can get a single entry by its `id`
@@ -27,7 +37,7 @@ class TestEntryView(PulseStaffTestCase):
             'title': 'title test_post_minimum_entry',
             'content_url': 'http://example.org/content/url'
         })
-        postresponse = self.client.post('/api/pulse/entries/', payload)
+        postresponse = self.client.post('/api/pulse/entries', payload, follow=True)
 
         self.assertEqual(postresponse.status_code, 200)
 
@@ -95,7 +105,7 @@ class TestEntryView(PulseStaffTestCase):
             'content_url': 'http://example.com/',
             'internal_notes': 'Some internal notes',
             'featured': True,
-            'issues': 'Decentralization',
+            'issues': ['Decentralization'],
             'creators': ['Pomax', 'Alan']
         }
         postresponse = self.client.post(
@@ -117,7 +127,7 @@ class TestEntryView(PulseStaffTestCase):
             'content_url': 'http://example.com/',
             'internal_notes': 'Some internal notes',
             'featured': True,
-            'issues': 'Decentralization',
+            'issues': ['Decentralization'],
             'creators': ['Pomax', 'Alan']
         }
         postresponse = self.client.post(
@@ -194,7 +204,7 @@ class TestEntryView(PulseStaffTestCase):
     def test_post_entry_with_mixed_creators(self):
         """
         Post entry with some existing creators, some new creators
-        See if creators endpoint has proper results afterwards
+        Make sure that they are in the db.
         """
 
         creators = ['Pomax', 'Alan']
@@ -210,14 +220,14 @@ class TestEntryView(PulseStaffTestCase):
             '/api/pulse/entries/',
             data=self.generatePostPayload(data=payload)
         )
-        creator_list = json.loads(
-            str(self.client.get('/api/pulse/creators/').content, 'utf-8')
-        )['results']
-        creator_list = [c['name'] for c in creator_list]
 
-        db_creator_list = [c.creator_name for c in Creator.objects.all()]
+        query_filter = Q(name=creators[0])
+        for creator in creators:
+            query_filter = query_filter | Q(name=creator)
 
-        self.assertEqual(db_creator_list, creator_list)
+        creator_list_count = Creator.objects.filter(query_filter).count()
+
+        self.assertEqual(len(creators), creator_list_count)
 
     def test_post_entry_as_creator(self):
         """
@@ -239,7 +249,7 @@ class TestEntryView(PulseStaffTestCase):
 
         entry_from_REST = self.client.get('/api/pulse/entries/' + id, follow=True)
         data = json.loads(str(entry_from_REST.content, 'utf-8'))
-        assert(self.user.name in data['creators'])
+        self.assertIn(self.user.name, data['creators'])
 
     def test_get_entries_list(self):
         """Get /entries endpoint"""
@@ -308,7 +318,7 @@ class TestEntryView(PulseStaffTestCase):
         payload = {
             'title': 'title test_entries_issue',
             'description': 'description test_entries_issue',
-            'issues': 'Decentralization',
+            'issues': ['Decentralization'],
         }
         json.loads(
             str(self.client.get('/api/pulse/nonce/').content, 'utf-8')
@@ -620,12 +630,38 @@ class TestEntryView(PulseStaffTestCase):
             # Make sure that the property exists in the serialized entry
             self.assertIn('creators_with_profiles', serialized_entry)
             creators_with_profiles = serialized_entry['creators_with_profiles']
+            self.assertIn('related_creators', serialized_entry)
+            related_creators = serialized_entry['related_creators']
             # Make sure that the number of serialized creators matches the
             # number of creators for that entry in the db
-            self.assertEqual(
-                len(creators_with_profiles),
-                OrderedCreatorRecord.objects.filter(entry=entry).count()
-            )
+            db_entry_creator_count = OrderedCreatorRecord.objects.filter(entry=entry).count()
+            self.assertEqual(len(creators_with_profiles), db_entry_creator_count)
+            self.assertEqual(len(related_creators), db_entry_creator_count)
+
+    def test_post_entry_related_creators(self):
+        """
+        Make sure that we can post related creators with an entry
+        """
+        creator1_id = self.creators[0].id
+        creator2_name = 'Bob'
+        payload = self.generatePostPayload(data={
+            'title': 'title test_entries_issue',
+            'description': 'description test_entries_issue',
+            'related_creators': [{
+                'creator_id': creator1_id
+            }, {
+                'name': creator2_name
+            }]
+        })
+
+        response = self.client.post('/api/pulse/entries/', payload)
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(str(response.content, 'utf-8'))
+        entry_id = int(content['id'])
+        related_creators = OrderedCreatorRecord.objects.filter(entry__id=entry_id)
+        self.assertEqual(len(related_creators), 2)
+        self.assertEqual(related_creators[0].creator.id, creator1_id)
+        self.assertEqual(related_creators[1].creator.name, creator2_name)
 
 
 class TestMemberEntryView(PulseMemberTestCase):

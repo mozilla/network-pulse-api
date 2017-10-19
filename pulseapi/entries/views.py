@@ -11,6 +11,7 @@ from rest_framework.decorators import detail_route, api_view
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, ListAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework.parsers import JSONParser
 
 from pulseapi.creators.models import Creator, OrderedCreatorRecord
 from pulseapi.entries.models import Entry, ModerationState
@@ -208,11 +209,17 @@ class EntryView(RetrieveAPIView):
     queryset = Entry.objects.public()
     serializer_class = EntrySerializer
     pagination_class = None
+    parser_classes = (
+        JSONParser,
+    )
 
 
 class BookmarkedEntries(ListAPIView):
     pagination_class = EntriesPagination
     serializer_class = EntrySerializer
+    parser_classes = (
+        JSONParser,
+    )
 
     def get_queryset(self):
         user = self.request.user
@@ -279,6 +286,9 @@ class ModerationStateView(ListAPIView):
     """
     queryset = ModerationState.objects.all()
     serializer_class = ModerationStateSerializer
+    parser_classes = (
+        JSONParser,
+    )
 
 
 class EntriesListView(ListCreateAPIView):
@@ -321,6 +331,9 @@ class EntriesListView(ListCreateAPIView):
         'tags__name',
     )
     serializer_class = EntrySerializer
+    parser_classes = (
+        JSONParser,
+    )
 
     # Custom queryset handling: if the route was called as
     # /entries/?ids=1,2,3,4,... or /entries/?creators=a,b,c...
@@ -391,8 +404,8 @@ class EntriesListView(ListCreateAPIView):
     # so we intercept the POST handling a little.
     @detail_route(methods=['post'])
     def post(self, request, *args, **kwargs):
-
         request_data = request.data
+
         validation_result = post_validate(request)
 
         if validation_result is True:
@@ -428,16 +441,19 @@ class EntriesListView(ListCreateAPIView):
             # we also want to make sure that tags are properly split
             # on commas, in case we get e.g. ['a', 'b' 'c,d']
             if 'tags' in request_data:
-                tags = request.POST.getlist('tags')
+                tags = request_data['tags']
                 filtered_tags = []
                 for tag in tags:
                     if ',' in tag:
                         filtered_tags = filtered_tags + tag.split(',')
                     else:
                         filtered_tags.append(tag)
-                request_data.setlist('tags', list(set(filtered_tags)))
+                request_data['tags'] = filtered_tags
 
-            serializer = EntrySerializer(data=request_data)
+            serializer = EntrySerializer(
+                data=request_data,
+                context={'request': request},
+            )
             if serializer.is_valid():
                 user = request.user
                 # ensure that the published_by is always the user doing
@@ -460,10 +476,8 @@ class EntriesListView(ListCreateAPIView):
                     moderation_state=moderation_state
                 )
 
-                # create entry/creator intermediaries
-                if saved_entry.published_by_creator:
-                    creator_data.append(user.name)
-
+                # QUEUED FOR DEPRECATION: Use the `related_creators` property instead.
+                # See https://github.com/mozilla/network-pulse-api/issues/241
                 if len(creator_data) > 0:
                     for creator_name in creator_data:
                         (creator, _) = Creator.objects.get_or_create(name=creator_name)
@@ -482,6 +496,6 @@ class EntriesListView(ListCreateAPIView):
 
         else:
             return Response(
-                "post validation failed",
+                "post validation failed - {}".format(validation_result),
                 status=status.HTTP_400_BAD_REQUEST
             )

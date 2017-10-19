@@ -19,6 +19,9 @@ from pulseapi.utility.userpermissions import (
 )
 
 
+CONTENT_TYPE_JSON = 'application/json'
+
+
 def setup_groups():
     staff, created = Group.objects.get_or_create(name='staff')
     content_type = ContentType.objects.get_for_model(Entry)
@@ -60,7 +63,8 @@ def setup_entries(test, creator_users):
         creators = [CreatorFactory()]
         if creator_users and len(creator_users) > i:
             # If we were passed in users, create a creator attached to a user profile
-            creators.append(CreatorFactory(profile=creator_users[i].profile))
+            for user in creator_users:
+                creators.append(user.profile.related_creator)
         for creator in creators:
             creator.save()
             # Connect the creator with the entry
@@ -82,6 +86,23 @@ def setup_users_with_profiles(test):
     test.users_with_profiles = users
 
 
+class JSONDefaultClient(Client):
+    """
+    Same as a regular test client except the default content type is 'application/json'
+    for the post method instead of 'multipart/form-data'
+    """
+    def post(self, path, data=None, content_type=CONTENT_TYPE_JSON,
+             follow=False, secure=False, **extra):
+        return super(JSONDefaultClient, self).post(
+            path,
+            data=data,
+            content_type=content_type,
+            follow=follow,
+            secure=secure,
+            **extra
+        )
+
+
 def create_logged_in_user(test, name, email, password="password1234"):
     test.name = name
 
@@ -97,7 +118,7 @@ def create_logged_in_user(test, name, email, password="password1234"):
 
     # log this user in for further testing purposes
     test.user = user
-    test.client = Client()
+    test.client = JSONDefaultClient()
     test.client.force_login(user)
 
 
@@ -122,7 +143,7 @@ def generate_payload(test, data={}, payload=False):
     for key in data:
         payload[key] = data[key]
 
-    return payload
+    return json.dumps(payload)
 
 
 def boostrap(test, name, email):
