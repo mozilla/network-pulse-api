@@ -643,12 +643,12 @@ class TestEntryView(PulseStaffTestCase):
         Make sure that we can post related creators with an entry
         """
         creator1_id = self.creators[0].id
-        creator2_name = 'Pomax'
+        creator2_name = 'Bob'
         payload = self.generatePostPayload(data={
             'title': 'title test_entries_issue',
             'description': 'description test_entries_issue',
             'related_creators': [{
-                'id': creator1_id
+                'creator_id': creator1_id
             }, {
                 'name': creator2_name
             }]

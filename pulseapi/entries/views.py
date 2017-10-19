@@ -209,13 +209,17 @@ class EntryView(RetrieveAPIView):
     queryset = Entry.objects.public()
     serializer_class = EntrySerializer
     pagination_class = None
-    parser_classes = (JSONParser,)
+    parser_classes = (
+        JSONParser,
+    )
 
 
 class BookmarkedEntries(ListAPIView):
     pagination_class = EntriesPagination
     serializer_class = EntrySerializer
-    parser_classes = (JSONParser,)
+    parser_classes = (
+        JSONParser,
+    )
 
     def get_queryset(self):
         user = self.request.user
@@ -282,7 +286,9 @@ class ModerationStateView(ListAPIView):
     """
     queryset = ModerationState.objects.all()
     serializer_class = ModerationStateSerializer
-    parser_classes = (JSONParser,)
+    parser_classes = (
+        JSONParser,
+    )
 
 
 class EntriesListView(ListCreateAPIView):
@@ -325,7 +331,9 @@ class EntriesListView(ListCreateAPIView):
         'tags__name',
     )
     serializer_class = EntrySerializer
-    parser_classes = (JSONParser,)
+    parser_classes = (
+        JSONParser,
+    )
 
     # Custom queryset handling: if the route was called as
     # /entries/?ids=1,2,3,4,... or /entries/?creators=a,b,c...
@@ -469,6 +477,7 @@ class EntriesListView(ListCreateAPIView):
                 )
 
                 # QUEUED FOR DEPRECATION: Use the `related_creators` property instead.
+                # See https://github.com/mozilla/network-pulse-api/issues/241
                 if len(creator_data) > 0:
                     for creator_name in creator_data:
                         (creator, _) = Creator.objects.get_or_create(name=creator_name)

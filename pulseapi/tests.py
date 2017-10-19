@@ -97,6 +97,7 @@ class JSONDefaultClient(Client):
             path,
             data=data,
             content_type=content_type,
+            follow=follow,
             secure=secure,
             **extra
         )

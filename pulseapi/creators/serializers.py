@@ -42,7 +42,7 @@ class EntryOrderedCreatorSerializer(serializers.ModelSerializer):
         creator = instance.creator
 
         return {
-            'id': creator.id,
+            'creator_id': creator.id,
             'profile_id': creator.profile.id if creator.profile else None,
             'name': creator.creator_name
         }
@@ -57,21 +57,21 @@ class EntryOrderedCreatorSerializer(serializers.ModelSerializer):
         fails elsewhere (for e.g. in the `create` method). The `create`/`update`
         methods are responsible for saving this object to the database.
         """
-        has_id = 'id' in data and data['id']
+        has_creator_id = 'creator_id' in data and data['creator_id']
         has_name = 'name' in data and data['name']
 
-        if not has_id and not has_name:
+        if not has_creator_id and not has_name:
             raise ValidationError(
-                detail=_('An id or a name must be provided.'),
+                detail=_('A creator id or a name must be provided.'),
                 code='missing data',
             )
 
-        if has_id:
+        if has_creator_id:
             try:
-                return Creator.objects.get(id=data['id'])
+                return Creator.objects.get(id=data['creator_id'])
             except ObjectDoesNotExist:
                 raise ValidationError(
-                    detail=_('No creator exists for the given id.'),
+                    detail=_('No creator exists for the given id {id}.'.format(id=data['creator_id'])),
                     code='invalid',
                 )
 

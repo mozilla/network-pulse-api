@@ -70,6 +70,7 @@ class EntrySerializer(serializers.ModelSerializer):
     )
 
     # QUEUED FOR DEPRECATION: Use the `related_creators` property instead.
+    # See https://github.com/mozilla/network-pulse-api/issues/241
     creators = serializers.SerializerMethodField()
 
     def get_creators(self, instance):
@@ -83,6 +84,7 @@ class EntrySerializer(serializers.ModelSerializer):
         return [ocr.creator.creator_name for ocr in instance.related_creators.all()]
 
     # QUEUED FOR DEPRECATION: Use the `related_creators` property instead.
+    # See https://github.com/mozilla/network-pulse-api/issues/241
     # Although this field has similar results to the field above (it's just
     # serialized differently), we create a new field vs. overriding the field
     # above so that we maintain backward compatibility
