@@ -165,7 +165,8 @@ class EntrySerializer(serializers.ModelSerializer):
 
         if entry.published_by_creator:
             self_creator, created = Creator.objects.get_or_create(profile=profile)
-            related_creators.append(self_creator)
+            if self_creator not in related_creators:
+                related_creators.append(self_creator)
 
         for creator in related_creators:
             creator.save()
