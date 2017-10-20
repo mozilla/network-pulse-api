@@ -663,6 +663,30 @@ class TestEntryView(PulseStaffTestCase):
         self.assertEqual(related_creators[0].creator.id, creator1_id)
         self.assertEqual(related_creators[1].creator.name, creator2_name)
 
+    def test_post_entry_published_by_creator_dupe_related_creator(self):
+        """
+        Make sure that if we set the "published_by_creator" flag to true
+        while posting an entry and also provide the same creator in the
+        "related_creators" property, we only add it to the db once.
+        """
+        creator = self.user.profile.related_creator
+        payload = self.generatePostPayload(data={
+            'title': 'title test_post_entry_published_by_creator_dupe_related_creator',
+            'description': 'description test_post_entry_published_by_creator_dupe_related_creator',
+            'related_creators': [{
+                'creator_id': creator.id
+            }],
+            'published_by_creator': True
+        })
+
+        response = self.client.post('/api/pulse/entries/', payload)
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(str(response.content, 'utf-8'))
+        entry_id = int(content['id'])
+        related_creators = OrderedCreatorRecord.objects.filter(entry__id=entry_id)
+        self.assertEqual(len(related_creators), 1)
+        self.assertEqual(related_creators[0].creator.id, creator.id)
+
 
 class TestMemberEntryView(PulseMemberTestCase):
     def test_approval_requirement(self):
