@@ -37,7 +37,7 @@ class FilterCreatorNameBackend(filters.BaseFilterBackend):
         # rather than using the `startswith` rule.
         page_size_query = request.query_params.get('page_size', None)
         page_size = int(page_size_query if page_size_query else CreatorsPagination.page_size)
-        flen = len(filtered)
+        flen = len(qs)
 
         if flen < page_size:
             own_name = Q(name__icontains=search_term)
