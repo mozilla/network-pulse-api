@@ -249,7 +249,7 @@ class TestEntryView(PulseStaffTestCase):
 
         entry_from_REST = self.client.get('/api/pulse/entries/' + id, follow=True)
         data = json.loads(str(entry_from_REST.content, 'utf-8'))
-        self.assertIn(self.user.name, data['creators'])
+        self.assertEquals(self.user.name, data['related_creators'][0]['name'])
 
     def test_get_entries_list(self):
         """Get /entries endpoint"""
@@ -627,15 +627,11 @@ class TestEntryView(PulseStaffTestCase):
         for i in range(len(serialized_entries)):
             entry = entries[i]
             serialized_entry = dict(serialized_entries[i])
-            # Make sure that the property exists in the serialized entry
-            self.assertIn('creators_with_profiles', serialized_entry)
-            creators_with_profiles = serialized_entry['creators_with_profiles']
             self.assertIn('related_creators', serialized_entry)
             related_creators = serialized_entry['related_creators']
             # Make sure that the number of serialized creators matches the
             # number of creators for that entry in the db
             db_entry_creator_count = OrderedCreatorRecord.objects.filter(entry=entry).count()
-            self.assertEqual(len(creators_with_profiles), db_entry_creator_count)
             self.assertEqual(len(related_creators), db_entry_creator_count)
 
     def test_post_entry_related_creators(self):

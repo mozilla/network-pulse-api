@@ -69,43 +69,6 @@ class EntrySerializer(serializers.ModelSerializer):
         required=False
     )
 
-    # QUEUED FOR DEPRECATION: Use the `related_creators` property instead.
-    # See https://github.com/mozilla/network-pulse-api/issues/241
-    creators = serializers.SerializerMethodField()
-
-    def get_creators(self, instance):
-        """
-        Get the list of creators for this entry, which will
-        be ordered based on list position at the time the
-        entry got posted to Pulse
-
-        (see creators.models.OrderedCreatorRecord Meta class)
-        """
-        return [ocr.creator.creator_name for ocr in instance.related_creators.all()]
-
-    # QUEUED FOR DEPRECATION: Use the `related_creators` property instead.
-    # See https://github.com/mozilla/network-pulse-api/issues/241
-    # Although this field has similar results to the field above (it's just
-    # serialized differently), we create a new field vs. overriding the field
-    # above so that we maintain backward compatibility
-    creators_with_profiles = serializers.SerializerMethodField()
-
-    def get_creators_with_profiles(self, instance):
-        """
-        Get the list of ordered creators with their associated profile info,
-        if any, for this entry. Each creator is serialized as:
-        {
-            "profile_id": <the profile id associated with the creator or null
-            if there isn't a profile associated with it>,
-            "name": <the name of the creator; uses the profile's name if there
-            is a profile>
-        }
-        """
-        return EntryOrderedCreatorSerializer(
-            instance.related_creators.all(),
-            many=True,
-        ).data
-
     related_creators = EntryOrderedCreatorSerializer(
         required=False,
         many=True,
