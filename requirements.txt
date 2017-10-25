@@ -19,6 +19,7 @@ google-api-python-client==1.5.5
 httplib2==0.9.2
 humanize==0.5.1
 jmespath==0.9.1
+newrelic==2.96.0.80
 oauth2client==4.0.0
 oauthlib==2.0.0
 olefile==0.44
