@@ -233,10 +233,11 @@ if CACHE_ENABLED:
         },
     }
 
-    RQ_QUEUES = {
-        'default': {
-            'USE_REDIS_CACHE': 'default',
-        },
-    }
 
     CACHEBACK_TASK_QUEUE = 'rq'
+
+RQ_QUEUES = {
+    'default': {
+        'USE_REDIS_CACHE': 'default',
+    },
+}
