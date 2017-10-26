@@ -12,22 +12,21 @@ from django.utils.html import format_html
 
 if settings.CACHE_ENABLED:
     from cacheback.jobs import QuerySetFilterJob, QuerySetGetJob
-    cache_lifetime = settings.CACHE_LIFETIME 
+    cache_lifetime = settings.CACHE_LIFETIME
+
 
 def cache_queryset_filter(model, **kwargs):
     if settings.CACHE_ENABLED:
-        print("asdf")
         return QuerySetFilterJob(model, lifetime=cache_lifetime).get(**kwargs)
-    else: 
+    else:
         return model.get(**kwargs)
 
 
 def cache_queryset_get(model, **kwargs):
     if settings.CACHE_ENABLED:
         return QuerySetGetJob(model, lifetime=cache_lifetime).get(**kwargs)
-    else: 
+    else:
         return model.filter(**kwargs)
-
 
 
 def entry_thumbnail_path(instance, filename):
