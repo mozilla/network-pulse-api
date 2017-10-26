@@ -10,6 +10,25 @@ from pulseapi.users.models import EmailUser
 from django.utils import timezone
 from django.utils.html import format_html
 
+if settings.CACHE_ENABLED:
+    from cacheback.jobs import QuerySetFilterJob, QuerySetGetJob
+    cache_lifetime = settings.CACHE_LIFETIME 
+
+def cache_queryset_filter(model, **kwargs):
+    if settings.CACHE_ENABLED:
+        print("asdf")
+        return QuerySetFilterJob(model, lifetime=cache_lifetime).get(**kwargs)
+    else: 
+        return model.get(**kwargs)
+
+
+def cache_queryset_get(model, **kwargs):
+    if settings.CACHE_ENABLED:
+        return QuerySetGetJob(model, lifetime=cache_lifetime).get(**kwargs)
+    else: 
+        return model.filter(**kwargs)
+
+
 
 def entry_thumbnail_path(instance, filename):
     return 'images/entries/{timestamp}{ext}'.format(
@@ -55,9 +74,10 @@ class EntryQuerySet(models.query.QuerySet):
             # during migrations, Entry can exist prior to ModerationState
             # and so if its query set is checked, it'll crash out due
             # to the absence of the associated ModerationState table.
-            approved = ModerationState.objects.get(name='Approved')
-            return self.filter(moderation_state=approved)
-        except:
+            approved = cache_queryset_get(ModerationState, name='Approved')
+            return cache_queryset_filter(Entry, moderation_state=approved)
+        except Exception as e:
+            print(e)
             print("could not make use of ModerationState!")
             return self.all()
 

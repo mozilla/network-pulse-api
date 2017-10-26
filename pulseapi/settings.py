@@ -22,6 +22,9 @@ root = app - 1
 
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 env = environ.Env(
+    CACHE_ENABLED=(bool, False),
+    CACHE_LIFETIME=(int, 60),
+    REDIS_URL=str,
     DEBUG=(bool, False),
     USE_S3=(bool, False),
     SSL_PROTECTION=(bool, False),
@@ -50,10 +53,15 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 31
 SECRET_KEY = 'Oh my god I love cake so much holy shit how amazing is cake; like, seriously?'
 
+CACHE_ENABLED = env('CACHE_ENABLED')
+
 # Application definition
 SITE_ID = 1
 
-INSTALLED_APPS = [
+INSTALLED_APPS = list(filter(None, [
+    'django_rq' if CACHE_ENABLED else None,
+    'cacheback' if CACHE_ENABLED else None,
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -61,9 +69,11 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'corsheaders',
     'rest_framework',
     'storages',
+    
     'pulseapi.entries',
     'pulseapi.tags',
     'pulseapi.issues',
@@ -71,7 +81,7 @@ INSTALLED_APPS = [
     'pulseapi.users',
     'pulseapi.profiles',
     'pulseapi.creators',
-]
+]))
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -209,3 +219,24 @@ else:
     # Otherwise use the default filesystem storage
     MEDIA_ROOT = root('media/')
     MEDIA_URL = '/media/'
+
+# Django RQ
+if CACHE_ENABLED:
+    CACHE_LIFETIME = env('CACHE_LIFETIME')
+    CACHES = {
+        'default': {
+            "BACKEND": "django_redis.cache.RedisCache",
+            'LOCATION': env('REDIS_URL'),
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            }
+        },
+    }
+
+    RQ_QUEUES = {
+        'default': {
+            'USE_REDIS_CACHE': 'default',
+        },
+    }
+
+    CACHEBACK_TASK_QUEUE = 'rq'

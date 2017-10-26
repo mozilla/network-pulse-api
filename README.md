@@ -363,3 +363,9 @@ To migrate data, export JSON from the Google Sheets db, and save it in the root 
 In `public/migrate.html`, update the endpoint to be the address of the one you're trying to migrate data into. If it's a local db, leave as is.
 Spin up a server from the `public` folder on port 8080. Log in to your API using Oauth (either the hosted site or `test.example.com:8000` if doing this locally)
 Visit `http://test.example.com:8080/migrate.html`, paste the contents of `massagedData.json`, and submit. It will process the entire array of entries one at a time, POSTing them to the server. Check your developer console and network requests if it doesn't complete after a minute or two.
+
+## Caching
+
+The entries list can be cached to improve request performance. Caching requires a Redis server, and a django-rq worker to be running. 
+
+First, define `REDIS_URL` as the connection string to your Redis server. The worker can be started using the following command `python manage.py rqworker default`. This worker will refresh caches asyncronously. Set `CACHES_ENABLED` to `True` in order to enable request caching on the Django app. By default, the entries list is cached for 60 seconds, but it can be overridden with `CACHE_LIFETIME`.
