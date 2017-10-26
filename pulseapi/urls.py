@@ -20,7 +20,7 @@ from django.conf.urls.static import static
 
 from pulseapi.profiles.views import UserProfileAPIView
 
-urlpatterns = [
+urlpatterns = list(filter(None, [
     # admin patterns
     url(r'^admin/', admin.site.urls),
 
@@ -36,6 +36,8 @@ urlpatterns = [
     url(r'^api/pulse/helptypes/', include('pulseapi.helptypes.urls')),
     url(r'^api/pulse/creators/', include('pulseapi.creators.urls')),
 
+    url(r'^django-rq/', include('django_rq.urls')) if settings.DEBUG else None,
+
     # We provide an alternative route on the main `/api/pulse` route to allow
     # getting and editing a user's profile for the currently authenticated user
     url(
@@ -43,7 +45,7 @@ urlpatterns = [
         UserProfileAPIView.as_view(),
         name='myprofile'
     )
-]
+]))
 
 if settings.USE_S3 is not True:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
