@@ -19,7 +19,7 @@ def cache_queryset_filter(model, **kwargs):
     if settings.CACHE_ENABLED:
         return QuerySetFilterJob(model, lifetime=cache_lifetime).get(**kwargs)
     else:
-        return model.filter(**kwargs)
+        return model.objects.filter(**kwargs)
 
 
 def cache_queryset_get(model, **kwargs):
