@@ -75,8 +75,7 @@ class EntryQuerySet(models.query.QuerySet):
             # to the absence of the associated ModerationState table.
             approved = cache_queryset_get(ModerationState, name='Approved')
             return cache_queryset_filter(Entry, moderation_state=approved)
-        except Exception as e:
-            print(e)
+        except:
             print("could not make use of ModerationState!")
             return self.all()
 
