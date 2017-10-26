@@ -233,7 +233,6 @@ if CACHE_ENABLED:
         },
     }
 
-
     CACHEBACK_TASK_QUEUE = 'rq'
 
 RQ_QUEUES = {

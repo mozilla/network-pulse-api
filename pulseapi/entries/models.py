@@ -19,14 +19,14 @@ def cache_queryset_filter(model, **kwargs):
     if settings.CACHE_ENABLED:
         return QuerySetFilterJob(model, lifetime=cache_lifetime).get(**kwargs)
     else:
-        return model.get(**kwargs)
+        return model.filter(**kwargs)
 
 
 def cache_queryset_get(model, **kwargs):
     if settings.CACHE_ENABLED:
         return QuerySetGetJob(model, lifetime=cache_lifetime).get(**kwargs)
     else:
-        return model.filter(**kwargs)
+        return model.objects.get(**kwargs)
 
 
 def entry_thumbnail_path(instance, filename):
@@ -75,7 +75,8 @@ class EntryQuerySet(models.query.QuerySet):
             # to the absence of the associated ModerationState table.
             approved = cache_queryset_get(ModerationState, name='Approved')
             return cache_queryset_filter(Entry, moderation_state=approved)
-        except:
+        except Exception as e:
+            print(e)
             print("could not make use of ModerationState!")
             return self.all()
 
