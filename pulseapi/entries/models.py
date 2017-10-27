@@ -63,9 +63,10 @@ class EntryQuerySet(models.query.QuerySet):
                     'issues',
                     'help_types',
                     'published_by',
+                    'bookmarked_by',
                     'published_by__profile',
                     'moderation_state',
-                    'related_creators'
+                    'related_creators',
                 )
 
         except:
