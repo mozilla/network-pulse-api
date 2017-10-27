@@ -3,6 +3,7 @@ import os
 
 from django.conf import settings
 from django.db import models
+from django.db.models import Prefetch
 from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.helptypes.models import HelpType
@@ -59,18 +60,15 @@ class EntryQuerySet(models.query.QuerySet):
             return self.filter(
                     moderation_state=approved
                 ).prefetch_related(
-                    'tags'
-                ).prefetch_related(
-                    'issues'
-                ).prefetch_related(
-                    'help_types'
-                ).select_related(
-                    'published_by'
-                ).select_related(
-                    'moderation_state'
+                    'tags',
+                    'issues',
+                    'help_types',
+                    'published_by',
+                    'published_by__profile',
+                    'moderation_state',
+                    'related_creators'
                 )
 
-            # return self.filter(moderation_state=approved)
         except:
             print("could not make use of ModerationState!")
             return self.all()
