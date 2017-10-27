@@ -56,7 +56,19 @@ class EntryQuerySet(models.query.QuerySet):
             # and so if its query set is checked, it'll crash out due
             # to the absence of the associated ModerationState table.
             approved = ModerationState.objects.get(name='Approved')
-            return self.filter(moderation_state=approved)
+            return self.filter(
+                    moderation_state=approved
+                ).prefetch_related(
+                    'tags',
+                    'issues',
+                    'help_types',
+                    'published_by',
+                    'bookmarked_by',
+                    'published_by__profile',
+                    'moderation_state',
+                    'related_creators',
+                )
+
         except:
             print("could not make use of ModerationState!")
             return self.all()
