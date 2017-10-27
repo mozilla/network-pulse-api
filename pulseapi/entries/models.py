@@ -3,7 +3,6 @@ import os
 
 from django.conf import settings
 from django.db import models
-from django.db.models import Prefetch
 from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.helptypes.models import HelpType
