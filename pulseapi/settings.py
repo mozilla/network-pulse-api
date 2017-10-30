@@ -25,6 +25,8 @@ env = environ.Env(
     DEBUG=(bool, False),
     USE_S3=(bool, False),
     SSL_PROTECTION=(bool, False),
+    CORS_REGEX_WHITELIST=(tuple, ()),
+    CORS_WHITELIST=(tuple, ()),
 )
 SSL_PROTECTION = env('SSL_PROTECTION')
 
@@ -165,18 +167,19 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 #
 
 # we want to restrict API calls to domains we know
-CORS_ORIGIN_ALLOW_ALL = False
+if '*' in env('CORS_WHITELIST'):
+    CORS_ORIGIN_ALLOW_ALL = True
+else:
+    # and we want origin whitelisting
+    CORS_ORIGIN_WHITELIST = os.getenv(
+        'CORS_ORIGIN_WHITELIST',
+        'localhost:3000,localhost:8000,localhost:8080,test.example.com:8000,test.example.com:3000'
+    ).split(',')
+    CORS_ORIGIN_REGEX_WHITELIST = env('CORS_REGEX_WHITELIST')
 
 # we also want cookie data, because we use CSRF tokens
 CORS_ALLOW_CREDENTIALS = True
 
-# and we want origin whitelisting
-CORS_ORIGIN_WHITELIST = os.getenv(
-    'CORS_ORIGIN_WHITELIST',
-    'localhost:3000,localhost:8000,localhost:8080,test.example.com:8000,test.example.com:3000'
-).split(',')
-
-CORS_ORIGIN_REGEX_WHITELIST = []
 CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
 CSRF_COOKIE_HTTPONLY = env('CSRF_COOKIE_HTTPONLY', default=SSL_PROTECTION)
 CSRF_COOKIE_SECURE = env('CSRF_COOKIE_SECURE', default=SSL_PROTECTION)
