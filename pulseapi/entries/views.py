@@ -329,7 +329,7 @@ class EntriesListView(ListCreateAPIView):
         'get_involved',
         'interest',
         'related_creators__creator__name',
-        'published_by__nam'e,
+        'published_by__name',
         'tags__name',
     )
     serializer_class = EntrySerializer
