@@ -10,6 +10,7 @@ This is the REST API server for the Mozilla Network Pulse project.
 - [Using a localhost rebinding to a "real" domain](#important-using-a-localhost-rebinding-to-a-real-domain)
 - [Environment variables](#environment-variables)
 - [Deploying to Heroku](#deploying-to-heroku)
+- [Debugging all the things](#debugging-all-the-things)
 - [Migrating data](#migrating-data)
 
 ## Resetting your database because of incompatible model changes
@@ -347,6 +348,11 @@ The following environment variables are used in this codebase
 ## Deploying to Heroku
 
 While for local development we provide a `sample.env` that you can use as default environment variables, for Heroku deployment all the above-stated variables need to be real things. **Make sure to add these to the Heroku config!**
+
+
+## Debugging all the things
+
+You may have noticed that when running with `DEBUG=TRUE`, there is a debugger toolbar to the right of any page you try to access. This is the [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/stable/), and that link will take you straight to the documentation for it on how to get the most out of it while trying to figure out what's going on when problems arise. 
 
 
 ## Resetting your database because of incompatible model changes
