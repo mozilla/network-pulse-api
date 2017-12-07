@@ -54,7 +54,7 @@ SECRET_KEY = 'Oh my god I love cake so much holy shit how amazing is cake; like,
 # Application definition
 SITE_ID = 1
 
-INSTALLED_APPS = [
+INSTALLED_APPS = list(filter(None, [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -72,11 +72,11 @@ INSTALLED_APPS = [
     'pulseapi.users',
     'pulseapi.profiles',
     'pulseapi.creators',
+    # see INTERNAL_IPS for when this actually activates when DEBUG is set:
+    'debug_toolbar' if DEBUG is True else None,
+]))
 
-    'debug_toolbar',
-]
-
-MIDDLEWARE = [
+MIDDLEWARE = list(filter(None, [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -86,10 +86,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # see INTERNAL_IPS for when this actually activates when DEBUG is set:
+    'debug_toolbar.middleware.DebugToolbarMiddleware' if DEBUG is True else None,
+]))
 
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-]
-
+# Whitelisting for the debug toolbar: it will not kick in except for when
+# accessed through the following domains ("IP" is a white lie, here).
 INTERNAL_IPS = [
     'localhost',
     '127.0.0.1',
