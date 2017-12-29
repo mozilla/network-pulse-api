@@ -476,16 +476,6 @@ class EntriesListView(ListCreateAPIView):
                     moderation_state=moderation_state
                 )
 
-                # QUEUED FOR DEPRECATION: Use the `related_creators` property instead.
-                # See https://github.com/mozilla/network-pulse-api/issues/241
-                if len(creator_data) > 0:
-                    for creator_name in creator_data:
-                        (creator, _) = Creator.objects.get_or_create(name=creator_name)
-
-                        OrderedCreatorRecord.objects.create(
-                            entry=saved_entry,
-                            creator=creator
-                        )
 
                 return Response({'status': 'submitted', 'id': saved_entry.id})
             else:
