@@ -13,7 +13,6 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 
-from pulseapi.creators.models import Creator, OrderedCreatorRecord
 from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.entries.serializers import EntrySerializer, ModerationStateSerializer
 from pulseapi.profiles.models import UserBookmarks
@@ -434,10 +433,6 @@ class EntriesListView(ListCreateAPIView):
             except:
                 pass
 
-            # we need to split out creators, because it's a many-to-many
-            # relation with a Through class, so that needs manual labour:
-            creator_data = request_data.pop('creators', [])
-
             # we also want to make sure that tags are properly split
             # on commas, in case we get e.g. ['a', 'b' 'c,d']
             if 'tags' in request_data:
@@ -475,8 +470,6 @@ class EntriesListView(ListCreateAPIView):
                     featured=False,
                     moderation_state=moderation_state
                 )
-
-
                 return Response({'status': 'submitted', 'id': saved_entry.id})
             else:
                 return Response(
