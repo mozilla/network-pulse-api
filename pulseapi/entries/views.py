@@ -254,7 +254,7 @@ class BookmarkedEntries(ListAPIView):
                 # find the entry for this id
                 try:
                     entry = Entry.objects.get(id=id)
-                except:
+                except entry.DoesNotExist:
                     return
 
                 # find out if there is already a {user,entry,(timestamp)} triple
@@ -430,7 +430,7 @@ class EntriesListView(ListCreateAPIView):
                     encdata = thumbnail['base64']
                     proxy = ContentFile(base64.b64decode(encdata), name=name)
                     request_data['thumbnail'] = proxy
-            except:
+            except thumbnail.DoesNotExist:
                 pass
 
             # we also want to make sure that tags are properly split
