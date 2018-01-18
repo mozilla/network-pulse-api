@@ -12,8 +12,7 @@ This is the REST API server for the Mozilla Network Pulse project.
 - [Deploying to Heroku](#deploying-to-heroku)
 - [Debugging all the things](#debugging-all-the-things)
 - [Migrating data](#migrating-data)
-
-## Resetting your database because of incompatible model changes
+- [Resetting your database because of incompatible model changes](#resetting-your-database-because-of-incompatible-model-changes)
 
 ## Current API end points
 
