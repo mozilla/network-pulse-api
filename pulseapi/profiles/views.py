@@ -13,6 +13,14 @@ from pulseapi.profiles.serializers import (
 )
 
 
+# utility function for removing keyed values, with key, from a dict
+def removeKey(container, property):
+    try:
+        del(container, property)
+    except:
+        pass
+
+
 class IsProfileOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return obj.user == request.user
@@ -52,15 +60,47 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
         much mutually exclusive patterns. A try/pass make far more sense.
         '''
 
+        payload = request.data
+
         try:
-            thumbnail = request.data['thumbnail']
+            thumbnail = payload['thumbnail']
             # do we actually need to repack as ContentFile?
             if thumbnail['name'] and thumbnail['base64']:
                 name = thumbnail['name']
                 encdata = thumbnail['base64']
                 proxy = ContentFile(base64.b64decode(encdata), name=name)
-                request.data['thumbnail'] = proxy
+                payload['thumbnail'] = proxy
         except:
+            pass
+
+        '''
+        Is there an 'enable_extended_information' property? If so,
+        this is something that may only be toggled by admins and
+        cannot be toggled through general profile updates
+        '''
+
+        removeKey(payload, 'enable_extended_information')
+
+        '''
+        Do a prefetch on the profile to update. Is the
+        'enable_extended_information' property set to False?
+        In that case, remove any xtended properties from the
+        request payload.
+        '''
+
+        try:
+            user = self.request.user
+            profile = UserProfile.objects.get(related_user=user)
+
+            if profile.enable_extended_information is False:
+                removeKey(payload, 'user_bio_long')
+                removeKey(payload, 'program_type')
+                removeKey(payload, 'program_year')
+                removeKey(payload, 'affiliation')
+
+        except:
+            # This user has no associated profile, which should
+            # be impossible, but let's catch for it, anyway.
             pass
 
         return super(UserProfileAPIView, self).put(request, *args, **kwargs)
