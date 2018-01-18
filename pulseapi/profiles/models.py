@@ -74,12 +74,6 @@ class UserProfile(models.Model):
         default=False
     )
 
-    # A tweet-style user bio
-    user_bio = models.CharField(
-        max_length=140,
-        blank=True
-    )
-
     # "user X bookmarked entry Y" is a many to many relation,
     # for which we also want to know *when* a user bookmarked
     # a specific entry. As such, we use a helper class that
@@ -204,6 +198,90 @@ class UserProfile(models.Model):
 
     website = models.URLField(
         max_length=2048,
+        blank=True
+    )
+
+
+    # --- extended information ---
+
+    enable_extended_information = models.BooleanField(
+        default=False
+    )
+
+    # currently not captured as Program class,
+    # instead captured as type+year
+
+    PROGRAM_NONE = "None"
+    PROGRAM_MOZFELLOW = "Mozilla Fellow"
+
+    PROGRAM_TYPES = (
+        (PROGRAM_NONE,PROGRAM_NONE),
+        (PROGRAM_MOZFELLOW,PROGRAM_MOZFELLOW),
+    )
+
+    program_type = models.CharField(
+        max_length=200,
+        choices=(PROGRAM_TYPES),
+        default=PROGRAM_NONE
+    )
+
+    PROGRAM_YEAR_NONE = "----"
+    PROGRAM_YEAR_2005 = "2005"
+    PROGRAM_YEAR_2006 = "2006"
+    PROGRAM_YEAR_2007 = "2007"
+    PROGRAM_YEAR_2008 = "2008"
+    PROGRAM_YEAR_2009 = "2009"
+    PROGRAM_YEAR_2010 = "2010"
+    PROGRAM_YEAR_2011 = "2011"
+    PROGRAM_YEAR_2012 = "2012"
+    PROGRAM_YEAR_2013 = "2013"
+    PROGRAM_YEAR_2014 = "2014"
+    PROGRAM_YEAR_2015 = "2015"
+    PROGRAM_YEAR_2016 = "2016"
+    PROGRAM_YEAR_2017 = "2017"
+    PROGRAM_YEAR_2018 = "2018"
+    PROGRAM_YEAR_2019 = "2019"
+
+    PROGRAM_YEARS = (
+        (PROGRAM_YEAR_NONE,PROGRAM_YEAR_NONE),
+        (PROGRAM_YEAR_2005,PROGRAM_YEAR_2005),
+        (PROGRAM_YEAR_2006,PROGRAM_YEAR_2006),
+        (PROGRAM_YEAR_2007,PROGRAM_YEAR_2007),
+        (PROGRAM_YEAR_2008,PROGRAM_YEAR_2008),
+        (PROGRAM_YEAR_2009,PROGRAM_YEAR_2009),
+        (PROGRAM_YEAR_2010,PROGRAM_YEAR_2010),
+        (PROGRAM_YEAR_2011,PROGRAM_YEAR_2011),
+        (PROGRAM_YEAR_2012,PROGRAM_YEAR_2012),
+        (PROGRAM_YEAR_2013,PROGRAM_YEAR_2013),
+        (PROGRAM_YEAR_2014,PROGRAM_YEAR_2014),
+        (PROGRAM_YEAR_2015,PROGRAM_YEAR_2015),
+        (PROGRAM_YEAR_2016,PROGRAM_YEAR_2016),
+        (PROGRAM_YEAR_2017,PROGRAM_YEAR_2017),
+        (PROGRAM_YEAR_2018,PROGRAM_YEAR_2018),
+        (PROGRAM_YEAR_2019,PROGRAM_YEAR_2019),
+    )
+
+    program_year = models.CharField(
+        max_length=4,
+        choices=PROGRAM_YEARS,
+        default=PROGRAM_YEAR_NONE,
+    )
+
+    # Free form affiliation information
+    affiliation = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
+    # A tweet-style user bio
+    user_bio = models.CharField(
+        max_length=212,
+        blank=True
+    )
+
+    # A long-form user bio
+    user_bio_long = models.CharField(
+        max_length=4096,
         blank=True
     )
 

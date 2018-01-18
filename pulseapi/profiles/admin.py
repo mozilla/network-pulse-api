@@ -33,6 +33,11 @@ class UserProfileAdmin(admin.ModelAdmin):
         'linkedin',
         'github',
         'website',
+        'enable_extended_information',
+        'program_type',
+        'program_year',
+        'affiliation',
+        'user_bio_long',
     )
 
     readonly_fields = (

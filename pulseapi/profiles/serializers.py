@@ -24,7 +24,27 @@ class UserBookmarksSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     """
     Serializes a user profile.
+    
+    Note that the following fields should only show up when
+    the 'enable_extended_information' flag is set to True:
+
+    - user_bio_long
+    - program_type
+    - program_year
+    - affiliation
     """
+
+    def __init__(self , instance , *args , **kwargs ):
+        super().__init__(instance , *args , **kwargs)
+        if instance.enable_extended_information is False:
+            self.fields.pop('user_bio_long')
+            self.fields.pop('program_type')
+            self.fields.pop('program_year')
+            self.fields.pop('affiliation')
+        # Whether this flag is set or not, it should not
+        # end up in the actual serialized profile data.
+        self.fields.pop('enable_extended_information')
+
     user_bio = serializers.CharField(
         max_length=140,
         required=False,
