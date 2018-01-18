@@ -1,9 +1,9 @@
 import base64
+
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 
 from rest_framework import permissions
-from rest_framework.decorators import detail_route
 from rest_framework.generics import RetrieveAPIView, RetrieveUpdateAPIView
 
 from pulseapi.profiles.models import UserProfile
@@ -34,13 +34,13 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
         permissions.IsAuthenticated,
         IsProfileOwner
     )
+
     serializer_class = UserProfileSerializer
 
     def get_object(self):
         user = self.request.user
         return get_object_or_404(UserProfile, related_user=user)
 
-    @detail_route(methods=['put'])
     def put(self, request, *args, **kwargs):
         '''
         If there is a thumbnail, and it was sent as part of an
@@ -52,14 +52,16 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
         much mutually exclusive patterns. A try/pass make far more sense.
         '''
 
+        payload = request.data
+
         try:
-            thumbnail = request.data['thumbnail']
+            thumbnail = payload['thumbnail']
             # do we actually need to repack as ContentFile?
             if thumbnail['name'] and thumbnail['base64']:
                 name = thumbnail['name']
                 encdata = thumbnail['base64']
                 proxy = ContentFile(base64.b64decode(encdata), name=name)
-                request.data['thumbnail'] = proxy
+                payload['thumbnail'] = proxy
         except:
             pass
 
