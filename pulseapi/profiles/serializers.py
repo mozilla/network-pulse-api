@@ -24,7 +24,7 @@ class UserBookmarksSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     """
     Serializes a user profile.
-    
+
     Note that the following fields should only show up when
     the 'enable_extended_information' flag is set to True:
 
@@ -34,8 +34,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
     - affiliation
     """
 
-    def __init__(self , instance , *args , **kwargs ):
-        super().__init__(instance , *args , **kwargs)
+    def __init__(self, instance, *args, **kwargs):
+        super().__init__(instance, *args, **kwargs)
         if instance.enable_extended_information is False:
             self.fields.pop('user_bio_long')
             self.fields.pop('program_type')
