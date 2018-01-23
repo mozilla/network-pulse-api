@@ -1,16 +1,10 @@
 import base64
 
 from django.core.files.base import ContentFile
-from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from rest_framework import permissions
-from rest_framework.decorators import detail_route
 from rest_framework.generics import RetrieveAPIView, RetrieveUpdateAPIView
-from rest_framework.parsers import JSONParser
-
-from rest_framework.exceptions import UnsupportedMediaType
-
 
 from pulseapi.profiles.models import UserProfile
 from pulseapi.profiles.serializers import (

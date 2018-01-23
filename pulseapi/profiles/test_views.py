@@ -3,13 +3,14 @@ import json
 from django.core.urlresolvers import reverse
 
 from .models import UserProfile
+from .views import UserProfileAPIView
+
 from pulseapi.tests import PulseMemberTestCase
 from pulseapi.entries.serializers import EntrySerializer
 from pulseapi.creators.models import OrderedCreatorRecord
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from .views import UserProfileAPIView
 
 class TestProfileView(PulseMemberTestCase):
 
@@ -45,8 +46,8 @@ class TestProfileView(PulseMemberTestCase):
     def test_extended_profile_data(self):
         (profile, created) = UserProfile.objects.get_or_create(related_user=self.user)
         profile.enable_extended_information = True
-        profile.program_type='Mozilla Fellow'
-        profile.save();
+        profile.program_type = 'Mozilla Fellow'
+        profile.save()
 
         profileURL = reverse('profile', kwargs={'pk': profile.id})
 
@@ -56,23 +57,22 @@ class TestProfileView(PulseMemberTestCase):
         self.assertEqual('program_type' in entriesjson, True)
         self.assertEqual(entriesjson['program_type'], 'Mozilla Fellow')
 
-
     def test_updating_extended_profile_data(self):
         (profile, created) = UserProfile.objects.get_or_create(related_user=self.user)
         profile.enable_extended_information = True
-        profile.program_type='Mozilla Fellow'
-        profile.save();
+        profile.program_type = 'Mozilla Fellow'
+        profile.save()
 
         profileURL = reverse('profile', kwargs={'pk': profile.id})
         profileUpdateURL = reverse('profile_update', kwargs={'pk': profile.id})
 
         # authentication is absolutely required
-        request = self.factory.put(profileUpdateURL, { 'affiliation': 'Mozilla' })
+        request = self.factory.put(profileUpdateURL, {'affiliation': 'Mozilla'})
         response = UserProfileAPIView.as_view()(request)
         self.assertEqual(response.status_code, 403)
 
         # with authentication, updates should work
-        request = self.factory.put(profileUpdateURL, { 'affiliation': 'Mozilla' })
+        request = self.factory.put(profileUpdateURL, {'affiliation': 'Mozilla'})
         force_authenticate(request, user=self.user)
         UserProfileAPIView.as_view()(request)
         profile.refresh_from_db()
@@ -87,12 +87,12 @@ class TestProfileView(PulseMemberTestCase):
         (profile, created) = UserProfile.objects.get_or_create(related_user=self.user)
         profile.enable_extended_information = False
         profile.affiliation = 'untouched'
-        profile.save();
+        profile.save()
 
         profileUpdateURL = reverse('profile_update', kwargs={'pk': profile.id})
 
         # with authentication, updates should work
-        request = self.factory.put(profileUpdateURL, { 'affiliation': 'Mozilla' })
+        request = self.factory.put(profileUpdateURL, {'affiliation': 'Mozilla'})
         force_authenticate(request, user=self.user)
         UserProfileAPIView.as_view()(request)
         profile.refresh_from_db()
