@@ -51,10 +51,6 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
 
     serializer_class = UserProfileSerializer
 
-    parser_classes = (
-        JSONParser,
-    )
-
     def get_object(self):
         user = self.request.user
         return get_object_or_404(UserProfile, related_user=user)
@@ -70,10 +66,7 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
         much mutually exclusive patterns. A try/pass make far more sense.
         '''
 
-        # THIS CURRENTLY THROWS A UnsupportedMediaType
-        # ERROR FOR THE APPLICATION/JSON MEDIA TYPE O_o
         payload = request.data
-
 
         try:
             thumbnail = payload['thumbnail']
@@ -104,8 +97,6 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
         try:
             user = self.request.user
             profile = UserProfile.objects.get(related_user=user)
-
-            print(profile)
 
             if profile.enable_extended_information is False:
                 removeKey(payload, 'user_bio_long')
