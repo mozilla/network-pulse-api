@@ -55,13 +55,7 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
         JSONParser,
     )
 
-    def get_object(self, queryset=None):
-        if self.request.method == "PUT":
-            profile = super(UserProfileAPIView, self).get_object(queryset=queryset)
-            if profile is None:
-                raise Http404()
-            return profile
-
+    def get_object(self):
         user = self.request.user
         return get_object_or_404(UserProfile, related_user=user)
 
