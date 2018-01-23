@@ -8,6 +8,19 @@ from pulseapi import settings
 from pulseapi.entries.models import Entry
 
 
+# The creator(s) name can be found in the `OrderedCreatorRecord` class from the `creators` models.
+def get_entry_creators(entry):
+    # Since `creators` is an optional field and can be empty, we return the publisher name instead.
+    if not entry.related_creators.all():
+        return entry.published_by.name
+    else:
+        return ', '.join(
+            creator_record.creator.creator_name
+            for creator_record
+            in entry.related_creators.all()
+        )
+
+
 # RSS feed for latest entries
 class RSSFeedLatestFromPulse(Feed):
     title = "Latest from Mozilla Pulse"
@@ -17,8 +30,8 @@ class RSSFeedLatestFromPulse(Feed):
     def items(self):
         return Entry.objects.order_by('-created')
 
-    def item_author_name(self):
-        pass
+    def item_author_name(self, entry):
+        return get_entry_creators(entry)
 
     def item_title(self, entry):
         return entry.title
@@ -38,6 +51,9 @@ class RSSFeedFeaturedFromPulse(Feed):
 
     def items(self):
         return Entry.objects.filter(featured=True).order_by('-created')
+
+    def item_author_name(self, entry):
+        return get_entry_creators(entry)
 
     def item_title(self, entry):
         return entry.title
