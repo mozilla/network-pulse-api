@@ -113,10 +113,11 @@ class UserProfile(models.Model):
 
     # We provide an easy accessor to the profile's user because
     # accessing the reverse relation (using related_name) can throw
-    # a RelatedObjectDoesNotExist exception for orphan profiles. This
-    # allows us to return None instead.
-    # We however cannot use this accessor as a lookup field in querysets
-    # because it is not an actual field.
+    # a RelatedObjectDoesNotExist exception for orphan profiles.
+    # This allows us to return None instead.
+    #
+    # Note: we cannot use this accessor as a lookup field in querysets
+    #       because it is not an actual field.
     @property
     def user(self):
         # We do not import EmailUser directly so that we don't end up with

@@ -1,10 +1,16 @@
 import base64
+
 from django.core.files.base import ContentFile
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from rest_framework import permissions
 from rest_framework.decorators import detail_route
 from rest_framework.generics import RetrieveAPIView, RetrieveUpdateAPIView
+from rest_framework.parsers import JSONParser
+
+from rest_framework.exceptions import UnsupportedMediaType
+
 
 from pulseapi.profiles.models import UserProfile
 from pulseapi.profiles.serializers import (
@@ -42,13 +48,23 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
         permissions.IsAuthenticated,
         IsProfileOwner
     )
+
     serializer_class = UserProfileSerializer
 
-    def get_object(self):
+    parser_classes = (
+        JSONParser,
+    )
+
+    def get_object(self, queryset=None):
+        if self.request.method == "PUT":
+            profile = super(UserProfileAPIView, self).get_object(queryset=queryset)
+            if profile is None:
+                raise Http404()
+            return profile
+
         user = self.request.user
         return get_object_or_404(UserProfile, related_user=user)
 
-    @detail_route(methods=['put'])
     def put(self, request, *args, **kwargs):
         '''
         If there is a thumbnail, and it was sent as part of an
@@ -60,7 +76,10 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
         much mutually exclusive patterns. A try/pass make far more sense.
         '''
 
+        # THIS CURRENTLY THROWS A UnsupportedMediaType
+        # ERROR FOR THE APPLICATION/JSON MEDIA TYPE O_o
         payload = request.data
+
 
         try:
             thumbnail = payload['thumbnail']
@@ -84,13 +103,15 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
         '''
         Do a prefetch on the profile to update. Is the
         'enable_extended_information' property set to False?
-        In that case, remove any xtended properties from the
+        In that case, remove any extended properties from the
         request payload.
         '''
 
         try:
             user = self.request.user
             profile = UserProfile.objects.get(related_user=user)
+
+            print(profile)
 
             if profile.enable_extended_information is False:
                 removeKey(payload, 'user_bio_long')
