@@ -1,8 +1,12 @@
 {
   "name": "network-pulse-api",
-  "scripts": {
-  },
   "env": {
+    "HEROKU_APP_NAME": {
+      "required": true
+    },
+    "REDIRECT_URIS": {
+      "required": true
+    },
     "client_id": {
       "required": true
     },
@@ -12,14 +16,26 @@
     "CORS_ORIGIN_WHITELIST": {
       "required": true
     },
-    "redirect_uris": {
+    "AWS_ACCESS_KEY_ID": {
       "required": true
-    }
-  },
-  "formation": {
+    },
+    "AWS_S3_CUSTOM_DOMAIN": {
+      "required": true
+    },
+    "AWS_SECRET_ACCESS_KEY": {
+      "required": true
+    },
+    "AWS_STORAGE_BUCKET_NAME": {
+      "required": true
+    },
+    "AWS_STORAGE_ROOT": {
+      "required": true
+    },
+    "USE_S3": "True",
+    "SSL_PROTECTION": "True"
   },
   "addons": [
-    "heroku-postgresql"
+    "heroku-postgresql:hobby-dev"
   ],
   "buildpacks": [
     {

@@ -26,6 +26,7 @@ env = environ.Env(
     USE_S3=(bool, False),
     SSL_PROTECTION=(bool, False),
     CORS_REGEX_WHITELIST=(tuple, ()),
+    HEROKU_APP_NAME=(str, ''),
 )
 SSL_PROTECTION = env('SSL_PROTECTION')
 
@@ -46,6 +47,12 @@ ALLOWED_HOSTS = os.getenv(
     'ALLOWED_HOSTS',
     'test.example.com,localhost,network-pulse-api-staging.herokuapp.com,network-pulse-api-production.herokuapp.com'
 ).split(',')
+
+# Adding support for Heroku review app
+if env('HEROKU_APP_NAME'):
+    herokuReviewAppHost = env('HEROKU_APP_NAME') + '.herokuapp.com'
+    ALLOWED_HOSTS.append(herokuReviewAppHost)
+
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 31
