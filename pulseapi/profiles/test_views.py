@@ -49,10 +49,10 @@ class TestProfileView(PulseMemberTestCase):
         profile.program_type = 'Mozilla Fellow'
         profile.save()
 
-        profileURL = reverse('profile', kwargs={'pk': profile.id})
+        profile_url = reverse('profile', kwargs={'pk': profile.id})
 
         # extended profile data should show in API responses
-        response = self.client.get(profileURL)
+        response = self.client.get(profile_url)
         entriesjson = json.loads(str(response.content, 'utf-8'))
         self.assertEqual('program_type' in entriesjson, True)
         self.assertEqual(entriesjson['program_type'], 'Mozilla Fellow')
@@ -63,22 +63,20 @@ class TestProfileView(PulseMemberTestCase):
         profile.program_type = 'Mozilla Fellow'
         profile.save()
 
-        profileURL = reverse('profile', kwargs={'pk': profile.id})
-        profileUpdateURL = reverse('profile_update', kwargs={'pk': profile.id})
+        profile_url = reverse('myprofile')
 
         # authentication is absolutely required
-        request = self.factory.put(profileUpdateURL, {'affiliation': 'Mozilla'})
-        response = UserProfileAPIView.as_view()(request)
+        self.client.logout()
+        response = self.client.put(profile_url, json.dumps({'affiliation': 'Mozilla'}))
         self.assertEqual(response.status_code, 403)
 
         # with authentication, updates should work
-        request = self.factory.put(profileUpdateURL, {'affiliation': 'Mozilla'})
-        force_authenticate(request, user=self.user)
-        UserProfileAPIView.as_view()(request)
+        self.client.force_login(user=self.user)
+        response = self.client.put(profile_url, json.dumps({'affiliation': 'Mozilla'}))
         profile.refresh_from_db()
         self.assertEqual(profile.affiliation, 'Mozilla')
 
-        response = self.client.get(profileURL)
+        response = self.client.get(profile_url)
         entriesjson = json.loads(str(response.content, 'utf-8'))
         self.assertEqual('affiliation' in entriesjson, True)
         self.assertEqual(entriesjson['affiliation'], 'Mozilla')
@@ -89,11 +87,9 @@ class TestProfileView(PulseMemberTestCase):
         profile.affiliation = 'untouched'
         profile.save()
 
-        profileUpdateURL = reverse('profile_update', kwargs={'pk': profile.id})
+        profile_url = reverse('myprofile')
 
         # with authentication, updates should work
-        request = self.factory.put(profileUpdateURL, {'affiliation': 'Mozilla'})
-        force_authenticate(request, user=self.user)
-        UserProfileAPIView.as_view()(request)
+        self.client.put(profile_url, {'affiliation': 'Mozilla'})
         profile.refresh_from_db()
         self.assertEqual(profile.affiliation, 'untouched')
