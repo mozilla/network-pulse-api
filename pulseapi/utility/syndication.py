@@ -39,14 +39,17 @@ class RSSFeedLatestFromPulse(Feed):
     def item_description(self, entry):
         return entry.description
 
-    ## TODO get an absolute URL for that image field
     def item_enclosure_url(self, entry):
+        if entry.thumbnail:
+            if settings.USE_S3:
+                return entry.thumbnail.url
+            # Provide an absolute URL
+            else:
+                return settings.ALLOWED_HOSTS[0] + ':8000' + entry.thumbnail.url
+
+    def item_enclosure_length(self, entry):
         return ""
 
-    def item_enclosure_length(self):
-        return ''
-
-    ## TODO Let's use PIL to determine the format of the thumbnail and adapt the mime type
     def item_enclosure_mime_type(self, entry):
         return 'image/jpeg'
 
