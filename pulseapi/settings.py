@@ -26,6 +26,7 @@ env = environ.Env(
     USE_S3=(bool, False),
     SSL_PROTECTION=(bool, False),
     CORS_REGEX_WHITELIST=(tuple, ()),
+    PULSE_FRONTEND_HOSTNAME=(str, ''),
 )
 SSL_PROTECTION = env('SSL_PROTECTION')
 
@@ -207,6 +208,8 @@ if SSL_PROTECTION is True:
 
 X_FRAME_OPTIONS = "DENY"
 
+# Frontend URL is required for the RSS and Atom feeds
+PULSE_FRONTEND_HOSTNAME = env('PULSE_FRONTEND_HOSTNAME')
 
 USE_S3 = env('USE_S3')
 

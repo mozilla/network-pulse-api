@@ -342,6 +342,7 @@ The following environment variables are used in this codebase
  - `TOKEN_URI`: optional, defaults to 'https://accounts.google.com/o/oauth2/token' and there is no reason to change it.
  - `SSL_PROTECTION`: Defaults to `False` to make development easier, but if you're deploying you probably want this to be `True`. This sets a slew of security-related variables in `settings.py` that you can override individually if desired.
  Heroku provisions some environmnets on its own, like a `PORT` and `DATABASE_URL` variable, which this codebase will make use of if it sees them, but these values are only really relevant to Heroku deployments and not something you need to mess with for local development purposes.
+ - `PULSE_FRONTEND_HOSTNAME`: Defaults to `localhost:3000`. Used by the RSS and Atom feed views to create entry URLs that link to the network pulse frontend rather than the JSON API.
 
 
 ## Deploying to Heroku

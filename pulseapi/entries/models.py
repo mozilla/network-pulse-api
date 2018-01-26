@@ -33,7 +33,7 @@ def get_default_moderation_state():
     """
 
     states = ModerationState.objects.all()
-    if (len(states) == 0):
+    if len(states) == 0:
         return -1
 
     default_state = states[0].id
@@ -164,6 +164,9 @@ class Entry(models.Model):
         return self.moderation_state.name == 'Approved'
 
     objects = EntryQuerySet.as_manager()
+
+    def frontend_entry_url(self):
+        return '{frontend_url}/entry/{pk}'.format(frontend_url=settings.PULSE_FRONTEND_HOSTNAME, pk=self.id)
 
     class Meta:
         """
