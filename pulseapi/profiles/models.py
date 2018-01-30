@@ -263,17 +263,20 @@ class UserProfile(models.Model):
 
     profile_type = models.ForeignKey(
         'profiles.ProfileType',
-        null=True
+        null=True,
+        blank=True
     )
 
     program_type = models.ForeignKey(
         'profiles.ProgramType',
-        null=True
+        null=True,
+        blank=True
     )
 
     program_year = models.ForeignKey(
         'profiles.ProgramYear',
-        null=True
+        null=True,
+        blank=True
     )
 
     # Free form affiliation information

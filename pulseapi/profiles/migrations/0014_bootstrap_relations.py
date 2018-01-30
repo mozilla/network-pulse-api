@@ -14,8 +14,11 @@ def setup_default_values(apps, schema_editor):
     ProfileType.objects.get_or_create(value='grantee')
 
     ProgramType = apps.get_model('profiles', 'ProgramType')
-    ProgramType.objects.get_or_create(value='tech policy fellowship')
-    ProgramType.objects.get_or_create(value='mozfest speaker')
+    ProgramType.objects.get_or_create(value='senior fellow')
+    ProgramType.objects.get_or_create(value='science fellow')
+    ProgramType.objects.get_or_create(value='open web fellow')
+    ProgramType.objects.get_or_create(value='tech policy fellow')
+    ProgramType.objects.get_or_create(value='media fellow')
 
     ProgramYear = apps.get_model('profiles', 'ProgramYear')
     ProgramYear.objects.get_or_create(value='2015')

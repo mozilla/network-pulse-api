@@ -1,10 +1,11 @@
 import base64
+import django_filters
 
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 
-from rest_framework import permissions
-from rest_framework.generics import RetrieveAPIView, RetrieveUpdateAPIView
+from rest_framework import filters, permissions
+from rest_framework.generics import RetrieveAPIView, RetrieveUpdateAPIView, ListCreateAPIView
 
 from pulseapi.profiles.models import UserProfile
 from pulseapi.profiles.serializers import (
@@ -66,3 +67,50 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
             pass
 
         return super(UserProfileAPIView, self).put(request, *args, **kwargs)
+
+
+class ProfileCustomFilter(filters.FilterSet):
+    """
+      We add custom filtering to allow you to filter by:
+
+      * Profile type - pass the `?profile_type=` query parameter
+      * Program type - pass the `?program_type=` query parameter
+      * Program year - pass the `?program_year=` query parameter
+    """
+    profile_type = django_filters.CharFilter(
+        name='profile_type__value',
+        lookup_expr='iexact',
+    )
+    program_type = django_filters.CharFilter(
+        name='program_type__value',
+        lookup_expr='iexact',
+    )
+    program_year = django_filters.CharFilter(
+        name='program_year__value',
+        lookup_expr='iexact',
+    )
+
+    class Meta:
+        """
+        Required Meta class
+        """
+        model = UserProfile
+        fields = [
+            'profile_type',
+            'program_type',
+            'program_year',
+        ]
+
+
+class UserProfileAPISearchView(ListCreateAPIView):
+    serializer_class = UserProfileSerializer
+
+    filter_backends = (
+        filters.DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    )
+
+    filter_class = ProfileCustomFilter
+
+    queryset = UserProfile.objects.all()
