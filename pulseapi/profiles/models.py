@@ -72,8 +72,13 @@ class ProfileType(models.Model):
     - grantee
     """
     value = models.CharField(
-        max_length=50
+        max_length=50,
+        unique=True
     )
+
+    def get_default_profile():
+        (default,_) = ProfileType.objects.get_or_create(value='plain')
+        return default;
 
     def __str__(self):
         return self.value
@@ -87,7 +92,8 @@ class ProgramType(models.Model):
     (tech policy fellowship, mozfest speaker, etc)
     """
     value = models.CharField(
-        max_length=150
+        max_length=150,
+        unique=True
     )
 
     def __str__(self):
@@ -105,7 +111,8 @@ class ProgramYear(models.Model):
     program types use.
     """
     value = models.CharField(
-        max_length=25
+        max_length=25,
+        unique=True
     )
 
     def __str__(self):
@@ -263,17 +270,21 @@ class UserProfile(models.Model):
 
     profile_type = models.ForeignKey(
         'profiles.ProfileType',
-        null=True
+        null=True,
+        blank=True
+        # default is handled in save()
     )
 
     program_type = models.ForeignKey(
         'profiles.ProgramType',
-        null=True
+        null=True,
+        blank=True,
     )
 
     program_year = models.ForeignKey(
         'profiles.ProgramYear',
-        null=True
+        null=True,
+        blank=True,
     )
 
     # Free form affiliation information
@@ -293,6 +304,11 @@ class UserProfile(models.Model):
         max_length=4096,
         blank=True
     )
+
+    def save(self, *args, **kwargs):
+        if self.profile_type is None:
+            self.profile_type=ProfileType.get_default_profile()
+        super(UserProfile, self).save(*args, **kwargs)
 
     def __str__(self):
         if self.user is None:
