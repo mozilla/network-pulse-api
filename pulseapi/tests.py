@@ -102,6 +102,17 @@ class JSONDefaultClient(Client):
             **extra
         )
 
+    def put(self, path, data=None, content_type=CONTENT_TYPE_JSON,
+            follow=False, secure=False, **extra):
+        return super(JSONDefaultClient, self).put(
+            path,
+            data=data,
+            content_type=content_type,
+            follow=follow,
+            secure=secure,
+            **extra
+        )
+
 
 def create_logged_in_user(test, name, email, password="password1234"):
     test.name = name
