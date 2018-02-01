@@ -271,7 +271,8 @@ class UserProfile(models.Model):
     profile_type = models.ForeignKey(
         'profiles.ProfileType',
         null=True,
-        blank=True
+        blank=True,
+        on_delete=models.SET_NULL
         # default is handled in save()
     )
 
@@ -279,12 +280,14 @@ class UserProfile(models.Model):
         'profiles.ProgramType',
         null=True,
         blank=True,
+        on_delete=models.SET_NULL
     )
 
     program_year = models.ForeignKey(
         'profiles.ProgramYear',
         null=True,
         blank=True,
+        on_delete=models.SET_NULL
     )
 
     # Free form affiliation information
