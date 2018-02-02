@@ -2,7 +2,7 @@ import json
 
 from django.core.urlresolvers import reverse
 
-from .models import UserProfile, ProgramType
+from .models import UserProfile, ProfileType, ProgramType, ProgramYear
 
 from pulseapi.tests import PulseMemberTestCase
 from pulseapi.entries.serializers import EntrySerializer
@@ -84,7 +84,24 @@ class TestProfileView(PulseMemberTestCase):
 
         profile_url = reverse('myprofile')
 
-        # with authentication, updates should work
+        # With authentication, "updates" should work, but
+        # enable_extened_information=False should prevent
+        # an update from occurring.
         self.client.put(profile_url, {'affiliation': 'Mozilla'})
         profile.refresh_from_db()
         self.assertEqual(profile.affiliation, 'untouched')
+
+    def test_profile_type_uniqueness(self):
+        # as found in the bootstrap migration:
+        (profile, created) = ProfileType.objects.get_or_create(value='plain')
+        self.assertEqual(created, False)
+
+    def test_program_type_uniqueness(self):
+        # as found in the bootstrap migration:
+        (profile, created) = ProgramType.objects.get_or_create(value='senior fellow')
+        self.assertEqual(created, False)
+
+    def test_program_year_uniqueness(self):
+        # as found in the bootstrap migration:
+        (profile, created) = ProgramYear.objects.get_or_create(value='2018')
+        self.assertEqual(created, False)

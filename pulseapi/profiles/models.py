@@ -77,8 +77,8 @@ class ProfileType(models.Model):
     )
 
     def get_default_profile():
-        (default,_) = ProfileType.objects.get_or_create(value='plain')
-        return default;
+        (default, _) = ProfileType.objects.get_or_create(value='plain')
+        return default
 
     def __str__(self):
         return self.value
@@ -310,7 +310,7 @@ class UserProfile(models.Model):
 
     def save(self, *args, **kwargs):
         if self.profile_type is None:
-            self.profile_type=ProfileType.get_default_profile()
+            self.profile_type = ProfileType.get_default_profile()
         super(UserProfile, self).save(*args, **kwargs)
 
     def __str__(self):
