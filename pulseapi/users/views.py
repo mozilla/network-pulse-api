@@ -87,6 +87,7 @@ def userstatus(request):
     cached by applications, for obvious reasons.
     """
     username = False
+    userid = False
     customname = False
     email = False
 
@@ -103,11 +104,13 @@ def userstatus(request):
 
     if loggedin:
         username = user.name
+        userid = user.id
         customname = user.profile.custom_name
         email = user.email
 
     return render(request, 'users/userstatus.json', {
         'username': username,
+        'userid': userid,
         'customname': customname,
         'email': email,
         'loggedin': loggedin,
