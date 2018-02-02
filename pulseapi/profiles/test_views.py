@@ -105,3 +105,58 @@ class TestProfileView(PulseMemberTestCase):
         # as found in the bootstrap migration:
         (profile, created) = ProgramYear.objects.get_or_create(value='2018')
         self.assertEqual(created, False)
+
+    def test_profile_searching(self):
+        profile_types = ['plain', 'staff', 'grantee']
+        program_types = ['first', 'now']
+        program_years = ['now', 'before']
+
+        for v1 in profile_types:
+            (profile_type, _) = ProfileType.objects.get_or_create(value=v1)
+            for v2 in program_types:
+                (program_type, _) = ProgramType.objects.get_or_create(value=v2)
+                for v3 in program_years:
+                    (program_year, _) = ProgramYear.objects.get_or_create(value=v3)
+                    profile = UserProfile.objects.create()
+                    profile.enable_extended_information = True
+                    profile.profile_type = profile_type
+                    profile.program_type = program_type
+                    profile.program_year = program_year
+                    profile.save()
+
+        profile_url = reverse('profile_search')
+
+        # There should be four results for each profile type
+        for profile_type in profile_types:
+            url = ('{url}?profile_type={type}').format(url=profile_url, type=profile_type)
+            response = self.client.get(url)
+            entriesjson = json.loads(str(response.content, 'utf-8'))
+            self.assertEqual(len(entriesjson), 4)
+
+        # There should be six results for each program type
+        for program_type in program_types:
+            url = ('{url}?program_type={type}').format(url=profile_url, type=program_type)
+            response = self.client.get(url)
+            entriesjson = json.loads(str(response.content, 'utf-8'))
+            self.assertEqual(len(entriesjson), 6)
+
+        # There should be six results for each program year
+        for program_year in program_years:
+            url = ('{url}?program_year={type}').format(url=profile_url, type=program_year)
+            response = self.client.get(url)
+            entriesjson = json.loads(str(response.content, 'utf-8'))
+            self.assertEqual(len(entriesjson), 6)
+
+        # There should only be one result for each unique combination
+        for v1 in profile_types:
+            for v2 in program_types:
+                for v3 in program_years:
+                    url = ('{url}?profile_type={v1}&program_type={v2}&program_year={v3}').format(
+                        url=profile_url,
+                        v1=profile_type,
+                        v2=program_type,
+                        v3=program_year
+                    )
+                    response = self.client.get(url)
+                    entriesjson = json.loads(str(response.content, 'utf-8'))
+                    self.assertEqual(len(entriesjson), 1)

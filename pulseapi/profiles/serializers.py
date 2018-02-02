@@ -45,7 +45,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def __init__(self, instance=None, *args, **kwargs):
         super().__init__(instance, *args, **kwargs)
-        if instance is not None:
+
+        if instance is not None and type(instance) is UserProfile:
+            # We type-check to prevent this from kicking in for entire
+            # QuerySet objects, rather than just UserProfile objects.
             if instance.enable_extended_information is False:
                 self.fields.pop('user_bio_long')
                 self.fields.pop('program_type')
