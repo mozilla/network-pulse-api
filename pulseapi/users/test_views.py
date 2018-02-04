@@ -46,5 +46,6 @@ class TestUserViews(PulseMemberTestCase):
         json_obj = json.loads(string)
         self.assertEqual(json_obj['loggedin'], True)
         self.assertEqual(json_obj['email'], 'test@example.org')
-        self.assertEqual(json_obj['profileid'], '1')
+        self.assertTrue(json_obj['profileid'])
+        self.assertIsInstance(json_obj['profileid'], type("a"))
         self.assertEqual(json_obj['username'], 'plain user')
