@@ -107,9 +107,9 @@ class TestProfileView(PulseMemberTestCase):
         self.assertEqual(created, False)
 
     def test_profile_searching(self):
-        profile_types = ['plain', 'staff', 'grantee']
-        program_types = ['first', 'now']
-        program_years = ['now', 'before']
+        profile_types = ['a', 'b', 'c']
+        program_types = ['a', 'b']
+        program_years = ['a', 'b']
 
         for v1 in profile_types:
             (profile_type, _) = ProfileType.objects.get_or_create(value=v1)
