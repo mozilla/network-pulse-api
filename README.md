@@ -1,4 +1,4 @@
-[![Travis Build Status](https://travis-ci.org/mozilla/network-pulse-api.svg?branch=master)](https://travis-ci.org/mozilla/network-pulse-api) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/mozilla/network-pulse-api?svg=true)](https://ci.appveyor.com/project/mozillafoundation/network-pulse-api)
+[![Travis Build Status](https://travis-ci.org/mozilla/network-pulse-api.svg?branch=master)](https://travis-ci.org/mozilla/network-pulse-api) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/mozilla/network-pulse-api?svg=true)](https://ci.appveyor.com/project/mozillafoundation/network-pulse-api) [![Current API Version](https://img.shields.io/badge/dynamic/json.svg?label=Current%20API%20Version&colorB=blue&prefix=&suffix=&query=$.latestApiVersion&uri=https%3A%2F%2Fpulse--api.mofostaging.net%2Fapi%2Fpulse%2Fstatus%2F)]
 
 # The Mozilla Foundation Network Pulse API Server
 
@@ -51,7 +51,9 @@ This will log out a user if they have an authenticated session going. Note that 
 
 This is the route that oauth2 login systems must point to in order to complete an oauth2 login process with in-browser callback URL redirection.
 
-### `GET /api/pulse/userstatus/`
+### `GET /api/pulse/v1/userstatus/`
+
+**Note:** This API route does not have a version in it since it does not rely on data in the database.
 
 This gets the current user's session information in the form of their full name and email address.
 
@@ -139,7 +141,7 @@ Please run the server and see [http://localhost:8000/entries](http://localhost:8
 This retrieves a single entry with the indicated `id` as stored in the database. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
 
-### `POST /api/pulse/entries/`
+### `POST /api/pulse/v1/entries/`
 
 POSTing of entries requires sending the following payload object:
 
@@ -213,7 +215,7 @@ This changes the moderation state for an entry to the passed moderations state. 
 
 #### `PUT /api/pulse/entries/<id=number>/feature` with optional `?format=json`
 
-This *toggles* the featured state for an entry if called by a user with moderation rights. An entry that was not featured will become featured, and already featured entries will become unfeatured when this route is called. 
+This *toggles* the featured state for an entry if called by a user with moderation rights. An entry that was not featured will become featured, and already featured entries will become unfeatured when this route is called.
 
 
 ## Entry Bookmarking
@@ -248,7 +250,7 @@ A failed post will yield
  - an HTTP 403 response if the current user is not authenticated
 
 
-### `PUT /api/pulse/entries/<id=number>/bookmark`
+### `PUT /api/pulse/v1/entries/<id=number>/bookmark`
 
 This toggles the "bookmarked" status for an entry for an authenticated user. No payload is expected, and no response is sent other than an HTTP 204 on success, HTTP 403 for not authenticated users, and HTTP 500 if something went terribly wrong on the server side.
 
@@ -260,7 +262,7 @@ This operation requires a payload of the following form:
 }
 ```
 
-### `GET /api/pulse/entries/bookmarks` with optional `?format=json`
+### `GET /api/pulse/v1/entries/bookmarks` with optional `?format=json`
 
 Get the list of all entries that have been bookmarked by the currently authenticated user. Calling this as anonymous user yields an object with property `count` equals to `0`.  As a base URL call this returns an HTML page with formatted result, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
@@ -301,7 +303,7 @@ Gets the list of internet health issues that entries can be related to. This rou
 
 ### `GET /api/pulse/issues/<Issue Name>`
 
-Fetches the same data as above, but restricted to an individual issue queried for. Note that this is a URL query, not a URL argument query, so to see the data for an issue named "Security and Privacy" for example, the corresponding URL will be `/api/pulse/issues/Security and Privacy`. 
+Fetches the same data as above, but restricted to an individual issue queried for. Note that this is a URL query, not a URL argument query, so to see the data for an issue named "Security and Privacy" for example, the corresponding URL will be `/api/pulse/issues/Security and Privacy`.
 
 
 ## Profiles
@@ -324,7 +326,7 @@ The list of profiles known to the system can be queried, but **only** in conjunc
 
 This retrieves the **editable** user profile for the currently authenticated user as stored in the database. An unauthenticated user will receive an HTTP 403 Forbidden response if they try to access this route. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
-### `PUT /api/pulse/myprofile/`
+### `PUT /api/pulse/v1/myprofile/`
 
 Allows an authenticated user to update their profile data. The payload that needs to be passed into this PUT request is:
 
@@ -485,7 +487,7 @@ While for local development we provide a `sample.env` that you can use as defaul
 
 ## Debugging all the things
 
-You may have noticed that when running with `DEBUG=TRUE`, there is a debugger toolbar to the right of any page you try to access. This is the [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/stable/), and that link will take you straight to the documentation for it on how to get the most out of it while trying to figure out what's going on when problems arise. 
+You may have noticed that when running with `DEBUG=TRUE`, there is a debugger toolbar to the right of any page you try to access. This is the [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/stable/), and that link will take you straight to the documentation for it on how to get the most out of it while trying to figure out what's going on when problems arise.
 
 
 ## Resetting your database because of incompatible model changes

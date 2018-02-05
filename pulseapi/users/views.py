@@ -9,9 +9,15 @@ from django.http import (HttpResponse, HttpResponseNotFound)
 from django.shortcuts import (redirect, render)
 from django.contrib.auth import login, logout
 from apiclient.discovery import build
+from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
 
 from .models import EmailUser
 from pulseapi.utility.userpermissions import is_staff_address
+from pulseapi.settings import API_VERSION_LIST
+
+LATEST_API_VERSION = API_VERSION_LIST[-1][1]
 
 
 class FlowHandler:
@@ -79,7 +85,7 @@ def nonce(request):
 
 
 # API ROUTE: /userstatus
-def userstatus(request):
+def userstatus(request, **kwargs):
     """
     Get the login status associated with a session. If the
     status is "logged in", also include the user name and
@@ -265,3 +271,15 @@ def callback(request):
     return HttpResponseNotFound(
         "callback happened without an error or code query argument: this should not be possible."
     )
+
+
+@api_view()
+@renderer_classes((JSONRenderer,))
+def api_status(request):
+    """
+    Check whether the API is alive and running by returning some
+    info about the API.
+    """
+    return Response({
+        'latestApiVersion': LATEST_API_VERSION,
+    })

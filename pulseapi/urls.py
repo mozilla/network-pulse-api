@@ -25,6 +25,22 @@ from pulseapi.utility.syndication import (
     RSSFeedFeaturedFromPulse,
     AtomFeedFeaturedFromPulse
 )
+from pulseapi.utility.urlutils import (
+    versioned_url,
+    api_url,
+    versioned_api_url,
+)
+
+
+rss_patterns = [
+    url(r'^latest', RSSFeedLatestFromPulse()),
+    url(r'^featured', RSSFeedFeaturedFromPulse()),
+]
+
+atom_patterns = [
+    url(r'^latest', AtomFeedLatestFromPulse()),
+    url(r'^featured', AtomFeedFeaturedFromPulse()),
+]
 
 urlpatterns = [
     # admin patterns
@@ -34,27 +50,25 @@ urlpatterns = [
     url(r'^', include('pulseapi.users.urls')),
 
     # API routes
-    url(r'^api/pulse/', include('pulseapi.users.urls')),
-    url(r'^api/pulse/entries/', include('pulseapi.entries.urls')),
-    url(r'^api/pulse/profiles/', include('pulseapi.profiles.urls')),
-    url(r'^api/pulse/tags/', include('pulseapi.tags.urls')),
-    url(r'^api/pulse/issues/', include('pulseapi.issues.urls')),
-    url(r'^api/pulse/helptypes/', include('pulseapi.helptypes.urls')),
-    url(r'^api/pulse/creators/', include('pulseapi.creators.urls')),
+    url(api_url(), include('pulseapi.users.urls')),  # Non-versioned API url - r'^api/pulse/'
+    url(versioned_api_url(r'entries/'), include('pulseapi.entries.urls')),
+    url(versioned_api_url(r'profiles/'), include('pulseapi.profiles.urls')),
+    url(versioned_api_url(r'tags/'), include('pulseapi.tags.urls')),
+    url(versioned_api_url(r'issues/'), include('pulseapi.issues.urls')),
+    url(versioned_api_url(r'helptypes/'), include('pulseapi.helptypes.urls')),
+    url(versioned_api_url(r'creators/'), include('pulseapi.creators.urls')),
 
     # We provide an alternative route on the main `/api/pulse` route to allow
     # getting and editing a user's profile for the currently authenticated user
     url(
-        r'^api/pulse/myprofile/',
+        versioned_api_url(r'myprofile/'),
         UserProfileAPIView.as_view(),
         name='myprofile'
     ),
 
     # Syndication
-    url(r'^rss/latest', RSSFeedLatestFromPulse()),
-    url(r'^rss/featured', RSSFeedFeaturedFromPulse()),
-    url(r'^atom/latest', AtomFeedLatestFromPulse()),
-    url(r'^atom/featured', AtomFeedFeaturedFromPulse()),
+    url(versioned_url(r'^rss/'), include(rss_patterns)),  # r'^rss/<optional version>/'
+    url(versioned_url(r'^atom/'), include(atom_patterns)),  # r'^atom/<optional version>/'
 ]
 
 if settings.USE_S3 is not True:
