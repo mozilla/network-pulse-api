@@ -29,6 +29,9 @@ class RSSFeedFromPulse(Feed):
     def item_title(self, entry):
         return entry.title
 
+    def item_pubdate(self, entry):
+        return entry.created
+
     def item_description(self, entry):
         return entry.description
 
