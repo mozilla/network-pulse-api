@@ -1,11 +1,10 @@
 import base64
-import django_filters
 
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 
-from rest_framework import filters, permissions
-from rest_framework.generics import RetrieveAPIView, RetrieveUpdateAPIView, ListAPIView
+from rest_framework import permissions
+from rest_framework.generics import RetrieveAPIView, RetrieveUpdateAPIView
 
 from pulseapi.profiles.models import UserProfile
 from pulseapi.profiles.serializers import (
