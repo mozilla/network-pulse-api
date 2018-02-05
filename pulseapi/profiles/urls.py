@@ -1,6 +1,7 @@
 from django.conf.urls import url
 
 from pulseapi.profiles.views import (
+    # UserProfileAPIView, # see note below.
     UserProfilePublicAPIView,
     UserProfilePublicSelfAPIView,
 )
@@ -15,5 +16,8 @@ urlpatterns = [
         r'^me/',
         UserProfilePublicSelfAPIView.as_view(),
         name='profile_self',
-    )
+    ),
+    # note that there is also a /myprofile route
+    # defined in the root urls.py which connects
+    # to the UserProfileAPIView class.
 ]

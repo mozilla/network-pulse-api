@@ -59,6 +59,66 @@ class Location(models.Model):
         )
 
 
+class ProfileType(models.Model):
+    """
+    See https://github.com/mozilla/network-pulse/issues/657
+
+    Values that should exist (handled via migration):
+
+    - plain
+    - staff
+    - fellow
+    - board member
+    - grantee
+    """
+    value = models.CharField(
+        max_length=50,
+        unique=True
+    )
+
+    def get_default_profile_type():
+        (default, _) = ProfileType.objects.get_or_create(value='plain')
+        return default
+
+    def __str__(self):
+        return self.value
+
+
+class ProgramType(models.Model):
+    """
+    See https://github.com/mozilla/network-pulse/issues/657
+
+    These values are determined by pulse API administrators
+    (tech policy fellowship, mozfest speaker, etc)
+    """
+    value = models.CharField(
+        max_length=150,
+        unique=True
+    )
+
+    def __str__(self):
+        return self.value
+
+
+class ProgramYear(models.Model):
+    """
+    See https://github.com/mozilla/network-pulse/issues/657
+
+    You'd think this would be 4 characters, but a "year" is
+    not a calendar year, so the year could just as easily
+    be "summer 2017" or "Q2 2016 - Q1 2018", so this is the
+    same kind of simple value model that the profile and
+    program types use.
+    """
+    value = models.CharField(
+        max_length=25,
+        unique=True
+    )
+
+    def __str__(self):
+        return self.value
+
+
 class UserProfile(models.Model):
     """
     This class houses all user profile information,
@@ -72,12 +132,6 @@ class UserProfile(models.Model):
     # that rely on knowing a user or group's profile.
     is_active = models.BooleanField(
         default=False
-    )
-
-    # A tweet-style user bio
-    user_bio = models.CharField(
-        max_length=140,
-        blank=True
     )
 
     # "user X bookmarked entry Y" is a many to many relation,
@@ -119,10 +173,11 @@ class UserProfile(models.Model):
 
     # We provide an easy accessor to the profile's user because
     # accessing the reverse relation (using related_name) can throw
-    # a RelatedObjectDoesNotExist exception for orphan profiles. This
-    # allows us to return None instead.
-    # We however cannot use this accessor as a lookup field in querysets
-    # because it is not an actual field.
+    # a RelatedObjectDoesNotExist exception for orphan profiles.
+    # This allows us to return None instead.
+    #
+    # Note: we cannot use this accessor as a lookup field in querysets
+    #       because it is not an actual field.
     @property
     def user(self):
         # We do not import EmailUser directly so that we don't end up with
@@ -206,6 +261,57 @@ class UserProfile(models.Model):
         max_length=2048,
         blank=True
     )
+
+    # --- extended information ---
+
+    enable_extended_information = models.BooleanField(
+        default=False
+    )
+
+    profile_type = models.ForeignKey(
+        'profiles.ProfileType',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+        # default is handled in save()
+    )
+
+    program_type = models.ForeignKey(
+        'profiles.ProgramType',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+    )
+
+    program_year = models.ForeignKey(
+        'profiles.ProgramYear',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+    )
+
+    # Free form affiliation information
+    affiliation = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
+    # A tweet-style user bio
+    user_bio = models.CharField(
+        max_length=212,
+        blank=True
+    )
+
+    # A long-form user bio
+    user_bio_long = models.CharField(
+        max_length=4096,
+        blank=True
+    )
+
+    def save(self, *args, **kwargs):
+        if self.profile_type is None:
+            self.profile_type = ProfileType.get_default_profile_type()
+        super(UserProfile, self).save(*args, **kwargs)
 
     def __str__(self):
         if self.user is None:
