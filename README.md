@@ -53,8 +53,6 @@ This is the route that oauth2 login systems must point to in order to complete a
 
 ### `GET /api/pulse/v1/userstatus/`
 
-**Note:** This API route does not have a version in it since it does not rely on data in the database.
-
 This gets the current user's session information in the form of their full name and email address.
 
 The call response is a JSON object of the following form:
