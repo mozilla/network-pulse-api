@@ -13,7 +13,6 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 
-from pulseapi.creators.models import Creator, OrderedCreatorRecord
 from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.entries.serializers import EntrySerializer, ModerationStateSerializer
 from pulseapi.profiles.models import UserBookmarks
@@ -255,7 +254,7 @@ class BookmarkedEntries(ListAPIView):
                 # find the entry for this id
                 try:
                     entry = Entry.objects.get(id=id)
-                except:
+                except entry.DoesNotExist:
                     return
 
                 # find out if there is already a {user,entry,(timestamp)} triple
@@ -431,12 +430,8 @@ class EntriesListView(ListCreateAPIView):
                     encdata = thumbnail['base64']
                     proxy = ContentFile(base64.b64decode(encdata), name=name)
                     request_data['thumbnail'] = proxy
-            except:
+            except thumbnail.DoesNotExist:
                 pass
-
-            # we need to split out creators, because it's a many-to-many
-            # relation with a Through class, so that needs manual labour:
-            creator_data = request_data.pop('creators', [])
 
             # we also want to make sure that tags are properly split
             # on commas, in case we get e.g. ['a', 'b' 'c,d']
@@ -475,18 +470,6 @@ class EntriesListView(ListCreateAPIView):
                     featured=False,
                     moderation_state=moderation_state
                 )
-
-                # QUEUED FOR DEPRECATION: Use the `related_creators` property instead.
-                # See https://github.com/mozilla/network-pulse-api/issues/241
-                if len(creator_data) > 0:
-                    for creator_name in creator_data:
-                        (creator, _) = Creator.objects.get_or_create(name=creator_name)
-
-                        OrderedCreatorRecord.objects.create(
-                            entry=saved_entry,
-                            creator=creator
-                        )
-
                 return Response({'status': 'submitted', 'id': saved_entry.id})
             else:
                 return Response(
