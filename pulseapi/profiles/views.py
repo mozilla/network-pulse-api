@@ -103,7 +103,7 @@ class ProfileCustomFilter(filters.FilterSet):
 
 
 class UserProfileAPISearchView(ListAPIView):
-    serializer_class = UserProfileSerializer
+    serializer_class = UserProfilePublicSerializer
 
     filter_backends = (
         filters.DjangoFilterBackend,
