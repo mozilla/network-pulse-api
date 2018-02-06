@@ -54,6 +54,7 @@ The call response is a JSON object of the following form:
 ```
 {
   username: <string: the user's full name according to Google>
+  profileid: <string: the user's profile id>
   customname: <string: the user's custom name as set in their profile>
   email: <string: the user's google-login-associated email address>
   loggedin: <boolean: whether this user is logged in or not>

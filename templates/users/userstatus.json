@@ -1,5 +1,6 @@
 {
 {% if loggedin %}	"username": "{{ username }}",
+{% endif %}{% if profileid %}	"profileid": "{{ profileid }}",
 {% endif %}{% if customname %}	"customname": "{{ customname }}",
 {% endif %}{% if loggedin %}	"email": "{{ email }}",
 {% endif %}	"loggedin": {% if loggedin %}true{% else %}false
