@@ -90,6 +90,20 @@ class ProfileCustomFilter(filters.FilterSet):
         lookup_expr='iexact',
     )
 
+    @property
+    def qs(self):
+        """
+        Ensure that if the filter route is called without
+        a legal filtering argument, we return an empty
+        queryset, rather than every profile in existence.
+        """
+        queries = self.request.GET
+        fields = ProfileCustomFilter.get_fields()
+        for key in fields:
+            if key in queries:
+                return super(ProfileCustomFilter, self).qs
+        return UserProfile.objects.none()
+
     class Meta:
         """
         Required Meta class

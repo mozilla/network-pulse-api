@@ -22,7 +22,7 @@ urlpatterns = [
     # defined in the root urls.py which connects
     # to the UserProfileAPIView class.
     url(
-        r'^search/',
+        r'^$',
         UserProfileAPISearchView.as_view(),
         name='profile_search',
     ),
