@@ -299,21 +299,6 @@ Gets the list of internet health issues that entries can be related to. This rou
 ...]
 ```
 
-### `GET /api/pulse/issues/`
-
-Gets the list of internet health issues that entries can be related to. This route yields a documentation page unless the request mimetype is set to `application/json`, or the `?format=json` query argument is passed. When requesting JSON, this route yields an object of the form:
-
-```
-[{
-  name: "issue name",
-  description: "issue description"
-},{
-  name: ...
-  description: ...
-},
-...]
-```
-
 ### `GET /api/pulse/issues/<Issue Name>`
 
 Fetches the same data as above, but restricted to an individual issue queried for. Note that this is a URL query, not a URL argument query, so to see the data for an issue named "Security and Privacy" for example, the corresponding URL will be `/api/pulse/issues/Security and Privacy`. 
