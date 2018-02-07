@@ -1,9 +1,11 @@
 import json
 
-from django.test import TestCase, Client
+from django.test import TestCase, Client, RequestFactory
+from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
+from pulseapi.settings import API_VERSION_LIST
 from pulseapi.users.models import EmailUser
 from pulseapi.users.test_models import EmailUserFactory
 from pulseapi.profiles.test_models import UserProfileFactory
@@ -11,6 +13,7 @@ from pulseapi.creators.models import OrderedCreatorRecord
 from pulseapi.creators.test_models import CreatorFactory
 from pulseapi.entries.models import Entry
 from pulseapi.entries.test_models import EntryFactory
+from pulseapi.versioning import PulseAPIVersioning
 
 from pulseapi.utility.userpermissions import (
     is_staff_address,
@@ -196,3 +199,28 @@ class PulseStaffTestCase(TestCase):
 
     def generatePostPayload(self, data={}):
         return generate_payload(self, data)
+
+
+class TestAPIVersioning(TestCase):
+    """
+    Test API versioning
+    """
+    def setUp(self):
+        self.client = JSONDefaultClient()
+        self.factory = RequestFactory()
+
+    def test_status_route(self):
+        response = self.client.get(reverse('api-status'))
+        status = json.loads(str(response.content, 'utf-8'))
+
+        self.assertDictEqual(status, {
+            'latestApiVersion': API_VERSION_LIST[-1][1],
+        })
+
+    def test_versioning_scheme_default_version_fallback(self):
+        version_scheme = PulseAPIVersioning()
+        request = self.factory.get(reverse('entries-list'))
+        version = version_scheme.determine_version(request, version=None)
+
+        self.assertEqual(version, version_scheme.default_version)
+
