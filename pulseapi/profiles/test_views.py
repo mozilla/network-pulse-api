@@ -106,7 +106,7 @@ class TestProfileView(PulseMemberTestCase):
         (profile, created) = ProgramYear.objects.get_or_create(value='2018')
         self.assertEqual(created, False)
 
-    def test_profile_searching(self):
+    def test_profile_listing(self):
         profile_types = ['a', 'b', 'c']
         program_types = ['a', 'b']
         program_years = ['a', 'b']
@@ -124,7 +124,7 @@ class TestProfileView(PulseMemberTestCase):
                     profile.program_year = program_year
                     profile.save()
 
-        profile_url = reverse('profile_search')
+        profile_url = reverse('profile_list')
 
         # There should be four results for each profile type
         for profile_type in profile_types:
@@ -160,3 +160,10 @@ class TestProfileView(PulseMemberTestCase):
                     response = self.client.get(url)
                     entriesjson = json.loads(str(response.content, 'utf-8'))
                     self.assertEqual(len(entriesjson), 1)
+
+    def test_invalid_profile_listing_argument(self):
+        profile_url = reverse('profile_list')
+        url = ('{url}?unsupported_arg=should_be_empty_response').format(url=profile_url)
+        response = self.client.get(url)
+        entriesjson = json.loads(str(response.content, 'utf-8'))
+        self.assertEqual(len(entriesjson), 0)

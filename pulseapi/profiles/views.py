@@ -69,6 +69,10 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
         return super(UserProfileAPIView, self).put(request, *args, **kwargs)
 
 
+# NOTE: DRF has deprecated the FilterSet class in favor of
+# django_filters.rest_framework.FilterSet in v3.7.x, which
+# we aren't far from upgrading to.
+# SEE: https://github.com/mozilla/network-pulse-api/issues/288
 class ProfileCustomFilter(filters.FilterSet):
     """
       We add custom filtering to allow you to filter by:
@@ -97,12 +101,22 @@ class ProfileCustomFilter(filters.FilterSet):
         a legal filtering argument, we return an empty
         queryset, rather than every profile in existence.
         """
+        empty_set = UserProfile.objects.none()
+
+        request = self.request
+        if request is None:
+            return empty_set
+
         queries = self.request.GET
+        if queries is None:
+            return empty_set
+
         fields = ProfileCustomFilter.get_fields()
         for key in fields:
             if key in queries:
                 return super(ProfileCustomFilter, self).qs
-        return UserProfile.objects.none()
+
+        return empty_set
 
     class Meta:
         """
@@ -116,7 +130,7 @@ class ProfileCustomFilter(filters.FilterSet):
         ]
 
 
-class UserProfileAPISearchView(ListAPIView):
+class UserProfileListAPIView(ListAPIView):
     serializer_class = UserProfilePublicSerializer
 
     filter_backends = (

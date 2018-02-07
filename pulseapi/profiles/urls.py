@@ -2,7 +2,7 @@ from django.conf.urls import url
 
 from pulseapi.profiles.views import (
     # UserProfileAPIView, # see note below.
-    UserProfileAPISearchView,
+    UserProfileListAPIView,
     UserProfilePublicAPIView,
     UserProfilePublicSelfAPIView,
 )
@@ -23,7 +23,7 @@ urlpatterns = [
     # to the UserProfileAPIView class.
     url(
         r'^$',
-        UserProfileAPISearchView.as_view(),
-        name='profile_search',
+        UserProfileListAPIView.as_view(),
+        name='profile_list',
     ),
 ]
