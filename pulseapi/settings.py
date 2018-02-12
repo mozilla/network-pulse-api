@@ -184,7 +184,7 @@ API_VERSION_LIST = [
 # a version number
 API_VERSIONS = dict(API_VERSION_LIST)
 # A regex group to optionally capture a version in a url from the list of versions specified above
-VERSION_GROUP = r'((?P<version>\w+)/)?'
+VERSION_GROUP = r'((?P<version>v\d+)/)?'
 
 
 # REST Framework settings

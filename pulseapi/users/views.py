@@ -69,7 +69,7 @@ def new_nonce_value(request):
 
 
 # API ROUTE: /nonce
-def nonce(request):
+def nonce(request, **kwargs):
     """
     set a new random nonce to act as form post identifier
     and inform the user what this value is so they can use
@@ -125,7 +125,7 @@ def userstatus(request, **kwargs):
 
 
 # API ROUTE: /
-def index(request):
+def index(request, **kwargs):
     """
     Initial page with a link that lets us sign in through Google
     """
@@ -140,7 +140,7 @@ def index(request):
 
 
 # API ROUTE: /login
-def start_auth(request):
+def start_auth(request, **kwargs):
     """
     Specific login call for logging in through another front-end
     """
@@ -161,7 +161,7 @@ def start_auth(request):
 
 
 # API Route: /logout (immediately directs to /)
-def force_logout(request):
+def force_logout(request, **kwargs):
     """
     An explicit logout route.
     """
@@ -202,7 +202,7 @@ def do_final_redirect(state, loggedin, msg):
 
 
 # API Route: /oauth2callback (Redirects to / on success)
-def callback(request):
+def callback(request, **kwargs):
     """
     The callback route that Google will send the user to when authentication
     finishes (with successfully, or erroneously).
@@ -275,7 +275,7 @@ def callback(request):
 
 @api_view()
 @renderer_classes((JSONRenderer,))
-def api_status(request):
+def api_status(request, **kwargs):
     """
     Check whether the API is alive and running by returning some
     info about the API.

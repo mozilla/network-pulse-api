@@ -4,6 +4,7 @@ from django.test import TestCase, Client, RequestFactory
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
+from rest_framework import exceptions
 
 from pulseapi.settings import API_VERSION_LIST
 from pulseapi.users.models import EmailUser
@@ -208,6 +209,7 @@ class TestAPIVersioning(TestCase):
     def setUp(self):
         self.client = JSONDefaultClient()
         self.factory = RequestFactory()
+        self.version_scheme = PulseAPIVersioning()
 
     def test_status_route(self):
         response = self.client.get(reverse('api-status'))
@@ -217,10 +219,17 @@ class TestAPIVersioning(TestCase):
             'latestApiVersion': API_VERSION_LIST[-1][1],
         })
 
-    def test_versioning_scheme_default_version_fallback(self):
-        version_scheme = PulseAPIVersioning()
-        request = self.factory.get(reverse('entries-list'))
-        version = version_scheme.determine_version(request, version=None)
+    def test_versioning_scheme_default_version(self):
+        request = self.factory.get(reverse('api-status'))
+        version = self.version_scheme.determine_version(request, version=None)
 
-        self.assertEqual(version, version_scheme.default_version)
+        self.assertEqual(version, self.version_scheme.default_version)
+
+    def test_invalid_version(self):
+        request = self.factory.get(reverse('entries-list'))
+
+        with self.assertRaises(exceptions.NotFound) as context_manager:
+            self.version_scheme.determine_version(request, version='v100')
+
+        self.assertEqual(context_manager.exception.detail, self.version_scheme.invalid_version_message)
 

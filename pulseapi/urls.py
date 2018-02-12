@@ -27,30 +27,18 @@ from pulseapi.utility.syndication import (
 )
 from pulseapi.utility.urlutils import (
     versioned_url,
-    api_url,
     versioned_api_url,
 )
-
-
-rss_patterns = [
-    url(r'^latest', RSSFeedLatestFromPulse()),
-    url(r'^featured', RSSFeedFeaturedFromPulse()),
-]
-
-atom_patterns = [
-    url(r'^latest', AtomFeedLatestFromPulse()),
-    url(r'^featured', AtomFeedFeaturedFromPulse()),
-]
 
 urlpatterns = [
     # admin patterns
     url(r'^admin/', admin.site.urls),
 
     # 'homepage'
-    url(r'^', include('pulseapi.users.urls')),
+    url(versioned_url(r'^'), include('pulseapi.users.urls')),
 
     # API routes
-    url(api_url(), include('pulseapi.users.urls')),  # Non-versioned API url - r'^api/pulse/'
+    url(versioned_api_url(), include('pulseapi.users.urls')),
     url(versioned_api_url(r'entries/'), include('pulseapi.entries.urls')),
     url(versioned_api_url(r'profiles/'), include('pulseapi.profiles.urls')),
     url(versioned_api_url(r'tags/'), include('pulseapi.tags.urls')),
@@ -67,8 +55,10 @@ urlpatterns = [
     ),
 
     # Syndication
-    url(versioned_url(r'^rss/'), include(rss_patterns)),  # r'^rss/<optional version>/'
-    url(versioned_url(r'^atom/'), include(atom_patterns)),  # r'^atom/<optional version>/'
+    url(r'^rss/latest', RSSFeedLatestFromPulse()),
+    url(r'^rss/featured', RSSFeedFeaturedFromPulse()),
+    url(r'^atom/latest', AtomFeedLatestFromPulse()),
+    url(r'^atom/featured', AtomFeedFeaturedFromPulse()),
 ]
 
 if settings.USE_S3 is not True:

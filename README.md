@@ -10,6 +10,7 @@ All API routes are prefixed with `/api/pulse/`. The "pulse" might seem redundant
 
 # API documentation
 
+- [Versioning](#versioning)
 - [General Routes](#general-routes)
 - [Content-specific routes](#content-specific-routes)
 	- [Creators](#creators)
@@ -35,11 +36,29 @@ All API routes are prefixed with `/api/pulse/`. The "pulse" might seem redundant
 
 ---
 
+# Versioning
+
+## How is the API versioned?
+
+All Pulse API routes are versioned via their url path so that any future changes made to data responses will not break API clients that rely on specific versions of the data. To get a specific version of the API, add the version after the API prefix (`/api/pulse/`) in the url. For e.g. if you want version 2 (v2) of the API for the `entries` route, you would query the `/api/pulse/v2/entries/` url.
+
+API routes that do not include the `/api/pulse/` prefix are also versioned in the same way. For e.g. `/v1/login/` is a valid versioned route without the prefix. There are two exceptions to this - the `/rss/` prefixed routes and the `/atom/` prefied routes are not versioned.
+
+## What happens if you don't specify an API version in the URL?
+
+To maintain legacy support, if the version is not specified in the url, we default to version 1 (v1) of the API. For e.g. querying `/api/pulse/entries/` will have the same result as querying `/api/pulse/v1/entries/`. However, we strongly recommend specifying a version in the URL as this feature may be removed in the future.
+
+## Supported API Versions
+
+- Version 1 - `/api/pulse/v1/` and `/v1/`
+
+---
+
 # General Routes
 
 ## Login routes
 
-### `GET /api/pulse/login?original_url=<url>`
+### `GET /login?original_url=<url>`
 
 This will kick off a Google OAuth2 login process. This process is entirely based on browser redirects, and once this process completes the user will be redirect to `original_url` with an additional url query argument `loggedin=True` or `loggedin=False` depending on whether the login attemp succeeded or not.
 
@@ -51,7 +70,7 @@ This will log out a user if they have an authenticated session going. Note that 
 
 This is the route that oauth2 login systems must point to in order to complete an oauth2 login process with in-browser callback URL redirection.
 
-### `GET /api/pulse/v1/userstatus/`
+### `GET /api/pulse/userstatus/`
 
 This gets the current user's session information in the form of their full name and email address.
 
@@ -90,6 +109,18 @@ The call response is a 403 for not authenticated users, or a JSON object when au
 **This data should never be cached persistently**. Do not store this in localStorage, cookies, or any other persistent data store. When the user terminates their client, or logs out, this information should immediately be lost. Also do not store this in a global namespace like `window` or `document`, or in anything that isn't protected by a closure.
 
 Also note that "the page itself" counts as global scope, so you generally don't want to put these values on the page as `<form>` elements. Instead, a form submission should be intercepted, and an in-memory form should be created with all the information of the original form, but with the nonce and csrf values copied. The submission can then use this in-memory form as basis for its POST payload instead.
+
+## Healthcheck
+
+### `GET /status/`
+
+This is a healthcheck route that can be used to check the status of the pulse API server. The response contains the following information:
+
+```
+{
+  latestApiVersion: <version string>
+}
+```
 
 # Content-specific routes
 
@@ -139,7 +170,7 @@ Please run the server and see [http://localhost:8000/entries](http://localhost:8
 This retrieves a single entry with the indicated `id` as stored in the database. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
 
-### `POST /api/pulse/v1/entries/`
+### `POST /api/pulse/entries/`
 
 POSTing of entries requires sending the following payload object:
 
@@ -248,7 +279,7 @@ A failed post will yield
  - an HTTP 403 response if the current user is not authenticated
 
 
-### `PUT /api/pulse/v1/entries/<id=number>/bookmark`
+### `PUT /api/pulse/entries/<id=number>/bookmark`
 
 This toggles the "bookmarked" status for an entry for an authenticated user. No payload is expected, and no response is sent other than an HTTP 204 on success, HTTP 403 for not authenticated users, and HTTP 500 if something went terribly wrong on the server side.
 
@@ -260,7 +291,7 @@ This operation requires a payload of the following form:
 }
 ```
 
-### `GET /api/pulse/v1/entries/bookmarks` with optional `?format=json`
+### `GET /api/pulse/entries/bookmarks` with optional `?format=json`
 
 Get the list of all entries that have been bookmarked by the currently authenticated user. Calling this as anonymous user yields an object with property `count` equals to `0`.  As a base URL call this returns an HTML page with formatted result, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
@@ -324,7 +355,7 @@ The list of profiles known to the system can be queried, but **only** in conjunc
 
 This retrieves the **editable** user profile for the currently authenticated user as stored in the database. An unauthenticated user will receive an HTTP 403 Forbidden response if they try to access this route. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
-### `PUT /api/pulse/v1/myprofile/`
+### `PUT /api/pulse/myprofile/`
 
 Allows an authenticated user to update their profile data. The payload that needs to be passed into this PUT request is:
 
@@ -384,7 +415,7 @@ The above route can also be passed a `?search=...` query argument, which will fi
 
 # Syndication
 
-There are several syndication routes for RSS/Atom feeds available - these do not use the `/api/pulse` prefix:
+There are several syndication routes for RSS/Atom feeds available - these do not use the `/api/pulse` prefix and they are not versioned:
 
 ## RSS
 

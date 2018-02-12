@@ -1,7 +1,6 @@
 from django.conf.urls import url
 
 from . import views
-from pulseapi.utility.urlutils import versioned_url
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
@@ -9,8 +8,6 @@ urlpatterns = [
     url(r'^logout', views.force_logout, name='logout'),
     url(r'^oauth2callback', views.callback, name='oauthcallback'),
     url(r'^nonce', views.nonce, name="get a new nonce value"),
-    # /api/pulse/<version pattern>/userstatus
-    url(versioned_url(r'^') + 'userstatus', views.userstatus, name="get current user information"),
-    # /api/pulse/status/
+    url(r'^userstatus', views.userstatus, name="get current user information"),
     url(r'^status/', views.api_status, name='api-status'),
 ]
