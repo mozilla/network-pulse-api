@@ -232,4 +232,3 @@ class TestAPIVersioning(TestCase):
             self.version_scheme.determine_version(request, version='v100')
 
         self.assertEqual(context_manager.exception.detail, self.version_scheme.invalid_version_message)
-
