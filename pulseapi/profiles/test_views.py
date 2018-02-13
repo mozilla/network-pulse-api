@@ -22,7 +22,7 @@ class TestProfileView(PulseMemberTestCase):
         """
         Make sure profiles have "created_entries" array
         """
-        user = self.users_with_profiles[0];
+        user = self.users_with_profiles[0]
         profile = user.profile
         location = "Springfield, IL"
         profile.location = location
