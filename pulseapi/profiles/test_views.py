@@ -32,6 +32,7 @@ class TestProfileView(PulseMemberTestCase):
         )
 
         created_entries = [EntrySerializer(x.entry).data for x in entry_creators]
+        self.assertEqual(entriesjson['profile_id'], id)
         self.assertEqual(entriesjson['created_entries'], created_entries)
 
         # make sure extended profile data does not show
