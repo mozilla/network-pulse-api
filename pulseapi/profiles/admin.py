@@ -1,7 +1,14 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from pulseapi.utility.get_admin_url import get_admin_url
-from .models import Location, UserProfile, UserBookmarks
+from .models import (
+    Location,
+    ProfileType,
+    ProgramType,
+    ProgramYear,
+    UserProfile,
+    UserBookmarks,
+)
 
 
 class LocationInline(admin.TabularInline):
@@ -33,6 +40,12 @@ class UserProfileAdmin(admin.ModelAdmin):
         'linkedin',
         'github',
         'website',
+        'enable_extended_information',
+        'profile_type',
+        'program_type',
+        'program_year',
+        'affiliation',
+        'user_bio_long',
     )
 
     readonly_fields = (
@@ -72,3 +85,7 @@ class UserBookmarksAdmin(admin.ModelAdmin):
 
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(UserBookmarks, UserBookmarksAdmin)
+
+admin.site.register(ProfileType)
+admin.site.register(ProgramType)
+admin.site.register(ProgramYear)

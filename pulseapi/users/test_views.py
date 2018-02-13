@@ -37,7 +37,7 @@ class TestUserViews(PulseMemberTestCase):
     def test_user_status_true(self):
         """
         Assert that an authenticated user calling /userstatus is 200
-        with response { loggedin: true, username: "...", email: "..." }
+        with response { loggedin: true, username: "...", email: "...", profileid: "..." }
         """
         response = self.client.get('/api/pulse/userstatus/')
         self.assertEqual(response.status_code, 200)
@@ -46,4 +46,6 @@ class TestUserViews(PulseMemberTestCase):
         json_obj = json.loads(string)
         self.assertEqual(json_obj['loggedin'], True)
         self.assertEqual(json_obj['email'], 'test@example.org')
+        self.assertTrue(json_obj['profileid'])
+        self.assertEqual(type(json_obj['profileid']), str)
         self.assertEqual(json_obj['username'], 'plain user')

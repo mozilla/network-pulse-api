@@ -4,30 +4,75 @@
 
 This is the REST API server for the Mozilla Network Pulse project.
 
-- [Current API end points](#current-api-end-points)
+All API routes are prefixed with `/api/pulse/`. The "pulse" might seem redundant, but this lets us move the API to different domains and fold it into other API servers without namespace conflicts in the future.
+
+---
+
+# API documentation
+
+- [General Routes](#general-routes)
+- [Content-specific routes](#content-specific-routes)
+	- [Creators](#creators)
+	- [Entries](#entries)
+	- [Help Types](#help-types)
+	- [Issues](#issues)
+	- [Profiles](#profiles)
+	- [Tags](#tags)
+- [Syndication](#syndication)
+
+---
+
+# Developer information
+
 - [Getting up and running for local development](#getting-up-and-running-for-local-development)
 - [Setting up your superuser](#setting-up-your-superuser)
-- [Using a localhost rebinding to a "real" domain](#important-using-a-localhost-rebinding-to-a-real-domain)
+- [Running the server](#running-the-server)
 - [Environment variables](#environment-variables)
 - [Deploying to Heroku](#deploying-to-heroku)
-- [Debugging all the things](#debugging-all-the-things)
-- [Migrating data](#migrating-data)
+- [Debugging](#debugging-all-the-things)
+- [Resetting your database](#resetting-your-database-because-of-incompatible-model-changes)
+- [Migrating data from Google sheets](#migrating-data-from-google-sheets)
 
-## Resetting your database because of incompatible model changes
+---
 
-## Current API end points
+# General Routes
 
-All API routes are prefixed with `/api/pulse/`. The "pulse" might seem redundant, but this lets us move the API to different domains and fold it into other API servers without namespace conflicts.
+## Login routes
 
-### `GET /api/pulse/entries/` with optional `?format=json`
+### `GET /api/pulse/login?original_url=<url>`
 
-This retrieves the full list of entries as stored in the database. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+This will kick off a Google OAuth2 login process. This process is entirely based on browser redirects, and once this process completes the user will be redirect to `original_url` with an additional url query argument `loggedin=True` or `loggedin=False` depending on whether the login attemp succeeded or not.
 
-This route takes a swathe of optional arguments for filtering the entry set, visit this route in the browser for more detailed information on all available query arguments.
+### `GET /logout`
 
-#### Filters
+This will log out a user if they have an authenticated session going. Note that this route does not have a redirect path associated with it: simply calling `/logout` with an XHR or Fetch operation is enough to immediately log the user out and invalidate their session at the API server. The only acknowledgement that callers will receive around this operation succeeding is that if an HTTP 200 status code is received, logout succeeded.
 
-Please run the server and see [http://localhost:8000/entries](http://localhost:8000/entries) for all supported filters.
+### `GET /oauth2callback`
+
+This is the route that oauth2 login systems must point to in order to complete an oauth2 login process with in-browser callback URL redirection.
+
+### `GET /api/pulse/userstatus/`
+
+This gets the current user's session information in the form of their full name and email address.
+
+The call response is a JSON object of the following form:
+
+```
+{
+  username: <string: the user's full name according to Google>
+  profileid: <string: the user's profile id>
+  customname: <string: the user's custom name as set in their profile>
+  email: <string: the user's google-login-associated email address>
+  loggedin: <boolean: whether this user is logged in or not>
+  moderator: <boolean: whether this logged-in user has moderation rights>
+}
+```
+
+If a user is authenticated, all three fields will be present. If a user is not authenticated, the response object will only contain the `loggedin` key, with value `false`.
+
+**This data should never be cached persistently**. Do not store this in localStorage, cookies, or any other persistent data store. When the user terminates their client, or logs out, this information should immediately be lost. Also do not store this in a global namespace like `window` or `document`, or in anything that isn't protected by a closure.
+
+## POST protection
 
 ### `GET /api/pulse/nonce/`
 
@@ -46,25 +91,9 @@ The call response is a 403 for not authenticated users, or a JSON object when au
 
 Also note that "the page itself" counts as global scope, so you generally don't want to put these values on the page as `<form>` elements. Instead, a form submission should be intercepted, and an in-memory form should be created with all the information of the original form, but with the nonce and csrf values copied. The submission can then use this in-memory form as basis for its POST payload instead.
 
-### `GET /api/pulse/userstatus/`
+# Content-specific routes
 
-This gets the current user's session information in the form of their full name and email address.
-
-The call response is a JSON object of the following form:
-
-```
-{
-  username: <string: the user's full name according to Google>
-  customname: <string: the user's custom name as set in their profile>
-  email: <string: the user's google-login-associated email address>
-  loggedin: <boolean: whether this user is logged in or not>
-  moderator: <boolean: whether this logged-in user has moderation rights>
-}
-```
-
-If a user is authenticated, all three fields will be present. If a user is not authenticated, the response object will only contain the `loggedin` key, with value `false`.
-
-**This data should never be cached persistently**. Do not store this in localStorage, cookies, or any other persistent data store. When the user terminates their client, or logs out, this information should immediately be lost. Also do not store this in a global namespace like `window` or `document`, or in anything that isn't protected by a closure.
+## Creators
 
 ### `GET /api/pulse/creators/?name=...`
 
@@ -93,35 +122,22 @@ In this response:
 - `next` is a URL if there are more results than fit in a single result set (set to `null` if there are no additional pages of results).
 - `results` points to an array of creator records, where each creator has a `name` (string data), a `creator_id` (integer) as well as a `profile_id` (which is either an integer if the creator has an associated profile, or `false` if the creator does not have an associated profile). By default, this array will contain 6 objects, but this number can be increased (to a maximum of 20) by adding `&page_size=...` to the query with the desired results-per-page number.
 
-### `GET /api/pulse/issues/`
+## Entries
 
-Gets the list of internet health issues that entries can be related to. This route yields a documentation page unless the request mimetype is set to `application/json`, or the `?format=json` query argument is passed. When requesting JSON, this route yields an object of the form:
+### `GET /api/pulse/entries/` with optional `?format=json`
 
-```
-[{
-  name: "issue name",
-  description: "issue description"
-},{
-  name: ...
-  description: ...
-},
-...]
-```
+This retrieves the full list of entries as stored in the database. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
-### `GET /api/pulse/helptypes/`
+This route takes a swathe of optional arguments for filtering the entry set, visit this route in the browser for more detailed information on all available query arguments.
 
-Gets the list of help types that are used by entries to indicate how people can get involved. This route yields a documentation page unless the request mimetype is set to `application/json`, or the `?format=json` query argument is passed. When requesting JSON, this route yields an object of the form:
+#### Filters
 
-```
-[{
-  name: "help type name",
-  description: "help type description"
-},{
-  name: ...
-  description: ...
-},
-...]
-```
+Please run the server and see [http://localhost:8000/entries](http://localhost:8000/entries) for all supported filters.
+
+### `GET /api/pulse/entries/<id=number>/` with optional `?format=json`
+
+This retrieves a single entry with the indicated `id` as stored in the database. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+
 
 ### `POST /api/pulse/entries/`
 
@@ -169,6 +185,40 @@ A successful post will yield a JSON object:
 
 A failed post will yield an HTTP 400 response.
 
+## Entry Moderation
+
+### Moderation state
+
+#### `GET /api/pulse/entries/moderation-states/` with optional `?format=json`
+
+This retrieves the list of moderation states that are used for entry moderation. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+
+The result is of the format:
+```
+[
+{
+  id: "id number as string",
+  name: "human-readable name for this moderation state"
+},
+{...},
+...
+]
+```
+
+#### `PUT /api/pulse/entries/<id=number>/moderate/<id=number>` with optional `?format=json`
+
+This changes the moderation state for an entry to the passed moderations state. Note that the moderation state is indicated by `id` number, **not** by moderation state name.
+
+### Featured Entries
+
+#### `PUT /api/pulse/entries/<id=number>/feature` with optional `?format=json`
+
+This *toggles* the featured state for an entry if called by a user with moderation rights. An entry that was not featured will become featured, and already featured entries will become unfeatured when this route is called. 
+
+
+## Entry Bookmarking
+
+
 ### `POST /api/pulse/entries/bookmarks/ids=<a comma-separated list of integer ids>`
 
 POSTing to bookmark a list of entries requires sending the following payload object:
@@ -197,29 +247,6 @@ A failed post will yield
  - an HTTP 400 response if any entry id passed is invalid
  - an HTTP 403 response if the current user is not authenticated
 
-### `GET /api/pulse/entries/moderation-states/` with optional `?format=json`
-
-This retrieves the list of moderation states that are used for entry moderation. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
-
-The result is of the format:
-```
-[
-{
-  id: "id number as string",
-  name: "human-readable name for this moderation state"
-},
-{...},
-...
-]
-```
-
-### `GET /api/pulse/entries/<id=number>/` with optional `?format=json`
-
-This retrieves a single entry with the indicated `id` as stored in the database. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
-
-### `PUT /api/pulse/entries/<id=number>/moderate/<id=number>` with optional `?format=json`
-
-This changes the moderation state for an entry to the passed moderations state. Note that the moderation state is indicated by `id` number, **not** by moderation state name.
 
 ### `PUT /api/pulse/entries/<id=number>/bookmark`
 
@@ -237,9 +264,61 @@ This operation requires a payload of the following form:
 
 Get the list of all entries that have been bookmarked by the currently authenticated user. Calling this as anonymous user yields an object with property `count` equals to `0`.  As a base URL call this returns an HTML page with formatted result, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
+## Help Types
+
+### `GET /api/pulse/helptypes/`
+
+Gets the list of help types that are used by entries to indicate how people can get involved. This route yields a documentation page unless the request mimetype is set to `application/json`, or the `?format=json` query argument is passed. When requesting JSON, this route yields an object of the form:
+
+```
+[{
+  name: "help type name",
+  description: "help type description"
+},{
+  name: ...
+  description: ...
+},
+...]
+```
+
+
+## Issues
+
+### `GET /api/pulse/issues/`
+
+Gets the list of internet health issues that entries can be related to. This route yields a documentation page unless the request mimetype is set to `application/json`, or the `?format=json` query argument is passed. When requesting JSON, this route yields an object of the form:
+
+```
+[{
+  name: "issue name",
+  description: "issue description"
+},{
+  name: ...
+  description: ...
+},
+...]
+```
+
+### `GET /api/pulse/issues/<Issue Name>`
+
+Fetches the same data as above, but restricted to an individual issue queried for. Note that this is a URL query, not a URL argument query, so to see the data for an issue named "Security and Privacy" for example, the corresponding URL will be `/api/pulse/issues/Security and Privacy`. 
+
+
+## Profiles
+
+
 ### `GET /api/pulse/profiles/<id=number>/` with optional `?format=json`
 
 This retrieves a single user profile with the indicated `id` as stored in the database. Any profile can be retrieved using this route even without being authenticated. The payload returned by this route also includes an array of entries published (`published_entries`) by the user owning this profile and an array of entries created (`created_entries`) by this profile (as defined by other users when creating entries). As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+
+### `GET /api/pulse/profiles/?...` with a filter arguments, and optional `format=json`
+
+The list of profiles known to the system can be queried, but **only** in conjunction with one or more of three query arguments:
+
+- `profile_type`: filter the list by profile types `board member`, `fellow`, `grantee`, `plain`, or `staff`.
+- `program_type`: filter the list by program types `media fellow`, `open web fellow`, `science fellow`, `senior fellow`, or `tech policy fellow`.
+- `program_year`: filter the list by program year in the range 2015-2019 (inclusive).
+
 
 ### `GET /api/pulse/myprofile/` with optional `?format=json`
 
@@ -270,15 +349,68 @@ Also note that this PUT **must** be accompanied by the following header:
 X-CSRFToken: required csrf token string obtained from [GET /nonce]
 ```
 
-### `GET /api/pulse/login?original_url=<url>`
+#### Updating extended profile information
 
-This will kick off a Google OAuth2 login process. This process is entirely based on browser redirects, and once this process completes the user will be redirect to `original_url` with an additional url query argument `loggedin=True` or `loggedin=False` depending on whether the login attemp succeeded or not.
+If a user's profile has the `enable_extended_information` flag set to `True`, then there are additional fields that can be updated by this user:
 
-### `GET /logout`
+```
+{
+  ...
+  program_type: one of the above-listed program types
+  program_year: one of the above-listed program years
+  affiliation: the name of the primary organisation associated with the program the user is part of
+  user_bio_long: a long-form text for the user biography information (4096 character limit)
+}
+```
 
-This will log out a user if they have an authenticated session going. Note that this route does not have a redirect path associated with it: simply calling `/logout` with an XHR or Fetch operation is enough to immediately log the user out and invalidate their session at the API server. The only acknowledgement that callers will receive around this operation succeeding is that if an HTTP 200 status code is received, logout succeeded.
+## Tags
 
-## Getting up and running for local development
+### `GET /api/pulse/tags/` with optional `?format=json`
+
+This retrieves the list of all tags known to the system. When requesting JSON, this route yields an object of the form:
+
+```
+[
+  "tag 1",
+  "tag 2",
+  "tag 3",
+  ...
+]
+```
+
+### Filtering
+
+The above route can also be passed a `?search=...` query argument, which will filter the tag list based on `starts-with` logic, such that searching on `?search=abc` will find all tags that start with the partial string `abc`.
+
+# Syndication
+
+There are several syndication routes for RSS/Atom feeds available - these do not use the `/api/pulse` prefix:
+
+## RSS
+
+### `GET /rss/latest`
+
+Replies with an RSS feed consisting of (a subset of) the latest entries that were published to Mozilla Pulse.
+
+### `GET /rss/featured`
+
+Replies with an RSS feed consisting of (a subset of) only those entries that are currently considered featured content.
+
+## Atom
+
+### `GET /atom/latest`
+
+Replies with an Atom feed consisting of (a subset of) the latest entries that were published to Mozilla Pulse.
+
+### `GET /atom/featured`
+
+Replies with an Atom feed consisting of (a subset of) only those entries that are currently considered featured content.
+
+
+
+---
+
+# Getting up and running for local development
 
 You'll need `python` (v3) with `pip` (latest) and optionally `virtualenv` (python3 comes with a way to build virtual environments, but you can also install `virtualenv` as a dedicated library if you prefer)
 
@@ -315,11 +447,11 @@ As a Django server, this API server is run like any other Django server:
 
 - `python manage.py runserver`
 
-## Testing the API using the "3rd party library" test file
+### Testing the API using the "3rd party library" test file
 
 Fire up a localhost server with port 8080 pointing at the `public` directory (some localhost servers like [http-server](https://npmjs.com/package/http-server) do this automatically for you) and point your browser to [http://localhost:8080](http://localhost:8080). If all went well (but read this README.md to the end, first) you should be able to post to the API server running "on" http://test.example.com:8000
 
-## **Important**: using a localhost rebinding to a "real" domain
+### **Important**: using a localhost rebinding to a "real" domain
 
 Google Auth does not like oauth2 to `localhost`, so you will need to set up a host binding such that 127.0.0.1 looks like a real domain. You can do this by editing your `hosts` file (in `/etc/hosts` on most unix-like systems, or `Windows\System32\Drivers\etc\hosts` in Windows). Add the following rule:
 
@@ -327,7 +459,7 @@ Google Auth does not like oauth2 to `localhost`, so you will need to set up a ho
 
 and then use `http://test.example.com:8000` instead of `http://localhost:8000` everywhere. Google Auth should now be perfectly happy.
 
-### Why "test.example.com"?
+#### Why "test.example.com"?
 
 Example.com and example.org are "special" domains in that they *cannot* resolve to a real domain as part of the policy we, as the internet-connected world, agreed on. This means that if you forget to set that `hosts` binding, visiting test.example.com will be a guaranteed failure. Any other domain may in fact exist, and you don't want to be hitting a real website when you're doing login and authentication.
 
@@ -343,6 +475,7 @@ The following environment variables are used in this codebase
  - `TOKEN_URI`: optional, defaults to 'https://accounts.google.com/o/oauth2/token' and there is no reason to change it.
  - `SSL_PROTECTION`: Defaults to `False` to make development easier, but if you're deploying you probably want this to be `True`. This sets a slew of security-related variables in `settings.py` that you can override individually if desired.
  Heroku provisions some environmnets on its own, like a `PORT` and `DATABASE_URL` variable, which this codebase will make use of if it sees them, but these values are only really relevant to Heroku deployments and not something you need to mess with for local development purposes.
+ - `PULSE_FRONTEND_HOSTNAME`: Defaults to `localhost:3000`. Used by the RSS and Atom feed views to create entry URLs that link to the network pulse frontend rather than the JSON API.
 
 
 ## Deploying to Heroku
@@ -361,9 +494,9 @@ When working across multiple branches with multiple model changes, it sometimes 
 
 Simply run `python reset_database.py` and the steps mentioned above will be run automatically.
 
-**Note:** This does wipe *everything* so you will still need to call `python manage.py createsuperuser` to make sure you have a super user set up again.
+**Note:** This does wipe *everything* so you will still need to call `python manage.py createsuperuser` afterwards to make sure you have a super user set up again.
 
-## Migrating data
+## Migrating data from Google sheets
 
 To migrate data, export JSON from the Google Sheets db, and save it in the root directory as `migrationData.json`. Then run `python migrate.py`. This generates `massagedData.json`.
 In `public/migrate.html`, update the endpoint to be the address of the one you're trying to migrate data into. If it's a local db, leave as is.

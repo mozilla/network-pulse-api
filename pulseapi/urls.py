@@ -19,6 +19,12 @@ from django.contrib import admin
 from django.conf.urls.static import static
 
 from pulseapi.profiles.views import UserProfileAPIView
+from pulseapi.utility.syndication import (
+    RSSFeedLatestFromPulse,
+    AtomFeedLatestFromPulse,
+    RSSFeedFeaturedFromPulse,
+    AtomFeedFeaturedFromPulse
+)
 
 urlpatterns = [
     # admin patterns
@@ -42,7 +48,13 @@ urlpatterns = [
         r'^api/pulse/myprofile/',
         UserProfileAPIView.as_view(),
         name='myprofile'
-    )
+    ),
+
+    # Syndication
+    url(r'^rss/latest', RSSFeedLatestFromPulse()),
+    url(r'^rss/featured', RSSFeedFeaturedFromPulse()),
+    url(r'^atom/latest', AtomFeedLatestFromPulse()),
+    url(r'^atom/featured', AtomFeedFeaturedFromPulse()),
 ]
 
 if settings.USE_S3 is not True:

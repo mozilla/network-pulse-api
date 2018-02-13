@@ -9,6 +9,15 @@ from pulseapi.creators.models import OrderedCreatorRecord
 from pulseapi.entries.serializers import EntrySerializer
 
 
+# Helper function to remove a value from a dictionary
+# by key, removing the key itself as well.
+def remove_key(data, key):
+    try:
+        del data[key]
+    except:
+        pass
+
+
 class UserBookmarksSerializer(serializers.ModelSerializer):
     """
     Serializes a {user,entry,when} bookmark.
@@ -24,12 +33,30 @@ class UserBookmarksSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     """
     Serializes a user profile.
+
+    Note that the following fields should only show up when
+    the 'enable_extended_information' flag is set to True:
+
+    - user_bio_long
+    - program_type
+    - program_year
+    - affiliation
     """
-    user_bio = serializers.CharField(
-        max_length=140,
-        required=False,
-        allow_blank=True,
-    )
+
+    def __init__(self, instance=None, *args, **kwargs):
+        super().__init__(instance, *args, **kwargs)
+        if instance is not None and type(instance) is UserProfile:
+            # We type-check to prevent this from kicking in for entire
+            # QuerySet objects, rather than just UserProfile objects.
+            if instance.enable_extended_information is False:
+                self.fields.pop('user_bio_long')
+                self.fields.pop('program_type')
+                self.fields.pop('program_year')
+                self.fields.pop('affiliation')
+            # Whether this flag is set or not, it should not
+            # end up in the actual serialized profile data.
+            self.fields.pop('enable_extended_information')
+
     custom_name = serializers.CharField(
         max_length=70,
         required=False,
@@ -65,6 +92,25 @@ class UserProfileSerializer(serializers.ModelSerializer):
         required=False,
         allow_blank=True,
     )
+
+    user_bio = serializers.CharField(
+        max_length=140,
+        required=False,
+        allow_blank=True,
+    )
+
+    profile_type = serializers.StringRelatedField()
+    program_type = serializers.StringRelatedField()
+    program_year = serializers.StringRelatedField()
+
+    def update(self, instance, validated_data):
+        if instance.enable_extended_information is False:
+            remove_key(validated_data, 'user_bio_long')
+            remove_key(validated_data, 'program_type')
+            remove_key(validated_data, 'program_year')
+            remove_key(validated_data, 'affiliation')
+        remove_key(validated_data, 'enable_extended_information')
+        return super(UserProfileSerializer, self).update(instance, validated_data)
 
     class Meta:
         """
