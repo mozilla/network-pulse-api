@@ -482,6 +482,11 @@ The following environment variables are used in this codebase
 
 While for local development we provide a `sample.env` that you can use as default environment variables, for Heroku deployment all the above-stated variables need to be real things. **Make sure to add these to the Heroku config!**
 
+### Review App
+
+Opening a PR will automatically create a Review App in the `network-pulse-api` pipeline. It's not possible to 
+use OAuth but you can still access the admin with `test@mozillafoundation.org` as a user. To get the password, you need to go to the Heroku dashboard, click on the menu of your Review App and select `View initial app setup...`. The password is in the `Run scripts & scale dynos` log.
+
 
 ## Debugging all the things
 
