@@ -14,5 +14,5 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         password = EmailUser.objects.make_random_password()
         self.stdout.write('Your admin password is: {}'.format(password))
-        user = EmailUser.objects.create_superuser('test', 'test@test.org', password)
-        user.save()
+        admin = EmailUser.objects.create_superuser('test', 'test@mozillafoundation.org', password)
+        admin.save()
