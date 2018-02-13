@@ -57,10 +57,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             # end up in the actual serialized profile data.
             self.fields.pop('enable_extended_information')
 
-    profile_id = serializers.SerializerMethodField()
-
-    def get_profile_id(self, instance):
-        return instance.pk
+    profile_id = serializers.ReadOnlyField(source='id')
 
     custom_name = serializers.CharField(
         max_length=70,
