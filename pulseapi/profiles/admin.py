@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.utils.html import format_html
 from pulseapi.utility.get_admin_url import get_admin_url
 from .models import (
-    Location,
     ProfileType,
     ProgramType,
     ProgramYear,
@@ -11,19 +10,10 @@ from .models import (
 )
 
 
-class LocationInline(admin.TabularInline):
-    model = Location
-    verbose_name = 'location'
-
-
 class UserProfileAdmin(admin.ModelAdmin):
     """
     Show the profile-associated user.
     """
-
-    inlines = [
-        LocationInline,
-    ]
 
     fields = (
         'is_active',
@@ -31,6 +21,7 @@ class UserProfileAdmin(admin.ModelAdmin):
         'name',
         'custom_name',
         'is_group',
+        'location',
         'user_bio',
         'bookmark_count',
         'thumbnail',

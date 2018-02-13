@@ -22,9 +22,17 @@ class TestProfileView(PulseMemberTestCase):
         """
         Make sure profiles have "created_entries" array
         """
-        id = self.users_with_profiles[0].id
+        user = self.users_with_profiles[0];
+        profile = user.profile
+        location = "Springfield, IL"
+        profile.location = location
+        profile.save()
+
+        id = profile.id
         response = self.client.get(reverse('profile', kwargs={'pk': id}))
         entriesjson = json.loads(str(response.content, 'utf-8'))
+
+        self.assertEqual(entriesjson['location'], location)
 
         created_entries = []
         entry_creators = OrderedCreatorRecord.objects.filter(
