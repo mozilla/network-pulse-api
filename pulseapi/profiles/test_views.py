@@ -91,6 +91,19 @@ class TestProfileView(PulseMemberTestCase):
         profile.refresh_from_db()
         self.assertEqual(profile.affiliation, 'untouched')
 
+    def test_updating_readonly_profile_type(self):
+        profile = self.user.profile
+        current_profile_type = profile.profile_type.value
+        new_profile_type = ProfileType.objects.exclude(value=current_profile_type)[0].value
+
+        response = self.client.put(reverse('myprofile'), json.dumps({'profile_type': new_profile_type}))
+        self.assertEqual(response.status_code, 200)
+
+        # Make sure that the profile type was not changed since
+        # it is a readonly field
+        profile.refresh_from_db()
+        self.assertEqual(profile.profile_type.value, current_profile_type)
+
     def test_profile_type_uniqueness(self):
         # as found in the bootstrap migration:
         (profile, created) = ProfileType.objects.get_or_create(value='plain')

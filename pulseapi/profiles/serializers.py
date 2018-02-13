@@ -117,6 +117,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         Meta class. Because
         """
         model = UserProfile
+        read_only_fields = ('profile_type',)
         exclude = [
             'is_active',
             'bookmarks',
