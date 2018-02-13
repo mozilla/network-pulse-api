@@ -13,9 +13,6 @@
     "client_secret": {
       "required": true
     },
-    "CORS_ORIGIN_WHITELIST": {
-      "required": true
-    },
     "AWS_ACCESS_KEY_ID": {
       "required": true
     },
@@ -32,7 +29,8 @@
       "required": true
     },
     "USE_S3": "True",
-    "SSL_PROTECTION": "True"
+    "SSL_PROTECTION": "True",
+    "CORS_ORIGIN_ALLOW_ALL": "True"
   },
   "addons": [
     "heroku-postgresql:hobby-dev"
@@ -41,5 +39,8 @@
     {
       "url": "heroku/python"
     }
-  ]
+  ],
+  "scripts": {
+    "postdeploy": "python manage.py review_app_admin"
+  }
 }
