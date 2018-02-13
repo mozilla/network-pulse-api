@@ -159,8 +159,8 @@ class UserProfile(models.Model):
 
     is_group.short_description = 'This is a group profile.'
 
-    # We deal with location by asking to just write their location as
-    # they would if they were looking for it
+    # We deal with location by asking users to just write their
+    # location as they would if they were search maps for it.
     location = models.CharField(
         max_length=1024,
         blank=True
