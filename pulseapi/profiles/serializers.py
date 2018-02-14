@@ -64,6 +64,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         required=False,
         allow_blank=True,
     )
+    location = serializers.CharField(
+        max_length=1024,
+        required=False,
+        allow_blank=True,
+    )
     thumbnail = serializers.ImageField(
         required=False,
         allow_null=True,

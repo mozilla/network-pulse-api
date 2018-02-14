@@ -13,52 +13,6 @@ def entry_thumbnail_path(instance, filename):
     )
 
 
-# We want to capture the user or group's location, but we don't
-# want to do so in too fine a detail, so right now we mostly
-# care about city, and country that city is in.
-#
-class Location(models.Model):
-    """
-    THIS COMES WITH ASSUMPTION-PROBLEMS:
-
-    - A country might have two or more cities with the same name, but
-      in different administative regions of that country.
-
-    - Some cities lie in to countries. I know, that's crazy, but some do.
-
-    - Some people live or work or associate with more than one location,
-      especially if they live near an easily crossed border such as in
-      many European countries.
-
-    Making this do the right thing is going to take more work than any
-    initial model implementation can achieve.
-    """
-    city = models.CharField(
-        max_length=500,
-        blank=True
-    )
-
-    country = models.CharField(
-        max_length=500,
-        blank=True
-    )
-
-    # Note: in a simplistic world this would be a OneToOneField, but
-    # we do not live in a simplistic world, so one profile can in fact
-    # have multiple locations associated with it.
-    profile = models.ForeignKey(
-        'profiles.UserProfile',
-        blank=True,
-        null=True
-    )
-
-    def __str__(self):
-        return '{city}, {country}'.format(
-            city=self.city,
-            country=self.country
-        )
-
-
 class ProfileType(models.Model):
     """
     See https://github.com/mozilla/network-pulse/issues/657
@@ -204,6 +158,15 @@ class UserProfile(models.Model):
     )
 
     is_group.short_description = 'This is a group profile.'
+
+    # We deal with location by asking users to just write their
+    # location as they would if they were search maps for it.
+    location = models.CharField(
+        max_length=1024,
+        blank=True
+    )
+
+    location.short_description = 'User location (as would be typed in a maps search)'
 
     # Thumbnail image for this user; their "avatar" even though we
     # do not have anything on the site right now where avatars
