@@ -25,27 +25,31 @@ from pulseapi.utility.syndication import (
     RSSFeedFeaturedFromPulse,
     AtomFeedFeaturedFromPulse
 )
+from pulseapi.utility.urlutils import (
+    versioned_url,
+    versioned_api_url,
+)
 
 urlpatterns = [
     # admin patterns
     url(r'^admin/', admin.site.urls),
 
     # 'homepage'
-    url(r'^', include('pulseapi.users.urls')),
+    url(versioned_url(r'^'), include('pulseapi.users.urls')),
 
     # API routes
-    url(r'^api/pulse/', include('pulseapi.users.urls')),
-    url(r'^api/pulse/entries/', include('pulseapi.entries.urls')),
-    url(r'^api/pulse/profiles/', include('pulseapi.profiles.urls')),
-    url(r'^api/pulse/tags/', include('pulseapi.tags.urls')),
-    url(r'^api/pulse/issues/', include('pulseapi.issues.urls')),
-    url(r'^api/pulse/helptypes/', include('pulseapi.helptypes.urls')),
-    url(r'^api/pulse/creators/', include('pulseapi.creators.urls')),
+    url(versioned_api_url(), include('pulseapi.users.urls')),
+    url(versioned_api_url('entries/'), include('pulseapi.entries.urls')),
+    url(versioned_api_url('profiles/'), include('pulseapi.profiles.urls')),
+    url(versioned_api_url('tags/'), include('pulseapi.tags.urls')),
+    url(versioned_api_url('issues/'), include('pulseapi.issues.urls')),
+    url(versioned_api_url('helptypes/'), include('pulseapi.helptypes.urls')),
+    url(versioned_api_url('creators/'), include('pulseapi.creators.urls')),
 
     # We provide an alternative route on the main `/api/pulse` route to allow
     # getting and editing a user's profile for the currently authenticated user
     url(
-        r'^api/pulse/myprofile/',
+        versioned_api_url('myprofile/'),
         UserProfileAPIView.as_view(),
         name='myprofile'
     ),

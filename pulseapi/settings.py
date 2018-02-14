@@ -180,6 +180,31 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 
+# API Versioning
+# An ordered list of (<version key>, <version value>) tuples
+# where <version key> is the key used to identify a particular version
+# and <version value> is the value of the version that will be used in URLs
+API_VERSION_LIST = [
+    ('version_1', 'v1',),
+]
+DEFAULT_VERSION = 'version_1'
+# A dictonary of api versions with the value of each version key being
+# a version number
+API_VERSIONS = dict(API_VERSION_LIST)
+# A regex group to optionally capture a version in a url from the list of versions specified above
+VERSION_GROUP = r'((?P<version>v\d+)/)?'
+
+
+# REST Framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_VERSIONING_CLASS': 'pulseapi.versioning.PulseAPIVersioning',
+    # Default to v1 if no version is specified in the URL
+    # For e.g. /api/pulse/entries/ will default to /api/pulse/v1/
+    'DEFAULT_VERSION': API_VERSIONS[DEFAULT_VERSION],
+    'ALLOWED_VERSIONS': list(API_VERSIONS.values())
+}
+
+
 #
 # CORS settings
 #

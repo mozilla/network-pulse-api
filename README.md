@@ -1,4 +1,4 @@
-[![Travis Build Status](https://travis-ci.org/mozilla/network-pulse-api.svg?branch=master)](https://travis-ci.org/mozilla/network-pulse-api) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/mozilla/network-pulse-api?svg=true)](https://ci.appveyor.com/project/mozillafoundation/network-pulse-api)
+[![Travis Build Status](https://travis-ci.org/mozilla/network-pulse-api.svg?branch=master)](https://travis-ci.org/mozilla/network-pulse-api) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/mozilla/network-pulse-api?svg=true)](https://ci.appveyor.com/project/mozillafoundation/network-pulse-api) [![Current API Version](https://img.shields.io/badge/dynamic/json.svg?label=Current%20API%20Version&colorB=blue&prefix=&suffix=&query=$.latestApiVersion&uri=https%3A%2F%2Fpulse--api.mofostaging.net%2Fapi%2Fpulse%2Fstatus%2F)]
 
 # The Mozilla Foundation Network Pulse API Server
 
@@ -10,6 +10,7 @@ All API routes are prefixed with `/api/pulse/`. The "pulse" might seem redundant
 
 # API documentation
 
+- [Versioning](#versioning)
 - [General Routes](#general-routes)
 - [Content-specific routes](#content-specific-routes)
 	- [Creators](#creators)
@@ -35,11 +36,31 @@ All API routes are prefixed with `/api/pulse/`. The "pulse" might seem redundant
 
 ---
 
+# Versioning
+
+## How is the API versioned?
+
+All Pulse API routes are versioned via their url path so that any future changes made to data responses will not break API clients that rely on specific versions of the data. To get a specific version of the API, add the version after the API prefix (`/api/pulse/`) in the url. For example, if you want version 2 (v2) of the API for the `entries` route, you would query the `/api/pulse/v2/entries/` url.
+
+API routes that do not include the `/api/pulse/` prefix are also versioned in the same way. For example, `/v1/login/` is a valid versioned route without the prefix. Note however that the `/rss` and `/atom` routes are unversioned, as these are syndication endpoints.
+
+## What happens if you don't specify an API version in the URL?
+
+To maintain legacy support, if the version is not specified in the url, we default to version 1 (v1) of the API. For example, querying `/api/pulse/entries/` will have the same result as querying `/api/pulse/v1/entries/`. However, we strongly recommend specifying a version in the URL as this feature may be removed in the future.
+
+## Supported API Versions
+
+- Version 1 - `/api/pulse/v1/` and `/v1/`
+
+---
+
 # General Routes
+
+All routes, including those with the `/api/pulse/` prefix should include a version in the URL (see the section on [Versioning](#versioning)) and although a URLs without the version are currently supported, versions will be made mandatory in the future.
 
 ## Login routes
 
-### `GET /api/pulse/login?original_url=<url>`
+### `GET /login?original_url=<url>`
 
 This will kick off a Google OAuth2 login process. This process is entirely based on browser redirects, and once this process completes the user will be redirect to `original_url` with an additional url query argument `loggedin=True` or `loggedin=False` depending on whether the login attemp succeeded or not.
 
@@ -90,6 +111,18 @@ The call response is a 403 for not authenticated users, or a JSON object when au
 **This data should never be cached persistently**. Do not store this in localStorage, cookies, or any other persistent data store. When the user terminates their client, or logs out, this information should immediately be lost. Also do not store this in a global namespace like `window` or `document`, or in anything that isn't protected by a closure.
 
 Also note that "the page itself" counts as global scope, so you generally don't want to put these values on the page as `<form>` elements. Instead, a form submission should be intercepted, and an in-memory form should be created with all the information of the original form, but with the nonce and csrf values copied. The submission can then use this in-memory form as basis for its POST payload instead.
+
+## Healthcheck
+
+### `GET /status/`
+
+This is a healthcheck route that can be used to check the status of the pulse API server. The response contains the following information:
+
+```
+{
+  latestApiVersion: <version string>
+}
+```
 
 # Content-specific routes
 
@@ -213,7 +246,7 @@ This changes the moderation state for an entry to the passed moderations state. 
 
 #### `PUT /api/pulse/entries/<id=number>/feature` with optional `?format=json`
 
-This *toggles* the featured state for an entry if called by a user with moderation rights. An entry that was not featured will become featured, and already featured entries will become unfeatured when this route is called. 
+This *toggles* the featured state for an entry if called by a user with moderation rights. An entry that was not featured will become featured, and already featured entries will become unfeatured when this route is called.
 
 
 ## Entry Bookmarking
@@ -301,7 +334,7 @@ Gets the list of internet health issues that entries can be related to. This rou
 
 ### `GET /api/pulse/issues/<Issue Name>`
 
-Fetches the same data as above, but restricted to an individual issue queried for. Note that this is a URL query, not a URL argument query, so to see the data for an issue named "Security and Privacy" for example, the corresponding URL will be `/api/pulse/issues/Security and Privacy`. 
+Fetches the same data as above, but restricted to an individual issue queried for. Note that this is a URL query, not a URL argument query, so to see the data for an issue named "Security and Privacy" for example, the corresponding URL will be `/api/pulse/issues/Security and Privacy`.
 
 
 ## Profiles
@@ -384,7 +417,7 @@ The above route can also be passed a `?search=...` query argument, which will fi
 
 # Syndication
 
-There are several syndication routes for RSS/Atom feeds available - these do not use the `/api/pulse` prefix:
+There are several syndication routes for RSS/Atom feeds available - these do not use the `/api/pulse` prefix and they are not versioned:
 
 ## RSS
 
@@ -490,7 +523,7 @@ use OAuth but you can still access the admin with `test@mozillafoundation.org` a
 
 ## Debugging all the things
 
-You may have noticed that when running with `DEBUG=TRUE`, there is a debugger toolbar to the right of any page you try to access. This is the [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/stable/), and that link will take you straight to the documentation for it on how to get the most out of it while trying to figure out what's going on when problems arise. 
+You may have noticed that when running with `DEBUG=TRUE`, there is a debugger toolbar to the right of any page you try to access. This is the [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/stable/), and that link will take you straight to the documentation for it on how to get the most out of it while trying to figure out what's going on when problems arise.
 
 
 ## Resetting your database because of incompatible model changes

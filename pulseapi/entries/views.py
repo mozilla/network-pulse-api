@@ -22,7 +22,7 @@ from pulseapi.utility.userpermissions import is_staff_address
 
 
 @api_view(['PUT'])
-def toggle_bookmark(request, entryid):
+def toggle_bookmark(request, entryid, **kwargs):
     """
     Toggle whether or not this user "bookmarked" the url-indicated entry.
     This is currently defined outside of the entry class, as functionality
@@ -58,7 +58,7 @@ def toggle_bookmark(request, entryid):
 
 
 @api_view(['PUT'])
-def toggle_featured(request, entryid):
+def toggle_featured(request, entryid, **kwargs):
     """
     Toggle the featured status of an entry.
     """
@@ -83,7 +83,7 @@ def toggle_featured(request, entryid):
 
 
 @api_view(['PUT'])
-def toggle_moderation(request, entryid, stateid):
+def toggle_moderation(request, entryid, stateid, **kwargs):
     """
     Toggle the moderation state for a specific entry,
     based on moderation state id values. These values
