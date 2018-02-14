@@ -69,6 +69,8 @@ def new_nonce_value(request):
 
 
 # API ROUTE: /nonce
+# We include kwargs here to capture the version parameter from the url (whatever it may be named as) even though we do
+# not use it inside this function. To access the version inside this function, we use request.version.
 def nonce(request, **kwargs):
     """
     set a new random nonce to act as form post identifier
@@ -85,6 +87,8 @@ def nonce(request, **kwargs):
 
 
 # API ROUTE: /userstatus
+# We include kwargs here to capture the version parameter from the url (whatever it may be named as) even though we do
+# not use it inside this function. To access the version inside this function, we use request.version.
 def userstatus(request, **kwargs):
     """
     Get the login status associated with a session. If the
@@ -125,6 +129,8 @@ def userstatus(request, **kwargs):
 
 
 # API ROUTE: /
+# We include kwargs here to capture the version parameter from the url (whatever it may be named as) even though we do
+# not use it inside this function. To access the version inside this function, we use request.version.
 def index(request, **kwargs):
     """
     Initial page with a link that lets us sign in through Google
@@ -140,6 +146,8 @@ def index(request, **kwargs):
 
 
 # API ROUTE: /login
+# We include kwargs here to capture the version parameter from the url (whatever it may be named as) even though we do
+# not use it inside this function. To access the version inside this function, we use request.version.
 def start_auth(request, **kwargs):
     """
     Specific login call for logging in through another front-end
@@ -161,6 +169,8 @@ def start_auth(request, **kwargs):
 
 
 # API Route: /logout (immediately directs to /)
+# We include kwargs here to capture the version parameter from the url (whatever it may be named as) even though we do
+# not use it inside this function. To access the version inside this function, we use request.version.
 def force_logout(request, **kwargs):
     """
     An explicit logout route.
@@ -202,6 +212,8 @@ def do_final_redirect(state, loggedin, msg):
 
 
 # API Route: /oauth2callback (Redirects to / on success)
+# We include kwargs here to capture the version parameter from the url (whatever it may be named as) even though we do
+# not use it inside this function. To access the version inside this function, we use request.version.
 def callback(request, **kwargs):
     """
     The callback route that Google will send the user to when authentication
@@ -273,6 +285,8 @@ def callback(request, **kwargs):
     )
 
 
+# We include kwargs here to capture the version parameter from the url (whatever it may be named as) even though we do
+# not use it inside this function. To access the version inside this function, we use request.version.
 @api_view()
 @renderer_classes((JSONRenderer,))
 def api_status(request, **kwargs):

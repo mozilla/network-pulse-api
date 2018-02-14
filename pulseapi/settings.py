@@ -180,6 +180,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 API_VERSION_LIST = [
     ('version_1', 'v1',),
 ]
+DEFAULT_VERSION = 'version_1'
 # A dictonary of api versions with the value of each version key being
 # a version number
 API_VERSIONS = dict(API_VERSION_LIST)
@@ -192,7 +193,7 @@ REST_FRAMEWORK = {
     'DEFAULT_VERSIONING_CLASS': 'pulseapi.versioning.PulseAPIVersioning',
     # Default to v1 if no version is specified in the URL
     # For e.g. /api/pulse/entries/ will default to /api/pulse/v1/
-    'DEFAULT_VERSION': API_VERSIONS['version_1'],
+    'DEFAULT_VERSION': API_VERSIONS[DEFAULT_VERSION],
     'ALLOWED_VERSIONS': list(API_VERSIONS.values())
 }
 

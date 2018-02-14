@@ -40,13 +40,13 @@ All API routes are prefixed with `/api/pulse/`. The "pulse" might seem redundant
 
 ## How is the API versioned?
 
-All Pulse API routes are versioned via their url path so that any future changes made to data responses will not break API clients that rely on specific versions of the data. To get a specific version of the API, add the version after the API prefix (`/api/pulse/`) in the url. For e.g. if you want version 2 (v2) of the API for the `entries` route, you would query the `/api/pulse/v2/entries/` url.
+All Pulse API routes are versioned via their url path so that any future changes made to data responses will not break API clients that rely on specific versions of the data. To get a specific version of the API, add the version after the API prefix (`/api/pulse/`) in the url. For example, if you want version 2 (v2) of the API for the `entries` route, you would query the `/api/pulse/v2/entries/` url.
 
-API routes that do not include the `/api/pulse/` prefix are also versioned in the same way. For e.g. `/v1/login/` is a valid versioned route without the prefix. There are two exceptions to this - the `/rss/` prefixed routes and the `/atom/` prefied routes are not versioned.
+API routes that do not include the `/api/pulse/` prefix are also versioned in the same way. For example, `/v1/login/` is a valid versioned route without the prefix. Note however that the `/rss` and `/atom` routes are unversioned, as these are syndication endpoints.
 
 ## What happens if you don't specify an API version in the URL?
 
-To maintain legacy support, if the version is not specified in the url, we default to version 1 (v1) of the API. For e.g. querying `/api/pulse/entries/` will have the same result as querying `/api/pulse/v1/entries/`. However, we strongly recommend specifying a version in the URL as this feature may be removed in the future.
+To maintain legacy support, if the version is not specified in the url, we default to version 1 (v1) of the API. For example, querying `/api/pulse/entries/` will have the same result as querying `/api/pulse/v1/entries/`. However, we strongly recommend specifying a version in the URL as this feature may be removed in the future.
 
 ## Supported API Versions
 
@@ -55,6 +55,8 @@ To maintain legacy support, if the version is not specified in the url, we defau
 ---
 
 # General Routes
+
+All routes, including those with the `/api/pulse/` prefix should include a version in the URL (see the section on [Versioning](#versioning)) and although a URLs without the version are currently supported, versions will be made mandatory in the future.
 
 ## Login routes
 
