@@ -39,17 +39,17 @@ urlpatterns = [
 
     # API routes
     url(versioned_api_url(), include('pulseapi.users.urls')),
-    url(versioned_api_url(r'entries/'), include('pulseapi.entries.urls')),
-    url(versioned_api_url(r'profiles/'), include('pulseapi.profiles.urls')),
-    url(versioned_api_url(r'tags/'), include('pulseapi.tags.urls')),
-    url(versioned_api_url(r'issues/'), include('pulseapi.issues.urls')),
-    url(versioned_api_url(r'helptypes/'), include('pulseapi.helptypes.urls')),
-    url(versioned_api_url(r'creators/'), include('pulseapi.creators.urls')),
+    url(versioned_api_url('entries/'), include('pulseapi.entries.urls')),
+    url(versioned_api_url('profiles/'), include('pulseapi.profiles.urls')),
+    url(versioned_api_url('tags/'), include('pulseapi.tags.urls')),
+    url(versioned_api_url('issues/'), include('pulseapi.issues.urls')),
+    url(versioned_api_url('helptypes/'), include('pulseapi.helptypes.urls')),
+    url(versioned_api_url('creators/'), include('pulseapi.creators.urls')),
 
     # We provide an alternative route on the main `/api/pulse` route to allow
     # getting and editing a user's profile for the currently authenticated user
     url(
-        versioned_api_url(r'myprofile/'),
+        versioned_api_url('myprofile/'),
         UserProfileAPIView.as_view(),
         name='myprofile'
     ),
