@@ -36,7 +36,7 @@ class TestProfileView(PulseMemberTestCase):
 
         created_entries = []
         entry_creators = OrderedCreatorRecord.objects.filter(
-            creator__profile=self.users_with_profiles[0].id
+            creator__profile=id
         )
 
         created_entries = [EntrySerializer(x.entry).data for x in entry_creators]
