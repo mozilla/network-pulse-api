@@ -13,6 +13,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         password = EmailUser.objects.make_random_password()
-        self.stdout.write('Your admin password is: {}'.format(password))
         admin = EmailUser.objects.create_superuser('test', 'test@mozillafoundation.org', password)
         admin.save()
+        self.stdout.write('Admin user created. Password: {}'.format(password))
