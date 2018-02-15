@@ -7,6 +7,7 @@ python generate_client_secrets.py
 python manage.py makemigrations
 
 # Then migrate up.
+echo "HELLO THERE!"
 python manage.py migrate
 
 # Finally, start up the system
