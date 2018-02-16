@@ -3,7 +3,6 @@ from datetime import timezone
 from factory import (
     DjangoModelFactory,
     Faker,
-    LazyAttribute,
     SubFactory,
 )
 
