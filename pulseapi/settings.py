@@ -73,6 +73,7 @@ INSTALLED_APPS = list(filter(None, [
     'corsheaders',
     'rest_framework',
     'storages',
+    'pulseapi.utility',
     'pulseapi.entries',
     'pulseapi.tags',
     'pulseapi.issues',
