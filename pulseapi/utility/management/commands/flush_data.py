@@ -1,7 +1,6 @@
 """
 Can be used with load_fake_data script. Flush models to make sure that the database is empty before loading a new
-set of fake
-data.
+set of fake data.
 """
 from django.core.management.base import BaseCommand
 
