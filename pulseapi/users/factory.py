@@ -2,9 +2,11 @@ from factory import (
     DjangoModelFactory,
     Faker,
     Trait,
-    LazyAttribute)
+    LazyAttribute,
+    SubFactory)
 
 from pulseapi.users.models import EmailUser
+from pulseapi.profiles.factory import UserProfileFactory
 
 
 class BaseEmailUserFactory(DjangoModelFactory):
@@ -14,9 +16,10 @@ class BaseEmailUserFactory(DjangoModelFactory):
 
     email = Faker('email')
     name = Faker('name')
+    profile = SubFactory(UserProfileFactory)
 
 
-class MozillaEmailUserFactory(DjangoModelFactory):
+class MozillaEmailUserFactory(BaseEmailUserFactory):
 
     class Meta:
         model = EmailUser
@@ -29,5 +32,4 @@ class MozillaEmailUserFactory(DjangoModelFactory):
             is_superuser=True
         )
 
-    name = Faker('name')
     email = LazyAttribute(lambda o: '%s@mozillafoundation.org' % o.name.replace(' ', ''))
