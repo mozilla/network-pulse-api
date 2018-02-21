@@ -10,20 +10,35 @@ from factory import (
     SubFactory)
 
 from pulseapi.users.models import EmailUser
-from pulseapi.profiles.factory import UserProfileFactory
+from pulseapi.profiles.factory import BasicUserProfileFactory, ExtendedUserProfileFactory
 
 
-class BaseEmailUserFactory(DjangoModelFactory):
+class BasicEmailUserFactory(DjangoModelFactory):
 
     class Meta:
         model = EmailUser
 
+    class Params:
+        group = Trait(
+            profile=SubFactory(BasicUserProfileFactory, group=True),
+            name=Faker('sentence', nb_words=3, variable_nb_words=True)
+        )
+        active = Trait(
+            is_active=True
+        )
+        extended_profile = Trait(
+            profile=SubFactory(ExtendedUserProfileFactory)
+        )
+        use_custom_name = Trait(
+            profile=SubFactory(BasicUserProfileFactory, use_custom_name=True)
+        )
+
     email = Faker('email')
     name = Faker('name')
-    profile = SubFactory(UserProfileFactory)
+    profile = SubFactory(BasicUserProfileFactory)
 
 
-class MozillaEmailUserFactory(BaseEmailUserFactory):
+class MozillaEmailUserFactory(BasicEmailUserFactory):
 
     class Meta:
         model = EmailUser
@@ -35,5 +50,9 @@ class MozillaEmailUserFactory(BaseEmailUserFactory):
         admin = Trait(
             is_superuser=True
         )
+        extended_profile = Trait(
+            profile=SubFactory(ExtendedUserProfileFactory)
+        )
 
     email = LazyAttribute(lambda o: '%s@mozillafoundation.org' % o.name.replace(' ', ''))
+    profile = SubFactory(BasicUserProfileFactory)

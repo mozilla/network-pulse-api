@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from django.core.management import call_command
 
 # Factories
-from pulseapi.entries.factory import BaseEntryFactory
+from pulseapi.entries.factory import BasicEntryFactory
 from pulseapi.users.factory import BaseEmailUserFactory, MozillaEmailUserFactory
 
 
@@ -27,10 +27,13 @@ class Command(BaseCommand):
 
         self.stdout.write('Creating users')
         [BaseEmailUserFactory.create() for i in range(2)]
+        [BaseEmailUserFactory.create() for i in range(2)]
         [MozillaEmailUserFactory.create() for i in range(2)]
         [MozillaEmailUserFactory.create(staff=True, admin=True) for i in range(2)]
         [MozillaEmailUserFactory.create(staff=True) for i in range(2)]
 
         self.stdout.write('Creating pulse entries')
-        [BaseEntryFactory.create() for i in range(20)]
-        [BaseEntryFactory.create(mozillauser=True) for i in range(20)]
+        [BasicEntryFactory.create() for i in range(20)]
+        [BasicEntryFactory.create(mozillauser=True) for i in range(20)]
+
+# TODO UPDATE EVERYTHING!

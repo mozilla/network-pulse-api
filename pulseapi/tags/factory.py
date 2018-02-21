@@ -13,3 +13,5 @@ class TagFactory(DjangoModelFactory):
         model = Tag
 
     name = Faker('word')
+
+# TODO Create a tag list to use

@@ -6,12 +6,32 @@ from factory import (
     DjangoModelFactory,
     Trait,
     Faker,
+    post_generation,
+    Iterator,
 )
 
-from pulseapi.profiles.models import UserProfile
+from pulseapi.entries.models import Entry
+from pulseapi.issues.models import Issue
+from pulseapi.profiles.models import (
+    UserProfile,
+    ProfileType,
+    ProgramType,
+    ProgramYear,
+    UserBookmarks,
+)
+from pulseapi.utility.factories_utility import get_random_items
 
 
-class UserProfileFactory(DjangoModelFactory):
+class UserBookmarksFactory(DjangoModelFactory):
+
+    class Meta:
+        model = UserBookmarks
+
+    entry = Iterator(Entry.objects.all())
+    profile = Iterator(UserProfile.objects.all())
+
+
+class BasicUserProfileFactory(DjangoModelFactory):
 
     class Meta:
         model = UserProfile
@@ -27,8 +47,24 @@ class UserProfileFactory(DjangoModelFactory):
             is_group=True
         )
 
-    # TODO: finish missing base fields
     location = Faker('city')
     twitter = Faker('url')
+    linkedin = Faker('url')
+    github = Faker('url')
+    website = Faker('url')
 
-    # TODO: use factory.Maybe with extended flag to add extended info
+    @post_generation
+    def issues(self, create, extracted, **kwargs):
+        self.issues.add(*(get_random_items(Issue)))
+
+
+class ExtendedUserProfileFactory(BasicUserProfileFactory):
+
+    is_active = True
+    enable_extended_information = True
+    affiliation = Faker('sentence', nb_words=2, variable_nb_words=True)
+    user_bio = Faker('sentence', nb_words=4, variable_nb_words=True)
+    user_bio_long = Faker('paragraphs', nb=3)
+    profile_type = Iterator(ProfileType.objects.all())
+    program_type = Iterator(ProgramType.objects.all())
+    program_year = Iterator(ProgramYear.objects.all())

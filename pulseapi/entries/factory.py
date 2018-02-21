@@ -3,7 +3,6 @@ Create fake entries for local development and Heroku's review app.
 """
 
 from datetime import timezone
-from random import randrange, choices
 
 from factory import (
     DjangoModelFactory,
@@ -18,14 +17,10 @@ from pulseapi.helptypes.models import HelpType
 from pulseapi.issues.models import Issue
 from pulseapi.tags.models import Tag
 from pulseapi.users.models import EmailUser
+from pulseapi.utility.factories_utility import get_random_items
 
 
-def get_random_items(model):
-    items = model.objects.all()
-    return choices(items, k=randrange(len(items)))
-
-
-class BaseEntryFactory(DjangoModelFactory):
+class BasicEntryFactory(DjangoModelFactory):
 
     class Meta:
         model = Entry
@@ -58,7 +53,7 @@ class BaseEntryFactory(DjangoModelFactory):
         self.issues.add(*(get_random_items(Issue)))
 
 
-class GetInvolvedEntryFactory(BaseEntryFactory):
+class GetInvolvedEntryFactory(BasicEntryFactory):
 
     get_involved = Faker('paragraph', nb_sentences=3, variable_nb_sentences=True)
     get_involved_url = Faker('url')
