@@ -1,3 +1,7 @@
+"""
+Create fake users for local development and Heroku's review app.
+"""
+
 from factory import (
     DjangoModelFactory,
     Faker,

@@ -1,3 +1,7 @@
+"""
+Create fake profiles for local development and Heroku's review app.
+"""
+
 from factory import (
     DjangoModelFactory,
     Trait,
