@@ -15,6 +15,7 @@ environment:
     REDIRECT_URIS: http://test.example.com:8000/api/pulse/oauth2callback
     SSL_PROTECTION: False
     DATABASE_URL: postgres://postgres:Password12!@localhost:5432/pulseapi
+    SECRET_KEY: BetPHpGoUXUwjaAXm6ArIhV95xLdDZtu8QEGnNXY3eTknIkD
 
     matrix:
       - PYTHON: "C:\\Python36"
