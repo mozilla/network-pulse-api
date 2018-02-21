@@ -28,7 +28,9 @@ env = environ.Env(
     CORS_REGEX_WHITELIST=(tuple, ()),
     HEROKU_APP_NAME=(str, ''),
     PULSE_FRONTEND_HOSTNAME=(str, ''),
+    SECRET_KEY=(str, '')
 )
+
 SSL_PROTECTION = env('SSL_PROTECTION')
 
 # Quick-start development settings - unsuitable for production
@@ -57,7 +59,7 @@ if env('HEROKU_APP_NAME'):
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 31
-SECRET_KEY = 'Oh my god I love cake so much holy shit how amazing is cake; like, seriously?'
+SECRET_KEY = env('SECRET_KEY')
 
 # Application definition
 SITE_ID = 1
