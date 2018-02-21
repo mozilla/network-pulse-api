@@ -28,7 +28,13 @@ env = environ.Env(
     HEROKU_APP_NAME=(str, ''),
     PULSE_FRONTEND_HOSTNAME=(str, ''),
     CORS_REGEX_WHITELIST=(str, ''),
-    CORS_ORIGIN_WHITELIST=(list, ('localhost:3000','localhost:8000','localhost:8080','test.example.com:8000','test.example.com:3000')),
+    CORS_ORIGIN_WHITELIST=(list, (
+        'localhost:3000',
+        'localhost:8000',
+        'localhost:8080',
+        'test.example.com:8000',
+        'test.example.com:3000')
+    ),
 )
 SSL_PROTECTION = env('SSL_PROTECTION')
 
