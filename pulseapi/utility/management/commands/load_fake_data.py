@@ -6,8 +6,11 @@ from django.core.management.base import BaseCommand
 from django.core.management import call_command
 
 # Factories
-from pulseapi.entries.factory import BasicEntryFactory
-from pulseapi.users.factory import BaseEmailUserFactory, MozillaEmailUserFactory
+from pulseapi.creators.factory import OrderedCreatorRecordFactory, CreatorFactory
+from pulseapi.entries.factory import BasicEntryFactory, GetInvolvedEntryFactory
+from pulseapi.profiles.factory import UserBookmarksFactory
+from pulseapi.tags.factory import TagFactory
+from pulseapi.users.factory import BasicEmailUserFactory, MozillaEmailUserFactory
 
 
 class Command(BaseCommand):
@@ -25,15 +28,48 @@ class Command(BaseCommand):
         if options['delete']:
             call_command('flush_data')
 
-        self.stdout.write('Creating users')
-        [BaseEmailUserFactory.create() for i in range(2)]
-        [BaseEmailUserFactory.create() for i in range(2)]
-        [MozillaEmailUserFactory.create() for i in range(2)]
-        [MozillaEmailUserFactory.create(staff=True, admin=True) for i in range(2)]
-        [MozillaEmailUserFactory.create(staff=True) for i in range(2)]
+        self.stdout.write('Creating tags')
+        [TagFactory.create() for i in range(6)]
+
+        self.stdout.write('Creating generic users')
+        BasicEmailUserFactory.create()
+        [BasicEmailUserFactory.create(active=True) for i in range(2)]
+        BasicEmailUserFactory.create(extended_profile=True)
+        BasicEmailUserFactory.create(group=True)
+        BasicEmailUserFactory.create(group=True, active=True)
+        BasicEmailUserFactory.create(use_custom_name=True)
+        BasicEmailUserFactory.create(use_custom_name=True, active=True)
+
+        self.stdout.write('Creating Mozilla users')
+        MozillaEmailUserFactory.create()
+        MozillaEmailUserFactory.create(active=True)
+        MozillaEmailUserFactory.create(active=True, extended_profile=True)
+        MozillaEmailUserFactory.create(active=True, staff=True)
+        MozillaEmailUserFactory.create(active=True, staff=True, extended_profile=True)
+        MozillaEmailUserFactory.create(active=True, staff=True, admin=True)
+        MozillaEmailUserFactory.create(active=True, staff=True, admin=True, extended_profile=True)
 
         self.stdout.write('Creating pulse entries')
         [BasicEntryFactory.create() for i in range(20)]
+        [BasicEntryFactory.create(is_published_by_creator=True) for i in range(20)]
         [BasicEntryFactory.create(mozillauser=True) for i in range(20)]
+        [BasicEntryFactory.create(mozillauser=True, is_published_by_creator=True) for i in range(20)]
 
-# TODO UPDATE EVERYTHING!
+        self.stdout.write('Creating featured pulse entries')
+        [BasicEntryFactory.create(is_featured=True) for i in range(20)]
+        [BasicEntryFactory.create(is_featured=True, is_published_by_creator=True) for i in range(20)]
+        [BasicEntryFactory.create(mozillauser=True, is_featured=True) for i in range(20)]
+
+        self.stdout.write('Creating "get involved" pulse entries')
+        [GetInvolvedEntryFactory.create() for i in range(20)]
+        [GetInvolvedEntryFactory.create(is_featured=True) for i in range(20)]
+        [GetInvolvedEntryFactory.create(mozillauser=True) for i in range(20)]
+
+        self.stdout.write('Creating bookmarks')
+        [UserBookmarksFactory.create() for i in range(20)]
+
+        self.stdout.write('Creating creators')
+        [CreatorFactory.create() for i in range(5)]
+
+        self.stdout.write('Linking random creators with random entries')
+        [OrderedCreatorRecordFactory.create() for i in range(20)]

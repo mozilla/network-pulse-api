@@ -18,6 +18,7 @@ class BasicEmailUserFactory(DjangoModelFactory):
     class Meta:
         model = EmailUser
 
+    # TODO fix params to call subfactories
     class Params:
         group = Trait(
             profile=SubFactory(BasicUserProfileFactory, group=True),
@@ -33,6 +34,7 @@ class BasicEmailUserFactory(DjangoModelFactory):
             profile=SubFactory(BasicUserProfileFactory, use_custom_name=True)
         )
 
+    # TODO email generating from name
     email = Faker('email')
     name = Faker('name')
     profile = SubFactory(BasicUserProfileFactory)

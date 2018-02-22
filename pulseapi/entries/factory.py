@@ -9,15 +9,17 @@ from factory import (
     Faker,
     Iterator,
     Trait,
-    post_generation
-)
+    post_generation,
+    LazyAttribute)
 
 from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.helptypes.models import HelpType
 from pulseapi.issues.models import Issue
 from pulseapi.tags.models import Tag
 from pulseapi.users.models import EmailUser
-from pulseapi.utility.factories_utility import get_random_items
+from pulseapi.utility.factories_utility import get_random_items, ImageProvider
+
+Faker.add_provider(ImageProvider)
 
 
 class BasicEntryFactory(DjangoModelFactory):
@@ -36,7 +38,8 @@ class BasicEntryFactory(DjangoModelFactory):
             published_by_creator=True
         )
 
-    title = Faker('sentence', nb_words=12, variable_nb_words=True)
+    # TODO fix the Lazy attribute error when I try to remove dots from title
+    title = Faker('sentence', nb_words=8, variable_nb_words=True)
     content_url = Faker('url')
     created = Faker('past_datetime', start_date='-30d', tzinfo=timezone.utc)
     published_by = Iterator(EmailUser.objects.exclude(email__icontains='mozilla'))
@@ -51,6 +54,10 @@ class BasicEntryFactory(DjangoModelFactory):
     @post_generation
     def issues(self, create, extracted, **kwargs):
         self.issues.add(*(get_random_items(Issue)))
+
+    @post_generation
+    def set_thumbnail(self, create, extracted, **kwargs):
+        self.thumbnail.name = Faker('generic_image').generate({})
 
 
 class GetInvolvedEntryFactory(BasicEntryFactory):

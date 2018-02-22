@@ -19,7 +19,9 @@ from pulseapi.profiles.models import (
     ProgramYear,
     UserBookmarks,
 )
-from pulseapi.utility.factories_utility import get_random_items
+from pulseapi.utility.factories_utility import get_random_items, ImageProvider
+
+Faker.add_provider(ImageProvider)
 
 
 class UserBookmarksFactory(DjangoModelFactory):
@@ -57,6 +59,10 @@ class BasicUserProfileFactory(DjangoModelFactory):
     def issues(self, create, extracted, **kwargs):
         self.issues.add(*(get_random_items(Issue)))
 
+    @post_generation
+    def set_thumbnail(self, create, extracted, **kwargs):
+        self.thumbnail.name = Faker('people_image').generate({})
+
 
 class ExtendedUserProfileFactory(BasicUserProfileFactory):
 
@@ -65,6 +71,7 @@ class ExtendedUserProfileFactory(BasicUserProfileFactory):
     affiliation = Faker('sentence', nb_words=2, variable_nb_words=True)
     user_bio = Faker('sentence', nb_words=4, variable_nb_words=True)
     user_bio_long = Faker('paragraphs', nb=3)
+    # Used default values from the database
     profile_type = Iterator(ProfileType.objects.all())
     program_type = Iterator(ProgramType.objects.all())
     program_year = Iterator(ProgramYear.objects.all())
