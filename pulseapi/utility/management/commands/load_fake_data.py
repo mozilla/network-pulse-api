@@ -2,10 +2,12 @@
 Populate the database with fake data. Used for Heroku's review apps and local development.
 """
 import factory
-from random import randint
+from random import randint, sample
 
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
+
+from pulseapi.entries.models import Entry
 
 # Factories
 from pulseapi.creators.factory import OrderedCreatorRecordFactory, CreatorFactory
@@ -85,12 +87,16 @@ class Command(BaseCommand):
         [GetInvolvedEntryFactory.create(mozillauser=True) for i in range(20)]
 
         self.stdout.write('Creating bookmarks')
-        [UserBookmarksFactory.create() for i in range(100)]
+        # Select random entries and bookmark them for 1 to 10 users
+        for e in sample(list(Entry.objects.all()), k=100):
+            [UserBookmarksFactory.create(entry=e) for i in range(randint(1, 10))]
 
         self.stdout.write('Creating creators')
         [CreatorFactory.create() for i in range(5)]
 
         self.stdout.write('Linking random creators with random entries')
-        [OrderedCreatorRecordFactory.create() for i in range(100)]
+        # Select random entries and link them to 1 to 5 creators
+        for e in sample(list(Entry.objects.all()), k=100):
+            [OrderedCreatorRecordFactory.create(entry=e) for i in range(randint(1, 5))]
 
         self.stdout.write(self.style.SUCCESS('Done!'))

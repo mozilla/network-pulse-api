@@ -9,7 +9,6 @@ from factory import (
 )
 
 from pulseapi.creators.models import Creator, OrderedCreatorRecord
-from pulseapi.entries.models import Entry
 
 
 # Create creators that are not pulse users
@@ -27,5 +26,4 @@ class OrderedCreatorRecordFactory(DjangoModelFactory):
     class Meta:
         model = OrderedCreatorRecord
 
-    entry = Iterator(Entry.objects.all())
     creator = Iterator(Creator.objects.all())

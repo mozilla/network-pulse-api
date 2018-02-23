@@ -10,7 +10,6 @@ from factory import (
     Iterator,
 )
 
-from pulseapi.entries.models import Entry
 from pulseapi.issues.models import Issue
 from pulseapi.profiles.models import (
     UserProfile,
@@ -29,7 +28,6 @@ class UserBookmarksFactory(DjangoModelFactory):
     class Meta:
         model = UserBookmarks
 
-    entry = Iterator(Entry.objects.all())
     profile = Iterator(UserProfile.objects.all())
 
 
