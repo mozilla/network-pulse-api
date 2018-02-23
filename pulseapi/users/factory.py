@@ -7,7 +7,8 @@ from factory import (
     Faker,
     Trait,
     LazyAttribute,
-    SubFactory)
+    SubFactory,
+)
 
 from pulseapi.users.models import EmailUser
 from pulseapi.profiles.factory import BasicUserProfileFactory, ExtendedUserProfileFactory
@@ -17,15 +18,15 @@ class BasicEmailUserFactory(DjangoModelFactory):
 
     class Meta:
         model = EmailUser
+        exclude = ('email_domain',)
 
-    # TODO fix params to call subfactories
     class Params:
         group = Trait(
             profile=SubFactory(BasicUserProfileFactory, group=True),
             name=Faker('sentence', nb_words=3, variable_nb_words=True)
         )
         active = Trait(
-            is_active=True
+            profile=SubFactory(BasicUserProfileFactory, is_active=True)
         )
         extended_profile = Trait(
             profile=SubFactory(ExtendedUserProfileFactory)
@@ -34,10 +35,12 @@ class BasicEmailUserFactory(DjangoModelFactory):
             profile=SubFactory(BasicUserProfileFactory, use_custom_name=True)
         )
 
-    # TODO email generating from name
-    email = Faker('email')
+    email = LazyAttribute(lambda o: o.name.replace(' ', '') + '@' + o.email_domain)
     name = Faker('name')
     profile = SubFactory(BasicUserProfileFactory)
+
+    # LazyAttribute helper value
+    email_domain = Faker('domain_name')
 
 
 class MozillaEmailUserFactory(BasicEmailUserFactory):

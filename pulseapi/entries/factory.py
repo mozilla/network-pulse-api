@@ -10,7 +10,8 @@ from factory import (
     Iterator,
     Trait,
     post_generation,
-    LazyAttribute)
+    LazyAttribute,
+)
 
 from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.helptypes.models import HelpType
@@ -26,6 +27,7 @@ class BasicEntryFactory(DjangoModelFactory):
 
     class Meta:
         model = Entry
+        exclude = ('title_sentence',)
 
     class Params:
         mozillauser = Trait(
@@ -38,14 +40,15 @@ class BasicEntryFactory(DjangoModelFactory):
             published_by_creator=True
         )
 
-    # TODO fix the Lazy attribute error when I try to remove dots from title
-    title = Faker('sentence', nb_words=8, variable_nb_words=True)
+    title = LazyAttribute(lambda o: o.title_sentence.rstrip('.'))
     content_url = Faker('url')
     created = Faker('past_datetime', start_date='-30d', tzinfo=timezone.utc)
     published_by = Iterator(EmailUser.objects.exclude(email__icontains='mozilla'))
     moderation_state = Iterator(ModerationState.objects.all())
     description = Faker('paragraph', nb_sentences=6, variable_nb_sentences=True)
     internal_notes = Faker('paragraph', nb_sentences=3, variable_nb_sentences=True)
+
+    title_sentence = Faker('sentence', nb_words=8, variable_nb_words=True)
 
     @post_generation
     def tags(self, create, extracted, **kwargs):

@@ -28,7 +28,7 @@
     "AWS_STORAGE_ROOT": {
       "required": true
     },
-    "USE_S3": "False",
+    "USE_S3": "True",
     "SSL_PROTECTION": "False",
     "CORS_ORIGIN_ALLOW_ALL": "True"
   },

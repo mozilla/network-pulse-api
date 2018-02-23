@@ -1,6 +1,8 @@
 """
 Populate the database with fake data. Used for Heroku's review apps and local development.
 """
+import factory
+from random import randint
 
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
@@ -24,9 +26,26 @@ class Command(BaseCommand):
             help='Delete previous data from the database'
         )
 
+        parser.add_argument(
+            '--seed',
+            action='store',
+            dest='seed',
+            help='A seed value to pass to Faker before generating data'
+        )
+
     def handle(self, *args, **options):
         if options['delete']:
             call_command('flush_data')
+
+        if options['seed']:
+            seed = options['seed']
+        else:
+            seed = randint(0, 5000000)
+
+        self.stdout.write('Seeding Faker with {}'. format(seed))
+
+        faker = factory.faker.Faker._get_faker(locale='en-US')
+        faker.random.seed(seed)
 
         self.stdout.write('Creating tags')
         [TagFactory.create() for i in range(6)]
@@ -66,10 +85,12 @@ class Command(BaseCommand):
         [GetInvolvedEntryFactory.create(mozillauser=True) for i in range(20)]
 
         self.stdout.write('Creating bookmarks')
-        [UserBookmarksFactory.create() for i in range(20)]
+        [UserBookmarksFactory.create() for i in range(100)]
 
         self.stdout.write('Creating creators')
         [CreatorFactory.create() for i in range(5)]
 
         self.stdout.write('Linking random creators with random entries')
-        [OrderedCreatorRecordFactory.create() for i in range(20)]
+        [OrderedCreatorRecordFactory.create() for i in range(100)]
+
+        self.stdout.write(self.style.SUCCESS('Done!'))
