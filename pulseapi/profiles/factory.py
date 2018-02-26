@@ -71,7 +71,7 @@ class ExtendedUserProfileFactory(BasicUserProfileFactory):
     enable_extended_information = True
     affiliation = LazyAttribute(lambda o: o.affiliation_sentence.rstrip('.'))
     user_bio = Faker('sentence', nb_words=4, variable_nb_words=True)
-    user_bio_long = Faker('paragraphs', nb=3)
+    user_bio_long = Faker('paragraph', nb_sentences=15, variable_nb_sentences=True)
     # Used default values from the database
     profile_type = Iterator(ProfileType.objects.all())
     program_type = Iterator(ProgramType.objects.all())
