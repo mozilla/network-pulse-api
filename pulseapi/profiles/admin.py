@@ -48,7 +48,9 @@ class UserProfileAdmin(admin.ModelAdmin):
 
     list_display = (
         'name',
+        'profile_type',
         'program_type',
+        'program_year',
         'user_account',
     )
 
