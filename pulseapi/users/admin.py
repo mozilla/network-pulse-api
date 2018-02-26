@@ -34,9 +34,6 @@ class EmailUserAdmin(admin.ModelAdmin):
         'name',
     )
 
-    list_display = ('name', 'email', 'profile',)
-    search_fields = ('name', 'email',)
-
     def entries(self, instance):
         entries = Entry.objects.filter(published_by=instance)
         rows = ['<tr><td><a href="{url}">{title} (id={id})</a></td></tr>'.format(
