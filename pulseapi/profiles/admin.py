@@ -46,23 +46,6 @@ class UserProfileAdmin(admin.ModelAdmin):
         'bookmark_count',
     )
 
-    list_display = (
-        'name',
-        'user_account',
-        'program_type',
-    )
-
-    list_filter = (
-        'profile_type',
-        'program_type',
-        'program_year',
-    )
-
-    search_fields = (
-        'name',
-        'user_account',
-    )
-
     def name(self, instance):
         return instance.name or '-'
 
