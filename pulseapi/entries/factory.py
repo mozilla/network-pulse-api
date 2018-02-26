@@ -52,11 +52,11 @@ class BasicEntryFactory(DjangoModelFactory):
 
     @post_generation
     def tags(self, create, extracted, **kwargs):
-        self.tags.add(*(get_random_items(Tag)))
+        self.tags.add(*get_random_items(Tag))
 
     @post_generation
     def issues(self, create, extracted, **kwargs):
-        self.issues.add(*(get_random_items(Issue)))
+        self.issues.add(*get_random_items(Issue))
 
     @post_generation
     def set_thumbnail(self, create, extracted, **kwargs):

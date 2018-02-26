@@ -11,7 +11,7 @@ from pulseapi.users.models import EmailUser
 from pulseapi.users.test_models import EmailUserFactory
 from pulseapi.profiles.test_models import UserProfileFactory
 from pulseapi.creators.models import OrderedCreatorRecord
-from pulseapi.creators.test_models import CreatorFactory
+from pulseapi.creators.factory import CreatorFactory
 from pulseapi.entries.models import Entry
 from pulseapi.entries.test_models import EntryFactory
 from pulseapi.versioning import PulseAPIVersioning

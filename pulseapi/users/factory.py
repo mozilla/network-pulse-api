@@ -23,7 +23,7 @@ class BasicEmailUserFactory(DjangoModelFactory):
     class Params:
         group = Trait(
             profile=SubFactory(BasicUserProfileFactory, group=True),
-            name=Faker('sentence', nb_words=3, variable_nb_words=True)
+            name=Faker('color_name')
         )
         active = Trait(
             profile=SubFactory(BasicUserProfileFactory, is_active=True)
