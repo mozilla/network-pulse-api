@@ -46,6 +46,26 @@ class UserProfileAdmin(admin.ModelAdmin):
         'bookmark_count',
     )
 
+    list_display = (
+        'name',
+        'profile_type',
+        'program_type',
+        'program_year',
+        'user_account',
+    )
+
+    list_filter = (
+        'profile_type',
+        'program_type',
+        'program_year',
+    )
+
+    search_fields = (
+        'custom_name',
+        'related_user__name',
+        'related_user__email',
+    )
+
     def name(self, instance):
         return instance.name or '-'
 
@@ -55,8 +75,8 @@ class UserProfileAdmin(admin.ModelAdmin):
         user = instance.user
         html = '<a href="{url}">{account}</a>'.format(
             url=get_admin_url(user),
-            account=user.email if user else None
-        )
+            account=user.email
+        ) if user else 'Orphan profile'
         return format_html(html)
 
     def bookmark_count(self, instance):
