@@ -86,9 +86,10 @@ class Command(BaseCommand):
         [GetInvolvedEntryFactory.create(is_featured=True) for i in range(20)]
         [GetInvolvedEntryFactory.create(mozillauser=True) for i in range(20)]
 
-        # Select random entries and bookmark them for 1 to 10 users
+        # Select random published entries and bookmark them for 1 to 10 users
         self.stdout.write('Creating bookmarks')
-        for e in sample(list(Entry.objects.all()), k=100):
+        approved_entries = Entry.objects.public()
+        for e in sample(list(approved_entries), k=len(approved_entries)//2):
             [UserBookmarksFactory.create(entry=e) for i in range(randint(1, 10))]
 
         self.stdout.write('Creating creators')

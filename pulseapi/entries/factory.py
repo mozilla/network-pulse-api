@@ -48,6 +48,7 @@ class BasicEntryFactory(DjangoModelFactory):
     description = Faker('paragraph', nb_sentences=6, variable_nb_sentences=True)
     internal_notes = Faker('paragraph', nb_sentences=3, variable_nb_sentences=True)
 
+    # LazyAttribute helper value
     title_sentence = Faker('sentence', nb_words=8, variable_nb_words=True)
 
     @post_generation

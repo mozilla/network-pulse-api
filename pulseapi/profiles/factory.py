@@ -8,7 +8,7 @@ from factory import (
     Faker,
     post_generation,
     Iterator,
-    LazyAttribute)
+)
 
 from pulseapi.issues.models import Issue
 from pulseapi.profiles.models import (
@@ -64,17 +64,12 @@ class BasicUserProfileFactory(DjangoModelFactory):
 
 class ExtendedUserProfileFactory(BasicUserProfileFactory):
 
-    class Meta:
-        exclude = ('affiliation_sentence',)
-
     is_active = True
     enable_extended_information = True
-    affiliation = LazyAttribute(lambda o: o.affiliation_sentence.rstrip('.'))
+    affiliation = Faker('company')
     user_bio = Faker('sentence', nb_words=4, variable_nb_words=True)
     user_bio_long = Faker('paragraph', nb_sentences=15, variable_nb_sentences=True)
     # Used default values from the database
     profile_type = Iterator(ProfileType.objects.all())
     program_type = Iterator(ProgramType.objects.all())
     program_year = Iterator(ProgramYear.objects.all())
-
-    affiliation_sentence = Faker('sentence', nb_words=2, variable_nb_words=True)
