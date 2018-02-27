@@ -269,7 +269,7 @@ class UserProfile(models.Model):
 
     def __str__(self):
         if self.user is None:
-            return 'orphan profile'
+            return self.custom_name
 
         return 'profile for {}'.format(self.user.email)
 
