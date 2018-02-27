@@ -134,19 +134,10 @@ class UserProfile(models.Model):
     #       because it is not an actual field.
     @property
     def user(self):
-        # We do not import EmailUser directly so that we don't end up with
-        # a circular import. Instead, we dynamically get the model via its
-        # relationship with `UserProfile`.
-        EmailUser = self._meta.get_field('related_user').related_model
-
+        # Import EmailUser here to avoid circular import
+        from pulseapi.users.models import EmailUser
         try:
-            # We have to fetch the user for this profile from the database
-            # vs. accessing `self.related_user` because `related_user` is not
-            # an actual field in the `UserProfile` model and we aren't dealing
-            # with a full instance of the model in this function through which
-            # we could have accessed reverse relations.
-            related_user = EmailUser.objects.get(profile=self)
-            return related_user
+            return self.related_user
         except EmailUser.DoesNotExist:
             return None
 
