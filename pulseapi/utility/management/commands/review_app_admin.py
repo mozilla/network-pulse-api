@@ -9,7 +9,7 @@ from pulseapi.users.models import EmailUser
 
 
 class Command(BaseCommand):
-    help = "Create a super admin user to use on Heroku Review App"
+    help = "Create a superuser to use on Heroku Review App"
 
     def handle(self, *args, **options):
         password = EmailUser.objects.make_random_password()

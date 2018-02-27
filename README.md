@@ -474,6 +474,17 @@ password (again): admin
 
 because it's easy to remember and doesn't require any kind of password management beyond "the browser itself".
 
+## Loading fake data
+
+Fake model data can be loaded into your dev site with the following command:
+
+- `python manage.py load_fake_data`
+
+Two options are available:
+
+- `--delete`: Delete bookmarks, creators, entries, profiles, tags and users from the database,
+- `--seed`: A seed value to pass to Faker before generating data.
+
 ## Running the server
 
 As a Django server, this API server is run like any other Django server:
