@@ -201,6 +201,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # and <version value> is the value of the version that will be used in URLs
 API_VERSION_LIST = [
     ('version_1', 'v1',),
+    ('version_2', 'v2',),
 ]
 DEFAULT_VERSION = 'version_1'
 # A dictonary of api versions with the value of each version key being

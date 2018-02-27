@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db.models import Prefetch
 
 from pulseapi.issues.models import Issue
 from pulseapi.profiles.models import (
@@ -6,6 +7,7 @@ from pulseapi.profiles.models import (
     UserBookmarks,
 )
 from pulseapi.creators.models import OrderedCreatorRecord
+from pulseapi.entries.models import Entry
 from pulseapi.entries.serializers import EntrySerializer
 
 
@@ -138,7 +140,17 @@ class UserProfilePublicSerializer(UserProfileSerializer):
     Serializes a user profile for public view
     """
     name = serializers.CharField(read_only=True)
+    my_profile = serializers.SerializerMethodField()
 
+    def get_my_profile(self, instance):
+        return self.context.get('request').user == instance.user
+
+
+class UserProfilePublicWithEntriesSerializer(UserProfilePublicSerializer):
+    """
+    Serializes a user profile for public view and includes all entries
+    associated with the profile
+    """
     published_entries = serializers.SerializerMethodField()
 
     def get_published_entries(self, instance):
@@ -156,7 +168,46 @@ class UserProfilePublicSerializer(UserProfileSerializer):
         entry_creator_records = OrderedCreatorRecord.objects.filter(creator__profile=instance).order_by('-id')
         return [EntrySerializer(x.entry).data for x in entry_creator_records if x.entry.is_approved()]
 
-    my_profile = serializers.SerializerMethodField()
 
-    def get_my_profile(self, instance):
-        return self.context.get('request').user == instance.user
+class UserProfileEntriesSerializer(serializers.Serializer):
+    def to_representation(self, instance):
+        data = {}
+        context = self.context
+        include_created = context.get('created', False)
+        include_published = context.get('published', False)
+        include_favorited = context.get('favorited', False)
+        include_all = not (include_created or include_published or include_favorited)
+
+        entries = Entry.objects.public().only(
+            'id',
+            'title',
+            'thumbnail',
+            'moderation_state',
+            'created',
+        )
+
+        if include_created or include_all:
+            ordered_creators = OrderedCreatorRecord.objects.filter(creator=instance.related_creator)
+            data['created'] = EntrySerializer([
+                ordered_creator.entry for ordered_creator in
+                ordered_creators.prefetch_related(
+                    Prefetch('entry', queryset=entries)
+                )
+            ], many=True).data
+
+        if include_published or include_all:
+            data['published'] = EntrySerializer(
+                entries.filter(published_by=instance.user) if instance.user else [],
+                many=True
+            ).data
+
+        if include_favorited or include_all:
+            user_bookmarks = UserBookmarks.objects.filter(profile=instance)
+            data['favorited'] = EntrySerializer([
+                bookmark.entry for bookmark in
+                user_bookmarks.prefetch_related(
+                    Prefetch('entry', queryset=entries)
+                )
+            ], many=True).data
+
+        return data

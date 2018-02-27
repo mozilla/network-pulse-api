@@ -5,9 +5,15 @@ from pulseapi.profiles.views import (
     UserProfileListAPIView,
     UserProfilePublicAPIView,
     UserProfilePublicSelfAPIView,
+    UserProfileEntriesAPIView,
 )
 
 urlpatterns = [
+    url(
+        r'^(?P<pk>[0-9]+)/entries/',
+        UserProfileEntriesAPIView.as_view(),
+        name='profile-entries',
+    ),
     url(
         r'^(?P<pk>[0-9]+)/',
         UserProfilePublicAPIView.as_view(),
