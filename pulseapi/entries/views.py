@@ -206,7 +206,7 @@ class EntryView(RetrieveAPIView):
     A view to retrieve individual entries
     """
 
-    queryset = Entry.objects.public()
+    queryset = Entry.objects.public().with_related()
     serializer_class = EntrySerializer
     pagination_class = None
     parser_classes = (
@@ -247,7 +247,7 @@ class BookmarkedEntries(ListAPIView):
 
             # This var was set, but never used. Commented off
             # rather than deleted just in case:
-            # queryset = Entry.objects.public()
+            # queryset = Entry.objects.public().with_related()
 
             def bookmark_entry(id):
                 entry = None
@@ -364,7 +364,7 @@ class EntriesListView(ListCreateAPIView):
                     queryset = Entry.objects.filter(moderation_state=mvalue)
 
         if queryset is False:
-            queryset = Entry.objects.public()
+            queryset = Entry.objects.public().with_related()
 
         # If the query was for a set of specific entries,
         # filter the query set further.

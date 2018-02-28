@@ -39,7 +39,39 @@ class ModerationStateSerializer(serializers.ModelSerializer):
         exclude = ()
 
 
-class EntrySerializer(serializers.ModelSerializer):
+class EntryBaseSerializer(serializers.ModelSerializer):
+    """
+    Serializes an entry with minimal information
+    """
+
+    is_bookmarked = serializers.SerializerMethodField()
+
+    def get_is_bookmarked(self, instance):
+        """
+        Check whether the current user has bookmarked this
+        Entry. Anonymous users always see False
+        """
+        user = None
+        if 'request' in self.context and hasattr(self.context['request'], 'user'):
+            user = self.context['request'].user
+
+        if user and user.is_authenticated():
+            # instance.bookmarked_by.all() is already prefetched and cached in the QuerySet
+            return any(bookmark_by.profile.user == user for bookmark_by in instance.bookmarked_by.all())
+
+        return False
+
+    class Meta:
+        model = Entry
+        read_only_fields = fields = (
+            'title',
+            'content_url',
+            'thumbnail',
+            'is_bookmarked',
+        )
+
+
+class EntrySerializer(EntryBaseSerializer):
     """
     Serializes an entry with embeded information including
     list of tags, categories and links associated with that entry
@@ -96,23 +128,6 @@ class EntrySerializer(serializers.ModelSerializer):
         Get the total number of bookmarks this entry received
         """
         return instance.bookmarked_by.count()
-
-    is_bookmarked = serializers.SerializerMethodField()
-
-    def get_is_bookmarked(self, instance):
-        """
-        Check whether the current user has bookmarked this
-        Entry. Anonymous users always see False
-        """
-        user = None
-        if 'request' in self.context and hasattr(self.context['request'], 'user'):
-            user = self.context['request'].user
-
-        if user and user.is_authenticated():
-            # instance.bookmarked_by.all() is already prefetched and cached in the QuerySet
-            return any(bookmark_by.profile.user == user for bookmark_by in instance.bookmarked_by.all())
-
-        return False
 
     def create(self, validated_data):
         """

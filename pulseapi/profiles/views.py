@@ -96,7 +96,7 @@ class UserProfileEntriesAPIView(APIView):
         that can be filtered by entries that this profile - was
         a creator on, was a publisher of, or favorited.
         """
-        profile = get_object_or_404(UserProfile.objects.only('id').prefetch_related('related_creator'), pk=pk)
+        profile = get_object_or_404(UserProfile.objects.prefetch_related('related_creator'), pk=pk)
         query = request.query_params
 
         return Response(

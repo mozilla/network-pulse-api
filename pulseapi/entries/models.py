@@ -47,7 +47,7 @@ class EntryQuerySet(models.query.QuerySet):
 
     def public(self):
         """
-        Return all entries to start
+        Return all entries that have been approved
         """
         try:
             # This has to happen in a try/catch, so that migrations
@@ -56,23 +56,27 @@ class EntryQuerySet(models.query.QuerySet):
             # and so if its query set is checked, it'll crash out due
             # to the absence of the associated ModerationState table.
             approved = ModerationState.objects.get(name='Approved')
-            return self.filter(
-                    moderation_state=approved
-                ).prefetch_related(
-                    'tags',
-                    'issues',
-                    'help_types',
-                    'published_by',
-                    'bookmarked_by',
-                    'bookmarked_by__profile__related_user',
-                    'published_by__profile',
-                    'moderation_state',
-                    'related_creators__creator__profile__related_user',
-                )
+            return self.filter(moderation_state=approved)
 
         except:
             print("could not make use of ModerationState!")
             return self.all()
+
+    def with_related(self):
+        """
+        Return all entries with their related data as separate queries
+        """
+
+        return self.prefetch_related(
+            'tags',
+            'issues',
+            'help_types',
+            'published_by',
+            'bookmarked_by',
+            'published_by__profile',
+            'moderation_state',
+            'related_creators',
+        )
 
 
 class Entry(models.Model):
