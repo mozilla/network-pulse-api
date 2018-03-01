@@ -10,4 +10,5 @@ class CreatorAdmin(admin.ModelAdmin):
         'profile__related_user__name',
     )
 
+
 admin.site.register(Creator, CreatorAdmin)

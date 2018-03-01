@@ -73,4 +73,3 @@ class UserProfileAdminForm(forms.ModelForm):
                 creator = Creator.objects.get_or_create(profile=instance)
 
         return instance
-
