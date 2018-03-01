@@ -28,7 +28,8 @@ class UserProfileAdminForm(forms.ModelForm):
         if instance:
             # We are updating a profile vs. creating a new one
             self.create = False
-            kwargs['initial'] = {'creator': instance.related_creator}
+            if hasattr(instance, 'related_creator'):
+                kwargs['initial'] = {'creator': instance.related_creator}
         else:
             self.create = True
 
