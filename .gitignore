@@ -84,7 +84,7 @@ venv
 /.vscode/
 
 # Static files from python manage.py collectstatic
-static/
+/static/
 
 # Storage for user generated files
 media/

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.conf import settings
 
 from pulseapi.utility.get_admin_url import get_admin_url
 from pulseapi.profiles.forms import UserProfileAdminForm
@@ -88,6 +89,9 @@ class UserProfileAdmin(admin.ModelAdmin):
         Show the total number of bookmarks for this Entry
         """
         return instance.bookmarks_from.count()
+
+    class Media:
+        js = ['admin/js/creator-profile-rebind-protection.js', ]
 
 
 class UserBookmarksAdmin(admin.ModelAdmin):
