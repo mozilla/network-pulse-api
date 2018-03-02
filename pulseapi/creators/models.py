@@ -75,7 +75,10 @@ class Creator(models.Model):
         super(Creator, self).save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.creator_name)
+        return '{name}{has_profile}'.format(
+            name=self.creator_name,
+            has_profile=' (no profile)' if not self.profile else ''
+        )
 
     class Meta:
         verbose_name = "Creator"
