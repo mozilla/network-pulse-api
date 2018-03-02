@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from django.conf import settings
 
 from pulseapi.utility.get_admin_url import get_admin_url
 from pulseapi.profiles.forms import UserProfileAdminForm
