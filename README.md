@@ -50,6 +50,7 @@ To maintain legacy support, if the version is not specified in the url, we defau
 
 ## Supported API Versions
 
+- Version 2 - `/api/pulse/v2/` and `/v2/`
 - Version 1 - `/api/pulse/v1/` and `/v1/`
 
 ---
@@ -342,7 +343,25 @@ Fetches the same data as above, but restricted to an individual issue queried fo
 
 ### `GET /api/pulse/profiles/<id=number>/` with optional `?format=json`
 
-This retrieves a single user profile with the indicated `id` as stored in the database. Any profile can be retrieved using this route even without being authenticated. The payload returned by this route also includes an array of entries published (`published_entries`) by the user owning this profile and an array of entries created (`created_entries`) by this profile (as defined by other users when creating entries). As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+This retrieves a single user profile with the indicated `id` as stored in the database. Any profile can be retrieved using this route even without being authenticated. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+
+#### Version 2 - `GET /api/pulse/v2/profiles/<id=number>/` with optional `?format=json`
+
+The response only contains profile information without any information about entries related to the profile (use [GET /api/pulse/profiles/<id=number>/entries/?...](#get-apipulseprofilesidnumberentries-with-filter-arguments-and-optional-formatjsong) for retrieving the entries).
+
+#### Version 1 - `GET /api/pulse/v1/profiles/<id=number>/` with optional `?format=json`
+
+The payload returned by this route also includes an array of entries published (`published_entries`) by the user owning this profile and an array of entries created (`created_entries`) by this profile (as defined by other users when creating entries).
+
+### `GET /api/pulse/profiles/<id=number>/entries/?...` with filter arguments, and optional `?format=json`
+
+This retrieves a list of entries associated with a profile specified by `id`. The entries returned can be filtered based on any combination of the following query arguments:
+
+- `created`: Include a list of entries (with their `related_creators`) created by this profile.
+- `published`: Include a list of entries (with their `related_creators`) published by this profile.
+- `favorited`: Include a list of entries (with their `related_creators`) favorited/bookmarked by this profile.
+
+If none of the filters are specified, all entries associated with the profile will be returned.
 
 ### `GET /api/pulse/profiles/?...` with a filter arguments, and optional `format=json`
 

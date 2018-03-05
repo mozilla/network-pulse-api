@@ -83,16 +83,14 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
         return super(UserProfileAPIView, self).put(request, *args, **kwargs)
 
 
+# We don't inherit from a generic API view class since we're customizing
+# the get functionality more than the generic would allow.
 class UserProfileEntriesAPIView(APIView):
-    """
-    We don't inherit from a generic API view class since we're customizing
-    the get functionality more than the generic would allow.
-    """
     authentication_classes = []
 
     def get(self, request, pk, **kwargs):
         """
-        Return a list entries associated with this profile
+        Return a list of entries associated with this profile
         that can be filtered by entries that this profile - was
         a creator on, was a publisher of, or favorited.
         """

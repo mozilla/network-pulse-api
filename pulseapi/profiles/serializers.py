@@ -171,6 +171,16 @@ class UserProfilePublicWithEntriesSerializer(UserProfilePublicSerializer):
 
 
 class UserProfileEntriesSerializer(serializers.Serializer):
+    """
+    Serializes entries related to a profile based on the requested
+    entry types.
+
+    Add any combination of the following parameters to the serializer context
+    to request specific types of entries in the serialized data:
+    - `created` - List of entries created by the profile
+    - `published` - List of entries published by the profile
+    - `favorited` - List of entries favorited/bookmarked by the profile
+    """
     def to_representation(self, instance):
         data = {}
         context = self.context
