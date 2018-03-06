@@ -181,6 +181,14 @@ class UserProfileEntriesSerializer(serializers.Serializer):
     - `published` - List of entries published by the profile
     - `favorited` - List of entries favorited/bookmarked by the profile
     """
+    def serialize_entry(self, entry):
+        serialized_entry = EntryBaseSerializer(entry).data
+        serialized_entry['related_creators'] = EntryOrderedCreatorSerializer(
+            entry.related_creators,
+            many=True
+        ).data
+        return serialized_entry
+
     def to_representation(self, instance):
         data = {}
         context = self.context
@@ -188,40 +196,32 @@ class UserProfileEntriesSerializer(serializers.Serializer):
         include_published = context.get('published', False)
         include_favorited = context.get('favorited', False)
         include_all = not (include_created or include_published or include_favorited)
-        entries = Entry.objects.public()
+        entry_queryset = Entry.objects.public().prefetch_related(
+            'related_creators__creator__profile__related_user'
+        )
 
         if include_created or include_all:
-            entry_queryset = entries.prefetch_related(
-                'related_creators__creator__profile__related_user'
-            )
             ordered_creators = (
                 OrderedCreatorRecord.objects
                 .prefetch_related(Prefetch('entry', queryset=entry_queryset))
                 .filter(creator=instance.related_creator)
             )
-            data['created'] = []
-            for ordered_creator in ordered_creators:
-                entry = ordered_creator.entry
-                serialized_entry = EntryBaseSerializer(entry).data
-                serialized_entry['related_creators'] = EntryOrderedCreatorSerializer(
-                    entry.related_creators,
-                    many=True
-                ).data
-                data['created'].append(serialized_entry)
+            data['created'] = [
+                self.serialize_entry(ordered_creator.entry)
+                for ordered_creator in ordered_creators
+            ]
 
         if include_published or include_all:
-            data['published'] = EntryBaseSerializer(
-                entries.filter(published_by=instance.user) if instance.user else [],
-                many=True
-            ).data
+            entries = entry_queryset.filter(published_by=instance.user) if instance.user else []
+            data['published'] = [self.serialize_entry(entry) for entry in entries]
 
         if include_favorited or include_all:
             user_bookmarks = UserBookmarks.objects.filter(profile=instance)
-            data['favorited'] = EntryBaseSerializer([
-                bookmark.entry for bookmark in
+            data['favorited'] = [
+                self.serialize_entry(bookmark.entry) for bookmark in
                 user_bookmarks.prefetch_related(
-                    Prefetch('entry', queryset=entries)
+                    Prefetch('entry', queryset=entry_queryset)
                 )
-            ], many=True).data
+            ]
 
         return data
