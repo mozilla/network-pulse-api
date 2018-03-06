@@ -108,6 +108,16 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
+
+# TODO REMOVE THAT /o\
+def show_toolbar(request):
+    return request.user.is_staff
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': 'pulseapi.settings.show_toolbar',
+}
+
 AUTH_USER_MODEL = 'users.EmailUser'
 
 ROOT_URLCONF = 'pulseapi.urls'
