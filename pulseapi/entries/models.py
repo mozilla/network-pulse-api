@@ -73,9 +73,10 @@ class EntryQuerySet(models.query.QuerySet):
             'help_types',
             'published_by',
             'bookmarked_by',
+            'bookmarked_by__profile__related_user',
             'published_by__profile',
             'moderation_state',
-            'related_creators',
+            'related_creators__creator__profile__related_user',
         )
 
 
