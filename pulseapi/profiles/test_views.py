@@ -1,12 +1,15 @@
 import json
 
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from .models import UserProfile, ProfileType, ProgramType, ProgramYear
 
 from pulseapi.tests import PulseMemberTestCase
+from pulseapi.entries.models import Entry
 from pulseapi.entries.serializers import EntrySerializer
 from pulseapi.creators.models import OrderedCreatorRecord
+from pulseapi.profiles.serializers import UserProfileEntriesSerializer
 
 
 class TestProfileView(PulseMemberTestCase):
@@ -45,6 +48,76 @@ class TestProfileView(PulseMemberTestCase):
 
         # make sure extended profile data does not show
         self.assertEqual('program_type' in entriesjson, False)
+
+    def test_v2_profile_data_serialization(self):
+        """
+        Make sure profiles do not have "created_entries" array for API version 2
+        """
+        profile = OrderedCreatorRecord.objects.filter(creator__profile__isnull=False)[:1].get().creator.profile
+        response = self.client.get(reverse('profile', args=[
+            settings.API_VERSIONS['version_2'] + '/',
+            profile.id
+        ]))
+        profile_json = json.loads(str(response.content, 'utf-8'))
+
+        self.assertEqual(profile_json['profile_id'], profile.id)
+        self.assertNotIn('created_entries', profile_json)
+
+    def test_profile_entries_created(self):
+        """
+        Get the created entries for a profile
+        """
+        profile = OrderedCreatorRecord.objects.filter(creator__profile__isnull=False)[:1].get().creator.profile
+        entries = [
+            UserProfileEntriesSerializer.serialize_entry(ocr.entry)
+            for ocr in OrderedCreatorRecord.objects.filter(creator__profile=profile)
+        ]
+
+        response = self.client.get(
+            '{url}?created'.format(
+                url=reverse('profile-entries', kwargs={'pk': profile.id})
+            )
+        )
+        profile_json = json.loads(str(response.content, 'utf-8'))
+        self.assertListEqual(profile_json['created'], entries)
+
+    def test_profile_entries_published(self):
+        """
+        Get the published entries for a profile
+        """
+        profile = UserProfile.objects.filter(related_user__entries__isnull=False)[:1].get()
+        entries = [
+            UserProfileEntriesSerializer.serialize_entry(entry)
+            for entry in Entry.objects.public().filter(published_by=profile.user)
+        ]
+
+        response = self.client.get(
+            '{url}?published'.format(
+                url=reverse('profile-entries', kwargs={'pk': profile.id})
+            )
+        )
+        profile_json = json.loads(str(response.content, 'utf-8'))
+        self.assertListEqual(profile_json['published'], entries)
+
+    def test_profile_entries_favorited(self):
+        """
+        Get the favorited entries for a profile
+        """
+        profile = self.user.profile
+        entries = Entry.objects.public()[:2]
+        serialized_entries = []
+
+        for entry in entries:
+            self.client.put(reverse('bookmark', kwargs={'entryid': entry.id}))
+            serialized_entries.append(UserProfileEntriesSerializer.serialize_entry(entry))
+
+        response = self.client.get(
+            '{url}?favorited'.format(
+                url=reverse('profile-entries', kwargs={'pk': profile.id})
+            )
+        )
+        profile_json = json.loads(str(response.content, 'utf-8'))
+        self.assertListEqual(profile_json['favorited'], serialized_entries)
 
     def test_extended_profile_data(self):
         (profile, created) = UserProfile.objects.get_or_create(related_user=self.user)

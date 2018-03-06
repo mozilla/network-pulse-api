@@ -164,6 +164,8 @@ class PulseMemberTestCase(TestCase):
     """
     A test case wrapper for "plain users" without any staff or admin rights
     """
+    maxDiff = None
+
     def setUp(self):
         boostrap(
             self,
@@ -179,6 +181,8 @@ class PulseStaffTestCase(TestCase):
     """
     A test case wrapper for "staff" users, due to having a mozilla login
     """
+    maxDiff = None
+
     def setUp(self):
         boostrap(
             self,

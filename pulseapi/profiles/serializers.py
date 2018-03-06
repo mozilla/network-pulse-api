@@ -181,7 +181,8 @@ class UserProfileEntriesSerializer(serializers.Serializer):
     - `published` - List of entries published by the profile
     - `favorited` - List of entries favorited/bookmarked by the profile
     """
-    def serialize_entry(self, entry):
+    @staticmethod
+    def serialize_entry(entry):
         serialized_entry = EntryBaseSerializer(entry).data
         serialized_entry['related_creators'] = EntryOrderedCreatorSerializer(
             entry.related_creators,
