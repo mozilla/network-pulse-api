@@ -361,7 +361,7 @@ This retrieves a list of entries associated with a profile specified by `id`. Th
 - `published`: Include a list of entries (with their `related_creators`) published by this profile.
 - `favorited`: Include a list of entries (with their `related_creators`) favorited/bookmarked by this profile.
 
-If none of the filters are specified, all entries associated with the profile will be returned.
+If none of the filters are specified, only the number of entries associated with the profile will be returned.
 
 ### `GET /api/pulse/profiles/?...` with a filter arguments, and optional `format=json`
 
