@@ -2,6 +2,7 @@ import json
 
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.db.models import Q
 
 from .models import UserProfile, ProfileType, ProgramType, ProgramYear
 
@@ -118,6 +119,31 @@ class TestProfileView(PulseMemberTestCase):
         )
         profile_json = json.loads(str(response.content, 'utf-8'))
         self.assertListEqual(profile_json['favorited'], serialized_entries)
+
+    def test_profile_entries_count(self):
+        """
+        Get the number of entries associated with a profile
+        """
+        profile = OrderedCreatorRecord.objects.filter(creator__profile__isnull=False)[:1].get().creator.profile
+        published_entry = profile.related_creator.related_entries.last().entry
+        published_entry.published_by = profile.user
+        published_entry.save()
+        favorited_entries = Entry.objects.public()[:2]
+
+        self.client.force_login(user=profile.user)
+
+        for entry in favorited_entries:
+            self.client.put(reverse('bookmark', kwargs={'entryid': entry.id}))
+
+        entry_count = Entry.objects.public().filter(
+            Q(related_creators__creator__profile=profile) |
+            Q(published_by=profile.user) |
+            Q(bookmarked_by__profile=profile)
+        ).distinct().count()
+
+        response = self.client.get(reverse('profile-entries', kwargs={'pk': profile.id}))
+        profile_json = json.loads(str(response.content, 'utf-8'))
+        self.assertEqual(profile_json['entry_count'], entry_count)
 
     def test_extended_profile_data(self):
         (profile, created) = UserProfile.objects.get_or_create(related_user=self.user)
