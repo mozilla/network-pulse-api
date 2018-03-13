@@ -131,10 +131,18 @@ class ProfileCustomFilter(filters.FilterSet):
 
 
 class UserProfileListAPIView(ListAPIView):
+    """
+      Query Params:
+      profile_type=
+      program_type=
+      program_year=
+      ordering={property to sort by (negative to reverse)}
+    """
     serializer_class = UserProfilePublicSerializer
 
     filter_backends = (
         filters.DjangoFilterBackend,
+        filters.OrderingFilter,
     )
 
     filter_class = ProfileCustomFilter
