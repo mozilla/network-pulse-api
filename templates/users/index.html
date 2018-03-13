@@ -1,13 +1,19 @@
 {% if user.is_authenticated %}
 <p>Hello {{user.email}}! Would you like to go to the <a href="admin">admin interface</a> or <a href="logout">log out</a>?</p>
 {% else %}
-    <p>Not logged in. Want to <a id="loginLink">log in</a>?</p>
-    <script>
-    var domain = window.location.toString();
-    var link = document.getElementById('loginLink')
-    var adminlink = `/login?original_url=${domain}admin`;
-    // odd double slash issue
-    adminlink = adminlink.replace('//admin','/admin');
-    link.setAttribute('href', adminlink);
-    </script>
+    {% if HEROKU_APP_NAME %}
+        <p>Hello! You're not logged in. Want to <a href="admin">log in</a>?</p>
+        <p>OAuth is not available on Review Apps. Read the <a href="https://github
+        .com/mozilla/network-pulse-api#review-app">review app documentation if you need administrator access</a>.</p>
+    {% else %}
+        <p>Not logged in. Want to <a id="loginLink">log in</a>?</p>
+        <script>
+        var domain = window.location.toString();
+        var link = document.getElementById('loginLink')
+        var adminlink = `/login?original_url=${domain}admin`;
+        // odd double slash issue
+        adminlink = adminlink.replace('//admin','/admin');
+        link.setAttribute('href', adminlink);
+        </script>
+     {% endif %}
 {% endif %}

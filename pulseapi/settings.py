@@ -51,6 +51,8 @@ ALLOWED_HOSTS = os.getenv(
     'test.example.com,localhost,network-pulse-api-staging.herokuapp.com,network-pulse-api-production.herokuapp.com'
 ).split(',')
 
+HEROKU_APP_NAME = env('HEROKU_APP_NAME')
+
 
 # Create a simple function to show Django Debug Toolbar on Review App
 def show_toolbar(request):
@@ -132,6 +134,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'pulseapi.utility.context_processor.heroku_app_name_var',
             ],
         },
     },
