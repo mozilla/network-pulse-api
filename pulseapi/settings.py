@@ -51,10 +51,19 @@ ALLOWED_HOSTS = os.getenv(
     'test.example.com,localhost,network-pulse-api-staging.herokuapp.com,network-pulse-api-production.herokuapp.com'
 ).split(',')
 
+
+# Create a simple function to show Django Debug Toolbar on Review App
+def show_toolbar(request):
+    return request.user.is_staff
+
+
 # Adding support for Heroku review app
 if env('HEROKU_APP_NAME'):
     herokuReviewAppHost = env('HEROKU_APP_NAME') + '.herokuapp.com'
     ALLOWED_HOSTS.append(herokuReviewAppHost)
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': 'pulseapi.settings.show_toolbar',
+    }
 
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
