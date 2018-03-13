@@ -53,9 +53,11 @@ ALLOWED_HOSTS = os.getenv(
 
 HEROKU_APP_NAME = env('HEROKU_APP_NAME')
 
+
 # Create a simple function to show Django Debug Toolbar on Review App
 def show_toolbar(request):
     return request.user.is_staff
+
 
 # Adding support for Heroku review app
 if env('HEROKU_APP_NAME'):
