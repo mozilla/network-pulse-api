@@ -103,7 +103,7 @@ class UserProfile(models.Model):
     #
     # Examples of this are nicknames, pseudonyms, and org names
     custom_name = models.CharField(
-        max_length=70,
+        max_length=140,
         blank=True
     )
 
