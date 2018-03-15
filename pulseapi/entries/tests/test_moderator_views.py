@@ -1,13 +1,6 @@
 import json
 
-from django.core.urlresolvers import reverse
-from django.db.models import Q
-from django.test.client import MULTIPART_CONTENT
-from rest_framework import status
-
-from pulseapi.creators.models import Creator, OrderedCreatorRecord
 from pulseapi.entries.models import Entry, ModerationState
-from pulseapi.entries.serializers import EntrySerializer
 from pulseapi.tests import PulseModeratorTestCase
 
 
@@ -75,4 +68,3 @@ class TestModeratorEntryView(PulseModeratorTestCase):
         # and did it change the moderation state?
         entry = Entry.objects.get(id=entry_id)
         self.assertEqual(entry.moderation_state, state)
-

@@ -3,7 +3,6 @@ import json
 from django.test import TestCase, Client, RequestFactory
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group, Permission
-from django.contrib.contenttypes.models import ContentType
 from rest_framework import exceptions
 
 from pulseapi.settings import API_VERSION_LIST
@@ -12,7 +11,6 @@ from pulseapi.users.test_models import EmailUserFactory
 from pulseapi.profiles.test_models import UserProfileFactory
 from pulseapi.creators.models import OrderedCreatorRecord
 from pulseapi.creators.factory import CreatorFactory
-from pulseapi.entries.models import Entry
 from pulseapi.entries.factory import EntryFactory
 from pulseapi.versioning import PulseAPIVersioning
 
@@ -117,7 +115,6 @@ def create_logged_in_user(test, name, email, password="password1234", is_moderat
         assign_group_policy(user, "staff")
         add_user_to_main_site(user)
 
-
     if is_moderator:
         assign_group_policy(user, "moderator")
 
@@ -207,6 +204,7 @@ class PulseModeratorTestCase(TestCase):
 
     def generatePostPayload(self, data={}):
         return generate_payload(self, data)
+
 
 class TestAPIVersioning(TestCase):
     """
