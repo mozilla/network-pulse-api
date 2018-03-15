@@ -64,7 +64,7 @@ def toggle_featured(request, entryid, **kwargs):
     """
     user = request.user
 
-    if user.has_perm('entries.can_change_entry'):
+    if user.has_perm('entries.change_entry'):
 
         entry = None
         # find the entry for this id
@@ -92,7 +92,7 @@ def toggle_moderation(request, entryid, stateid, **kwargs):
     """
     user = request.user
 
-    if user.has_perm('entries.can_change_entry') is True:
+    if user.has_perm('entries.change_entry') is True:
         entry = None
         moderation_state = None
         status404 = status.HTTP_404_NOT_FOUND
