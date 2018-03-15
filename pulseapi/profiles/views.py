@@ -136,7 +136,7 @@ class UserProfileListAPIView(ListAPIView):
       profile_type=
       program_type=
       program_year=
-      ordering={property to sort by (negative to reverse)}
+      ordering=(custom_name, program_year) or negative (e.g. -custom_name) to reverse.
     """
     serializer_class = UserProfilePublicSerializer
 
@@ -144,6 +144,8 @@ class UserProfileListAPIView(ListAPIView):
         filters.DjangoFilterBackend,
         filters.OrderingFilter,
     )
+
+    ordering_fields = ('custom_name', 'program_year',)
 
     filter_class = ProfileCustomFilter
 
