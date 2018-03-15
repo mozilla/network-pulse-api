@@ -13,7 +13,7 @@ from pulseapi.profiles.test_models import UserProfileFactory
 from pulseapi.creators.models import OrderedCreatorRecord
 from pulseapi.creators.factory import CreatorFactory
 from pulseapi.entries.models import Entry
-from pulseapi.entries.test_models import EntryFactory
+from pulseapi.entries.factory import EntryFactory
 from pulseapi.versioning import PulseAPIVersioning
 
 from pulseapi.utility.userpermissions import (
@@ -28,31 +28,17 @@ CONTENT_TYPE_JSON = 'application/json'
 
 def setup_groups():
     staff, created = Group.objects.get_or_create(name='staff')
-    content_type = ContentType.objects.get_for_model(Entry)
+    moderator, created = Group.objects.get_or_create(name='moderator')
 
-    permission = Permission.objects.create(
-        codename='can_add_entry',
-        name='Can Add Entries',
-        content_type=content_type
-    )
-    staff.permissions.add(permission)
+    add_entry = Permission.objects.get(codename='add_entry')
+    change_entry = Permission.objects.get(codename='change_entry')
+    delete_entry = Permission.objects.get(codename='delete_entry')
+
+    staff.permissions.add(add_entry, change_entry, delete_entry)
     staff.save()
 
-    permission = Permission.objects.create(
-        codename='can_change_entry',
-        name='Can Change Entries',
-        content_type=content_type
-    )
-    staff.permissions.add(permission)
-    staff.save()
-
-    permission = Permission.objects.create(
-        codename='can_delete_entry',
-        name='Can Delete Entries',
-        content_type=content_type
-    )
-    staff.permissions.add(permission)
-    staff.save()
+    moderator.permissions.add(add_entry, change_entry, delete_entry)
+    moderator.save()
 
 
 def setup_entries(test, creator_users):
@@ -118,7 +104,7 @@ class JSONDefaultClient(Client):
         )
 
 
-def create_logged_in_user(test, name, email, password="password1234"):
+def create_logged_in_user(test, name, email, password="password1234", is_moderator=False):
     test.name = name
 
     # create use instance
@@ -130,6 +116,10 @@ def create_logged_in_user(test, name, email, password="password1234"):
     if is_staff_address(email):
         assign_group_policy(user, "staff")
         add_user_to_main_site(user)
+
+
+    if is_moderator:
+        assign_group_policy(user, "moderator")
 
     # log this user in for further testing purposes
     test.user = user
@@ -161,12 +151,13 @@ def generate_payload(test, data={}, payload=False):
     return json.dumps(payload)
 
 
-def boostrap(test, name, email):
+def boostrap(test, name, email, is_moderator=False):
     setup_groups()
     create_logged_in_user(
         test,
         name=name,
-        email=email
+        email=email,
+        is_moderator=is_moderator
     )
     setup_users_with_profiles(test)
     setup_entries(test, creator_users=test.users_with_profiles)
@@ -201,6 +192,21 @@ class PulseStaffTestCase(TestCase):
     def generatePostPayload(self, data={}):
         return generate_payload(self, data)
 
+
+class PulseModeratorTestCase(TestCase):
+    """
+    A test case wrapper for "moderator" users
+    """
+    def setUp(self):
+        boostrap(
+            self,
+            name="Moderator user",
+            email="moderator@example.org",
+            is_moderator=True
+        )
+
+    def generatePostPayload(self, data={}):
+        return generate_payload(self, data)
 
 class TestAPIVersioning(TestCase):
     """

@@ -13,6 +13,8 @@ from factory import (
     LazyAttribute,
 )
 
+from faker import Factory as FakerFactory
+
 from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.helptypes.models import HelpType
 from pulseapi.issues.models import Issue
@@ -21,6 +23,30 @@ from pulseapi.users.models import EmailUser
 from pulseapi.utility.factories_utility import get_random_items, ImageProvider
 
 Faker.add_provider(ImageProvider)
+
+faker = FakerFactory.create()
+
+pending = ModerationState.objects.get(name='Pending')
+approved = ModerationState.objects.get(name='Approved')
+
+class EntryFactory(DjangoModelFactory):
+
+    title = LazyAttribute(
+        lambda o: 'title '+' '.join(faker.words(nb=1))
+    )
+    description = LazyAttribute(
+        lambda o: 'description '+''.join(faker.sentence(nb_words=20))
+    )
+    content_url = 'http://example.org/image.png'
+    featured = False
+    published_by = LazyAttribute(
+        lambda o: EmailUser.objects.all()[0]
+    )
+
+    moderation_state = approved
+
+    class Meta:
+        model = Entry
 
 
 class BasicEntryFactory(DjangoModelFactory):
