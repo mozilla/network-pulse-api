@@ -21,7 +21,7 @@ class EmailUserAdmin(UserAdmin):
     fieldsets = (
         (None, {
             'fields': (
-                'user_password',
+                'password',
                 'last_login',
                 'email',
                 'name',
@@ -37,21 +37,12 @@ class EmailUserAdmin(UserAdmin):
         'entries',
         'user_profile',
         'name',
-        'user_password',
     )
 
     list_display = ('name', 'email', 'profile',)
     list_filter = ('is_staff', 'is_superuser', 'groups',)
     search_fields = ('name', 'email',)
     ordering = ('name',)
-
-    def user_password(self, instance):
-        return format_html(
-            '<div>Raw passwords are not stored, so there is no '
-            'way to see this user\'s password, but you can change the password '
-            'using <a href="../password/">this form</a>.</div>'
-        )
-    user_password.short_description = 'Password'
 
     def entries(self, instance):
         entries = Entry.objects.filter(published_by=instance)
