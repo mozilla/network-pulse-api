@@ -352,6 +352,7 @@ The list of profiles known to the system can be queried, but **only** in conjunc
 - `program_type`: filter the list by program types `media fellow`, `open web fellow`, `science fellow`, `senior fellow`, or `tech policy fellow`.
 - `program_year`: filter the list by program year in the range 2015-2019 (inclusive).
 
+You can sort these results using the `ordering` query param, passing it either `custom_name` or `program_year` (negated like `-custom_name` to reverse)
 
 ### `GET /api/pulse/myprofile/` with optional `?format=json`
 
@@ -528,8 +529,7 @@ While for local development we provide a `sample.env` that you can use as defaul
 
 ### Review App
 
-Opening a PR will automatically create a Review App in the `network-pulse-api` pipeline. It's not possible to 
-use OAuth but you can still access the admin with `test@mozillafoundation.org` as a user. To get the password, you need to go to the Heroku dashboard, click on the menu of your Review App and select `View initial app setup...`. The password is in the `Run scripts & scale dynos` log.
+Opening a PR will automatically create a Review App in the `network-pulse-api` pipeline. It's not possible to use OAuth but you can still access the admin with `test@mozillafoundation.org` as a user. To get the password, you need to go to the Heroku dashboard, click on the menu of your Review App and select `View initial app setup...`. The password is in the `Run scripts & scale dynos` log.
 
 
 ## Debugging all the things
