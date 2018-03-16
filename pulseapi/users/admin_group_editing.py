@@ -43,6 +43,7 @@ class GroupAdminForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         return super(GroupAdminForm, self).save()
 
+
 # Create a new Group admin.
 class GroupAdmin(admin.ModelAdmin):
     # Use our custom form.
