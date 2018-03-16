@@ -37,13 +37,16 @@ class GroupAdminForm(forms.ModelForm):
             # Populate the users field with the current Group users.
             self.fields['users'].initial = self.instance.user_set.all()
 
+    def save_m2m(self):
+        self.instance.user_set = self.cleaned_data['users']
+
     def save(self, *args, **kwargs):
         # Default save but no commit.
-        instance = super(GroupAdminForm, self).save(commit=False)
-        # Add the users to the Group.
-        instance.user_set = self.cleaned_data['users']
-        # Call save.
-        instance.save()
+        instance = super(GroupAdminForm, self).save()
+
+        # Save many-to-many user relations
+        self.save_m2m()
+
         return instance
 
 
