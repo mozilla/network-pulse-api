@@ -37,7 +37,7 @@ class TestProfileView(PulseMemberTestCase):
         created_entries = []
         entry_creators = OrderedCreatorRecord.objects.filter(
             creator__profile=id
-        )
+        ).order_by('-id')
 
         created_entries = [EntrySerializer(x.entry).data for x in entry_creators]
         self.assertEqual(entriesjson['profile_id'], id)
