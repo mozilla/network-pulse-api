@@ -181,8 +181,6 @@ class UserProfileListAPIView(ListAPIView):
       program_year=
       ordering=(custom_name, program_year) or negative (e.g. -custom_name) to reverse.
     """
-    serializer_class = UserProfilePublicSerializer
-
     filter_backends = (
         filters.DjangoFilterBackend,
         filters.OrderingFilter,
@@ -193,3 +191,9 @@ class UserProfileListAPIView(ListAPIView):
     filter_class = ProfileCustomFilter
 
     queryset = UserProfile.objects.all()
+
+    def get_serializer_class(self):
+        if self.request and self.request.version == settings.API_VERSIONS['version_2']:
+            return UserProfilePublicSerializer
+
+        return UserProfilePublicWithEntriesSerializer

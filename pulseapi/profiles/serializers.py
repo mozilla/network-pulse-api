@@ -45,21 +45,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
     - program_year
     - affiliation
     """
-
-    def __init__(self, instance=None, *args, **kwargs):
-        super().__init__(instance, *args, **kwargs)
-        if instance is not None and type(instance) is UserProfile:
-            # We type-check to prevent this from kicking in for entire
-            # QuerySet objects, rather than just UserProfile objects.
-            if instance.enable_extended_information is False:
-                self.fields.pop('user_bio_long')
-                self.fields.pop('program_type')
-                self.fields.pop('program_year')
-                self.fields.pop('affiliation')
-            # Whether this flag is set or not, it should not
-            # end up in the actual serialized profile data.
-            self.fields.pop('enable_extended_information')
-
     profile_id = serializers.ReadOnlyField(source='id')
 
     custom_name = serializers.CharField(
@@ -113,13 +98,30 @@ class UserProfileSerializer(serializers.ModelSerializer):
     program_type = serializers.StringRelatedField()
     program_year = serializers.StringRelatedField()
 
+    @staticmethod
+    def trim_extended_information_from_dict(profile, profile_dict):
+        if profile and profile.enable_extended_information is False:
+            remove_key(profile_dict, 'user_bio_long')
+            remove_key(profile_dict, 'program_type')
+            remove_key(profile_dict, 'program_year')
+            remove_key(profile_dict, 'affiliation')
+        # Whether this flag is set or not, it should not
+        # end up in the actual serialized profile data.
+        remove_key(profile_dict, 'enable_extended_information')
+        return profile_dict
+
+    def to_representation(self, instance):
+        serialized_profile = super().to_representation(instance)
+        return UserProfileSerializer.trim_extended_information_from_dict(
+            instance,
+            serialized_profile
+        )
+
     def update(self, instance, validated_data):
-        if instance.enable_extended_information is False:
-            remove_key(validated_data, 'user_bio_long')
-            remove_key(validated_data, 'program_type')
-            remove_key(validated_data, 'program_year')
-            remove_key(validated_data, 'affiliation')
-        remove_key(validated_data, 'enable_extended_information')
+        validated_data = UserProfileSerializer.trim_extended_information_from_dict(
+            instance,
+            validated_data
+        )
         return super(UserProfileSerializer, self).update(instance, validated_data)
 
     class Meta:
@@ -144,7 +146,8 @@ class UserProfilePublicSerializer(UserProfileSerializer):
     my_profile = serializers.SerializerMethodField()
 
     def get_my_profile(self, instance):
-        return self.context.get('request').user == instance.user
+        request = self.context.get('request')
+        return request.user == instance.user if request else None
 
 
 class UserProfilePublicWithEntriesSerializer(UserProfilePublicSerializer):
