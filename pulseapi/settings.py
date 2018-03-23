@@ -25,7 +25,7 @@ env = environ.Env(
     DEBUG=(bool, False),
     USE_S3=(bool, False),
     SSL_PROTECTION=(bool, False),
-    CORS_REGEX_WHITELIST=(tuple, ()),
+    CORS_ORIGIN_REGEX_WHITELIST=(tuple, ()),
     HEROKU_APP_NAME=(str, ''),
     PULSE_FRONTEND_HOSTNAME=(str, ''),
     SECRET_KEY=(str, '')
@@ -236,7 +236,8 @@ CORS_ORIGIN_WHITELIST = os.getenv(
     'localhost:3000,localhost:8000,localhost:8080,test.example.com:8000,test.example.com:3000'
 ).split(',')
 
-CORS_ORIGIN_REGEX_WHITELIST = env('CORS_REGEX_WHITELIST')
+CORS_ORIGIN_REGEX_WHITELIST = env('CORS_ORIGIN_REGEX_WHITELIST')
+
 
 CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
 CSRF_COOKIE_HTTPONLY = env('CSRF_COOKIE_HTTPONLY', default=SSL_PROTECTION)
