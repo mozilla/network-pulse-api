@@ -6,24 +6,38 @@ from django.core.exceptions import ObjectDoesNotExist
 from pulseapi.creators.models import Creator, OrderedCreatorRecord
 
 
-class CreatorSerializer(serializers.ModelSerializer):
+def serialize_profile_as_v1_creator(profile):
+    return {
+        'name': profile.name,
+        'creator_id': profile.id,  # we include this property only for backwards-compatibility
+        'profile_id': profile.id
+    }
+
+
+class CreatorSerializer(serializers.BaseSerializer):
     """
-    Serializes creators
+    Read-only serializer that serializes creators (which are actually profile objects)
+    This serializer only exists for backwards-compatibility and is disfavored
+    over pulseapi.profiles.serializers.UserProfileBasicSerializer
     """
     def to_representation(self, instance):
-        id = instance.profile.id if instance.profile else False
-        return {
-          'name': instance.creator_name,
-          'creator_id': instance.id,
-          'profile_id': id
-        }
+        return serialize_profile_as_v1_creator(instance)
 
-    class Meta:
-        """
-        Meta class. Because it's required by ModelSerializer
-        """
-        model = Creator
-        fields = ('name', 'profile',)
+
+class EntryCreatorSerializer(serializer.ModelSerializer):
+    def to_representation(self, instance):
+        pass
+
+    def to_internal_value(self, data):
+        pass
+
+
+class EntryCreatorV1Serializer(serializers.ModelSerializer):
+    def to_representation(self, instance):
+        return serialize_profile_as_v1_creator(instance.profile)
+
+    def to_internal_value(self, data):
+
 
 
 class EntryOrderedCreatorSerializer(serializers.ModelSerializer):

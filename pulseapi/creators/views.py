@@ -1,12 +1,13 @@
 from itertools import chain
 from django.db.models import Q
-
+from django.conf import settings
 from rest_framework import filters
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
+from rest_framework import exceptions
 
+from pulseapi.profiles.models import UserProfile
 from pulseapi.creators.serializers import CreatorSerializer
-from pulseapi.creators.models import Creator
 
 
 class CreatorsPagination(PageNumberPagination):
@@ -26,10 +27,9 @@ class FilterCreatorNameBackend(filters.BaseFilterBackend):
         if not search_term:
             return queryset
 
-        own_name = Q(name__istartswith=search_term)
-        profile_custom = Q(profile__custom_name__istartswith=search_term)
-        profile_name = Q(profile__related_user__name__istartswith=search_term)
-        istartswith_filter = own_name | profile_custom | profile_name
+        profile_custom = Q(custom_name__istartswith=search_term)
+        profile_name = Q(related_user__name__istartswith=search_term)
+        istartswith_filter = profile_custom | profile_name
         qs = queryset.filter(istartswith_filter)
 
         # If the number of results returned is less than the allowed
@@ -40,10 +40,9 @@ class FilterCreatorNameBackend(filters.BaseFilterBackend):
         flen = len(qs)
 
         if flen < page_size:
-            own_name = Q(name__icontains=search_term)
-            profile_custom = Q(profile__custom_name__icontains=search_term)
-            profile_name = Q(profile__related_user__name__icontains=search_term)
-            icontains_filter = own_name | profile_custom | profile_name
+            profile_custom = Q(custom_name__icontains=search_term)
+            profile_name = Q(related_user__name__icontains=search_term)
+            icontains_filter = profile_custom | profile_name
             icontains_qs = queryset.filter(icontains_filter).exclude(istartswith_filter)
             # make sure we keep our exact matches at the top of the result list
             qs = list(chain(qs, icontains_qs))
@@ -55,6 +54,11 @@ class CreatorListView(ListAPIView):
     """
     A view that permits a GET to allow listing all creators in the database
 
+    Note
+    ----
+    This view only exists for backwards-compatibility. Creators no longer exist as independent models
+    and hence the pulseapi.profiles.views.UserProfileListAPIView should be used instead.
+
     **Route** - `/creators`
 
     #Query Parameters -
@@ -62,7 +66,7 @@ class CreatorListView(ListAPIView):
     - ?name= - a partial match filter based on the start of the creator name.
 
     """
-    queryset = Creator.objects.all()
+    queryset = UserProfile.objects.all()
     pagination_class = CreatorsPagination
     serializer_class = CreatorSerializer
 
@@ -74,3 +78,14 @@ class CreatorListView(ListAPIView):
     search_fields = (
         '^name',
     )
+
+    def get(self, request, *args, **kwargs):
+        if request.version == settings.API_VERSIONS['version_1']:
+            return super().get(request, *args, **kwargs)
+
+        raise exceptions.NotFound(
+            'The {path} route has been deprecated and is no longer supported in version {version}'.format(
+                path=request.path,
+                version=request.version
+            )
+        )

@@ -20,6 +20,7 @@ from pulseapi.profiles.serializers import (
     UserProfilePublicSerializer,
     UserProfilePublicWithEntriesSerializer,
     UserProfileEntriesSerializer,
+    UserProfileBasicSerializer,
 )
 
 
@@ -180,6 +181,7 @@ class UserProfileListAPIView(ListAPIView):
       program_type=
       program_year=
       ordering=(custom_name, program_year) or negative (e.g. -custom_name) to reverse.
+      basic
     """
     filter_backends = (
         filters.DjangoFilterBackend,
@@ -199,7 +201,11 @@ class UserProfileListAPIView(ListAPIView):
     )
 
     def get_serializer_class(self):
-        if self.request and self.request.version == settings.API_VERSIONS['version_2']:
+        request = self.request
+
+        if request and request.version == settings.API_VERSIONS['version_2']:
+            if request.query_params.get('basic'):
+                return UserProfileBasicSerializer
             return UserProfilePublicSerializer
 
         return UserProfilePublicWithEntriesSerializer

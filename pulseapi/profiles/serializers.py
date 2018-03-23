@@ -138,6 +138,18 @@ class UserProfileSerializer(serializers.ModelSerializer):
         ]
 
 
+class UserProfileBasicSerializer(serializers.BaseSerializer):
+    """
+    A read-only serializer that serializes a user profile by only including indentity
+    information like `id` and `name`.
+    """
+    def to_representation(self, obj):
+        return {
+            'id': obj.id,
+            'name': obj.name
+        }
+
+
 class UserProfilePublicSerializer(UserProfileSerializer):
     """
     Serializes a user profile for public view
