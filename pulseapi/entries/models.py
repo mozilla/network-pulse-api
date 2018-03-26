@@ -174,7 +174,7 @@ class Entry(models.Model):
         Make plural not be wrong
         """
         verbose_name_plural = "entries"
-        ordering = ['id']
+        ordering = ['-id']
 
     def __str__(self):
         return str(self.title)
