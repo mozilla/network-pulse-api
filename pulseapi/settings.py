@@ -26,6 +26,7 @@ env = environ.Env(
     USE_S3=(bool, False),
     SSL_PROTECTION=(bool, False),
     CORS_ORIGIN_REGEX_WHITELIST=(tuple, ()),
+    CORS_ORIGIN_WHITELIST=(list, []),
     HEROKU_APP_NAME=(str, ''),
     PULSE_FRONTEND_HOSTNAME=(str, ''),
     SECRET_KEY=(str, ''),
@@ -232,10 +233,7 @@ CORS_ORIGIN_ALLOW_ALL = False
 CORS_ALLOW_CREDENTIALS = True
 
 # and we want origin whitelisting
-CORS_ORIGIN_WHITELIST = os.getenv(
-    'CORS_ORIGIN_WHITELIST',
-    'localhost:3000,localhost:8000,localhost:8080,test.example.com:8000,test.example.com:3000'
-).split(',')
+CORS_ORIGIN_WHITELIST = env('CORS_ORIGIN_WHITELIST')
 
 CORS_ORIGIN_REGEX_WHITELIST = env('CORS_ORIGIN_REGEX_WHITELIST')
 
