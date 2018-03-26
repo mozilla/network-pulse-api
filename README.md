@@ -363,7 +363,7 @@ This retrieves a list of entries associated with a profile specified by `id`. Th
 
 If none of the filters are specified, only the number of entries associated with the profile will be returned.
 
-### `GET /api/pulse/profiles/?...` with a filter arguments, and optional `format=json`
+### `GET /api/pulse/profiles/?...` with filter arguments, and optional `format=json`
 
 The list of profiles known to the system can be queried, but **only** in conjunction with one or more of three query arguments:
 
@@ -371,7 +371,17 @@ The list of profiles known to the system can be queried, but **only** in conjunc
 - `program_type`: filter the list by program types `media fellow`, `open web fellow`, `science fellow`, `senior fellow`, or `tech policy fellow`.
 - `program_year`: filter the list by program year in the range 2015-2019 (inclusive).
 
-You can sort these results using the `ordering` query param, passing it either `custom_name` or `program_year` (negated like `-custom_name` to reverse)
+You can sort these results using the `ordering` query param, passing it either `custom_name` or `program_year` (negated like `-custom_name` to reverse).
+
+The resulting payload content differs based on the version of the API you use.
+
+#### Version 2 - `GET /api/pulse/v2/profiles/?...` with filter arguments, and optional `format=json`
+
+The response only contains profile information without any information about entries related to the profile (use [GET /api/pulse/profiles/<id=number>/entries/?...](#get-apipulseprofilesidnumberentries-with-filter-arguments-and-optional-formatjsong) for retrieving the entries for each profile individually).
+
+#### Version 1 - `GET /api/pulse/v1/profiles/?...` with filter arguments, and optional `format=json`
+
+The payload returned by this route also includes an array of entries published (`published_entries`) by the user owning this profile and an array of entries created (`created_entries`) by this profile (as defined by other users when creating entries).
 
 ### `GET /api/pulse/myprofile/` with optional `?format=json`
 

@@ -10,7 +10,11 @@ from pulseapi.tests import PulseMemberTestCase
 from pulseapi.entries.models import Entry
 from pulseapi.entries.serializers import EntrySerializer
 from pulseapi.creators.models import OrderedCreatorRecord
-from pulseapi.profiles.serializers import UserProfileEntriesSerializer
+from pulseapi.profiles.serializers import (
+    UserProfileEntriesSerializer,
+    UserProfilePublicSerializer,
+    UserProfilePublicWithEntriesSerializer,
+)
 
 
 class TestProfileView(PulseMemberTestCase):
@@ -227,7 +231,53 @@ class TestProfileView(PulseMemberTestCase):
         (profile, created) = ProgramYear.objects.get_or_create(value='2018')
         self.assertEqual(created, False)
 
-    def test_profile_listing(self):
+    def test_profile_list_v1(self):
+        (profile_type, _) = ProfileType.objects.get_or_create(value='test-type')
+        for profile in UserProfile.objects.all()[:3]:
+            profile.enable_extended_information = True
+            profile.profile_type = profile_type
+            profile.save()
+
+        url = reverse('profile_list', args=[
+            settings.API_VERSIONS['version_1'] + '/'
+        ])
+        response = self.client.get('{url}?profile_type={type}'.format(url=url, type=profile_type.value))
+        response_profiles = json.loads(str(response.content, 'utf-8'))
+
+        profile_list = [
+            UserProfilePublicWithEntriesSerializer(
+                profile,
+                context={'request': response.wsgi_request}
+            ).data
+            for profile in UserProfile.objects.filter(profile_type=profile_type)
+        ]
+
+        self.assertListEqual(response_profiles, profile_list)
+
+    def test_profile_list_v2(self):
+        (profile_type, _) = ProfileType.objects.get_or_create(value='test-type')
+        for profile in UserProfile.objects.all()[:3]:
+            profile.enable_extended_information = True
+            profile.profile_type = profile_type
+            profile.save()
+
+        url = reverse('profile_list', args=[
+            settings.API_VERSIONS['version_2'] + '/'
+        ])
+        response = self.client.get('{url}?profile_type={type}'.format(url=url, type=profile_type.value))
+        response_profiles = json.loads(str(response.content, 'utf-8'))
+
+        profile_list = [
+            UserProfilePublicSerializer(
+                profile,
+                context={'request': response.wsgi_request}
+            ).data
+            for profile in UserProfile.objects.filter(profile_type=profile_type)
+        ]
+
+        self.assertListEqual(response_profiles, profile_list)
+
+    def test_profile_list_filtering(self):
         profile_types = ['a', 'b', 'c']
         program_types = ['a', 'b']
         program_years = ['a', 'b']
@@ -282,7 +332,7 @@ class TestProfileView(PulseMemberTestCase):
                     entriesjson = json.loads(str(response.content, 'utf-8'))
                     self.assertEqual(len(entriesjson), 1)
 
-    def test_invalid_profile_listing_argument(self):
+    def test_invalid_profile_list_filtering_argument(self):
         profile_url = reverse('profile_list')
         url = ('{url}?unsupported_arg=should_be_empty_response').format(url=profile_url)
         response = self.client.get(url)
