@@ -25,12 +25,12 @@ env = environ.Env(
     DEBUG=(bool, False),
     USE_S3=(bool, False),
     SSL_PROTECTION=(bool, False),
-    CORS_ORIGIN_REGEX_WHITELIST=(tuple, ()),
+    CORS_ORIGIN_REGEX_WHITELIST=(list, []),
     CORS_ORIGIN_WHITELIST=(list, []),
     HEROKU_APP_NAME=(str, ''),
     PULSE_FRONTEND_HOSTNAME=(str, ''),
     SECRET_KEY=(str, ''),
-    CSRF_TRUSTED_ORIGINS=(list, [])
+    CSRF_TRUSTED_ORIGINS=(list, []),
 )
 
 SSL_PROTECTION = env('SSL_PROTECTION')
