@@ -190,7 +190,13 @@ class UserProfileListAPIView(ListAPIView):
 
     filter_class = ProfileCustomFilter
 
-    queryset = UserProfile.objects.all()
+    queryset = UserProfile.objects.all().prefetch_related(
+        'related_user',
+        'issues',
+        'profile_type',
+        'program_type',
+        'program_year'
+    )
 
     def get_serializer_class(self):
         if self.request and self.request.version == settings.API_VERSIONS['version_2']:
