@@ -216,7 +216,7 @@ class UserProfileEntriesSerializer(serializers.Serializer):
                 'entry_count': entry_count
             }
 
-        entry_queryset = Entry.objects.public().prefetch_related(
+        entry_queryset = Entry.objects.prefetch_related(
             'related_creators__creator__profile__related_user'
         )
 
@@ -225,6 +225,7 @@ class UserProfileEntriesSerializer(serializers.Serializer):
                 OrderedCreatorRecord.objects
                 .prefetch_related(Prefetch('entry', queryset=entry_queryset))
                 .filter(creator=instance.related_creator)
+                .filter(entry__in=Entry.objects.public())
             )
             data['created'] = [
                 self.serialize_entry(ordered_creator.entry)
@@ -232,7 +233,7 @@ class UserProfileEntriesSerializer(serializers.Serializer):
             ]
 
         if include_published:
-            entries = entry_queryset.filter(published_by=instance.user) if instance.user else []
+            entries = entry_queryset.public().filter(published_by=instance.user) if instance.user else []
             data['published'] = [self.serialize_entry(entry) for entry in entries]
 
         if include_favorited:
@@ -241,7 +242,7 @@ class UserProfileEntriesSerializer(serializers.Serializer):
                 self.serialize_entry(bookmark.entry) for bookmark in
                 user_bookmarks.prefetch_related(
                     Prefetch('entry', queryset=entry_queryset)
-                )
+                ).filter(entry__in=Entry.objects.public())
             ]
 
         return data
