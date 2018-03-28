@@ -2,15 +2,24 @@ import base64
 import django_filters
 
 from django.core.files.base import ContentFile
-from django.shortcuts import get_object_or_404
+from django.conf import settings
 
 from rest_framework import filters, permissions
-from rest_framework.generics import RetrieveAPIView, RetrieveUpdateAPIView, ListAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.generics import (
+    get_object_or_404,
+    RetrieveAPIView,
+    RetrieveUpdateAPIView,
+    ListAPIView,
+)
 
 from pulseapi.profiles.models import UserProfile
 from pulseapi.profiles.serializers import (
     UserProfileSerializer,
     UserProfilePublicSerializer,
+    UserProfilePublicWithEntriesSerializer,
+    UserProfileEntriesSerializer,
 )
 
 
@@ -21,7 +30,12 @@ class IsProfileOwner(permissions.BasePermission):
 
 class UserProfilePublicAPIView(RetrieveAPIView):
     queryset = UserProfile.objects.all()
-    serializer_class = UserProfilePublicSerializer
+
+    def get_serializer_class(self):
+        if self.request.version == settings.API_VERSIONS['version_2']:
+            return UserProfilePublicSerializer
+
+        return UserProfilePublicWithEntriesSerializer
 
 
 class UserProfilePublicSelfAPIView(UserProfilePublicAPIView):
@@ -67,6 +81,35 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
             pass
 
         return super(UserProfileAPIView, self).put(request, *args, **kwargs)
+
+
+# We don't inherit from a generic API view class since we're customizing
+# the get functionality more than the generic would allow.
+class UserProfileEntriesAPIView(APIView):
+    authentication_classes = []
+
+    def get(self, request, pk, **kwargs):
+        """
+        Return a list of entries associated with this profile
+        that can be filtered by entries that this profile - was
+        a creator on, was a publisher of, or favorited.
+        """
+        profile = get_object_or_404(
+            UserProfile.objects.select_related(
+                'related_creator',
+                'related_user'
+            ),
+            pk=pk,
+        )
+        query = request.query_params
+
+        return Response(
+            UserProfileEntriesSerializer(instance=profile, context={
+                'created': 'created' in query,
+                'published': 'published' in query,
+                'favorited': 'favorited' in query
+            }).data
+        )
 
 
 # NOTE: DRF has deprecated the FilterSet class in favor of
@@ -138,8 +181,6 @@ class UserProfileListAPIView(ListAPIView):
       program_year=
       ordering=(custom_name, program_year) or negative (e.g. -custom_name) to reverse.
     """
-    serializer_class = UserProfilePublicSerializer
-
     filter_backends = (
         filters.DjangoFilterBackend,
         filters.OrderingFilter,
@@ -149,4 +190,16 @@ class UserProfileListAPIView(ListAPIView):
 
     filter_class = ProfileCustomFilter
 
-    queryset = UserProfile.objects.all()
+    queryset = UserProfile.objects.all().prefetch_related(
+        'related_user',
+        'issues',
+        'profile_type',
+        'program_type',
+        'program_year'
+    )
+
+    def get_serializer_class(self):
+        if self.request and self.request.version == settings.API_VERSIONS['version_2']:
+            return UserProfilePublicSerializer
+
+        return UserProfilePublicWithEntriesSerializer

@@ -60,7 +60,7 @@ class RSSFeedLatestFromPulse(RSSFeedFromPulse):
     description = 'Subscribe to get the latest entries from Mozilla Pulse.'
 
     def items(self):
-        return Entry.objects.public().order_by('-created')[:20]
+        return Entry.objects.public().with_related().order_by('-created')[:20]
 
 
 # RSS feed for featured entries

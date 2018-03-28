@@ -88,7 +88,7 @@ class Command(BaseCommand):
 
         # Select random published entries and bookmark them for 1 to 10 users
         self.stdout.write('Creating bookmarks')
-        approved_entries = Entry.objects.public()
+        approved_entries = Entry.objects.public().with_related()
         for e in sample(list(approved_entries), k=len(approved_entries)//2):
             [UserBookmarksFactory.create(entry=e) for i in range(randint(1, 10))]
 
