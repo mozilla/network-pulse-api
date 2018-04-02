@@ -56,12 +56,14 @@ class UserProfileAdmin(admin.ModelAdmin):
         'program_type',
         'program_year',
         'user_account',
+        'enable_extended_information',
     )
 
     list_filter = (
         'profile_type',
         'program_type',
         'program_year',
+        'enable_extended_information',
     )
 
     search_fields = (
