@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
 
-from pulseapi.creators.models import Creator, OrderedCreatorRecord
+from pulseapi.profiles.models import UserProfile
 
 
 def serialize_profile_as_v1_creator(profile):
@@ -37,35 +37,10 @@ class EntryCreatorV1Serializer(serializers.ModelSerializer):
         return serialize_profile_as_v1_creator(instance.profile)
 
     def to_internal_value(self, data):
-
-
-
-class EntryOrderedCreatorSerializer(serializers.ModelSerializer):
-    """
-    We use this serializer to serialize creators that are related to entries.
-    While the model is set to `OrderedCreatorRecord`, we only do that since we
-    inherit from `ModelSerializer`, and the output of serialization/descerialization
-    is actually a `Creator` and not an `OrderedCreatorRecord`. We do this because
-    for an entry, an `OrderedCreatorRecord` object is not useful while a `Creator`
-    object is really what we want.
-    """
-    def to_representation(self, instance):
         """
-        Serialize an `OrderedCreatorRecord` object into something meaningful
-        """
-        creator = instance.creator
-
-        return {
-            'creator_id': creator.id,
-            'profile_id': creator.profile.id if creator.profile else None,
-            'name': creator.creator_name
-        }
-
-    def to_internal_value(self, data):
-        """
-        Deserialize data passed in into a `Creator` object that can be used to
-        create an `OrderedCreatorRecord` object.
-        If an `id` is provided, we get the corresponding `Creator` object, otherwise
+        Deserialize data passed in into a `Profile` object that can be used to
+        create an `EntryCreator` object.
+        If an `id` is provided, we get the corresponding `Profile` object, otherwise
         we create a new `Creator` object with the name specified but don't actually
         save to the database so that we don't create stale values if something
         fails elsewhere (for e.g. in the `create` method). The `create`/`update`
@@ -76,21 +51,21 @@ class EntryOrderedCreatorSerializer(serializers.ModelSerializer):
 
         if not has_creator_id and not has_name:
             raise ValidationError(
-                detail=_('A creator id or a name must be provided.'),
+                detail=_('A creator/profile id or a name must be provided.'),
                 code='missing data',
             )
 
         if has_creator_id:
             try:
-                return Creator.objects.get(id=data['creator_id'])
+                return UserProfile.objects.get(id=data['creator_id'])
             except ObjectDoesNotExist:
                 raise ValidationError(
-                    detail=_('No creator exists for the given id {id}.'.format(id=data['creator_id'])),
+                    detail=_('No profile exists for the given id {id}.'.format(id=data['creator_id'])),
                     code='invalid',
                 )
 
-        return Creator(name=data['name'])
+        return UserProfile(custom_name=data['name'])
 
     class Meta:
-        model = OrderedCreatorRecord
+        model = UserProfile
         fields = '__all__'

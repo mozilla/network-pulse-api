@@ -6,8 +6,11 @@ from pulseapi.profiles.models import (
     UserProfile,
     UserBookmarks,
 )
-from pulseapi.creators.models import OrderedCreatorRecord
-from pulseapi.creators.serializers import EntryOrderedCreatorSerializer
+from pulseapi.creators.models import EntryCreator
+from pulseapi.creators.serializers import (
+    EntryCreatorSerializer,
+    EntryCreatorV1Serializer,
+)
 from pulseapi.entries.models import Entry
 from pulseapi.entries.serializers import EntryBaseSerializer, EntrySerializer
 
