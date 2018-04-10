@@ -7,8 +7,21 @@ from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.helptypes.models import HelpType
-from pulseapi.creators.models import Creator, OrderedCreatorRecord
-from pulseapi.creators.serializers import EntryOrderedCreatorSerializer
+from pulseapi.creators.models import EntryCreator
+from pulseapi.creators.serializers import (
+    RelatedEntryCreatorV1Field,
+    RelatedEntryCreatorField,
+)
+
+
+def associate_entry_with_creator_data(entry, creator_data=[], user=None):
+    if user and entry.published_by_creator:
+        creator_data.append({'profile': user.profile})
+
+    for data in creator_data:
+        if not data.pop('profile_committed', True):
+            data.profile.save()
+        EntryCreator.objects.create(entry=entry, **data)
 
 
 class CreatableSlugRelatedField(serializers.SlugRelatedField):
@@ -71,13 +84,35 @@ class EntryBaseSerializer(serializers.ModelSerializer):
         )
 
 
+class EntryWithV1CreatorsBaseSerializer(EntryBaseSerializer):
+    related_creators = RelatedEntryCreatorV1Field(
+        queryset=EntryCreator.objects.all(),
+        source='related_entry_creators',
+        required=False,
+        many=True,
+    )
+
+    class Meta(EntryBaseSerializer.Meta):
+        read_only_fields = fields = EntryBaseSerializer.Meta.fields + ('related_creators',)
+
+
+class EntryWithCreatorsBaseSerializer(EntryBaseSerializer):
+    related_creators = RelatedEntryCreatorField(
+        queryset=EntryCreator.objects.all(),
+        source='related_entry_creators',
+        required=False,
+        many=True,
+    )
+
+    class Meta(EntryBaseSerializer.Meta):
+        read_only_fields = fields = EntryBaseSerializer.Meta.fields + ('related_creators',)
+
+
 class EntrySerializer(EntryBaseSerializer):
     """
     Serializes an entry with embeded information including
-    list of tags, categories and links associated with that entry
-    as simple strings. It also includes a list of hyperlinks to events
-    that are associated with this entry as well as hyperlinks to users
-    that are involved with the entry
+    list of tags, issues and help types associated with that entry
+    as simple strings.
     """
 
     tags = CreatableSlugRelatedField(
@@ -99,11 +134,6 @@ class EntrySerializer(EntryBaseSerializer):
         slug_field='name',
         queryset=HelpType.objects,
         required=False
-    )
-
-    related_creators = EntryOrderedCreatorSerializer(
-        required=False,
-        many=True,
     )
 
     # overrides 'published_by' for REST purposes
@@ -129,32 +159,6 @@ class EntrySerializer(EntryBaseSerializer):
         """
         return instance.bookmarked_by.count()
 
-    def create(self, validated_data):
-        """
-        We override the create method to make sure we save related creators
-        as well and setup the relationship with the created entry.
-        """
-        related_creators = validated_data.pop('related_creators', [])
-        entry = super(EntrySerializer, self).create(validated_data)
-        profile = None
-
-        if 'request' in self.context and hasattr(self.context['request'], 'user'):
-            profile = self.context['request'].user.profile
-
-        if entry.published_by_creator:
-            self_creator, created = Creator.objects.get_or_create(profile=profile)
-            if self_creator not in related_creators:
-                related_creators.append(self_creator)
-
-        for creator in related_creators:
-            creator.save()
-            OrderedCreatorRecord.objects.create(
-                creator=creator,
-                entry=entry,
-            )
-
-        return entry
-
     class Meta:
         """
         Meta class. Because
@@ -163,3 +167,40 @@ class EntrySerializer(EntryBaseSerializer):
         exclude = (
             'internal_notes',
         )
+
+
+class EntrySerializerWithCreators(EntrySerializer):
+    related_creators = RelatedEntryCreatorField(
+        queryset=EntryCreator.objects.all(),
+        source='related_entry_creators',
+        required=False,
+        many=True,
+    )
+
+    def create(self, validated_data):
+        """
+        We override the create method to make sure we save related creators
+        as well and setup the relationship with the created entry.
+        """
+        user = self.context.get('user')
+        creator_data = validated_data.pop('related_creators', [])
+        entry = super().create(validated_data)
+
+        if user and entry.published_by_creator:
+            creator_data.append({'profile': user.profile})
+
+        for data in creator_data:
+            if not data.pop('profile_committed', True):
+                data.profile.save()
+            EntryCreator.objects.create(entry=entry, **data)
+
+        return entry
+
+
+class EntrySerializerWithV1Creators(EntrySerializerWithCreators):
+    related_creators = RelatedEntryCreatorV1Field(
+        queryset=EntryCreator.objects.all(),
+        source='related_entry_creators',
+        required=False,
+        many=True,
+    )

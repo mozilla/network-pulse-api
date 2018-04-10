@@ -7,12 +7,11 @@ from pulseapi.profiles.models import (
     UserBookmarks,
 )
 from pulseapi.creators.models import EntryCreator
-from pulseapi.creators.serializers import (
-    EntryCreatorSerializer,
-    EntryCreatorV1Serializer,
-)
 from pulseapi.entries.models import Entry
-from pulseapi.entries.serializers import EntryBaseSerializer, EntrySerializer
+from pulseapi.entries.serializers import (
+    EntrySerializerWithCreators,
+    EntrySerializerWithV1Creators,
+)
 
 
 # Helper function to remove a value from a dictionary
@@ -175,7 +174,7 @@ class UserProfilePublicWithEntriesSerializer(UserProfilePublicSerializer):
     def get_published_entries(self, instance):
         user = instance.user
 
-        return EntrySerializer(
+        return EntrySerializerWithV1Creators(
             user.entries.public().with_related().order_by('-id'),
             context=self.context,
             many=True,
@@ -184,8 +183,8 @@ class UserProfilePublicWithEntriesSerializer(UserProfilePublicSerializer):
     created_entries = serializers.SerializerMethodField()
 
     def get_created_entries(self, instance):
-        entry_creator_records = OrderedCreatorRecord.objects.filter(creator__profile=instance).order_by('-id')
-        return [EntrySerializer(x.entry).data for x in entry_creator_records if x.entry.is_approved()]
+        entry_creators = EntryCreator.objects.filter(profile=instance).order_by('-id')
+        return [EntrySerializerWithV1Creators(x.entry).data for x in entry_creators if x.entry.is_approved()]
 
 
 class UserProfileEntriesSerializer(serializers.Serializer):
@@ -203,14 +202,6 @@ class UserProfileEntriesSerializer(serializers.Serializer):
     returning the number of entries (created, published, and favorited) associated
     with the profile.
     """
-    @staticmethod
-    def serialize_entry(entry):
-        serialized_entry = EntryBaseSerializer(entry).data
-        serialized_entry['related_creators'] = EntryOrderedCreatorSerializer(
-            entry.related_creators,
-            many=True
-        ).data
-        return serialized_entry
 
     def to_representation(self, instance):
         data = {}
@@ -218,12 +209,13 @@ class UserProfileEntriesSerializer(serializers.Serializer):
         include_created = context.get('created', False)
         include_published = context.get('published', False)
         include_favorited = context.get('favorited', False)
+        EntrySerializerClass = context.get('EntrySerializerClass', EntrySerializerWithCreators)
 
         # If none of the filter options are provided, only return the count of
         # entries associated with this profile
         if not (include_created or include_published or include_favorited):
             entry_count = Entry.objects.public().filter(
-                Q(related_creators__creator__profile=instance) |
+                Q(related_entry_creators__profile=instance) |
                 Q(published_by=instance.user) |
                 Q(bookmarked_by__profile=instance)
             ).distinct().count()
@@ -232,29 +224,29 @@ class UserProfileEntriesSerializer(serializers.Serializer):
             }
 
         entry_queryset = Entry.objects.prefetch_related(
-            'related_creators__creator__profile__related_user'
+            'related_entry_creators__profile__related_user'
         )
 
         if include_created:
-            ordered_creators = (
-                OrderedCreatorRecord.objects
+            entry_creators = (
+                EntryCreator.objects
                 .prefetch_related(Prefetch('entry', queryset=entry_queryset))
-                .filter(creator=instance.related_creator)
+                .filter(profile=instance)
                 .filter(entry__in=Entry.objects.public())
             )
             data['created'] = [
-                self.serialize_entry(ordered_creator.entry)
-                for ordered_creator in ordered_creators
+                EntrySerializerClass(entry_creator.entry).data
+                for entry_creator in entry_creators
             ]
 
         if include_published:
             entries = entry_queryset.public().filter(published_by=instance.user) if instance.user else []
-            data['published'] = [self.serialize_entry(entry) for entry in entries]
+            data['published'] = EntrySerializerClass(entries, many=True).data
 
         if include_favorited:
             user_bookmarks = UserBookmarks.objects.filter(profile=instance)
             data['favorited'] = [
-                self.serialize_entry(bookmark.entry) for bookmark in
+                EntrySerializerClass(bookmark.entry).data for bookmark in
                 user_bookmarks.prefetch_related(
                     Prefetch('entry', queryset=entry_queryset)
                 ).filter(entry__in=Entry.objects.public())

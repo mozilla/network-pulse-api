@@ -1,6 +1,8 @@
 import json
+from django.core.urlresolvers import reverse
 
 from pulseapi.entries.models import Entry, ModerationState
+from pulseapi.creators.models import EntryCreator
 from pulseapi.tests import PulseMemberTestCase
 
 
@@ -21,10 +23,10 @@ class TestMemberEntryView(PulseMemberTestCase):
         id = str(responseobj['id'])
 
         getresponse = self.client.get('/api/pulse/entries/' + id, follow=True)
-        getListresponse = json.loads(
+        get_list_response = json.loads(
             str(self.client.get('/api/pulse/entries/').content, 'utf-8')
         )
-        results = getListresponse['results']
+        results = get_list_response['results']
 
         self.assertEqual(len(results), 2)
         self.assertEqual(getresponse.status_code, 404)
@@ -63,61 +65,41 @@ class TestMemberEntryView(PulseMemberTestCase):
 
         # verify that unauthenticated users get a status 200 response
         self.client.logout()
-        bookmarkResponse = self.client.get('/api/pulse/entries/bookmarks/')
-        self.assertEqual(bookmarkResponse.status_code, 200)
+        bookmark_response = self.client.get('/api/pulse/entries/bookmarks/')
+        self.assertEqual(bookmark_response.status_code, 200)
 
-        bookmarkJson = json.loads(str(bookmarkResponse.content, 'utf-8'))
+        bookmark_json = json.loads(str(bookmark_response.content, 'utf-8'))
 
         # verify that data returned has the following properties and that 'count' is 0
-        self.assertEqual('count' in bookmarkJson, True)
-        self.assertEqual('previous' in bookmarkJson, True)
-        self.assertEqual('next' in bookmarkJson, True)
-        self.assertEqual('results' in bookmarkJson, True)
-        self.assertEqual(len(bookmarkJson), 4)
-        self.assertEqual(bookmarkJson['count'], 0)
+        self.assertEqual('count' in bookmark_json, True)
+        self.assertEqual('previous' in bookmark_json, True)
+        self.assertEqual('next' in bookmark_json, True)
+        self.assertEqual('results' in bookmark_json, True)
+        self.assertEqual(len(bookmark_json), 4)
+        self.assertEqual(bookmark_json['count'], 0)
 
     def test_creator_ordering(self):
         """
         Verify that posting entries preserves the order in which creators
         were passed to the system.
         """
-
+        related_creators = [
+            {'name': 'First Creator'},
+            {'name': 'Second Creator'},
+            {'name': 'Third Creator'},
+        ]
         payload = self.generatePostPayload(data={
             'title': 'title test_creator_ordering',
             'content_url': 'http://example.org/test_creator_ordering',
-            'creators': [
-              'First Creator',
-              'Second Creator',
-            ]
+            'related_creators': related_creators
         })
 
-        postresponse = self.client.post('/api/pulse/entries/', payload)
-        content = str(postresponse.content, 'utf-8')
-        response = json.loads(content)
-        id = int(response['id'])
-        entry = Entry.objects.get(id=id)
-        creators = [c.creator for c in entry.related_creators.all()]
+        response = self.client.post(reverse('entries-list'), payload)
+        self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(creators[0].name, 'First Creator')
-        self.assertEqual(creators[1].name, 'Second Creator')
+        entry_id = int(json.loads(str(response.content, 'utf-8'))['id'])
+        entry_creators = EntryCreator.objects.filter(entry__id=entry_id).select_related('profile')
+        self.assertEqual(len(entry_creators), len(related_creators))
 
-        payload = self.generatePostPayload(data={
-            'title': 'title test_creator_ordering',
-            'content_url': 'http://example.org/test_creator_ordering',
-            'creators': [
-              # note that this is a different creator ordering
-              'Second Creator',
-              'First Creator',
-            ]
-        })
-
-        postresponse = self.client.post('/api/pulse/entries/', payload)
-        content = str(postresponse.content, 'utf-8')
-        response = json.loads(content)
-        id = int(response['id'])
-        entry = Entry.objects.get(id=id)
-        creators = [c.creator for c in entry.related_creators.all()]
-
-        # the same ordering should be reflected in the creator list
-        self.assertEqual(creators[0].name, 'Second Creator')
-        self.assertEqual(creators[1].name, 'First Creator')
+        for creator, entry_creator in zip(related_creators, entry_creators):
+            self.assertEqual(entry_creator.profile.custom_name, creator['name'])

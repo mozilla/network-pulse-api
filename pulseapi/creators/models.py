@@ -157,7 +157,11 @@ class EntryCreator(models.Model):
 
     class Meta:
         verbose_name = 'Entry Creators'
+        # This meta option creates an _order column in the table
+        # See https://docs.djangoproject.com/en/1.11/ref/models/options/#order-with-respect-to for more details
         order_with_respect_to = 'entry'
         indexes = [
-            models.Index(fields=['entry', '_order'], name='uk_entrycreator_entryid_order')
+            models.Index(fields=['entry', '_order'], name='uk_entrycreator_entryid_order'),
+            models.Index(fields=['entry', 'profile'], name='uk_entrycreator_entry_profile')
         ]
+        unique_together = ('entry', 'profile',)

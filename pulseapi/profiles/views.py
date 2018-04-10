@@ -22,6 +22,10 @@ from pulseapi.profiles.serializers import (
     UserProfileEntriesSerializer,
     UserProfileBasicSerializer,
 )
+from pulseapi.entries.serializers import (
+    EntrySerializerWithCreators,
+    EntrySerializerWithV1Creators,
+)
 
 
 class IsProfileOwner(permissions.BasePermission):
@@ -103,12 +107,17 @@ class UserProfileEntriesAPIView(APIView):
             pk=pk,
         )
         query = request.query_params
+        EntrySerializerClass = EntrySerializerWithCreators
+
+        if request and request.version == settings.API_VERSIONS['version_1']:
+            EntrySerializerClass = EntrySerializerWithV1Creators
 
         return Response(
             UserProfileEntriesSerializer(instance=profile, context={
                 'created': 'created' in query,
                 'published': 'published' in query,
-                'favorited': 'favorited' in query
+                'favorited': 'favorited' in query,
+                'EntrySerializerClass': EntrySerializerClass
             }).data
         )
 
@@ -203,9 +212,9 @@ class UserProfileListAPIView(ListAPIView):
     def get_serializer_class(self):
         request = self.request
 
-        if request and request.version == settings.API_VERSIONS['version_2']:
-            if request.query_params.get('basic'):
-                return UserProfileBasicSerializer
-            return UserProfilePublicSerializer
+        if request and request.version == settings.API_VERSIONS['version_1']:
+            return UserProfilePublicWithEntriesSerializer
 
-        return UserProfilePublicWithEntriesSerializer
+        if request.query_params.get('basic'):
+            return UserProfileBasicSerializer
+        return UserProfilePublicSerializer

@@ -1,14 +1,49 @@
 import json
-
+from math import ceil
 from django.core.urlresolvers import reverse
-from django.db.models import Q
+from django.conf import settings
 from django.test.client import MULTIPART_CONTENT
 from rest_framework import status
+from rest_framework.test import APIRequestFactory
 
-from pulseapi.creators.models import Creator, OrderedCreatorRecord
+from pulseapi.creators.models import EntryCreator
+from pulseapi.profiles.models import UserProfile
 from pulseapi.entries.models import Entry, ModerationState
-from pulseapi.entries.serializers import EntrySerializer
+from pulseapi.entries.serializers import (
+    EntrySerializer,
+    EntrySerializerWithV1Creators,
+    EntrySerializerWithCreators,
+)
+from pulseapi.entries.views import EntriesPagination
 from pulseapi.tests import PulseStaffTestCase
+
+
+def run_test_entry_creators(test_case, api_version=None, creator_id_key='creator_id'):
+    creators = [
+        {'name': 'Pomax'},
+        {creator_id_key: UserProfile.objects.last().get().id},
+        {'name': 'Alan'}
+    ]
+    payload = {
+        'title': 'title test_post_entry_with_mixed_creators',
+        'description': 'description test_post_entry_with_mixed_creators',
+        'related_creators': creators,
+    }
+    url = reverse('entries-list', args=[api_version + '/']) if api_version else reverse('entries-list')
+    response = test_case.client.post(
+        url,
+        data=test_case.generatePostPayload(data=payload)
+    )
+    test_case.assertEqual(response.status_code, 200)
+
+    entry_id = int(json.loads(str(response.content, 'utf-8'))['id'])
+    entry_creators = EntryCreator.objects.filter(entry__id=entry_id).select_related('profile')
+
+    for creator, entry_creator in zip(creators, entry_creators):
+        if type(creator) == dict:
+            test_case.assertEqual(entry_creator.profile.id, creator[creator_id_key])
+        else:
+            test_case.assertEqual(entry_creator.profile.custom_name, creator)
 
 
 class TestEntryView(PulseStaffTestCase):
@@ -106,7 +141,10 @@ class TestEntryView(PulseStaffTestCase):
             'internal_notes': 'Some internal notes',
             'featured': True,
             'issues': ['Decentralization'],
-            'creators': ['Pomax', 'Alan']
+            'related_creators': [
+                {'name': 'Pomax'},
+                {'name': 'Alan'}
+            ]
         }
         postresponse = self.client.post(
             '/api/pulse/entries/',
@@ -128,7 +166,10 @@ class TestEntryView(PulseStaffTestCase):
             'internal_notes': 'Some internal notes',
             'featured': True,
             'issues': ['Decentralization'],
-            'creators': ['Pomax', 'Alan']
+            'related_creators': [
+                {'name': 'Pomax'},
+                {'name': 'Alan'}
+            ]
         }
         postresponse = self.client.post(
             '/api/pulse/entries/',
@@ -201,33 +242,26 @@ class TestEntryView(PulseStaffTestCase):
         )
         self.assertEqual(tagList, ['test1', 'test2', 'test3'])
 
-    def test_post_entry_with_mixed_creators(self):
+    def test_post_entry_with_mixed_creators_v1(self):
         """
         Post entry with some existing creators, some new creators
         Make sure that they are in the db.
         """
-
-        creators = ['Pomax', 'Alan']
-        payload = {
-            'title': 'title test_post_entry_with_mixed_creators',
-            'description': 'description test_post_entry_with_mixed_creators',
-            'creators': creators,
-        }
-        json.loads(
-            str(self.client.get('/api/pulse/nonce/').content, 'utf-8')
-        )
-        self.client.post(
-            '/api/pulse/entries/',
-            data=self.generatePostPayload(data=payload)
+        run_test_entry_creators(
+            test_case=self,
+            creator_id_key='creator_id'
         )
 
-        query_filter = Q(name=creators[0])
-        for creator in creators:
-            query_filter = query_filter | Q(name=creator)
-
-        creator_list_count = Creator.objects.filter(query_filter).count()
-
-        self.assertEqual(len(creators), creator_list_count)
+    def test_post_entry_with_mixed_creators_v2(self):
+        """
+        Post entry with some existing creators, some new creators
+        Make sure that they are in the db.
+        """
+        run_test_entry_creators(
+            test_case=self,
+            version=settings.API_VERSIONS['version_2'],
+            creator_id_key='profile_id'
+        )
 
     def test_post_entry_as_creator(self):
         """
@@ -239,23 +273,55 @@ class TestEntryView(PulseStaffTestCase):
             'description': 'description test_post_entry_as_creator',
             'published_by_creator': True,
         }
-        postresponse = self.client.post(
-            '/api/pulse/entries/',
+        response = self.client.post(
+            reverse('entries-list'),
             data=self.generatePostPayload(data=payload)
         )
-        self.assertEqual(postresponse.status_code, 200)
-        responseobj = json.loads(str(postresponse.content, 'utf-8'))
-        id = str(responseobj['id'])
+        self.assertEqual(response.status_code, 200)
+        entry_id = int(json.loads(str(response.content, 'utf-8'))['id'])
+        entry_creator = Entry.objects.get(id=entry_id).related_entry_creators.last()
 
-        entry_from_REST = self.client.get('/api/pulse/entries/' + id, follow=True)
-        data = json.loads(str(entry_from_REST.content, 'utf-8'))
-        self.assertEquals(self.user.name, data['related_creators'][0]['name'])
+        self.assertEqual(entry_creator.id, self.user.profile.id)
 
-    def test_get_entries_list(self):
+    def run_test_get_entry_list(self, entries_url, serializer_class):
         """Get /entries endpoint"""
+        entries = Entry.objects.public().with_related()
+        page_size = EntriesPagination().get_page_size()
 
-        entryList = self.client.get('/api/pulse/entries/')
-        self.assertEqual(entryList.status_code, 200)
+        for page_number in range(ceil(len(entries) / page_size)):
+            start_entry_index = (page_number - 1) * page_size
+            end_entry_index = start_entry_index + page_size - 1
+            entry_list = serializer_class(
+                entries[start_entry_index:end_entry_index],
+                many=True,
+            ).data
+            response = self.client.get('{url}?page={page_number}'.format(
+                url=entries_url,
+                page_number=page_number,
+            ))
+            self.assertEqual(response.status_code, 200)
+            response_entries = json.loads(str(response.content, 'utf-8'))['results']
+            self.assertListEqual(response_entries, entry_list)
+
+    def test_get_entries_v1_list(self):
+        """Get /v1/entries endpoint"""
+        self.run_test_get_entry_list(
+            entries_url=reverse(
+                'entries-list',
+                args=[settings.API_VERSIONS['version_1'] + '/']
+            ),
+            serializer_class=EntrySerializerWithV1Creators
+        )
+
+    def test_get_entries_v2_list(self):
+        """Get /v2/entries endpoint"""
+        self.run_test_get_entry_list(
+            entries_url=reverse(
+                'entries-list',
+                args=[settings.API_VERSIONS['version_2'] + '/']
+            ),
+            serializer_class=EntrySerializerWithCreators
+        )
 
     def test_entries_search(self):
         """Make sure filtering searches works"""
@@ -614,7 +680,7 @@ class TestEntryView(PulseStaffTestCase):
         entry = Entry.objects.get(id=entry_id)
         self.assertEqual(entry.moderation_state, state)
 
-    def test_entry_serializer(self):
+    def run_test_entry_serializer_with_creators(self, serializer_class):
         """
         Make sure that the entry serializer contains all the custom data needed.
         Useful test to make sure our custom fields are tested and not
@@ -622,7 +688,7 @@ class TestEntryView(PulseStaffTestCase):
         """
 
         entries = self.entries
-        serialized_entries = EntrySerializer(entries, many=True).data
+        serialized_entries = serializer_class(entries, many=True).data
 
         for i in range(len(serialized_entries)):
             entry = entries[i]
@@ -631,33 +697,14 @@ class TestEntryView(PulseStaffTestCase):
             related_creators = serialized_entry['related_creators']
             # Make sure that the number of serialized creators matches the
             # number of creators for that entry in the db
-            db_entry_creator_count = OrderedCreatorRecord.objects.filter(entry=entry).count()
+            db_entry_creator_count = EntryCreator.objects.filter(entry=entry).count()
             self.assertEqual(len(related_creators), db_entry_creator_count)
 
-    def test_post_entry_related_creators(self):
-        """
-        Make sure that we can post related creators with an entry
-        """
-        creator1_id = self.creators[0].id
-        creator2_name = 'Bob'
-        payload = self.generatePostPayload(data={
-            'title': 'title test_entries_issue',
-            'description': 'description test_entries_issue',
-            'related_creators': [{
-                'creator_id': creator1_id
-            }, {
-                'name': creator2_name
-            }]
-        })
+    def test_entry_serializer_with_creators(self):
+        self.run_test_entry_serializer_with_creators(EntrySerializerWithCreators)
 
-        response = self.client.post('/api/pulse/entries/', payload)
-        self.assertEqual(response.status_code, 200)
-        content = json.loads(str(response.content, 'utf-8'))
-        entry_id = int(content['id'])
-        related_creators = OrderedCreatorRecord.objects.filter(entry__id=entry_id)
-        self.assertEqual(len(related_creators), 2)
-        self.assertEqual(related_creators[0].creator.id, creator1_id)
-        self.assertEqual(related_creators[1].creator.name, creator2_name)
+    def test_entry_serializer_with_v1_creators(self):
+        self.run_test_entry_serializer_with_creators(EntrySerializerWithV1Creators)
 
     def test_post_entry_published_by_creator_dupe_related_creator(self):
         """

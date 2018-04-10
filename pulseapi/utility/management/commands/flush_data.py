@@ -4,7 +4,7 @@ set of fake data.
 """
 from django.core.management.base import BaseCommand
 
-from pulseapi.creators.models import Creator, OrderedCreatorRecord
+from pulseapi.creators.models import EntryCreator
 from pulseapi.entries.models import Entry
 from pulseapi.profiles.models import UserBookmarks, UserProfile
 from pulseapi.tags.models import Tag
@@ -29,9 +29,8 @@ class Command(BaseCommand):
         self.stdout.write('Dropping Bookmarks objects')
         UserBookmarks.objects.all().delete()
 
-        self.stdout.write('Dropping Creators objects')
-        Creator.objects.all().delete()
-        OrderedCreatorRecord.objects.all().delete()
+        self.stdout.write('Dropping EntryCreator objects')
+        EntryCreator.objects.all().delete()
 
         self.stdout.write('Dropping Profile objects')
         UserProfile.objects.all().delete()

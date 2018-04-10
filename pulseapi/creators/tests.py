@@ -1,57 +1,44 @@
 import json
 from urllib.parse import quote
-from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
+from django.conf import settings
 
-from pulseapi.profiles.test_models import UserProfileFactory
-from pulseapi.creators.models import Creator
+from pulseapi.profiles.models import UserProfile
+from pulseapi.creators.serializers import CreatorSerializer
+from pulseapi.creators.views import CreatorsPagination
 from pulseapi.tests import PulseStaffTestCase
 
 
-class TestCreatorViews(PulseStaffTestCase):
-    def test_get_creator_list(self):
-        """Make sure we can get a list of creators"""
-        creatorList = self.client.get('/api/pulse/creators/')
-        self.assertEqual(creatorList.status_code, 200)
+class TestEntryCreatorViews(PulseStaffTestCase):
+    def test_get_creator_list_v1(self):
+        """Make sure we can get a list of creators for v1"""
+        response = self.client.get(reverse('creators-list'))
+        page = CreatorsPagination()
+        expected_data = CreatorSerializer(
+            page.paginate_queryset(UserProfile.objects.all()),
+            many=True
+        ).data
+        self.assertEqual(response.status_code, 200)
+        self.assertListEqual(response.data['results'], expected_data)
+
+    def test_get_creator_list_404_for_v2(self):
+        """Make sure we get a 404 if we access the creator list using v2"""
+        response = self.client.get(reverse(
+            'creators-list',
+            args=[settings.API_VERSIONS['version_2'] + '/']
+        ))
+        self.assertEqual(response.status_code, 404)
 
     def test_creator_filtering(self):
         """search creators, for autocomplete"""
-        last = Creator.objects.last()
-        search = last.creator_name
+        profile = UserProfile.objects.last()
 
-        url = '/api/pulse/creators/?name={search}'.format(
-            search=quote(search)
+        url = '{creator_url}?name={search}'.format(
+            creator_url=reverse('creators-list'),
+            search=quote(profile.name)
         )
+        response = json.loads(str(self.client.get(url).content, 'utf-8'))
+        response_creator = response['results'][0]
 
-        creatorList = json.loads(
-            str(self.client.get(url).content, 'utf-8')
-        )
-
-        rest_result = creatorList['results'][0]
-
-        self.assertEqual(last.id, rest_result['creator_id'])
-
-
-class TestCreatorModel(PulseStaffTestCase):
-    def test_require_profile_or_name_on_save(self):
-        """
-        Make sure that we aren't allowed to save without specifying
-        a profile or a name
-        """
-        creator = Creator()
-
-        with self.assertRaises(ValidationError):
-            creator.save()
-
-    def test_auto_create_creator_on_creating_profile(self):
-        """
-        Make sure that when a profile is created a creator associated with
-        that profile is created whose name is set to None and whose
-        creator_name is the same as the profile name
-        """
-        profile = UserProfileFactory()
-        profile.save()
-
-        creator_from_db = Creator.objects.get(profile=profile)
-
-        self.assertIsNone(creator_from_db.name)
-        self.assertEqual(creator_from_db.creator_name, profile.name)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(profile.id, response_creator['creator_id'])

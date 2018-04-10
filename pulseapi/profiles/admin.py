@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from pulseapi.utility.get_admin_url import get_admin_url
-from pulseapi.profiles.forms import UserProfileAdminForm
 from .models import (
     ProfileType,
     ProgramType,
@@ -16,8 +15,6 @@ class UserProfileAdmin(admin.ModelAdmin):
     """
     Show the profile-associated user.
     """
-    form = UserProfileAdminForm
-
     fields = (
         'is_active',
         'user_account',
@@ -40,7 +37,6 @@ class UserProfileAdmin(admin.ModelAdmin):
         'program_year',
         'affiliation',
         'user_bio_long',
-        'creator',
     )
 
     readonly_fields = (

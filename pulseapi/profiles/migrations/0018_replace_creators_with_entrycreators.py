@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('profiles', '0017_auto_20180213_1202'),
-        ('creators', '0013_auto_20180318_1808')
+        ('creators', '0013_auto_20180410_2055')
     ]
 
     operations = [

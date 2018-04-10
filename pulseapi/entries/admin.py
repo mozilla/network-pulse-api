@@ -82,7 +82,7 @@ class EntryAdmin(admin.ModelAdmin):
         return instance.bookmarked_by.count()
 
     def creators(self, instance):
-        related_creator_names = [c.creator.creator_name for c in instance.related_creators.all()]
+        related_creator_names = [c.profile.name for c in instance.related_entry_creators.all()]
         if not related_creator_names:
             return '-'
         return ', '.join(related_creator_names)

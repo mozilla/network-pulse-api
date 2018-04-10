@@ -56,7 +56,7 @@ class CreatorListView(ListAPIView):
 
     Note
     ----
-    This view only exists for backwards-compatibility. Creators no longer exist as independent models
+    This view only exists for backwards-compatibility (version 1). Creators no longer exist as independent models
     and hence the pulseapi.profiles.views.UserProfileListAPIView should be used instead.
 
     **Route** - `/creators`
