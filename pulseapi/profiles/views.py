@@ -37,10 +37,10 @@ class UserProfilePublicAPIView(RetrieveAPIView):
     queryset = UserProfile.objects.all()
 
     def get_serializer_class(self):
-        if self.request.version == settings.API_VERSIONS['version_2']:
-            return UserProfilePublicSerializer
+        if self.request.version == settings.API_VERSIONS['version_1']:
+            return UserProfilePublicWithEntriesSerializer
 
-        return UserProfilePublicWithEntriesSerializer
+        return UserProfilePublicSerializer
 
 
 class UserProfilePublicSelfAPIView(UserProfilePublicAPIView):
@@ -100,10 +100,7 @@ class UserProfileEntriesAPIView(APIView):
         a creator on, was a publisher of, or favorited.
         """
         profile = get_object_or_404(
-            UserProfile.objects.select_related(
-                'related_creator',
-                'related_user'
-            ),
+            UserProfile.objects.select_related('related_user'),
             pk=pk,
         )
         query = request.query_params
@@ -215,6 +212,6 @@ class UserProfileListAPIView(ListAPIView):
         if request and request.version == settings.API_VERSIONS['version_1']:
             return UserProfilePublicWithEntriesSerializer
 
-        if request.query_params.get('basic'):
+        if 'basic' in request.query_params:
             return UserProfileBasicSerializer
         return UserProfilePublicSerializer

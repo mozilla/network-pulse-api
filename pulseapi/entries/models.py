@@ -76,7 +76,7 @@ class EntryQuerySet(models.query.QuerySet):
             'bookmarked_by__profile__related_user',
             'published_by__profile',
             'moderation_state',
-            'related_creators__creator__profile__related_user',
+            'related_entry_creators__profile__related_user',
         )
 
 

@@ -1,20 +1,27 @@
 import json
-
+from urllib.parse import urlencode
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from django.db.models import Q
 
 from .models import UserProfile, ProfileType, ProgramType, ProgramYear
 
 from pulseapi.tests import PulseMemberTestCase
-from pulseapi.entries.models import Entry
-from pulseapi.entries.serializers import EntrySerializer
-from pulseapi.creators.models import OrderedCreatorRecord
+from pulseapi.entries.models import Entry, ModerationState
+from pulseapi.entries.serializers import (
+    EntrySerializerWithV1Creators,
+    EntrySerializerWithCreators,
+)
+from pulseapi.entries.factory import BasicEntryFactory
+from pulseapi.users.factory import BasicEmailUserFactory
+from pulseapi.creators.models import EntryCreator
+from pulseapi.creators.factory import EntryCreatorFactory
 from pulseapi.profiles.serializers import (
     UserProfileEntriesSerializer,
     UserProfilePublicSerializer,
     UserProfilePublicWithEntriesSerializer,
+    UserProfileBasicSerializer,
 )
+from pulseapi.profiles.factory import UserBookmarksFactory, ExtendedUserProfileFactory
 
 
 class TestProfileView(PulseMemberTestCase):
@@ -22,43 +29,41 @@ class TestProfileView(PulseMemberTestCase):
         """
         Check if we can get a single profile by its `id`
         """
-        id = self.users_with_profiles[0].id
+        id = self.users_with_profiles[0].profile.id
         response = self.client.get(reverse('profile', kwargs={'pk': id}))
         self.assertEqual(response.status_code, 200)
 
-    def test_profile_data_serialization(self):
+    def test_v1_profile_data_serialization(self):
         """
-        Make sure profiles have "created_entries" array
+        Make sure v1 profiles have "created_entries" array
         """
-        user = self.users_with_profiles[0]
-        profile = user.profile
-        location = "Springfield, IL"
-        profile.location = location
-        profile.save()
-
+        location = 'Springfield, IL'
+        profile = ExtendedUserProfileFactory(location=location)
         id = profile.id
-        response = self.client.get(reverse('profile', kwargs={'pk': id}))
-        entriesjson = json.loads(str(response.content, 'utf-8'))
 
-        self.assertEqual(entriesjson['location'], location)
+        response = self.client.get(reverse('profile', args=[
+            settings.API_VERSIONS['version_1'] + '/',
+            id
+        ]))
+        response_entries = json.loads(str(response.content, 'utf-8'))
+
+        self.assertEqual(response_entries['location'], location)
 
         created_entries = []
-        entry_creators = OrderedCreatorRecord.objects.filter(
-            creator__profile=id
-        ).order_by('-id')
+        entry_creators = EntryCreator.objects.filter(profile=profile).order_by('-id')
 
-        created_entries = [EntrySerializer(x.entry).data for x in entry_creators]
-        self.assertEqual(entriesjson['profile_id'], id)
-        self.assertEqual(entriesjson['created_entries'], created_entries)
+        created_entries = [EntrySerializerWithV1Creators(x.entry).data for x in entry_creators]
+        self.assertEqual(response_entries['profile_id'], id)
+        self.assertEqual(response_entries['created_entries'], created_entries)
 
         # make sure extended profile data does not show
-        self.assertEqual('program_type' in entriesjson, False)
+        self.assertIn('program_type', response_entries)
 
     def test_v2_profile_data_serialization(self):
         """
         Make sure profiles do not have "created_entries" array for API version 2
         """
-        profile = OrderedCreatorRecord.objects.filter(creator__profile__isnull=False)[:1].get().creator.profile
+        profile = EntryCreator.objects.first().profile
         response = self.client.get(reverse('profile', args=[
             settings.API_VERSIONS['version_2'] + '/',
             profile.id
@@ -68,86 +73,128 @@ class TestProfileView(PulseMemberTestCase):
         self.assertEqual(profile_json['profile_id'], profile.id)
         self.assertNotIn('created_entries', profile_json)
 
-    def test_profile_entries_created(self):
-        """
-        Get the created entries for a profile
-        """
-        profile = OrderedCreatorRecord.objects.filter(creator__profile__isnull=False)[:1].get().creator.profile
-        entries = [
-            UserProfileEntriesSerializer.serialize_entry(ocr.entry)
-            for ocr in OrderedCreatorRecord.objects.filter(creator__profile=profile)
-        ]
+    def run_test_profile_entries(self, version, entry_type):
+        entry_serializer_class = EntrySerializerWithCreators
+        if version == settings.API_VERSIONS['version_1']:
+            entry_serializer_class = EntrySerializerWithV1Creators
+
+        user = self.user
+        # "Created" entry_type profile used as default
+        profile = EntryCreator.objects.first().profile
+
+        if entry_type is 'published':
+            profile = user.profile
+            approved = ModerationState.objects.get(name='Approved')
+            for _ in range(0, 3):
+                BasicEntryFactory.create(published_by=user, moderation_state=approved)
+        elif entry_type is 'favorited':
+            profile = user.profile
+            for entry in Entry.objects.all()[:4]:
+                self.client.put(reverse('bookmark', kwargs={'entryid': entry.id}))
+
+        expected_entries = UserProfileEntriesSerializer(
+            instance=profile,
+            context={
+                'created': entry_type is 'created',
+                'published': entry_type is 'published',
+                'favorited': entry_type is 'favorited',
+                'EntrySerializerClass': entry_serializer_class
+            },
+        ).data[entry_type]
 
         response = self.client.get(
-            '{url}?created'.format(
-                url=reverse('profile-entries', kwargs={'pk': profile.id})
+            '{url}?{entry_type}'.format(
+                url=reverse(
+                    'profile-entries',
+                    args=[version + '/', profile.id]
+                ),
+                entry_type=entry_type
             )
         )
         profile_json = json.loads(str(response.content, 'utf-8'))
-        self.assertListEqual(profile_json['created'], entries)
+        self.assertListEqual(profile_json[entry_type], expected_entries)
 
-    def test_profile_entries_published(self):
+    def test_profile_v1_entries_created(self):
         """
-        Get the published entries for a profile
+        Get the created entries for a profile (v1)
         """
-        profile = UserProfile.objects.filter(related_user__entries__isnull=False)[:1].get()
-        entries = [
-            UserProfileEntriesSerializer.serialize_entry(entry)
-            for entry in Entry.objects.public().filter(published_by=profile.user)
-        ]
-
-        response = self.client.get(
-            '{url}?published'.format(
-                url=reverse('profile-entries', kwargs={'pk': profile.id})
-            )
+        self.run_test_profile_entries(
+            version=settings.API_VERSIONS['version_1'],
+            entry_type='created',
         )
-        profile_json = json.loads(str(response.content, 'utf-8'))
-        self.assertListEqual(profile_json['published'], entries)
 
-    def test_profile_entries_favorited(self):
+    def test_profile_v2_entries_created(self):
         """
-        Get the favorited entries for a profile
+        Get the created entries for a profile (v2)
         """
-        profile = self.user.profile
-        entries = Entry.objects.public()[:2]
-        serialized_entries = []
-
-        for entry in entries:
-            self.client.put(reverse('bookmark', kwargs={'entryid': entry.id}))
-            serialized_entries.append(UserProfileEntriesSerializer.serialize_entry(entry))
-
-        response = self.client.get(
-            '{url}?favorited'.format(
-                url=reverse('profile-entries', kwargs={'pk': profile.id})
-            )
+        self.run_test_profile_entries(
+            version=settings.API_VERSIONS['version_2'],
+            entry_type='created',
         )
-        profile_json = json.loads(str(response.content, 'utf-8'))
-        self.assertListEqual(profile_json['favorited'], serialized_entries)
+
+    def test_profile_v1_entries_published(self):
+        """
+        Get the published entries for a profile (v1)
+        """
+        self.run_test_profile_entries(
+            version=settings.API_VERSIONS['version_1'],
+            entry_type='published',
+        )
+
+    def test_profile_v2_entries_published(self):
+        """
+        Get the published entries for a profile (v2)
+        """
+        self.run_test_profile_entries(
+            version=settings.API_VERSIONS['version_2'],
+            entry_type='published',
+        )
+
+    def test_profile_v1_entries_favorited(self):
+        """
+        Get the favorited entries for a profile (v1)
+        """
+        self.run_test_profile_entries(
+            version=settings.API_VERSIONS['version_1'],
+            entry_type='favorited',
+        )
+
+    def test_profile_v2_entries_favorited(self):
+        """
+        Get the favorited entries for a profile (v2)
+        """
+        self.run_test_profile_entries(
+            version=settings.API_VERSIONS['version_2'],
+            entry_type='favorited',
+        )
 
     def test_profile_entries_count(self):
         """
         Get the number of entries associated with a profile
         """
-        profile = OrderedCreatorRecord.objects.filter(creator__profile__isnull=False)[:1].get().creator.profile
-        published_entry = profile.related_creator.related_entries.last().entry
-        published_entry.published_by = profile.user
-        published_entry.save()
-        favorited_entries = Entry.objects.public()[:2]
+        user = BasicEmailUserFactory()
+        profile = user.profile
 
-        self.client.force_login(user=profile.user)
+        approved = ModerationState.objects.get(name='Approved')
+        BasicEntryFactory(published_by=user, moderation_state=approved)
+        published_entry_2 = BasicEntryFactory(published_by=user, moderation_state=approved, published_by_creator=True)
 
-        for entry in favorited_entries:
-            self.client.put(reverse('bookmark', kwargs={'entryid': entry.id}))
+        created_entry = BasicEntryFactory(published_by=self.user, moderation_state=approved)
+        EntryCreatorFactory(profile=profile, entry=created_entry)
 
-        entry_count = Entry.objects.public().filter(
-            Q(related_creators__creator__profile=profile) |
-            Q(published_by=profile.user) |
-            Q(bookmarked_by__profile=profile)
-        ).distinct().count()
+        favorited_entry_1 = BasicEntryFactory(published_by=self.user, moderation_state=approved)
+        favorited_entry_2 = BasicEntryFactory(published_by=self.user, moderation_state=approved)
+        UserBookmarksFactory(profile=profile, entry=favorited_entry_1)
+        UserBookmarksFactory(profile=profile, entry=favorited_entry_2)
+
+        # Overlapping entries (entries that belong to more than one of created, published, or favorited)
+        # These entries should not be duplicated in the entry count
+        EntryCreatorFactory(profile=profile, entry=published_entry_2)
+        UserBookmarksFactory(profile=profile, entry=created_entry)
 
         response = self.client.get(reverse('profile-entries', kwargs={'pk': profile.id}))
-        profile_json = json.loads(str(response.content, 'utf-8'))
-        self.assertEqual(profile_json['entry_count'], entry_count)
+        response_profile = json.loads(str(response.content, 'utf-8'))
+        self.assertEqual(response_profile['entry_count'], 5)
 
     def test_extended_profile_data(self):
         (profile, created) = UserProfile.objects.get_or_create(related_user=self.user)
@@ -231,51 +278,46 @@ class TestProfileView(PulseMemberTestCase):
         (profile, created) = ProgramYear.objects.get_or_create(value='2018')
         self.assertEqual(created, False)
 
-    def test_profile_list_v1(self):
-        (profile_type, _) = ProfileType.objects.get_or_create(value='test-type')
-        for profile in UserProfile.objects.all()[:3]:
-            profile.enable_extended_information = True
-            profile.profile_type = profile_type
+    def run_test_profile_list(self, api_version, profile_serializer_class, query_dict=''):
+        (profile_type, _) = ProfileType.objects.get_or_create(value='temporary-type')
+        for _ in range(3):
+            profile = ExtendedUserProfileFactory(profile_type=profile_type)
+            profile.thumbnail = None
             profile.save()
 
-        url = reverse('profile_list', args=[
-            settings.API_VERSIONS['version_1'] + '/'
-        ])
-        response = self.client.get('{url}?profile_type={type}'.format(url=url, type=profile_type.value))
+        url = reverse('profile_list', args=[api_version + '/'])
+        response = self.client.get('{url}?profile_type={type}&{qs}'.format(
+            url=url,
+            type=profile_type.value,
+            qs=urlencode(query_dict)
+        ))
         response_profiles = json.loads(str(response.content, 'utf-8'))
 
-        profile_list = [
-            UserProfilePublicWithEntriesSerializer(
-                profile,
-                context={'request': response.wsgi_request}
-            ).data
-            for profile in UserProfile.objects.filter(profile_type=profile_type)
-        ]
+        profile_list = profile_serializer_class(
+            UserProfile.objects.filter(profile_type=profile_type),
+            many=True,
+        ).data
 
         self.assertListEqual(response_profiles, profile_list)
+
+    def test_profile_list_v1(self):
+        self.run_test_profile_list(
+            api_version=settings.API_VERSIONS['version_1'],
+            profile_serializer_class=UserProfilePublicWithEntriesSerializer
+        )
 
     def test_profile_list_v2(self):
-        (profile_type, _) = ProfileType.objects.get_or_create(value='test-type')
-        for profile in UserProfile.objects.all()[:3]:
-            profile.enable_extended_information = True
-            profile.profile_type = profile_type
-            profile.save()
+        self.run_test_profile_list(
+            api_version=settings.API_VERSIONS['version_2'],
+            profile_serializer_class=UserProfilePublicSerializer
+        )
 
-        url = reverse('profile_list', args=[
-            settings.API_VERSIONS['version_2'] + '/'
-        ])
-        response = self.client.get('{url}?profile_type={type}'.format(url=url, type=profile_type.value))
-        response_profiles = json.loads(str(response.content, 'utf-8'))
-
-        profile_list = [
-            UserProfilePublicSerializer(
-                profile,
-                context={'request': response.wsgi_request}
-            ).data
-            for profile in UserProfile.objects.filter(profile_type=profile_type)
-        ]
-
-        self.assertListEqual(response_profiles, profile_list)
+    def test_profile_list_basic_v2(self):
+        self.run_test_profile_list(
+            api_version=settings.API_VERSIONS['version_2'],
+            profile_serializer_class=UserProfileBasicSerializer,
+            query_dict={'basic': ''}
+        )
 
     def test_profile_list_filtering(self):
         profile_types = ['a', 'b', 'c']

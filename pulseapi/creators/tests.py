@@ -2,6 +2,8 @@ import json
 from urllib.parse import quote
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.http.request import HttpRequest
+from rest_framework.request import Request
 
 from pulseapi.profiles.models import UserProfile
 from pulseapi.creators.serializers import CreatorSerializer
@@ -15,7 +17,10 @@ class TestEntryCreatorViews(PulseStaffTestCase):
         response = self.client.get(reverse('creators-list'))
         page = CreatorsPagination()
         expected_data = CreatorSerializer(
-            page.paginate_queryset(UserProfile.objects.all()),
+            page.paginate_queryset(
+                UserProfile.objects.all().order_by('id'),
+                request=Request(request=HttpRequest())  # mock request to satisfy the required arguments
+            ),
             many=True
         ).data
         self.assertEqual(response.status_code, 200)
@@ -33,12 +38,11 @@ class TestEntryCreatorViews(PulseStaffTestCase):
         """search creators, for autocomplete"""
         profile = UserProfile.objects.last()
 
-        url = '{creator_url}?name={search}'.format(
+        response = self.client.get('{creator_url}?name={search}'.format(
             creator_url=reverse('creators-list'),
             search=quote(profile.name)
-        )
-        response = json.loads(str(self.client.get(url).content, 'utf-8'))
-        response_creator = response['results'][0]
+        ))
+        response_creator = json.loads(str(response.content, 'utf-8'))['results'][0]
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(profile.id, response_creator['creator_id'])

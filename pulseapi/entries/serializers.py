@@ -2,6 +2,8 @@
 from rest_framework import serializers
 from django.utils.encoding import smart_text
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
+from django.db.utils import IntegrityError
 
 from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.tags.models import Tag
@@ -183,7 +185,7 @@ class EntrySerializerWithCreators(EntrySerializer):
         as well and setup the relationship with the created entry.
         """
         user = self.context.get('user')
-        creator_data = validated_data.pop('related_creators', [])
+        creator_data = validated_data.pop('related_entry_creators', [])
         entry = super().create(validated_data)
 
         if user and entry.published_by_creator:
@@ -191,8 +193,17 @@ class EntrySerializerWithCreators(EntrySerializer):
 
         for data in creator_data:
             if not data.pop('profile_committed', True):
-                data.profile.save()
-            EntryCreator.objects.create(entry=entry, **data)
+                data['profile'].save()
+            try:
+                with transaction.atomic():
+                    EntryCreator.objects.create(entry=entry, **data)
+            except IntegrityError:
+                # We ignore duplicate key violations so that only single
+                # relations exist between entries and profiles.
+                # This exception might be thrown if the published_by_creator
+                # field is True and the provided user's profile is also included
+                # in the `related_creators`
+                pass
 
         return entry
 

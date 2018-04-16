@@ -44,20 +44,14 @@ def get_or_create_userprofile(data, id_key):
 
     if profile_id:
         try:
-            return {
-                'object': UserProfile.objects.get(id=profile_id),
-                'created': False
-            }
+            return UserProfile.objects.get(id=profile_id), False
         except ObjectDoesNotExist:
             raise ValidationError(
                 detail=_('No profile exists for the given id {id}.'.format(id=profile_id)),
                 code='invalid',
             )
 
-    return {
-        'object': UserProfile(custom_name=name),
-        'created': True
-    }
+    return UserProfile(custom_name=name), True
 
 
 def get_entry(data):

@@ -3,14 +3,14 @@ from math import ceil
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.test.client import MULTIPART_CONTENT
+from django.http.request import HttpRequest
 from rest_framework import status
-from rest_framework.test import APIRequestFactory
+from rest_framework.request import Request
 
 from pulseapi.creators.models import EntryCreator
 from pulseapi.profiles.models import UserProfile
 from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.entries.serializers import (
-    EntrySerializer,
     EntrySerializerWithV1Creators,
     EntrySerializerWithCreators,
 )
@@ -21,7 +21,7 @@ from pulseapi.tests import PulseStaffTestCase
 def run_test_entry_creators(test_case, api_version=None, creator_id_key='creator_id'):
     creators = [
         {'name': 'Pomax'},
-        {creator_id_key: UserProfile.objects.last().get().id},
+        {creator_id_key: UserProfile.objects.last().id},
         {'name': 'Alan'}
     ]
     payload = {
@@ -40,10 +40,10 @@ def run_test_entry_creators(test_case, api_version=None, creator_id_key='creator
     entry_creators = EntryCreator.objects.filter(entry__id=entry_id).select_related('profile')
 
     for creator, entry_creator in zip(creators, entry_creators):
-        if type(creator) == dict:
+        if creator.get(creator_id_key):
             test_case.assertEqual(entry_creator.profile.id, creator[creator_id_key])
         else:
-            test_case.assertEqual(entry_creator.profile.custom_name, creator)
+            test_case.assertEqual(entry_creator.profile.custom_name, creator['name'])
 
 
 class TestEntryView(PulseStaffTestCase):
@@ -259,7 +259,7 @@ class TestEntryView(PulseStaffTestCase):
         """
         run_test_entry_creators(
             test_case=self,
-            version=settings.API_VERSIONS['version_2'],
+            api_version=settings.API_VERSIONS['version_2'],
             creator_id_key='profile_id'
         )
 
@@ -281,23 +281,25 @@ class TestEntryView(PulseStaffTestCase):
         entry_id = int(json.loads(str(response.content, 'utf-8'))['id'])
         entry_creator = Entry.objects.get(id=entry_id).related_entry_creators.last()
 
-        self.assertEqual(entry_creator.id, self.user.profile.id)
+        self.assertEqual(entry_creator.profile.id, self.user.profile.id)
 
     def run_test_get_entry_list(self, entries_url, serializer_class):
         """Get /entries endpoint"""
         entries = Entry.objects.public().with_related()
-        page_size = EntriesPagination().get_page_size()
+        page_size = EntriesPagination().get_page_size(
+            request=Request(request=HttpRequest())
+        )  # mock request to satisfy the required arguments)
 
         for page_number in range(ceil(len(entries) / page_size)):
-            start_entry_index = (page_number - 1) * page_size
-            end_entry_index = start_entry_index + page_size - 1
+            start_entry_index = page_number * page_size
+            end_entry_index = start_entry_index + page_size
             entry_list = serializer_class(
                 entries[start_entry_index:end_entry_index],
                 many=True,
             ).data
             response = self.client.get('{url}?page={page_number}'.format(
                 url=entries_url,
-                page_number=page_number,
+                page_number=page_number + 1,
             ))
             self.assertEqual(response.status_code, 200)
             response_entries = json.loads(str(response.content, 'utf-8'))['results']
@@ -712,7 +714,7 @@ class TestEntryView(PulseStaffTestCase):
         while posting an entry and also provide the same creator in the
         "related_creators" property, we only add it to the db once.
         """
-        creator = self.user.profile.related_creator
+        creator = self.user.profile
         payload = self.generatePostPayload(data={
             'title': 'title test_post_entry_published_by_creator_dupe_related_creator',
             'description': 'description test_post_entry_published_by_creator_dupe_related_creator',
@@ -722,10 +724,10 @@ class TestEntryView(PulseStaffTestCase):
             'published_by_creator': True
         })
 
-        response = self.client.post('/api/pulse/entries/', payload)
+        response = self.client.post(reverse('entries-list'), payload)
         self.assertEqual(response.status_code, 200)
         content = json.loads(str(response.content, 'utf-8'))
         entry_id = int(content['id'])
-        related_creators = OrderedCreatorRecord.objects.filter(entry__id=entry_id)
+        related_creators = EntryCreator.objects.filter(entry__id=entry_id)
         self.assertEqual(len(related_creators), 1)
-        self.assertEqual(related_creators[0].creator.id, creator.id)
+        self.assertEqual(related_creators[0].profile.id, creator.id)

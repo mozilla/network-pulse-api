@@ -4,14 +4,13 @@ from django.test import TestCase
 from django.core.management import call_command
 
 from pulseapi.entries.models import Entry
-from pulseapi.creators.models import Creator, OrderedCreatorRecord
+from pulseapi.creators.models import EntryCreator
 from pulseapi.profiles.models import UserBookmarks, UserProfile
 from pulseapi.tags.models import Tag
 from pulseapi.users.models import EmailUser
 
 models = [
-    Creator,
-    OrderedCreatorRecord,
+    EntryCreator,
     Entry,
     UserBookmarks,
     UserProfile,

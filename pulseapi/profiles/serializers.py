@@ -161,7 +161,7 @@ class UserProfilePublicSerializer(UserProfileSerializer):
 
     def get_my_profile(self, instance):
         request = self.context.get('request')
-        return request.user == instance.user if request else None
+        return request.user == instance.user if request else False
 
 
 class UserProfilePublicWithEntriesSerializer(UserProfilePublicSerializer):
@@ -176,7 +176,6 @@ class UserProfilePublicWithEntriesSerializer(UserProfilePublicSerializer):
 
         return EntrySerializerWithV1Creators(
             user.entries.public().with_related().order_by('-id'),
-            context=self.context,
             many=True,
         ).data if user else []
 

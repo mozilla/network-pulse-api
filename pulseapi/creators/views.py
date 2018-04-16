@@ -66,7 +66,7 @@ class CreatorListView(ListAPIView):
     - ?name= - a partial match filter based on the start of the creator name.
 
     """
-    queryset = UserProfile.objects.all()
+    queryset = UserProfile.objects.all().order_by('id')
     pagination_class = CreatorsPagination
     serializer_class = CreatorSerializer
 
