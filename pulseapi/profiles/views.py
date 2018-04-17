@@ -1,9 +1,10 @@
 import base64
 import django_filters
 
+from itertools import chain
 from django.core.files.base import ContentFile
 from django.conf import settings
-
+from django.db.models import Q
 from rest_framework import filters, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -23,8 +24,8 @@ from pulseapi.profiles.serializers import (
     UserProfileBasicSerializer,
 )
 from pulseapi.entries.serializers import (
-    EntrySerializerWithCreators,
-    EntrySerializerWithV1Creators,
+    EntryWithCreatorsBaseSerializer,
+    EntryWithV1CreatorsBaseSerializer,
 )
 
 
@@ -104,10 +105,10 @@ class UserProfileEntriesAPIView(APIView):
             pk=pk,
         )
         query = request.query_params
-        EntrySerializerClass = EntrySerializerWithCreators
+        EntrySerializerClass = EntryWithCreatorsBaseSerializer
 
         if request and request.version == settings.API_VERSIONS['version_1']:
-            EntrySerializerClass = EntrySerializerWithV1Creators
+            EntrySerializerClass = EntryWithV1CreatorsBaseSerializer
 
         return Response(
             UserProfileEntriesSerializer(instance=profile, context={
@@ -143,6 +144,15 @@ class ProfileCustomFilter(filters.FilterSet):
         name='program_year__value',
         lookup_expr='iexact',
     )
+    name = django_filters.CharFilter(method='filter_name')
+
+    def filter_name(self, queryset, name, value):
+        startswith_lookup = Q(custom_name__istartswith=value) | Q(related_user__name__istartswith=value)
+        qs_startswith = queryset.filter(startswith_lookup)
+        qs_contains = queryset.filter(
+            Q(custom_name__icontains=value) | Q(related_user__name__icontains=value)
+        ).exclude(startswith_lookup)
+        return list(chain(qs_startswith, qs_contains))
 
     @property
     def qs(self):
@@ -157,7 +167,7 @@ class ProfileCustomFilter(filters.FilterSet):
         if request is None:
             return empty_set
 
-        queries = self.request.GET
+        queries = self.request.query_params
         if queries is None:
             return empty_set
 
@@ -177,6 +187,8 @@ class ProfileCustomFilter(filters.FilterSet):
             'profile_type',
             'program_type',
             'program_year',
+            'is_active',
+            'name',
         ]
 
 
@@ -186,8 +198,9 @@ class UserProfileListAPIView(ListAPIView):
       profile_type=
       program_type=
       program_year=
+      is_active=(True or False)
       ordering=(custom_name, program_year) or negative (e.g. -custom_name) to reverse.
-      basic
+      basic=
     """
     filter_backends = (
         filters.DjangoFilterBackend,

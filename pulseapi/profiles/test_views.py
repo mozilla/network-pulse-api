@@ -9,7 +9,8 @@ from pulseapi.tests import PulseMemberTestCase
 from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.entries.serializers import (
     EntrySerializerWithV1Creators,
-    EntrySerializerWithCreators,
+    EntryWithCreatorsBaseSerializer,
+    EntryWithV1CreatorsBaseSerializer,
 )
 from pulseapi.entries.factory import BasicEntryFactory
 from pulseapi.users.factory import BasicEmailUserFactory
@@ -74,9 +75,9 @@ class TestProfileView(PulseMemberTestCase):
         self.assertNotIn('created_entries', profile_json)
 
     def run_test_profile_entries(self, version, entry_type):
-        entry_serializer_class = EntrySerializerWithCreators
+        entry_serializer_class = EntryWithCreatorsBaseSerializer
         if version == settings.API_VERSIONS['version_1']:
-            entry_serializer_class = EntrySerializerWithV1Creators
+            entry_serializer_class = EntryWithV1CreatorsBaseSerializer
 
         user = self.user
         # "Created" entry_type profile used as default
@@ -278,10 +279,12 @@ class TestProfileView(PulseMemberTestCase):
         (profile, created) = ProgramYear.objects.get_or_create(value='2018')
         self.assertEqual(created, False)
 
-    def run_test_profile_list(self, api_version, profile_serializer_class, query_dict=''):
-        (profile_type, _) = ProfileType.objects.get_or_create(value='temporary-type')
+    def run_test_profile_list(self, api_version, profile_serializer_class, profile_params={}, query_dict=''):
+        profile_type = profile_params.pop('profile_type', None)
+        if not profile_type:
+            (profile_type, _) = ProfileType.objects.get_or_create(value='temporary-type')
         for _ in range(3):
-            profile = ExtendedUserProfileFactory(profile_type=profile_type)
+            profile = ExtendedUserProfileFactory(profile_type=profile_type, **profile_params)
             profile.thumbnail = None
             profile.save()
 
@@ -373,6 +376,14 @@ class TestProfileView(PulseMemberTestCase):
                     response = self.client.get(url)
                     entriesjson = json.loads(str(response.content, 'utf-8'))
                     self.assertEqual(len(entriesjson), 1)
+
+    def test_profile_list_filtering_active_v2(self):
+        self.run_test_profile_list(
+            api_version=settings.API_VERSIONS['version_2'],
+            profile_serializer_class=UserProfilePublicSerializer,
+            profile_params={'is_active': True},
+            query_dict={'is_active': True},
+        )
 
     def test_invalid_profile_list_filtering_argument(self):
         profile_url = reverse('profile_list')

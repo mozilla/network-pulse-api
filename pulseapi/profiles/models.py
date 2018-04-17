@@ -73,6 +73,18 @@ class ProgramYear(models.Model):
         return self.value
 
 
+class UserProfileQuerySet(models.query.QuerySet):
+    """
+    A queryset for profiles with convenience queries
+    """
+
+    def active(self):
+        """
+        Return all profiles that have the is_active flag set to True
+        """
+        return self.filter(is_active=True)
+
+
 class UserProfile(models.Model):
     """
     This class houses all user profile information,
@@ -261,6 +273,8 @@ class UserProfile(models.Model):
         max_length=4096,
         blank=True
     )
+
+    objects = UserProfileQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
         if self.profile_type is None:

@@ -9,7 +9,7 @@ from pulseapi.profiles.models import (
 from pulseapi.creators.models import EntryCreator
 from pulseapi.entries.models import Entry
 from pulseapi.entries.serializers import (
-    EntrySerializerWithCreators,
+    EntryWithCreatorsBaseSerializer,
     EntrySerializerWithV1Creators,
 )
 
@@ -208,7 +208,7 @@ class UserProfileEntriesSerializer(serializers.Serializer):
         include_created = context.get('created', False)
         include_published = context.get('published', False)
         include_favorited = context.get('favorited', False)
-        EntrySerializerClass = context.get('EntrySerializerClass', EntrySerializerWithCreators)
+        EntrySerializerClass = context.get('EntrySerializerClass', EntryWithCreatorsBaseSerializer)
 
         # If none of the filter options are provided, only return the count of
         # entries associated with this profile
