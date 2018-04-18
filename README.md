@@ -357,19 +357,19 @@ The payload returned by this route also includes an array of entries published (
 
 This retrieves a list of entries associated with a profile specified by `id`. The entries returned can be filtered based on any combination of the following query arguments:
 
-- `created`: Include a list of entries (with their `related_creators`) created by this profile.
-- `published`: Include a list of entries (with their `related_creators`) published by this profile.
-- `favorited`: Include a list of entries (with their `related_creators`) favorited/bookmarked by this profile.
+- `?created=true`: Include a list of entries (with their `related_creators`) created by this profile.
+- `?published=true`: Include a list of entries (with their `related_creators`) published by this profile.
+- `?favorited=true`: Include a list of entries (with their `related_creators`) favorited/bookmarked by this profile.
 
-If none of the filters are specified, only the number of entries associated with the profile will be returned.
+If none of the filters are specified, only the number of entries directly associated with the profile will be returned.
 
 ### `GET /api/pulse/profiles/?...` with filter arguments, and optional `format=json`
 
 The list of profiles known to the system can be queried, but **only** in conjunction with one or more of three query arguments:
 
-- `profile_type`: filter the list by profile types `board member`, `fellow`, `grantee`, `plain`, or `staff`.
-- `program_type`: filter the list by program types `media fellow`, `open web fellow`, `science fellow`, `senior fellow`, or `tech policy fellow`.
-- `program_year`: filter the list by program year in the range 2015-2019 (inclusive).
+- `?profile_type=...`: filter the list by profile types `board member`, `fellow`, `grantee`, `plain`, or `staff`.
+- `?program_type=...`: filter the list by program types `media fellow`, `open web fellow`, `science fellow`, `senior fellow`, or `tech policy fellow`.
+- `?program_year=...`: filter the list by program year in the range 2015-2019 (inclusive).
 
 You can sort these results using the `ordering` query param, passing it either `custom_name` or `program_year` (negated like `-custom_name` to reverse).
 
