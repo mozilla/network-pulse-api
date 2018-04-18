@@ -36,11 +36,11 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            '--fellowsPerType',
+            '--fellowsCount',
             action='store',
             type=int,
             default=3,
-            dest='fellows_per_type',
+            dest='fellows_count',
             help='The number of fellows to generate per program type, per year'
         )
 
@@ -76,7 +76,7 @@ class Command(BaseCommand):
 
         for program_year in program_years:
             for program_type in program_types:
-                for i in range(options['fellows_per_type']):
+                for i in range(options['fellows_count']):
                     ext_profile = ExtendedUserProfileFactory(
                         profile_type=fellows_profile_type,
                         program_year=program_year,
