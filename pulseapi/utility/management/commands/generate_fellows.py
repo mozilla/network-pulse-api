@@ -7,6 +7,7 @@ from pulseapi.profiles.models import ProgramYear, ProgramType, ProfileType
 from pulseapi.profiles.factory import ExtendedUserProfileFactory
 from pulseapi.users.factory import BasicEmailUserFactory
 
+
 class Command(BaseCommand):
     help = 'Generate fellowship profiles for testing purposes'
 
