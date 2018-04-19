@@ -8,11 +8,11 @@ from django.core.management.base import BaseCommand
 from django.core.management import call_command
 
 from pulseapi.entries.models import Entry
-from pulseapi.profiles.models import ProgramYear, ProgramType, ProfileType
+
 # Factories
 from pulseapi.creators.factory import OrderedCreatorRecordFactory, CreatorFactory
 from pulseapi.entries.factory import BasicEntryFactory, GetInvolvedEntryFactory
-from pulseapi.profiles.factory import UserBookmarksFactory, ExtendedUserProfileFactory
+from pulseapi.profiles.factory import UserBookmarksFactory
 from pulseapi.tags.factory import TagFactory
 from pulseapi.users.factory import BasicEmailUserFactory, MozillaEmailUserFactory
 
@@ -69,23 +69,9 @@ class Command(BaseCommand):
         BasicEmailUserFactory.create(use_custom_name=True)
         BasicEmailUserFactory.create(use_custom_name=True, active=True)
 
-        self.stdout.write('Creating Fellows')
-        fellows_profile_type = ProfileType.objects.get(value='fellow')
-        program_years = ProgramYear.objects.all()
-        program_types = ProgramType.objects.all()
-
-        for program_year in program_years:
-            for program_type in program_types:
-                for i in range(options['fellows_count']):
-                    ext_profile = ExtendedUserProfileFactory(
-                        profile_type=fellows_profile_type,
-                        program_year=program_year,
-                        program_type=program_type
-                    )
-                    BasicEmailUserFactory.create(
-                        active=True,
-                        profile=ext_profile
-                    )
+        # Call the generate_fellows command to handle fellows generation
+        fellows_count = options['fellows_count']
+        call_command('generate_fellows', f'--fellowsCount={fellows_count}')
 
         self.stdout.write('Creating Mozilla users')
         MozillaEmailUserFactory.create()
