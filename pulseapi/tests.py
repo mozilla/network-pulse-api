@@ -1,5 +1,6 @@
 import json
 
+from django.core.management import call_command
 from django.test import TestCase, Client, RequestFactory
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group, Permission
@@ -240,3 +241,12 @@ class TestAPIVersioning(TestCase):
             self.version_scheme.determine_version(request, version='v100')
 
         self.assertEqual(context_manager.exception.detail, self.version_scheme.invalid_version_message)
+
+
+class MissingMigrationsTests(TestCase):
+
+    def test_no_migrations_missing(self):
+        """
+        Ensure we didn't forget a migration
+        """
+        call_command('makemigrations', interactive=False, dry_run=True, check_changes=True)
