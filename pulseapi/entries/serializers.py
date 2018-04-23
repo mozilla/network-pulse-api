@@ -79,6 +79,7 @@ class EntryBaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Entry
         read_only_fields = fields = (
+            'id',
             'title',
             'content_url',
             'thumbnail',
