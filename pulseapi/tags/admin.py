@@ -1,24 +1,16 @@
 from django.contrib import admin
 
-from pulseapi.entries.models import Entry
-from .models import Tag
-
-
-class EntryInline(admin.TabularInline):
-    """
-    We need an inline widget before we can do anything
-    with the tag/entry relationship data.
-    """
-    model = Entry.tags.through
-    verbose_name = 'Tagged entry'
+from pulseapi.tags.models import Tag
+from pulseapi.tags.forms import TagAdminForm
 
 
 class TagAdmin(admin.ModelAdmin):
-    inlines = [EntryInline]
+    form = TagAdminForm
 
     fields = (
         'name',
         'entry_count',
+        'entries',
     )
 
     readonly_fields = (
@@ -29,6 +21,15 @@ class TagAdmin(admin.ModelAdmin):
         'name',
         'entry_count',
     )
+
+    search_fields = (
+        'name',
+    )
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        form.instance.entries.clear()
+        form.instance.entries.add(*form.cleaned_data['entries'])
 
 
 admin.site.register(Tag, TagAdmin)

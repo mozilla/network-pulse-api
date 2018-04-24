@@ -70,6 +70,11 @@ class EntryAdmin(admin.ModelAdmin):
         'featured'
     )
 
+    search_fields = (
+        'title',
+        'tags__name',
+    )
+
     def bookmark_count(self, instance):
         """
         Show the total number of bookmarks for this Entry
