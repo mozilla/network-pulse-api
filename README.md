@@ -131,6 +131,12 @@ This is a healthcheck route that can be used to check the status of the pulse AP
 
 ### `GET /api/pulse/creators/?name=...`
 
+#### DEPRECATION NOTICE
+
+This route has been deprecated in favor of [`GET /api/pulse/profiles/?name=`](). Version 1 (v1) of this API route is supported for now.
+
+#### Version 1 - `GET /api/pulse/v1/creators/?name=...`
+
 Gets the list of all creators whose name starts with the string passed as `name` argument. This yields a response that uses the following schema:
 
 ```
@@ -154,23 +160,92 @@ In this response:
 
 - `count` property represents how many hits the system knows about,
 - `next` is a URL if there are more results than fit in a single result set (set to `null` if there are no additional pages of results).
-- `results` points to an array of creator records, where each creator has a `name` (string data), a `creator_id` (integer) as well as a `profile_id` (which is either an integer if the creator has an associated profile, or `false` if the creator does not have an associated profile). By default, this array will contain 6 objects, but this number can be increased (to a maximum of 20) by adding `&page_size=...` to the query with the desired results-per-page number.
+- `results` points to an array of creator records, where each creator has a `name` (string data), a `creator_id` (integer which is the same as `profile_id`) as well as a `profile_id` (integer). By default, this array will contain 6 objects, but this number can be increased (to a maximum of 20) by adding `&page_size=...` to the query with the desired results-per-page number.
 
 ## Entries
 
+### Entry object schema
+
+```
+  {
+    id: <integer: id of the entry>,
+    is_bookmarked: <boolean: whether this entry is bookmarked for the currently authenticated user>,
+    tags: <array: list of tags as strings>,
+    issues: <array: list of issues as strings>,
+    help_types: <array: list of help categories as strings>,
+    published_by: <string: name of the user who published this entry>,
+    submitter_profile_id: <integer: id of the profile of the user who published this entry>,
+    bookmark_count: <integer: number of users who have bookmarked this entry>,
+    related_creators: <array: list of related creator objects (see below)>,
+    title: <string: title of this entry>,
+    content_url: <string: external url for the contents of the entry>,
+    description: <string: description of the entry>,
+    get_involved: <string: CTA text for this entry>,
+    get_involved_url: <string: CTA url for this entry>,
+    interest: <string: description of why this entry might be interesting>,
+    featured: <boolean: whether this entry is featured on the pulse homepage or not>,
+    published_by_creator: <boolean: does this entry mention the user who submitted it as a creator>,
+    thumbnail: <string: url to a thumbnail image for the entry>,
+    created: <timestamp: ISO 8601 timestamp of when this entry was created>,
+    moderation_state: <integer: id of the moderation state of this entry>
+  }
+```
+
+### Related creator object schema
+
+The related creator object will differ based on the API version that is used.
+
+#### Version 2 - `GET /api/pulse/v2/`
+
+Each `related_creator` object will have the following schema:
+
+```
+{
+  name: <string: name of the creator profile>
+  profile_id: <integer: id of the creator profile>
+}
+```
+
+#### Version 1 - `GET /api/pulse/v1/`
+
+Each `related_creator` object should have the following schema:
+
+```
+{
+  name: <string: name of the creator profile>
+  profile_id: <integer: id of the creator profile>
+  creator_id: <integer: same as the profile_id>
+}
+```
+
 ### `GET /api/pulse/entries/` with optional `?format=json`
 
-This retrieves the full list of entries as stored in the database. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+This retrieves a paginated list of all [entries](#entry-object-schema) as stored in the database. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
-This route takes a swathe of optional arguments for filtering the entry set, visit this route in the browser for more detailed information on all available query arguments.
+The schema for the payload returned is:
+```
+{
+    "count": <integer: number of entries>,
+    "next": <string: url to the next page of entries> or null,
+    "previous": <string: url to the previous page of entries> or null,
+    "results": <array: list of entry objects (see above)>
+}
+```
 
 #### Filters
 
-Please run the server and see [http://localhost:8000/entries](http://localhost:8000/entries) for all supported filters.
+- `?search=<string>` - Search for entries by their title, description, CTA, interest, creators, or tags
+- `?ids=<comma-separated integers>` - Filter entries with specific ids
+- `?tag=<string>` - Filter entries by a specific tag
+- `?issue=<string>` - Filter entries by an issue area
+- `?help_type=<string>` - Filter entries by a specific help category
+- `?featured=<true or false>` - Filter featured or non-featured entries
+- `?ordering=<string>` - Order entries by a certain property e.g. `?ordering=title`. Prepend the property with a hyphen to get entries in descending order, e.g. `?ordering=-title`
+- `?moderationstate=<string>` - Filter entries by its moderation state. This filter will only be applied if the API call was made by an authenticated user with moderation permissions
 
 ### `GET /api/pulse/entries/<id=number>/` with optional `?format=json`
 
-This retrieves a single entry with the indicated `id` as stored in the database. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+This retrieves a single [entry](#entry-object-schema) with the indicated `id` as stored in the database. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
 
 ### `POST /api/pulse/entries/`
@@ -199,10 +274,45 @@ POSTing of entries requires sending the following payload object:
   tags: optional array of strings
   issue: optional string, must match value from [GET /issues?format=json]
   help_type: optional string, must match value from [GET /helptypes?format=json]
-  related_creators: optional array of objects where each object either has a creator_id or a name. The creator_id should be the id of an existing creator.
+  related_creators: optional array of related creator objects (see below)where each object either has a creator_id or a name. The creator_id should be the id of an existing creator.
   published_by_creator: optional boolean to indicate that this user is (one of) the content creator(s)
 }
 ```
+
+---
+
+__Related creator object schema__
+
+The related creator object will differ based on the API version that is used.
+
+#### Version 2 - `POST /api/pulse/v2/entries/`
+
+Each `related_creator` object should have the following schema:
+
+```
+{
+  name: optional string that represents a profile that does not exist yet
+  profile_id: optional id of an existing profile
+}
+```
+
+Either the `name` or the `profile_id` must be specified.
+
+#### Version 1 - `POST /api/pulse/v1/entries/`
+
+Each `related_creator` object should have the following schema:
+
+```
+{
+  name: optional string that represents a creator that does not exist yet
+  creator_id: optional id of an existing creator/profile
+}
+```
+
+Either the `name` or the `creator_id` must be specified.
+
+---
+
 Also note that this POST **must** be accompanied by the following header:
 
 ```
@@ -296,7 +406,7 @@ This operation requires a payload of the following form:
 
 ### `GET /api/pulse/entries/bookmarks` with optional `?format=json`
 
-Get the list of all entries that have been bookmarked by the currently authenticated user. Calling this as anonymous user yields an object with property `count` equals to `0`.  As a base URL call this returns an HTML page with formatted result, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+Get the list of all [entries](#entry-object-schema) that have been bookmarked by the currently authenticated user. Calling this as anonymous user yields an object with property `count` equals to `0`.  As a base URL call this returns an HTML page with formatted result, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
 ## Help Types
 
@@ -340,18 +450,42 @@ Fetches the same data as above, but restricted to an individual issue queried fo
 
 ## Profiles
 
+### Profile object schema
+
+This represents a full profile object schema. Changes to the schema based on the API version are mentioned below the schema.
+
+```
+  {
+    profile_id: <integer: id of the profile>,
+    custom_name: <string: a custom name for this profile or empty string if not set>,
+    name: <string: the custom name if set, otherwise the name of the user associated with this profile>,
+    location: <string: location of the person this profile is associated to>,
+    thumbnail: <string: url of the thumbnail for this profile>,
+    issues: <array: list of issue areas related to this profile as strings>,
+    twitter: <string: url to Twitter profile or empty string if not set>,
+    linkedin: <string: url to LinkedIn profile or empty string if not set>,
+    github: <string: url to Github profile or empty string if not set>,
+    website: <string: url to personal website or empty string if not set>,
+    user_bio: <string: biography of this profile>,
+    profile_type: <string: type of profile>,
+    my_profile: <boolean: whether this profile belongs to the currently authenticated user or not>
+}
+```
+
+#### Version 2 - `/api/pulse/v2/profiles/*`
+
+Returns a user profile object as specified by the schema exactly as shown above.
+
+#### Version 1 - `/api/pulse/v1/profiles/*`
+
+Returns a user profile object as specified by the schema above with two additional properties in the schema:
+
+- `published_entries` - <array: list of [entries](#entry-object-schema) that were published by the user associated with this profile>
+- `created_entries` - <array: list of [entries](#entry-object-schema) in which this profile was mentioned as a creator>
 
 ### `GET /api/pulse/profiles/<id=number>/` with optional `?format=json`
 
-This retrieves a single user profile with the indicated `id` as stored in the database. Any profile can be retrieved using this route even without being authenticated. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
-
-#### Version 2 - `GET /api/pulse/v2/profiles/<id=number>/` with optional `?format=json`
-
-The response only contains profile information without any information about entries related to the profile (use [GET /api/pulse/profiles/<id=number>/entries/?...](#get-apipulseprofilesidnumberentries-with-filter-arguments-and-optional-formatjsong) for retrieving the entries).
-
-#### Version 1 - `GET /api/pulse/v1/profiles/<id=number>/` with optional `?format=json`
-
-The payload returned by this route also includes an array of entries published (`published_entries`) by the user owning this profile and an array of entries created (`created_entries`) by this profile (as defined by other users when creating entries).
+This retrieves a single [user profile object](#profile-object-schema) with the indicated `id` as stored in the database. Any profile can be retrieved using this route even without being authenticated. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
 ### `GET /api/pulse/profiles/<id=number>/entries/?...` with filter arguments, and optional `?format=json`
 
@@ -361,31 +495,47 @@ This retrieves a list of entries associated with a profile specified by `id`. Th
 - `?published=true`: Include a list of entries (with their `related_creators`) published by this profile.
 - `?favorited=true`: Include a list of entries (with their `related_creators`) favorited/bookmarked by this profile.
 
-If none of the filters are specified, only the number of entries directly associated with the profile will be returned.
+__NOTE__: If none of the filters are specified, only the number of entries directly associated with the profile will be returned.
+
+Based on the filter specified, the response payload will accordingly contain a `created`, `published`, and/or `favorited` property, each of whose value is a list of their corresponding entry objects.
+
+The schema of the entry objects is specified below:
+
+```
+{
+  id: <integer: id of the entry>,
+  title: <string: title of the entry>,
+  content_url: <string: external url for the contents of the entry>,
+  thumbnail: <string: url to a thumbnail image for the entry>,
+  is_bookmarked: <boolean: whether this entry is bookmarked for the currently authenticated user>,
+  related_creators: <array: list of related creator objects (see below)>
+}
+```
+
+Depending on the API version specified, the `related_creator` object schema will vary as mentioned [here](#related-creator-object-schema).
 
 ### `GET /api/pulse/profiles/?...` with filter arguments, and optional `format=json`
 
-The list of profiles known to the system can be queried, but **only** in conjunction with one or more of three query arguments:
+Returns a list of [user profile objects](#profile-object-schema). This route supports filtering based on properties of profiles and also supports searching for profiles based on `name`.
+
+__NOTE__: At least one filter or search query from below must be specified, otherwise an empty array is returned in the payload.
+
+#### Filters and Search Queries
 
 - `?profile_type=...`: filter the list by profile types `board member`, `fellow`, `grantee`, `plain`, or `staff`.
 - `?program_type=...`: filter the list by program types `media fellow`, `open web fellow`, `science fellow`, `senior fellow`, or `tech policy fellow`.
 - `?program_year=...`: filter the list by program year in the range 2015-2019 (inclusive).
+- `?is_active=<true or false>`: filter profiles by their active state.
+- `?name=...`: search for profiles by their name. Supports partial and full search matches.
 
-You can sort these results using the `ordering` query param, passing it either `custom_name` or `program_year` (negated like `-custom_name` to reverse).
+#### Other Supported Queries
 
-The resulting payload content differs based on the version of the API you use.
-
-#### Version 2 - `GET /api/pulse/v2/profiles/?...` with filter arguments, and optional `format=json`
-
-The response only contains profile information without any information about entries related to the profile (use [GET /api/pulse/profiles/<id=number>/entries/?...](#get-apipulseprofilesidnumberentries-with-filter-arguments-and-optional-formatjsong) for retrieving the entries for each profile individually).
-
-#### Version 1 - `GET /api/pulse/v1/profiles/?...` with filter arguments, and optional `format=json`
-
-The payload returned by this route also includes an array of entries published (`published_entries`) by the user owning this profile and an array of entries created (`created_entries`) by this profile (as defined by other users when creating entries).
+- `?ordering=...` - You can sort these results using the `ordering` query param, passing it either `custom_name` or `program_year` (negated like `-custom_name` for descending order).
+- `?basic=<true or false>` - This provides a way to only get basic information about profiles. Each profile object in the list will only contain the `id` of the profile and the `name` of the profile. This query can be useful for providing autocomplete options for profiles. __NOTE__ - This query is not compatible with version 1 of the API.
 
 ### `GET /api/pulse/myprofile/` with optional `?format=json`
 
-This retrieves the **editable** user profile for the currently authenticated user as stored in the database. An unauthenticated user will receive an HTTP 403 Forbidden response if they try to access this route. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
+This retrieves the **editable** [user profile](#profile-object-schema) for the currently authenticated user without the `name` and `my_profile` properties in the payload. An unauthenticated user will receive an HTTP 403 Forbidden response if they try to access this route. As a base URL call this returns an HTML page with formatted results, as url with `?format=json` suffix this results a JSON object for use as data input to applications, webpages, etc.
 
 ### `PUT /api/pulse/myprofile/`
 
