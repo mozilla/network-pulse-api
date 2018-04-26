@@ -1,14 +1,14 @@
 """Main entry data"""
 import os
-
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
+from django.utils.html import format_html
+
 from pulseapi.tags.models import Tag
 from pulseapi.issues.models import Issue
 from pulseapi.helptypes.models import HelpType
 from pulseapi.users.models import EmailUser
-from django.utils import timezone
-from django.utils.html import format_html
 
 
 def entry_thumbnail_path(instance, filename):
@@ -76,7 +76,7 @@ class EntryQuerySet(models.query.QuerySet):
             'bookmarked_by__profile__related_user',
             'published_by__profile',
             'moderation_state',
-            'related_creators__creator__profile__related_user',
+            'related_entry_creators__profile__related_user',
         )
 
 

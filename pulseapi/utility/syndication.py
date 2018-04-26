@@ -8,14 +8,14 @@ from pulseapi import settings
 from pulseapi.entries.models import Entry
 
 
-# The creator(s) name can be found in the `OrderedCreatorRecord` class from the `creators` models.
+# The creator(s) name can be found in the `EntryCreator` class from the `creators` models.
 def get_entry_creators(entry):
     # Since `creators` is an optional field and can be empty, we return the publisher name instead.
-    if entry.related_creators.count() >= 1:
+    entry_creators = entry.related_entry_creators.all()
+    if len(entry_creators) >= 1:
         return ', '.join(
-            creator_record.creator.creator_name
-            for creator_record
-            in entry.related_creators.all()
+            entry_creator.profile.name
+            for entry_creator in entry_creators
         )
     else:
         return entry.published_by.name

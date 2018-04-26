@@ -4,26 +4,17 @@ Create fake creators that are not pulse users for local development and Heroku's
 
 from factory import (
     DjangoModelFactory,
-    Faker,
     Iterator,
 )
 
-from pulseapi.creators.models import Creator, OrderedCreatorRecord
+from pulseapi.profiles.models import UserProfile
+from pulseapi.creators.models import EntryCreator
 
 
-# Create creators that are not pulse users
-class CreatorFactory(DjangoModelFactory):
-
-    class Meta:
-        model = Creator
-
-    name = Faker('name')
-
-
-# Create a relation between a random creator and a random entry
-class OrderedCreatorRecordFactory(DjangoModelFactory):
+# Create a relation between a random profile and a random entry
+class EntryCreatorFactory(DjangoModelFactory):
 
     class Meta:
-        model = OrderedCreatorRecord
+        model = EntryCreator
 
-    creator = Iterator(Creator.objects.all())
+    profile = Iterator(UserProfile.objects.all())

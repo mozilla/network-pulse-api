@@ -7,10 +7,9 @@ from rest_framework import exceptions
 
 from pulseapi.settings import API_VERSION_LIST
 from pulseapi.users.models import EmailUser
-from pulseapi.users.test_models import EmailUserFactory
-from pulseapi.profiles.test_models import UserProfileFactory
-from pulseapi.creators.models import OrderedCreatorRecord
-from pulseapi.creators.factory import CreatorFactory
+from pulseapi.users.factory import BasicEmailUserFactory
+from pulseapi.profiles.factory import BasicUserProfileFactory
+from pulseapi.creators.factory import EntryCreatorFactory
 from pulseapi.entries.factory import EntryFactory
 from pulseapi.versioning import PulseAPIVersioning
 
@@ -47,16 +46,15 @@ def setup_entries(test, creator_users):
         entry = EntryFactory()
         entry.save()
 
-        # Create a simple creator that has no profile
-        creators = [CreatorFactory()]
+        creators = [BasicUserProfileFactory(use_custom_name=True)]
         if creator_users and len(creator_users) > i:
             # If we were passed in users, create a creator attached to a user profile
             for user in creator_users:
-                creators.append(user.profile.related_creator)
+                creators.append(user.profile)
         for creator in creators:
             creator.save()
             # Connect the creator with the entry
-            OrderedCreatorRecord(entry=entry, creator=creator).save()
+            EntryCreatorFactory(entry=entry, profile=creator)
 
         test.creators.extend(creators)
         test.entries.append(entry)
@@ -64,11 +62,12 @@ def setup_entries(test, creator_users):
 
 def setup_users_with_profiles(test):
     users = []
-    profiles = [UserProfileFactory(is_active=True) for i in range(3)]
+    profiles = [
+        BasicUserProfileFactory(active=True, use_custom_name=(i % 2 == 0))
+        for i in range(3)
+    ]
     for profile in profiles:
-        profile.save()
-        user = EmailUserFactory(profile=profile)
-        user.save()
+        user = BasicEmailUserFactory(profile=profile)
         users.append(user)
 
     test.users_with_profiles = users

@@ -1,9 +1,10 @@
 import base64
 import django_filters
 
+from itertools import chain
 from django.core.files.base import ContentFile
 from django.conf import settings
-
+from django.db.models import Q
 from rest_framework import filters, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -20,6 +21,11 @@ from pulseapi.profiles.serializers import (
     UserProfilePublicSerializer,
     UserProfilePublicWithEntriesSerializer,
     UserProfileEntriesSerializer,
+    UserProfileBasicSerializer,
+)
+from pulseapi.entries.serializers import (
+    EntryWithCreatorsBaseSerializer,
+    EntryWithV1CreatorsBaseSerializer,
 )
 
 
@@ -32,10 +38,10 @@ class UserProfilePublicAPIView(RetrieveAPIView):
     queryset = UserProfile.objects.all()
 
     def get_serializer_class(self):
-        if self.request.version == settings.API_VERSIONS['version_2']:
-            return UserProfilePublicSerializer
+        if self.request.version == settings.API_VERSIONS['version_1']:
+            return UserProfilePublicWithEntriesSerializer
 
-        return UserProfilePublicWithEntriesSerializer
+        return UserProfilePublicSerializer
 
 
 class UserProfilePublicSelfAPIView(UserProfilePublicAPIView):
@@ -95,19 +101,21 @@ class UserProfileEntriesAPIView(APIView):
         a creator on, was a publisher of, or favorited.
         """
         profile = get_object_or_404(
-            UserProfile.objects.select_related(
-                'related_creator',
-                'related_user'
-            ),
+            UserProfile.objects.select_related('related_user'),
             pk=pk,
         )
         query = request.query_params
+        EntrySerializerClass = EntryWithCreatorsBaseSerializer
+
+        if request and request.version == settings.API_VERSIONS['version_1']:
+            EntrySerializerClass = EntryWithV1CreatorsBaseSerializer
 
         return Response(
             UserProfileEntriesSerializer(instance=profile, context={
                 'created': 'created' in query,
                 'published': 'published' in query,
-                'favorited': 'favorited' in query
+                'favorited': 'favorited' in query,
+                'EntrySerializerClass': EntrySerializerClass
             }).data
         )
 
@@ -136,6 +144,15 @@ class ProfileCustomFilter(filters.FilterSet):
         name='program_year__value',
         lookup_expr='iexact',
     )
+    name = django_filters.CharFilter(method='filter_name')
+
+    def filter_name(self, queryset, name, value):
+        startswith_lookup = Q(custom_name__istartswith=value) | Q(related_user__name__istartswith=value)
+        qs_startswith = queryset.filter(startswith_lookup)
+        qs_contains = queryset.filter(
+            Q(custom_name__icontains=value) | Q(related_user__name__icontains=value)
+        ).exclude(startswith_lookup)
+        return list(chain(qs_startswith, qs_contains))
 
     @property
     def qs(self):
@@ -150,7 +167,7 @@ class ProfileCustomFilter(filters.FilterSet):
         if request is None:
             return empty_set
 
-        queries = self.request.GET
+        queries = self.request.query_params
         if queries is None:
             return empty_set
 
@@ -170,6 +187,8 @@ class ProfileCustomFilter(filters.FilterSet):
             'profile_type',
             'program_type',
             'program_year',
+            'is_active',
+            'name',
         ]
 
 
@@ -179,7 +198,9 @@ class UserProfileListAPIView(ListAPIView):
       profile_type=
       program_type=
       program_year=
+      is_active=(True or False)
       ordering=(custom_name, program_year) or negative (e.g. -custom_name) to reverse.
+      basic=
     """
     filter_backends = (
         filters.DjangoFilterBackend,
@@ -199,7 +220,11 @@ class UserProfileListAPIView(ListAPIView):
     )
 
     def get_serializer_class(self):
-        if self.request and self.request.version == settings.API_VERSIONS['version_2']:
-            return UserProfilePublicSerializer
+        request = self.request
 
-        return UserProfilePublicWithEntriesSerializer
+        if request and request.version == settings.API_VERSIONS['version_1']:
+            return UserProfilePublicWithEntriesSerializer
+
+        if 'basic' in request.query_params:
+            return UserProfileBasicSerializer
+        return UserProfilePublicSerializer

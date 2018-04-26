@@ -10,7 +10,7 @@ from django.core.management import call_command
 from pulseapi.entries.models import Entry
 
 # Factories
-from pulseapi.creators.factory import OrderedCreatorRecordFactory, CreatorFactory
+from pulseapi.creators.factory import EntryCreatorFactory
 from pulseapi.entries.factory import BasicEntryFactory, GetInvolvedEntryFactory
 from pulseapi.profiles.factory import UserBookmarksFactory
 from pulseapi.tags.factory import TagFactory
@@ -89,15 +89,12 @@ class Command(BaseCommand):
         # Select random published entries and bookmark them for 1 to 10 users
         self.stdout.write('Creating bookmarks')
         approved_entries = Entry.objects.public().with_related()
-        for e in sample(list(approved_entries), k=len(approved_entries)//2):
+        for e in sample(list(approved_entries), k=len(approved_entries) // 2):
             [UserBookmarksFactory.create(entry=e) for i in range(randint(1, 10))]
 
-        self.stdout.write('Creating creators')
-        [CreatorFactory.create() for i in range(5)]
-
         # Select random entries and link them to 1 to 5 creators
-        self.stdout.write('Linking random creators with random entries')
+        self.stdout.write('Linking random profiles as creators with random entries')
         for e in sample(list(Entry.objects.all()), k=100):
-            [OrderedCreatorRecordFactory.create(entry=e) for i in range(randint(1, 5))]
+            [EntryCreatorFactory.create(entry=e) for i in range(randint(1, 5))]
 
         self.stdout.write(self.style.SUCCESS('Done!'))

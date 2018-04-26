@@ -5,6 +5,8 @@ import base64
 import django_filters
 
 from django.core.files.base import ContentFile
+from django.conf import settings
+from django.db.models import Q
 
 from rest_framework import filters, status
 from rest_framework.decorators import detail_route, api_view
@@ -13,9 +15,12 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 
-from pulseapi.creators.models import Creator, OrderedCreatorRecord
 from pulseapi.entries.models import Entry, ModerationState
-from pulseapi.entries.serializers import EntrySerializer, ModerationStateSerializer
+from pulseapi.entries.serializers import (
+    EntrySerializerWithV1Creators,
+    EntrySerializerWithCreators,
+    ModerationStateSerializer,
+)
 from pulseapi.profiles.models import UserBookmarks
 
 from pulseapi.utility.userpermissions import is_staff_address
@@ -207,16 +212,22 @@ class EntryView(RetrieveAPIView):
     """
 
     queryset = Entry.objects.public().with_related()
-    serializer_class = EntrySerializer
     pagination_class = None
     parser_classes = (
         JSONParser,
     )
 
+    def get_serializer_class(self):
+        request = self.request
+
+        if request and request.version == settings.API_VERSIONS['version_1']:
+            return EntrySerializerWithV1Creators
+
+        return EntrySerializerWithCreators
+
 
 class BookmarkedEntries(ListAPIView):
     pagination_class = EntriesPagination
-    serializer_class = EntrySerializer
     parser_classes = (
         JSONParser,
     )
@@ -229,6 +240,14 @@ class BookmarkedEntries(ListAPIView):
 
         bookmarks = UserBookmarks.objects.filter(profile=user.profile)
         return Entry.objects.filter(bookmarked_by__in=bookmarks).order_by('-bookmarked_by__timestamp')
+
+    def get_serializer_class(self):
+        request = self.request
+
+        if request and request.version == settings.API_VERSIONS['version_1']:
+            return EntrySerializerWithV1Creators
+
+        return EntrySerializerWithCreators
 
     # When people POST to this route, we want to do some
     # custom validation involving CSRF and nonce validation,
@@ -244,10 +263,6 @@ class BookmarkedEntries(ListAPIView):
 
             user = request.user
             ids = self.request.query_params.get('ids', None)
-
-            # This var was set, but never used. Commented off
-            # rather than deleted just in case:
-            # queryset = Entry.objects.public().with_related()
 
             def bookmark_entry(id):
                 entry = None
@@ -330,7 +345,6 @@ class EntriesListView(ListCreateAPIView):
         'interest',
         'tags__name',
     )
-    serializer_class = EntrySerializer
     parser_classes = (
         JSONParser,
     )
@@ -394,10 +408,19 @@ class EntriesListView(ListCreateAPIView):
             # https://docs.python.org/3/tutorial/classes.html#private-variables-and-class-local-references
 
             queryset = queryset.filter(
-                related_creators__creator__name__in=creator_names
+                Q(related_entry_creators__profile__custom_name__in=creator_names) |
+                Q(related_entry_creators__profile__related_user__name__in=creator_names)
             )
 
         return queryset
+
+    def get_serializer_class(self):
+        request = self.request
+
+        if request and request.version == settings.API_VERSIONS['version_1']:
+            return EntrySerializerWithV1Creators
+
+        return EntrySerializerWithCreators
 
     # When people POST to this route, we want to do some
     # custom validation involving CSRF and nonce validation,
@@ -405,6 +428,7 @@ class EntriesListView(ListCreateAPIView):
     @detail_route(methods=['post'])
     def post(self, request, *args, **kwargs):
         request_data = request.data
+        user = request.user if hasattr(request, 'user') else None
 
         validation_result = post_validate(request)
 
@@ -434,10 +458,6 @@ class EntriesListView(ListCreateAPIView):
             except:
                 pass
 
-            # we need to split out creators, because it's a many-to-many
-            # relation with a Through class, so that needs manual labour:
-            creator_data = request_data.pop('creators', [])
-
             # we also want to make sure that tags are properly split
             # on commas, in case we get e.g. ['a', 'b' 'c,d']
             if 'tags' in request_data:
@@ -450,12 +470,11 @@ class EntriesListView(ListCreateAPIView):
                         filtered_tags.append(tag)
                 request_data['tags'] = filtered_tags
 
-            serializer = EntrySerializer(
+            serializer = self.get_serializer_class()(
                 data=request_data,
-                context={'request': request},
+                context={'user': user},
             )
             if serializer.is_valid():
-                user = request.user
                 # ensure that the published_by is always the user doing
                 # the posting, and set 'featured' to false.
                 #
@@ -464,7 +483,7 @@ class EntriesListView(ListCreateAPIView):
                     name='Pending'
                 )
 
-                if (is_staff_address(request.user.email)):
+                if (is_staff_address(user.email)):
                     moderation_state = ModerationState.objects.get(
                         name='Approved'
                     )
@@ -475,17 +494,6 @@ class EntriesListView(ListCreateAPIView):
                     featured=False,
                     moderation_state=moderation_state
                 )
-
-                # QUEUED FOR DEPRECATION: Use the `related_creators` property instead.
-                # See https://github.com/mozilla/network-pulse-api/issues/241
-                if len(creator_data) > 0:
-                    for creator_name in creator_data:
-                        (creator, _) = Creator.objects.get_or_create(name=creator_name)
-
-                        OrderedCreatorRecord.objects.create(
-                            entry=saved_entry,
-                            creator=creator
-                        )
 
                 return Response({'status': 'submitted', 'id': saved_entry.id})
             else:
