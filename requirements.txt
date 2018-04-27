@@ -1,3 +1,4 @@
+APScheduler==3.5.1
 attrs==17.4.0
 autoflake==0.6.6
 boto3==1.4.4
