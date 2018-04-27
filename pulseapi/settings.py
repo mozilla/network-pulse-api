@@ -267,6 +267,9 @@ PULSE_FRONTEND_HOSTNAME = env('PULSE_FRONTEND_HOSTNAME')
 # Github token access
 GITHUB_TOKEN = env('GITHUB_TOKEN')
 
+# Global Sprint configuration
+GLOBAL_SPRINT_REPO_LIST = env('GLOBAL_SPRINT_REPO_LIST', cast=list, default=[])
+
 USE_S3 = env('USE_S3')
 
 if USE_S3:

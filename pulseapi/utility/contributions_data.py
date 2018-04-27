@@ -4,13 +4,21 @@ import attr
 import csv
 from datetime import datetime
 import requests
+import boto3
+from os import path
 
-from pulseapi import settings
+from django.conf import settings
 
 token = settings.GITHUB_TOKEN
+repos = settings.GLOBAL_SPRINT_REPO_LIST
+s3 = None
+s3_data_path = ''
+local_data_path = 'existing_events.csv'
+local_new_data_path = 'new_events.csv'
 
-# Move this list to an env var
-repos = ['mozilla/foundation.mozilla.org', 'mozilla/network-pulse-api']
+if settings.USE_S3:
+    s3_data_path = path.join(settings.AWS_LOCATION, 'global-sprint-github-event-data.csv')
+    s3 = boto3.client('s3')
 
 
 @attr.s
@@ -42,7 +50,7 @@ def extract_data(json_data):
             action=action,
             contributor=event['actor']['login'],
             repo=event['repo']['name'],
-            ))
+        ))
 
     return result
 
@@ -59,7 +67,7 @@ def create_events_csv():
                 row = [event.id, event.created_at, event.type, event.action, event.contributor, event.repo]
                 rows.append(row)
 
-    with open('new_events.csv', 'w', newline='') as csvfile:
+    with open(local_new_data_path, 'w', newline='') as csvfile:
         csvwriter = csv.writer(
             csvfile,
             delimiter=',',
@@ -84,6 +92,32 @@ def update_events_csv(original_csv_path, new_events_csv_path):
         csvwriter.writerows(sorted(to_write))
 
 
-def main():
-    # Create a csv containing latest github events
-    create_events_csv()
+def download_existing_data():
+    s3.download_file(
+        settings.AWS_STORAGE_BUCKET_NAME,
+        s3_data_path,
+        local_data_path
+    )
+
+
+def upload_updated_data():
+    with open(local_data_path, 'rb') as file:
+        s3.upload_fileobj(
+            file,
+            settings.AWS_STORAGE_BUCKET_NAME,
+            s3_data_path
+        )
+
+
+def run():
+    if settings.USE_S3:
+        # Download the existing github event data
+        download_existing_data()
+        # Create a csv containing latest github events
+        create_events_csv()
+        # Update the existing github event data with the latest events
+        update_events_csv(local_data_path, local_new_data_path)
+        # Upload the updated github event data
+        upload_updated_data()
+    else:
+        print('S3 access not given. Please provide the appropriate S3 environment variables.')
