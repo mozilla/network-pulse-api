@@ -35,6 +35,7 @@ env = environ.Env(
     PULSE_FRONTEND_HOSTNAME=(str, ''),
     SECRET_KEY=(str, ''),
     CSRF_TRUSTED_ORIGINS=(list, []),
+    GITHUB_TOKEN=(str, ''),
 )
 
 SSL_PROTECTION = env('SSL_PROTECTION')
@@ -262,6 +263,9 @@ X_FRAME_OPTIONS = "DENY"
 
 # Frontend URL is required for the RSS and Atom feeds
 PULSE_FRONTEND_HOSTNAME = env('PULSE_FRONTEND_HOSTNAME')
+
+# Github token access
+GITHUB_TOKEN=env('GITHUB_TOKEN')
 
 USE_S3 = env('USE_S3')
 
