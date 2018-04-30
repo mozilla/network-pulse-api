@@ -105,6 +105,7 @@ def update_events_csv(saved_data, new_data):
 
     return value.encode()
 
+
 def download_existing_data():
     saved_data = io.BytesIO()
     s3.download_fileobj(
@@ -113,6 +114,7 @@ def download_existing_data():
         saved_data
     )
     return saved_data.getvalue().decode("utf-8")
+
 
 def upload_updated_data(upload_data):
     bio = io.BytesIO(upload_data)
