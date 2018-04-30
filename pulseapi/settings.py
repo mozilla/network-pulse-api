@@ -36,6 +36,7 @@ env = environ.Env(
     SECRET_KEY=(str, ''),
     CSRF_TRUSTED_ORIGINS=(list, []),
     GITHUB_TOKEN=(str, ''),
+    GLOBAL_SPRINT_REPO_LIST=(list, []),
 )
 
 SSL_PROTECTION = env('SSL_PROTECTION')
@@ -268,7 +269,7 @@ PULSE_FRONTEND_HOSTNAME = env('PULSE_FRONTEND_HOSTNAME')
 GITHUB_TOKEN = env('GITHUB_TOKEN')
 
 # Global Sprint configuration
-GLOBAL_SPRINT_REPO_LIST = env('GLOBAL_SPRINT_REPO_LIST', cast=list, default=[])
+GLOBAL_SPRINT_REPO_LIST = env('GLOBAL_SPRINT_REPO_LIST')
 
 USE_S3 = env('USE_S3')
 
