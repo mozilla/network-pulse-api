@@ -19,11 +19,4 @@ if __name__ == "__main__":
                 "forget to activate a virtual environment?"
             )
         raise
-
-    args = sys.argv
-
-    if len(args) > 1 and args[1] == "collect_contributions_data":
-        from pulseapi.utility import contributions_data
-        contributions_data.run()
-    else:
-        execute_from_command_line(sys.argv)
+    execute_from_command_line(sys.argv)
