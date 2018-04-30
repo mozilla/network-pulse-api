@@ -1,8 +1,11 @@
 import threading
+import os
+
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 sched = BlockingScheduler()
 
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pulseapi.settings")
 
 @sched.scheduled_job('interval', minutes=30)
 def timed_job():
