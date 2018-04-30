@@ -74,7 +74,6 @@ def create_events_csv():
                 row = [event.id, event.created_at, event.type, event.action, event.contributor, event.repo]
                 rows.append(row)
 
-    # with open(local_new_data_path, 'w', newline='') as csvfile:
     new_data = io.StringIO()
     csvwriter = csv.writer(
         new_data,
@@ -91,7 +90,6 @@ def update_events_csv(saved_data, new_data):
     new_events = csv.reader(io.StringIO(new_data))
     to_write = set(tuple(r) for r in new_events) | set(tuple(r) for r in previous_events)
 
-    # with open(original_csv_path, 'w', newline='') as original_csv_file:
     upload_data = io.StringIO()
     csvwriter = csv.writer(
         upload_data,
