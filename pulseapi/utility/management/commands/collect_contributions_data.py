@@ -6,6 +6,7 @@ from django.core.management.base import BaseCommand
 
 from pulseapi.utility import contributions_data
 
+
 class Command(BaseCommand):
     help = "Run the GitHub contribution data task"
 
