@@ -66,7 +66,8 @@ def create_events_csv():
     rows = []
 
     for repo in repos:
-        for page in range(1, 2):
+        print(f'Fetching Activity for: {repo}')
+        for page in range(1, 11):
             r = requests.get(f'https://api.github.com/repos/{repo}/events?page={page}&access_token={token}')
             extracted_data = extract_data(r.json())
 
@@ -125,13 +126,16 @@ def upload_updated_data(upload_data):
 
 def run():
     if settings.GLOBAL_SPRINT_ENABLED:
-        # Download the existing github event data
+        print('Downloading GitHub event data from S3')
         saved_data = download_existing_data()
-        # Create a csv containing latest github events
+
+        print('Fetching most recent GitHub events')
         new_data = create_events_csv()
-        # Update the existing github event data with the latest events
+
+        print('Merging and de-duplicating events')
         upload_data = update_events_csv(saved_data, new_data)
-        # Upload the updated github event data
+
+        print('Uploading event data to S3')
         upload_updated_data(upload_data)
     else:
         print('GLOBAL_SPRINT_ENABLED must be set to True to run this task.')
