@@ -2,10 +2,11 @@
 
 import attr
 import csv
+import io
 from datetime import datetime
 import requests
 import boto3
-from os import path
+from pathlib import Path
 
 from django.conf import settings
 
@@ -16,9 +17,15 @@ s3_data_path = ''
 local_data_path = 'existing_events.csv'
 local_new_data_path = 'new_events.csv'
 
-if settings.USE_S3:
-    s3_data_path = path.join(settings.AWS_LOCATION, 'global-sprint-github-event-data.csv')
-    s3 = boto3.client('s3')
+if settings.GLOBAL_SPRINT_ENABLED:
+    bucket_path = Path(settings.GLOBAL_SPRINT_S3_ENVIRONMENT)
+    s3_data_path = bucket_path / 'global-sprint-github-event-data.csv'
+
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=settings.GLOBAL_SPRINT_AWS_ACCESS_KEY,
+        aws_secret_access_key=settings.GLOBAL_SPRINT_AWS_SECRET_ACCESS_KEY
+    )
 
 
 @attr.s
@@ -59,7 +66,7 @@ def create_events_csv():
     rows = []
 
     for repo in repos:
-        for page in range(1, 11):
+        for page in range(1, 2):
             r = requests.get(f'https://api.github.com/repos/{repo}/events?page={page}&access_token={token}')
             extracted_data = extract_data(r.json())
 
@@ -67,57 +74,64 @@ def create_events_csv():
                 row = [event.id, event.created_at, event.type, event.action, event.contributor, event.repo]
                 rows.append(row)
 
-    with open(local_new_data_path, 'w', newline='') as csvfile:
-        csvwriter = csv.writer(
-            csvfile,
-            delimiter=',',
-            quotechar='|',
-            quoting=csv.QUOTE_MINIMAL)
-        csvwriter.writerows(rows)
+    # with open(local_new_data_path, 'w', newline='') as csvfile:
+    new_data = io.StringIO()
+    csvwriter = csv.writer(
+        new_data,
+        delimiter=',',
+        quotechar='|',
+        quoting=csv.QUOTE_MINIMAL
+    )
+    csvwriter.writerows(rows)
+    return new_data.getvalue()
 
 
-def update_events_csv(original_csv_path, new_events_csv_path):
-    with open(original_csv_path, newline='') as original_csv_file,\
-            open(new_events_csv_path, newline='') as new_events_csv_file:
-        previous_events = csv.reader(original_csv_file)
-        new_events = csv.reader(new_events_csv_file)
-        to_write = set(tuple(r) for r in new_events) | set(tuple(r) for r in previous_events)
+def update_events_csv(saved_data, new_data):
+    previous_events = csv.reader(io.StringIO(saved_data))
+    new_events = csv.reader(io.StringIO(new_data))
+    to_write = set(tuple(r) for r in new_events) | set(tuple(r) for r in previous_events)
 
-    with open(original_csv_path, 'w', newline='') as original_csv_file:
-        csvwriter = csv.writer(
-            original_csv_file,
-            delimiter=',',
-            quotechar='|',
-            quoting=csv.QUOTE_MINIMAL)
-        csvwriter.writerows(sorted(to_write))
+    # with open(original_csv_path, 'w', newline='') as original_csv_file:
+    upload_data = io.StringIO()
+    csvwriter = csv.writer(
+        upload_data,
+        delimiter=',',
+        quotechar='|',
+        quoting=csv.QUOTE_MINIMAL
+    )
+    csvwriter.writerows(sorted(to_write))
 
+    value = upload_data.getvalue()
+
+    return value.encode()
 
 def download_existing_data():
-    s3.download_file(
-        settings.AWS_STORAGE_BUCKET_NAME,
-        s3_data_path,
-        local_data_path
+    saved_data = io.BytesIO()
+    s3.download_fileobj(
+        settings.GLOBAL_SPRINT_S3_BUCKET,
+        s3_data_path.as_posix(),
+        saved_data
+    )
+    return saved_data.getvalue().decode("utf-8")
+
+def upload_updated_data(upload_data):
+    bio = io.BytesIO(upload_data)
+    return s3.upload_fileobj(
+        bio,
+        settings.GLOBAL_SPRINT_S3_BUCKET,
+        s3_data_path.as_posix()
     )
 
 
-def upload_updated_data():
-    with open(local_data_path, 'rb') as file:
-        s3.upload_fileobj(
-            file,
-            settings.AWS_STORAGE_BUCKET_NAME,
-            s3_data_path
-        )
-
-
 def run():
-    if settings.USE_S3:
+    if settings.GLOBAL_SPRINT_ENABLED:
         # Download the existing github event data
-        download_existing_data()
+        saved_data = download_existing_data()
         # Create a csv containing latest github events
-        create_events_csv()
+        new_data = create_events_csv()
         # Update the existing github event data with the latest events
-        update_events_csv(local_data_path, local_new_data_path)
+        upload_data = update_events_csv(saved_data, new_data)
         # Upload the updated github event data
-        upload_updated_data()
+        upload_updated_data(upload_data)
     else:
-        print('S3 access not given. Please provide the appropriate S3 environment variables.')
+        print('GLOBAL_SPRINT_ENABLED must be set to True to run this task.')
