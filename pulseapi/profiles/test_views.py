@@ -96,6 +96,7 @@ class TestProfileView(PulseMemberTestCase):
         expected_entries = UserProfileEntriesSerializer(
             instance=profile,
             context={
+                'user': self.user,
                 'created': entry_type is 'created',
                 'published': entry_type is 'published',
                 'favorited': entry_type is 'favorited',
@@ -298,6 +299,7 @@ class TestProfileView(PulseMemberTestCase):
 
         profile_list = profile_serializer_class(
             UserProfile.objects.filter(profile_type=profile_type),
+            context={'user': self.user},
             many=True,
         ).data
 
