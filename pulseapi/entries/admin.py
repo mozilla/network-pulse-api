@@ -1,6 +1,8 @@
 from django.contrib import admin
 
 from .models import Entry, ModerationState
+from pulseapi.entries.forms import EntryAdminForm
+from pulseapi.utility.autocomplete import autoselect_fields_check_can_add
 
 
 class ModerationStateAdmin(admin.ModelAdmin):
@@ -21,6 +23,7 @@ class EntryAdmin(admin.ModelAdmin):
     """
     Show a list of entries a user has submitted in the EmailUser Admin app
     """
+    form = EntryAdminForm
 
     fields = (
         'id',
@@ -39,8 +42,8 @@ class EntryAdmin(admin.ModelAdmin):
         'internal_notes',
         'issues',
         'help_types',
-        'creators',
         'published_by',
+        'creators',
         'bookmark_count',
     )
 
@@ -48,8 +51,6 @@ class EntryAdmin(admin.ModelAdmin):
         'id',
         'created',
         'thumbnail_image_tag',
-        'creators',
-        'bookmark_count',
     )
 
     ordering = (
@@ -75,17 +76,11 @@ class EntryAdmin(admin.ModelAdmin):
         'tags__name',
     )
 
-    def bookmark_count(self, instance):
-        """
-        Show the total number of bookmarks for this Entry
-        """
-        return instance.bookmarked_by.count()
-
-    def creators(self, instance):
-        related_creator_names = [c.profile.name for c in instance.related_entry_creators.all()]
-        if not related_creator_names:
-            return '-'
-        return ', '.join(related_creator_names)
+    def get_form(self, request, *args, **kwargs):
+        form = super().get_form(request, *args, **kwargs)
+        autoselect_fields_check_can_add(form, self.model, request.user)
+        form.current_user = request.user
+        return form
 
 
 admin.site.register(ModerationState, ModerationStateAdmin)

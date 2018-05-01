@@ -1,0 +1,15 @@
+{% load static %}
+<div class="autocomplete-container">
+  {# Adapted from the django-ajax-selects autocompleteselectmultiple template #}
+  <div class="autocomplete-input-container">
+    <input type="text" name="{{name}}_text" id="{{html_id}}_text" value="" autocomplete="off"  {{ extra_attrs }} />
+  {% if add_link %}
+    <a href="{{ add_link }}" class="add-another addlink" id="add_{{ html_id }}" onclick="return showAddAnotherPopup(this);">{% block autocomplete_add_text %}{% endblock %}</a>
+  {% endif %}
+    <input type="hidden" name="{{name}}" id="{{html_id}}" value="{{current_ids}}" data-ajax-select="autocompleteselectmultiple" data-plugin-options="{{ data_plugin_options }}" />
+  </div>
+  <div id="{{html_id}}_on_deck" class="results_on_deck"></div>
+  {% block extra_script %}{% endblock %}
+
+  <link href="{% static 'ajax_select/css/admin-autocomplete.css'  %}" rel="stylesheet" type="text/css">
+</div>

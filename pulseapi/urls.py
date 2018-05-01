@@ -17,6 +17,7 @@ from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf.urls.static import static
+from ajax_select import urls as ajax_select_urls
 
 from pulseapi.profiles.views import UserProfileAPIView
 from pulseapi.utility.syndication import (
@@ -59,6 +60,9 @@ urlpatterns = [
     url(r'^rss/featured', RSSFeedFeaturedFromPulse()),
     url(r'^atom/latest', AtomFeedLatestFromPulse()),
     url(r'^atom/featured', AtomFeedFeaturedFromPulse()),
+
+    # Autocomplete
+    url(r'^ajax_select/', include(ajax_select_urls)),
 ]
 
 if settings.USE_S3 is not True:

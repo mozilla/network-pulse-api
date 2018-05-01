@@ -22,7 +22,7 @@ class EmailUserManager(BaseUserManager):
 
         # Ensure that new users get a user profile associated
         # with them, even though it'll be empty by default.
-        profile = UserProfile.objects.create()
+        profile = UserProfile.objects.create(is_active=True)
         user = self.model(
             email=email,
             name=name,

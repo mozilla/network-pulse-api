@@ -87,9 +87,6 @@ class UserProfileAdmin(admin.ModelAdmin):
         """
         return instance.bookmarks_from.count()
 
-    class Media:
-        js = ['admin/js/creator-profile-rebind-protection.js', ]
-
 
 class UserBookmarksAdmin(admin.ModelAdmin):
     """
