@@ -66,9 +66,7 @@ class EntryBaseSerializer(serializers.ModelSerializer):
         Check whether the current user has bookmarked this
         Entry. Anonymous users always see False
         """
-        user = None
-        if 'request' in self.context and hasattr(self.context['request'], 'user'):
-            user = self.context['request'].user
+        user = self.context.get('user')
 
         if user and user.is_authenticated():
             # instance.bookmarked_by.all() is already prefetched and cached in the QuerySet

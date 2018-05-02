@@ -43,6 +43,11 @@ class UserProfilePublicAPIView(RetrieveAPIView):
 
         return UserProfilePublicSerializer
 
+    def get_serializer_context(self):
+        return {
+            'user': self.request.user
+        }
+
 
 class UserProfilePublicSelfAPIView(UserProfilePublicAPIView):
     def get_object(self):
@@ -61,6 +66,11 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
     def get_object(self):
         user = self.request.user
         return get_object_or_404(UserProfile, related_user=user)
+
+    def get_serializer_context(self):
+        return {
+            'user': self.request.user
+        }
 
     def put(self, request, *args, **kwargs):
         '''
@@ -92,8 +102,6 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
 # We don't inherit from a generic API view class since we're customizing
 # the get functionality more than the generic would allow.
 class UserProfileEntriesAPIView(APIView):
-    authentication_classes = []
-
     def get(self, request, pk, **kwargs):
         """
         Return a list of entries associated with this profile
@@ -112,10 +120,11 @@ class UserProfileEntriesAPIView(APIView):
 
         return Response(
             UserProfileEntriesSerializer(instance=profile, context={
+                'user': request.user,
                 'created': 'created' in query,
                 'published': 'published' in query,
                 'favorited': 'favorited' in query,
-                'EntrySerializerClass': EntrySerializerClass
+                'EntrySerializerClass': EntrySerializerClass,
             }).data
         )
 
@@ -228,3 +237,8 @@ class UserProfileListAPIView(ListAPIView):
         if 'basic' in request.query_params:
             return UserProfileBasicSerializer
         return UserProfilePublicSerializer
+
+    def get_serializer_context(self):
+        return {
+            'user': self.request.user
+        }

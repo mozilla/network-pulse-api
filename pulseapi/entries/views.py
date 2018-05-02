@@ -225,6 +225,11 @@ class EntryView(RetrieveAPIView):
 
         return EntrySerializerWithCreators
 
+    def get_serializer_context(self):
+        return {
+            'user': self.request.user
+        }
+
 
 class BookmarkedEntries(ListAPIView):
     pagination_class = EntriesPagination
@@ -248,6 +253,11 @@ class BookmarkedEntries(ListAPIView):
             return EntrySerializerWithV1Creators
 
         return EntrySerializerWithCreators
+
+    def get_serializer_context(self):
+        return {
+            'user': self.request.user
+        }
 
     # When people POST to this route, we want to do some
     # custom validation involving CSRF and nonce validation,
@@ -421,6 +431,11 @@ class EntriesListView(ListCreateAPIView):
             return EntrySerializerWithV1Creators
 
         return EntrySerializerWithCreators
+
+    def get_serializer_context(self):
+        return {
+            'user': self.request.user
+        }
 
     # When people POST to this route, we want to do some
     # custom validation involving CSRF and nonce validation,

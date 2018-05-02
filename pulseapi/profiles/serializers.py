@@ -160,8 +160,8 @@ class UserProfilePublicSerializer(UserProfileSerializer):
     my_profile = serializers.SerializerMethodField()
 
     def get_my_profile(self, instance):
-        request = self.context.get('request')
-        return request.user == instance.user if request else False
+        user = self.context.get('user')
+        return user == instance.user
 
 
 class UserProfilePublicWithEntriesSerializer(UserProfilePublicSerializer):
@@ -177,6 +177,7 @@ class UserProfilePublicWithEntriesSerializer(UserProfilePublicSerializer):
         return EntrySerializerWithV1Creators(
             user.entries.public().with_related().order_by('-id'),
             many=True,
+            context={'user': self.context.get('user')}
         ).data if user else []
 
     created_entries = serializers.SerializerMethodField()
@@ -205,6 +206,7 @@ class UserProfileEntriesSerializer(serializers.Serializer):
     def to_representation(self, instance):
         data = {}
         context = self.context
+        user = context.get('user')
         include_created = context.get('created', False)
         include_published = context.get('published', False)
         include_favorited = context.get('favorited', False)
@@ -234,18 +236,25 @@ class UserProfileEntriesSerializer(serializers.Serializer):
                 .filter(entry__in=Entry.objects.public())
             )
             data['created'] = [
-                EntrySerializerClass(entry_creator.entry).data
+                EntrySerializerClass(
+                    entry_creator.entry,
+                    context={'user': user}
+                ).data
                 for entry_creator in entry_creators
             ]
 
         if include_published:
             entries = entry_queryset.public().filter(published_by=instance.user) if instance.user else []
-            data['published'] = EntrySerializerClass(entries, many=True).data
+            data['published'] = EntrySerializerClass(
+                entries,
+                context={'user': user},
+                many=True
+            ).data
 
         if include_favorited:
             user_bookmarks = UserBookmarks.objects.filter(profile=instance)
             data['favorited'] = [
-                EntrySerializerClass(bookmark.entry).data for bookmark in
+                EntrySerializerClass(bookmark.entry, context={'user': user}).data for bookmark in
                 user_bookmarks.prefetch_related(
                     Prefetch('entry', queryset=entry_queryset)
                 ).filter(entry__in=Entry.objects.public())
