@@ -64,16 +64,29 @@ def extract_data(json_data):
 
 def create_events_csv():
     rows = []
+    repo_error = []
+
+    session = requests.Session()
+    adapter = requests.adapters.HTTPAdapter(max_retries=3)
+    session.mount('https://', adapter)
 
     for repo in repos:
         print(f'Fetching Activity for: {repo}')
         for page in range(1, 11):
-            r = requests.get(f'https://api.github.com/repos/{repo}/events?page={page}&access_token={token}')
-            extracted_data = extract_data(r.json())
+            r = session.get(f'https://api.github.com/repos/{repo}/events?page={page}&access_token={token}')
+            try:
+                extracted_data = extract_data(r.json())
 
-            for event in extracted_data:
-                row = [event.id, event.created_at, event.type, event.action, event.contributor, event.repo]
-                rows.append(row)
+                for event in extracted_data:
+                    row = [event.id, event.created_at, event.type, event.action, event.contributor, event.repo]
+                    rows.append(row)
+            except TypeError:
+                print(f"Couldn't process request made to {repo}. Request status: {r.status_code}")
+                repo_error.append(repo)
+                break
+
+    if repo_error:
+        print(f"Warning! List of repo(s) that encountered an error during this run: {', '.join(repo_error)}")
 
     new_data = io.StringIO()
     csvwriter = csv.writer(
