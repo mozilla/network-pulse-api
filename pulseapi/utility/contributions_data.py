@@ -5,6 +5,7 @@ import csv
 import io
 from datetime import datetime
 import requests
+from requests.packages.urllib3.exceptions import MaxRetryError
 import boto3
 from pathlib import Path
 
@@ -73,7 +74,12 @@ def create_events_csv():
     for repo in repos:
         print(f'Fetching Activity for: {repo}')
         for page in range(1, 11):
-            r = session.get(f'https://api.github.com/repos/{repo}/events?page={page}&access_token={token}')
+            try:
+                r = session.get(f'https://api.github.com/repos/{repo}/events?page={page}&access_token={token}')
+            except MaxRetryError as err:
+                print(f"Request made to Github API for {repo} failed. Error message: {err}")
+                repo_error.append(repo)
+                break
             try:
                 extracted_data = extract_data(r.json())
 
