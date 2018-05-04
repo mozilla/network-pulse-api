@@ -172,6 +172,9 @@ def upload_updated_data(upload_data):
 
 def run():
     if settings.GLOBAL_SPRINT_ENABLED:
+        # Check if the file was recently updated or alert
+        is_stale()
+
         print('Downloading GitHub event data from S3')
         saved_data = download_existing_data()
 
