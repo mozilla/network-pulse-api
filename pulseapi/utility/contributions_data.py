@@ -3,7 +3,7 @@
 import attr
 import csv
 import io
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import requests
 from requests.packages.urllib3.exceptions import MaxRetryError
 import boto3
@@ -39,6 +39,33 @@ class GithubEvent(object):
     created_at = attr.ib()
     contributor = attr.ib()
     repo = attr.ib()
+
+
+# Check if the data was updated in the last two hours. If not, alert.
+def is_stale():
+    data = s3.get_object(
+        Bucket=settings.GLOBAL_SPRINT_S3_BUCKET,
+        Key=s3_data_path.as_posix(),
+    )
+    now = datetime.now(tz=timezone.utc)
+    time_diff = now - data['LastModified']
+
+    if time_diff >= timedelta(hours=2):
+        payload = {
+            "message_type": "CRITICAL",
+            "entity_id": "GlobalSprintContributionData",
+            "entity_display_name": f"Global Sprint scheduled task failed: 'global-sprint-github-event-data.csv'"
+                                   f" was not updated for {time_diff}",
+            "state_message": f"The scheduled task in charge of aggregating contributions data for the Global Sprint "
+                             f"failed: 'global-sprint-github-event-data.csv' was not updated for {time_diff}.\n"
+                             f"The task is running on network-api-pulse app ('clock' process). The file is "
+                             f"on S3 under mofo-projects, in the global-sprint-2018-data bucket. Logs "
+                             f"are available on Logentries: "
+                             f"https://eu.logentries.com/app/3aae5f3f#/search/log/ad178cbf?last=Last%2020%20Minutes."
+        }
+        requests.post(f"https://alert.victorops.com/integrations/generic/20131114/alert/{settings.VICTOROPS_KEY}",
+                      json=payload)
+        print(f"Failure: the file was not updated for {time_diff}. An alert has been sent.")
 
 
 # Parse a json file to only keep what we need
@@ -156,5 +183,7 @@ def run():
 
         print('Uploading event data to S3')
         upload_updated_data(upload_data)
+
+        print('Success!')
     else:
         print('GLOBAL_SPRINT_ENABLED must be set to True to run this task.')
