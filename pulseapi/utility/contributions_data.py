@@ -13,6 +13,7 @@ from django.conf import settings
 
 token = settings.GITHUB_TOKEN
 repos = settings.GLOBAL_SPRINT_REPO_LIST
+
 s3 = None
 s3_data_path = ''
 local_data_path = 'existing_events.csv'
@@ -27,6 +28,15 @@ if settings.GLOBAL_SPRINT_ENABLED:
         aws_access_key_id=settings.GLOBAL_SPRINT_AWS_ACCESS_KEY,
         aws_secret_access_key=settings.GLOBAL_SPRINT_AWS_SECRET_ACCESS_KEY
     )
+
+
+# Rate limit exception
+class RateLimitExceptionError(Exception):
+    """
+    Exception raised when the API rate limit is reached.
+    """
+
+    pass
 
 
 @attr.s
@@ -98,25 +108,32 @@ def create_events_csv():
     adapter = requests.adapters.HTTPAdapter(max_retries=3)
     session.mount('https://', adapter)
 
-    for repo in repos:
-        print(f'Fetching Activity for: {repo}')
-        for page in range(1, 11):
-            try:
-                r = session.get(f'https://api.github.com/repos/{repo}/events?page={page}&access_token={token}')
-            except MaxRetryError as err:
-                print(f"Request made to Github API for {repo} failed. Error message: {err}")
-                repo_error.append(repo)
-                break
-            try:
-                extracted_data = extract_data(r.json())
+    try:
+        for repo in repos:
+            print(f'Fetching Activity for: {repo}')
+            for page in range(1, 11):
+                try:
+                    r = session.get(f'https://api.github.com/repos/{repo}/events?page={page}&access_token={token}')
+                    if int(r.headers['X-RateLimit-Remaining']) == 0:
+                        raise RateLimitExceptionError
+                except MaxRetryError as err:
+                    print(f"Request made to Github API for {repo} failed. Error message: {err}")
+                    repo_error.append(repo)
+                    break
 
-                for event in extracted_data:
-                    row = [event.id, event.created_at, event.type, event.action, event.contributor, event.repo]
-                    rows.append(row)
-            except TypeError:
-                print(f"Couldn't process request made to {repo}. Request status: {r.status_code}")
-                repo_error.append(repo)
-                break
+                try:
+                    extracted_data = extract_data(r.json())
+
+                    for event in extracted_data:
+                        row = [event.id, event.created_at, event.type, event.action, event.contributor, event.repo]
+                        rows.append(row)
+                except TypeError:
+                    print(f"Couldn't process request made to {repo}. Request status: {r.status_code}")
+                    repo_error.append(repo)
+                    break
+    except RateLimitExceptionError:
+        print(f"Warning! Github API's rate limit reached while doing a request to {repo} at page {page}. "
+              f"The contribution file will be partially updated.")
 
     if repo_error:
         print(f"Warning! List of repo(s) that encountered an error during this run: {', '.join(repo_error)}")
