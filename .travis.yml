@@ -8,17 +8,18 @@ services: postgresql
 
 # command to install dependencies
 install:
-- pip install --upgrade pip
-- pip install -r requirements.txt
+  - pip install --upgrade pip
+  - pip install pipenv
+  - pipenv install --dev
 
 before_script:
   - psql -c "CREATE DATABASE pulseapi;" -U postgres
-  - python manage.py migrate
+  - pipenv run python manage.py migrate
 
 # command to run tests
 script:
-  - flake8 pulseapi --config=./pulseapi/tox.ini
-  - python manage.py test
+  - pipenv run flake8 pulseapi --config=./pulseapi/tox.ini
+  - pipenv run python manage.py test
 
 env:
   global:
