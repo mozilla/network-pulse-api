@@ -3,8 +3,9 @@
 import attr
 import csv
 import io
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import requests
+from requests.packages.urllib3.exceptions import MaxRetryError
 import boto3
 from pathlib import Path
 
@@ -12,6 +13,7 @@ from django.conf import settings
 
 token = settings.GITHUB_TOKEN
 repos = settings.GLOBAL_SPRINT_REPO_LIST
+
 s3 = None
 s3_data_path = ''
 local_data_path = 'existing_events.csv'
@@ -28,6 +30,15 @@ if settings.GLOBAL_SPRINT_ENABLED:
     )
 
 
+# Rate limit exception
+class RateLimitExceptionError(Exception):
+    """
+    Exception raised when the API rate limit is reached.
+    """
+
+    pass
+
+
 @attr.s
 class GithubEvent(object):
     id = attr.ib()
@@ -38,6 +49,33 @@ class GithubEvent(object):
     created_at = attr.ib()
     contributor = attr.ib()
     repo = attr.ib()
+
+
+# Check if the data was updated in the last two hours. If not, alert.
+def is_stale():
+    data = s3.get_object(
+        Bucket=settings.GLOBAL_SPRINT_S3_BUCKET,
+        Key=s3_data_path.as_posix(),
+    )
+    now = datetime.now(tz=timezone.utc)
+    time_diff = now - data['LastModified']
+
+    if time_diff >= timedelta(hours=2):
+        payload = {
+            "message_type": "CRITICAL",
+            "entity_id": "GlobalSprintContributionData",
+            "entity_display_name": f"Global Sprint scheduled task failed: 'global-sprint-github-event-data.csv'"
+                                   f" was not updated for {time_diff}",
+            "state_message": f"The scheduled task in charge of aggregating contributions data for the Global Sprint "
+                             f"failed: 'global-sprint-github-event-data.csv' was not updated for {time_diff}.\n"
+                             f"The task is running on network-api-pulse app ('clock' process). The file is "
+                             f"on S3 under mofo-projects, in the global-sprint-2018-data bucket. Logs "
+                             f"are available on Logentries: "
+                             f"https://eu.logentries.com/app/3aae5f3f#/search/log/ad178cbf?last=Last%2020%20Minutes."
+        }
+        requests.post(f"https://alert.victorops.com/integrations/generic/20131114/alert/{settings.VICTOROPS_KEY}",
+                      json=payload)
+        print(f"Failure: the file was not updated for {time_diff}. An alert has been sent.")
 
 
 # Parse a json file to only keep what we need
@@ -64,16 +102,41 @@ def extract_data(json_data):
 
 def create_events_csv():
     rows = []
+    repo_error = []
 
-    for repo in repos:
-        print(f'Fetching Activity for: {repo}')
-        for page in range(1, 11):
-            r = requests.get(f'https://api.github.com/repos/{repo}/events?page={page}&access_token={token}')
-            extracted_data = extract_data(r.json())
+    session = requests.Session()
+    adapter = requests.adapters.HTTPAdapter(max_retries=3)
+    session.mount('https://', adapter)
 
-            for event in extracted_data:
-                row = [event.id, event.created_at, event.type, event.action, event.contributor, event.repo]
-                rows.append(row)
+    try:
+        for repo in repos:
+            print(f'Fetching Activity for: {repo}')
+            for page in range(1, 11):
+                try:
+                    r = session.get(f'https://api.github.com/repos/{repo}/events?page={page}&access_token={token}')
+                    if int(r.headers['X-RateLimit-Remaining']) == 0:
+                        raise RateLimitExceptionError
+                except MaxRetryError as err:
+                    print(f"Request made to Github API for {repo} failed. Error message: {err}")
+                    repo_error.append(repo)
+                    break
+
+                try:
+                    extracted_data = extract_data(r.json())
+
+                    for event in extracted_data:
+                        row = [event.id, event.created_at, event.type, event.action, event.contributor, event.repo]
+                        rows.append(row)
+                except TypeError:
+                    print(f"Couldn't process request made to {repo}. Request status: {r.status_code}")
+                    repo_error.append(repo)
+                    break
+    except RateLimitExceptionError:
+        print(f"Warning! Github API's rate limit reached while doing a request to {repo} at page {page}. "
+              f"The contribution file will be partially updated.")
+
+    if repo_error:
+        print(f"Warning! List of repo(s) that encountered an error during this run: {', '.join(repo_error)}")
 
     new_data = io.StringIO()
     csvwriter = csv.writer(
@@ -126,6 +189,9 @@ def upload_updated_data(upload_data):
 
 def run():
     if settings.GLOBAL_SPRINT_ENABLED:
+        # Check if the file was recently updated or alert
+        is_stale()
+
         print('Downloading GitHub event data from S3')
         saved_data = download_existing_data()
 
@@ -137,5 +203,7 @@ def run():
 
         print('Uploading event data to S3')
         upload_updated_data(upload_data)
+
+        print('Success!')
     else:
         print('GLOBAL_SPRINT_ENABLED must be set to True to run this task.')
