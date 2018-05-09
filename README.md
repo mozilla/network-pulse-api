@@ -664,6 +664,7 @@ Two options are available:
 
 - `--delete`: Delete bookmarks, creators, entries, profiles, tags and users from the database,
 - `--seed`: A seed value to pass to Faker before generating data.
+- `--fellows-count`: The number of fellows to generate per program type, per year. Defaults to 3
 
 ## Running the server
 

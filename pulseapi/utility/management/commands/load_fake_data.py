@@ -35,6 +35,15 @@ class Command(BaseCommand):
             help='A seed value to pass to Faker before generating data'
         )
 
+        parser.add_argument(
+            '--fellows-count',
+            action='store',
+            type=int,
+            default=3,
+            dest='fellows_count',
+            help='The number of fellows to generate per program type, per year'
+        )
+
     def handle(self, *args, **options):
         if options['delete']:
             call_command('flush_data')
@@ -55,11 +64,14 @@ class Command(BaseCommand):
         self.stdout.write('Creating generic users')
         BasicEmailUserFactory.create()
         [BasicEmailUserFactory.create(active=True) for i in range(2)]
-        BasicEmailUserFactory.create(extended_profile=True)
         BasicEmailUserFactory.create(group=True)
         BasicEmailUserFactory.create(group=True, active=True)
         BasicEmailUserFactory.create(use_custom_name=True)
         BasicEmailUserFactory.create(use_custom_name=True, active=True)
+
+        # Call the generate_fellows command to handle fellows generation
+        fellows_count = options['fellows_count']
+        call_command('generate_fellows', f'--fellowsCount={fellows_count}')
 
         self.stdout.write('Creating Mozilla users')
         MozillaEmailUserFactory.create()
