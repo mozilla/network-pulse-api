@@ -36,7 +36,7 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            '--fellowsCount',
+            '--fellows-count',
             action='store',
             type=int,
             default=3,
