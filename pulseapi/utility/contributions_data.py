@@ -12,7 +12,6 @@ from pathlib import Path
 from django.conf import settings
 
 token = settings.GITHUB_TOKEN
-repos = settings.GLOBAL_SPRINT_REPO_LIST
 
 s3 = None
 s3_data_path = ''
@@ -49,6 +48,14 @@ class GithubEvent(object):
     created_at = attr.ib()
     contributor = attr.ib()
     repo = attr.ib()
+
+
+# Get the list of repos we need contribution data from
+def get_repo_list():
+    with open(Path(settings.BASE_DIR + '/global_sprint_repo_list.txt')) as f:
+        repo_list = f.read().split('\n')
+
+    return repo_list
 
 
 # Check if the data was updated in the last two hours. If not, alert.
@@ -100,7 +107,7 @@ def extract_data(json_data):
     return result
 
 
-def create_events_csv():
+def create_events_csv(repos):
     rows = []
     repo_error = []
 
@@ -192,11 +199,14 @@ def run():
         # Check if the file was recently updated or alert
         is_stale()
 
+        print('Generating the repositories\' list')
+        repos = get_repo_list()
+
         print('Downloading GitHub event data from S3')
         saved_data = download_existing_data()
 
         print('Fetching most recent GitHub events')
-        new_data = create_events_csv()
+        new_data = create_events_csv(repos)
 
         print('Merging and de-duplicating events')
         upload_data = update_events_csv(saved_data, new_data)
