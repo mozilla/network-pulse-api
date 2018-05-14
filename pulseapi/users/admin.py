@@ -47,10 +47,10 @@ class EmailUserAdmin(UserAdmin):
     def entries(self, instance):
         entries = Entry.objects.filter(published_by=instance)
         rows = ['<tr><td><a href="{url}">{title} (id={id})</a></td></tr>'.format(
-                    url=get_admin_url(entry),
-                    id=entry.id,
-                    title=entry.title
-                ) for entry in entries]
+            url=get_admin_url(entry),
+            id=entry.id,
+            title=entry.title
+        ) for entry in entries]
         return format_html('<table>{rows}</table>'.format(rows=''.join(rows)))
     entries.short_description = 'Entries posted by this user'
 
