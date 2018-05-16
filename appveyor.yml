@@ -23,11 +23,12 @@ environment:
         PYTHON_ARCH: "32"
 
 init:
-  - "ECHO %PYTHON% %PYTHON_VERSION% %%PYTHON_ARCH"
+  - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
 
 install:
   - "virtualenv pulseapi -p %PYTHON%/python.exe"
   - "./pulseapi/Scripts/activate"
+  - "python -m pip install --upgrade pip"
   - "pip install -r requirements.txt"
 
 services:
@@ -45,3 +46,5 @@ test_script:
   - "./pulseapi/Scripts/activate"
   - "python manage.py test"
 
+cache:
+  - "%LOCALAPPDATA%\\pip\\Cache"
