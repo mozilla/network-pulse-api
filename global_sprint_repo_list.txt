@@ -58,7 +58,7 @@ SOHW/sohw.github.io
 ricklupton/floweaver
 data-lessons/librarycarpentry
 LibraryCarpentry/lc-git
-LibraryCarpentry/lc-shel
+LibraryCarpentry/lc-shell
 LibraryCarpentry/lc-open-refine
 LibraryCarpentry/lc-python-intro
 LibraryCarpentry/lc-spreadsheets
@@ -158,7 +158,7 @@ OpenScienceMOOC/Module-7-Open-Evaluation
 OpenScienceMOOC/Module-8-Public-Engagement-with-Science
 OpenScienceMOOC/Module-9-Open-Educational-Resources
 OpenScienceMOOC/resources
-OpenScienceMOOC/sit
+OpenScienceMOOC/site
 jcolomb/reagentsio_website
 mozilla/voice-web
 quirksahern/DataLiteracyPlayground
@@ -184,7 +184,7 @@ tpportugal/tpp_valhalla
 tpportugal/tpp_valhalla_api_docs
 tpportugal/tpp_website
 tpportugal/webserver
-tpportugal/Nominatim
+tpportugal/tpp_nominatim
 prateekiiest/Code-Sleep-Python
 TitanNanoDE/ApplicationFrame
 amitsin6h/mozcodepaste
