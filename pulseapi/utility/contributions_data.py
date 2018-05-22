@@ -53,9 +53,7 @@ class GithubEvent(object):
 # Get the list of repos we need contribution data from
 def get_repo_list():
     with open(Path(settings.BASE_DIR + '/global_sprint_repo_list.txt')) as f:
-        repo_list = f.read().split('\n')
-
-    return repo_list
+        return [l.rstrip() for l in f]
 
 
 # Check if the data was updated in the last two hours. If not, alert.
