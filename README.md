@@ -677,6 +677,7 @@ After installing a package, pipenv automatically runs a `pipenv lock` that updat
 
 #### Updating dependencies
 
+- `pipenv check` to check security vulnerabilities,
 - `pipenv update --outdated` to list dependencies that need to be updated,
 - `pipenv update` to update dependencies
 
