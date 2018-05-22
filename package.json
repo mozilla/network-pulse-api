@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "Network Pulse API",
   "scripts": {
-    "install": "source venv/bin/activate && pip install -r requirements.txt",
-    "start": "source venv/bin/activate && python manage.py runserver",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "install": "pipenv install --dev",
+    "start": "pipenv run python manage.py runserver",
+    "test": "pipenv run python manage.py test",
+    "flake8": "pipenv run flake8 pulseapi"
   },
   "repository": {
     "type": "git",
