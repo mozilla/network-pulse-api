@@ -53,20 +53,22 @@ def test(ctx):
 def setup(ctx):
     """Prepare your dev environment after a fresh git clone"""
     with ctx.cd(ROOT):
-        print("Copying default environment variables.")
+        print("Copying default environment variables")
         copy("sample.env", ".env")
-        print("Installing Python dependencies.")
+        print("Installing Python dependencies")
         ctx.run("pipenv install --dev", pty=True)
-        print("Applying database migrations.")
+        print("Applying database migrations")
         ctx.run("inv migrate")
         print("Creating fake data")
         ctx.run("inv manage load_fake_data")
         print("Creating superuser")
-        # Windows doesn't support pty, skipping this step
-        if platform == 'win32':
-            print("All done!\n"
-                  "To create an admin user: pipenv run python manage.py createsuperuser\n"
-                  "To start your dev server: inv runserver")
-        else:
-            ctx.run("pipenv run python manage.py createsuperuser", pty=True)
-            print("All done! To start your dev server, run the following:\n inv runserver")
+        ctx.run("pipenv run python manage.py createsuperuser", pty=True)
+        print("Creating 'client_secrets.json' file")
+        ctx.run("pipenv run python generate_client_secrets.py", pty=True)
+        print("Done!\n"
+              "To finish your setup, set up a Google client here: "
+              "https://console.developers.google.com/apis/credentials.\n"
+              "Then, open 'client_secrets.json' and edit 'client_id' and 'client_secret' with your Google client's "
+              "values.\n"
+              "When it's done, start your dev server by running 'inv runserver'. You can get a full list of inv "
+              "commands with 'inv -l'")
