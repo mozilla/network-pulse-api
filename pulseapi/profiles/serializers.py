@@ -100,6 +100,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
     program_type = serializers.StringRelatedField()
     program_year = serializers.StringRelatedField()
 
+    entry_count = serializers.SerializerMethodField()
+
+    def get_entry_count(self, obj):
+        return {
+            'created': obj.related_entry_creators.count(),
+            'published': obj.related_user.entries.count() if getattr(obj, 'related_user', None) else 0,
+            'favorited': obj.bookmarks_from.count(),
+        }
+
     @staticmethod
     def trim_extended_information_from_dict(profile, profile_dict):
         if profile and profile.enable_extended_information is False:

@@ -65,7 +65,16 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
 
     def get_object(self):
         user = self.request.user
-        return get_object_or_404(UserProfile, related_user=user)
+        return get_object_or_404(
+            UserProfile.objects.prefetch_related(
+                'issues',
+                'related_user',
+                'bookmarks_from',
+                'related_entry_creators',
+                'related_user__entries',
+            ),
+            related_user=user
+        )
 
     def get_serializer_context(self):
         return {
