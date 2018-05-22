@@ -52,7 +52,6 @@ publiccodenet/http
 publiccodenet/projects
 publiccodenet/jekyll-theme
 publiccodenet/smart-cities-public-code
-FahimaZulfath/Spread-Open-Healthy-Web
 SOHW/Blogs
 SOHW/sohw.github.io
 ricklupton/floweaver
