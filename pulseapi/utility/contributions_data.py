@@ -119,8 +119,11 @@ def create_events_csv(repos):
             for page in range(1, 11):
                 try:
                     r = session.get(f'https://api.github.com/repos/{repo}/events?page={page}&access_token={token}')
-                    if int(r.headers['X-RateLimit-Remaining']) == 0:
-                        raise RateLimitExceptionError
+                    try:
+                        if int(r.headers['X-RateLimit-Remaining']) == 0:
+                            raise RateLimitExceptionError
+                    except KeyError as e:
+                        print(f"Response from Github API for {repo} did not contain the X-RateLimit-Remaining header. Continuing execution as if it were present...")
                 except MaxRetryError as err:
                     print(f"Request made to Github API for {repo} failed. Error message: {err}")
                     repo_error.append(repo)
