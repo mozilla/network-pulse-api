@@ -70,8 +70,6 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
                 'issues',
                 'related_user',
                 'bookmarks_from',
-                'related_entry_creators',
-                'related_user__entries',
             ),
             related_user=user
         )

@@ -103,9 +103,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
     entry_count = serializers.SerializerMethodField()
 
     def get_entry_count(self, obj):
+        entry_queryset = Entry.objects.public()
+
         return {
-            'created': obj.related_entry_creators.count(),
-            'published': obj.related_user.entries.count() if getattr(obj, 'related_user', None) else 0,
+            'created': obj.related_entry_creators.filter(entry__in=entry_queryset).count(),
+            'published': entry_queryset.filter(
+                published_by=obj.related_user
+            ).count() if getattr(obj, 'related_user', None) else 0,
             'favorited': obj.bookmarks_from.count(),
         }
 
@@ -140,7 +144,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         Meta class. Because
         """
         model = UserProfile
-        read_only_fields = ('profile_type',)
+        read_only_fields = ('profile_type', 'entry_count',)
         exclude = [
             'is_active',
             'bookmarks',
