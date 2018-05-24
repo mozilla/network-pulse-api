@@ -26,7 +26,7 @@ All API routes are prefixed with `/api/pulse/`. The "pulse" might seem redundant
 # Developer information
 
 - [Getting up and running for local development](#getting-up-and-running-for-local-development)
-- [Running the server](#running-the-server)
+- [Pipenv and Invoke](#pipenv-and-invoke)
 - [Environment variables](#environment-variables)
 - [Deploying to Heroku](#deploying-to-heroku)
 - [Debugging](#debugging-all-the-things)
@@ -628,26 +628,16 @@ Replies with an Atom feed consisting of (a subset of) only those entries that ar
 
 **Requirements**: [python3.6 or later](https://www.python.org/), [pip](https://pypi.python.org/pypi), [pipenv](https://docs.pipenv.org/), [invoke](http://www.pyinvoke.org/installing.html).
 
-### Linux and MacOS
 1. Clone this repo: `git clone https://github.com/mozilla/network-pulse-api.git`,
 2. Set up a Google client (https://console.developers.google.com/apis/credentials),
 3. Run `inv setup`,
-4. Open 'client_secrets.json' and edit 'client_id' and 'client_secret' with your Google client's values.
+4. Open `client_secrets.json` and edit `client_id` and `client_secret` with your Google client's values.
 
-`inv setup` takes care of installing project's dependencies, copying environment variables, creating a superuser and
- generating fake data. When it's done, do `inv runserver` to start your local server.
- 
- You can get a full list of inv commands by running `inv -l`
+**If you're on Windows:** you will need to Create a super user by running `pipenv run python manage.py createsuperuser`
 
-### Windows
-1. Clone this repo: `git clone https://github.com/mozilla/network-pulse-api.git`,
-2. run `copy sample.env .env`,
-3. run `pipenv install --dev`,
-4. Set up a Google client (https://console.developers.google.com/apis/credentials)
-5. Generate a `client_secrets.json` by running `> pipenv run python generate_client_secrets.py`, then edit this file so that it has your client's `client_id` and `client_secret`, with `http://test.example.com:8000/api/pulse/oauth2callback` as your callback URI (double check that's what it's set to. It should be, but it's super important you check this).
-7. Apply database migrations `pipenv run python manage.py migrate`,
-8. Generate fake data `pipenv run python manage.py load_fake_data`,
-9. Create a superuser `pipenv run python manage.py createsuperuser`.
+`inv setup` takes care of installing the project's dependencies, copying environment variables, creating a superuser when possible and generating fake data. When it's done, do `inv runserver` to start your local server.
+
+You can get a full list of inv commands by running `inv -l`.
 
 ## Generating fake data
 
@@ -661,13 +651,19 @@ Two options are available:
 - `--seed`: A seed value to pass to Faker before generating data.
 - `--fellows-count`: The number of fellows to generate per program type, per year. Defaults to 3
 
-## Using pipenv
+## Pipenv and Invoke
+
+This project doesn't use a `requirements.txt` file, but `Pipfile` and `Pipfile.lock` files, managed by Pipenv. It also uses a set of Invoke tasks to provide shortcuts for commonly used commands.
+
+### Using pipenv
 
 Checking [Pipenv's documentation](https://docs.pipenv.org/) is highly recommended if you're new to it.
 
-#### Virtual environment
+#### Running commands
 
-- `pipenv shell` activates your virtual environment and automatically loads your `.env`. Run `exit` to leave it. You don't need to be in your virtual environment to run python commands: Use `pipenv run python [COMMAND]` instead.
+The general syntax is:
+
+- `pipenv run python [COMMAND]`. For example: `pipenv run python manage.py runserver`
 
 #### Installing dependencies
 
@@ -687,7 +683,11 @@ If a dependency is updated, pipenv automatically runs a `pipenv lock` that updat
 
 - `pipenv graph`
 
-## Using invoke on Linux and MacOs
+#### Virtual environment
+
+- `pipenv shell` activates your virtual environment and automatically loads your `.env`. Run `exit` to leave it. **You don't need to be in your virtual environment to run python commands:** Use `pipenv run python [COMMAND]` instead.
+
+### Using invoke
 
 Invoke is a task execution tool. Instead of running `pipenv run python manage.py runserver`, you can run `inv 
 runserver`.
@@ -704,12 +704,6 @@ For management commands not covered by an invoke tasks, use `inv manage [command
 - `inv manage runserver -o 3000`
 - `inv manage load_fake_data -f seed=VALUE`
 - `inv manage migrate -o news`
-
-## Running the server
-
-As a Django server, this API server is run like any other Django server:
-
-- `pipenv run python manage.py runserver` or `inv runserver` (MacOS and Linux only)
 
 ### Testing the API using the "3rd party library" test file
 
