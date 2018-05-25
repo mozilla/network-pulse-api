@@ -22,11 +22,20 @@ def manage(ctx, command, option=None, flag=None):
     """Shorthand to manage.py. inv manage [COMMAND] [-o OPTION] [-f FLAG]. ex: inv manage runserver -o 3000"""
     with ctx.cd(ROOT):
         if option:
-            ctx.run(f"pipenv run python manage.py {command} {option}", **PLATFORM_ARG)
+            ctx.run(f"pipenv run python manage.py {command} {option}",
+                    env={'PIPENV_DONT_LOAD_ENV': '1'},
+                    **PLATFORM_ARG
+                    )
         elif flag:
-            ctx.run(f"pipenv run python manage.py {command} --{flag}", **PLATFORM_ARG)
+            ctx.run(f"pipenv run python manage.py {command} --{flag}",
+                    env={'PIPENV_DONT_LOAD_ENV': '1'},
+                    **PLATFORM_ARG
+                    )
         else:
-            ctx.run(f"pipenv run python manage.py {command}", **PLATFORM_ARG)
+            ctx.run(f"pipenv run python manage.py {command}",
+                    env={'PIPENV_DONT_LOAD_ENV': '1'},
+                    **PLATFORM_ARG
+                    )
 
 
 @task
