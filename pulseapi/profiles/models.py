@@ -283,9 +283,9 @@ class UserProfile(models.Model):
 
     def __str__(self):
         if self.user is None:
-            return self.custom_name
+            return f'{self.custom_name} (no user)'
 
-        return 'profile for {}'.format(self.user.email)
+        return f'{self.name} ({self.user.email})'
 
     class Meta:
         verbose_name = "Profile"

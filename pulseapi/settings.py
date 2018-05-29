@@ -89,6 +89,7 @@ SECRET_KEY = env('SECRET_KEY')
 SITE_ID = 1
 
 INSTALLED_APPS = list(filter(None, [
+    'ajax_select',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -206,6 +207,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'staticfiles'),
+]
 
 
 # API Versioning

@@ -180,6 +180,9 @@ class Entry(models.Model):
         """
         verbose_name_plural = "entries"
         ordering = ['-id']
+        permissions = (
+            ('change_creators', 'Can change the creators for entries'),
+        )
 
     def __str__(self):
         return str(self.title)
