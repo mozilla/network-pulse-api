@@ -467,7 +467,13 @@ This represents a full profile object schema. Changes to the schema based on the
     website: <string: url to personal website or empty string if not set>,
     user_bio: <string: biography of this profile>,
     profile_type: <string: type of profile>,
-    my_profile: <boolean: whether this profile belongs to the currently authenticated user or not>
+    my_profile: <boolean: whether this profile belongs to the currently authenticated user or not>,
+    entry_count: <object: specifies the counts of entries related to this profile> -
+                 {
+                    created: <integer: count of entries created by this profile>,
+                    published: <integer: count of entries published by this profile>,
+                    favorited: <integer: count of entries bookmarked by this profile>
+                 }
 }
 ```
 

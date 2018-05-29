@@ -100,6 +100,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
     program_type = serializers.StringRelatedField()
     program_year = serializers.StringRelatedField()
 
+    entry_count = serializers.SerializerMethodField()
+
+    def get_entry_count(self, obj):
+        entry_queryset = Entry.objects.public()
+
+        return {
+            'created': obj.related_entry_creators.filter(entry__in=entry_queryset).count(),
+            'published': entry_queryset.filter(
+                published_by=obj.related_user
+            ).count() if getattr(obj, 'related_user', None) else 0,
+            'favorited': obj.bookmarks_from.count(),
+        }
+
     @staticmethod
     def trim_extended_information_from_dict(profile, profile_dict):
         if profile and profile.enable_extended_information is False:
@@ -131,7 +144,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         Meta class. Because
         """
         model = UserProfile
-        read_only_fields = ('profile_type',)
+        read_only_fields = ('profile_type', 'entry_count',)
         exclude = [
             'is_active',
             'bookmarks',
