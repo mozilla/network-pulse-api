@@ -687,6 +687,12 @@ If a dependency is updated, pipenv automatically runs a `pipenv lock` that updat
 
 - `pipenv shell` activates your virtual environment and automatically loads your `.env`. Run `exit` to leave it. **You don't need to be in your virtual environment to run python commands:** Use `pipenv run python [COMMAND]` instead.
 
+#### Known issues
+
+If you run `pipenv run python manage.py runserver` but get a `Cross-Origin Request Blocked` in the front, deactivate the auto-loading of the `.env`. ex: `PIPENV_DONT_LOAD_ENV=1 pipenv run ./manage.py runserver`
+
+The reason behind this is that our CORS withelist regex is messed up by [a bug in python-dotenv](https://github.com/theskumar/python-dotenv/issues/112).
+
 ### Using invoke
 
 Invoke is a task execution tool. Instead of running `pipenv run python manage.py runserver`, you can run `inv 
