@@ -33,10 +33,10 @@ approved = ModerationState.objects.get(name='Approved')
 class EntryFactory(DjangoModelFactory):
 
     title = LazyAttribute(
-        lambda o: 'title '+' '.join(faker.words(nb=1))
+        lambda o: 'title ' + ' '.join(faker.words(nb=1))
     )
     description = LazyAttribute(
-        lambda o: 'description '+''.join(faker.sentence(nb_words=20))
+        lambda o: 'description ' + ''.join(faker.sentence(nb_words=20))
     )
     content_url = 'http://example.org/image.png'
     featured = False

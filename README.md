@@ -26,8 +26,7 @@ All API routes are prefixed with `/api/pulse/`. The "pulse" might seem redundant
 # Developer information
 
 - [Getting up and running for local development](#getting-up-and-running-for-local-development)
-- [Setting up your superuser](#setting-up-your-superuser)
-- [Running the server](#running-the-server)
+- [Pipenv and Invoke](#pipenv-and-invoke)
 - [Environment variables](#environment-variables)
 - [Deploying to Heroku](#deploying-to-heroku)
 - [Debugging](#debugging-all-the-things)
@@ -67,7 +66,7 @@ This will kick off a Google OAuth2 login process. This process is entirely based
 
 ### `GET /logout`
 
-This will log out a user if they have an authenticated session going. Note that this route does not have a redirect path associated with it: simply calling `/logout` with an XHR or Fetch operation is enough to immediately log the user out and invalidate their session at the API server. The only acknowledgement that callers will receive around this operation succeeding is that if an HTTP 200 status code is received, logout succeeded.
+This will log out a user if they have an authenticated session going. Note that this route does not have a redirect path associated with it: calling `/logout` with an XHR or Fetch operation is enough to immediately log the user out and invalidate their session at the API server. The only acknowledgement that callers will receive around this operation succeeding is that if an HTTP 200 status code is received, logout succeeded.
 
 ### `GET /oauth2callback`
 
@@ -625,40 +624,26 @@ Replies with an Atom feed consisting of (a subset of) only those entries that ar
 
 # Getting up and running for local development
 
-You'll need `python` (v3) with `pip` (latest) and optionally `virtualenv` (python3 comes with a way to build virtual environments, but you can also install `virtualenv` as a dedicated library if you prefer)
+## Setup
 
-1. clone this repo
-2. `cp sample.env .env` to turn on debug mode via environment variables.
-3. set up a virtual environment in the `network-pulse-api` directory
-4. run `pip install -r requirements.txt`
-5. set up a Google client (https://console.developers.google.com/apis/credentials)
-6. generate a `client_secrets.json` by running `> python generate_client_secrets.py`, then edit this file so that it has your client's `client_id` and `client_secret`, with `http://test.example.com:8000/api/pulse/oauth2callback` as your callback URI (double check that's what it's set to. It should be, but it's super important you check this).
-7. bootstrap the Django setup:
+**Requirements**: [python3.6 or later](https://www.python.org/), [pip](https://pypi.python.org/pypi), [pipenv](https://docs.pipenv.org/), [invoke](http://www.pyinvoke.org/installing.html).
 
-- `python manage.py migrate` (or `python manage.py migrate --run-syncdb` on subsequent rebootstrap attempts, if things in the DB are broken)
-- `python manage.py makemigrations` (creates files that instruct django how to uplift the database to match your current models)
-- `python manage.py migrate` (performs the database migrations to your latest model specifications, based on the previous command's migration files)
+1. Clone this repo: `git clone https://github.com/mozilla/network-pulse-api.git`,
+2. Set up a Google client (https://console.developers.google.com/apis/credentials),
+3. Run `inv setup`,
+4. Open `client_secrets.json` and edit `client_id` and `client_secret` with your Google client's values.
 
-## Setting up your superuser
+**If you're on Windows:** you will need to Create a super user by running `pipenv run python manage.py createsuperuser`
 
-Run `> python manage.py createsuperuser` to create a super user for accessing the Django `/admin` route. This setup uses a custom User model that uses an email address as primary identifier, so you will be prompted for an email, a name, and a password (twice).
+`inv setup` takes care of installing the project's dependencies, copying environment variables, creating a superuser when possible and generating fake data. When it's done, do `inv runserver` to start your local server.
 
-I like using:
+You can get a full list of inv commands by running `inv -l`.
 
-```
-email: admin@example.com
-name: admin
-password: admin
-password (again): admin
-```
-
-because it's easy to remember and doesn't require any kind of password management beyond "the browser itself".
-
-## Loading fake data
+## Generating fake data
 
 Fake model data can be loaded into your dev site with the following command:
 
-- `python manage.py load_fake_data`
+- `pipenv run python manage.py load_fake_data`
 
 Two options are available:
 
@@ -666,11 +651,65 @@ Two options are available:
 - `--seed`: A seed value to pass to Faker before generating data.
 - `--fellows-count`: The number of fellows to generate per program type, per year. Defaults to 3
 
-## Running the server
+## Pipenv and Invoke
 
-As a Django server, this API server is run like any other Django server:
+This project doesn't use a `requirements.txt` file, but `Pipfile` and `Pipfile.lock` files, managed by Pipenv. It also uses a set of Invoke tasks to provide shortcuts for commonly used commands.
 
-- `python manage.py runserver`
+### Using pipenv
+
+Checking [Pipenv's documentation](https://docs.pipenv.org/) is highly recommended if you're new to it.
+
+#### Running commands
+
+The general syntax is:
+
+- `pipenv run python [COMMAND]`. For example: `pipenv run python manage.py runserver`
+
+#### Installing dependencies
+
+- `pipenv install [package name]`
+
+After installing a package, pipenv automatically runs a `pipenv lock` that updates the `pipfile.lock`. You need to add both `pipfile` and `pipfile.lock` to your commit.
+
+#### Updating dependencies
+
+- `pipenv check` to check security vulnerabilities,
+- `pipenv update --outdated` to list dependencies that need to be updated,
+- `pipenv update` to update dependencies
+
+If a dependency is updated, pipenv automatically runs a `pipenv lock` that updates the `pipfile.lock`. You need to add both `pipfile` and `pipfile.lock` to your commit.
+
+#### Listing installed dependencies
+
+- `pipenv graph`
+
+#### Virtual environment
+
+- `pipenv shell` activates your virtual environment and automatically loads your `.env`. Run `exit` to leave it. **You don't need to be in your virtual environment to run python commands:** Use `pipenv run python [COMMAND]` instead.
+
+#### Known issues
+
+If you run `pipenv run python manage.py runserver` but get a `Cross-Origin Request Blocked` in the front, deactivate the auto-loading of the `.env`. ex: `PIPENV_DONT_LOAD_ENV=1 pipenv run ./manage.py runserver`
+
+The reason behind this is that our CORS withelist regex is messed up by [a bug in python-dotenv](https://github.com/theskumar/python-dotenv/issues/112).
+
+### Using invoke
+
+Invoke is a task execution tool. Instead of running `pipenv run python manage.py runserver`, you can run `inv 
+runserver`.
+
+Available tasks:
+- `inv -l`: list available invoke tasks
+- `inv makemigrations`: Creates new migration(s) for apps
+- `inv migrate`: Updates database schema
+- `inv runserver`: Start a web server
+- `inv setup`: Prepare your dev environment after a fresh git clone.
+- `inv test`: Run tests and linter
+
+For management commands not covered by an invoke tasks, use `inv manage [command]` (example: `inv manage load_fake_data`). You can pass flag and options to management commands using `inv manage [command] -o [positional argument] -f [optional argument]`. For example:
+- `inv manage runserver -o 3000`
+- `inv manage load_fake_data -f seed=VALUE`
+- `inv manage migrate -o news`
 
 ### Testing the API using the "3rd party library" test file
 
@@ -719,15 +758,15 @@ You may have noticed that when running with `DEBUG=TRUE`, there is a debugger to
 
 ## Resetting your database because of incompatible model changes
 
-When working across multiple branches with multiple model changes, it sometimes becomes necessary to reset migrations and build a new database from scratch. You can either do this manually by deleting your `db.sqlite3` as well as all model migration files that start with a number (**except** for the 0001 migration for `issues`, which instantiates various records in addition to simply boostrapping the issues table, and should never be deleted), but because this is inconvenient, there is a helper script to do this for you.
+When working across multiple branches with multiple model changes, it sometimes becomes necessary to reset migrations and build a new database from scratch. You can either do this manually by deleting your `db.sqlite3` as well as all model migration files that start with a number (**except** for the 0001 migration for `issues`, which instantiates various records in addition to boostrapping the issues table, and should never be deleted), but because this is inconvenient, there is a helper script to do this for you.
 
-Simply run `python reset_database.py` and the steps mentioned above will be run automatically.
+run `pipenv run python reset_database.py` and the steps mentioned above will be run automatically.
 
-**Note:** This does wipe *everything* so you will still need to call `python manage.py createsuperuser` afterwards to make sure you have a super user set up again.
+**Note:** This does wipe *everything* so you will still need to call `pipenv run python manage.py createsuperuser` afterwards to make sure you have a super user set up again.
 
 ## Migrating data from Google sheets
 
-To migrate data, export JSON from the Google Sheets db, and save it in the root directory as `migrationData.json`. Then run `python migrate.py`. This generates `massagedData.json`.
+To migrate data, export JSON from the Google Sheets db, and save it in the root directory as `migrationData.json`. Then run `pipenv run python migrate.py`. This generates `massagedData.json`.
 In `public/migrate.html`, update the endpoint to be the address of the one you're trying to migrate data into. If it's a local db, leave as is.
 Spin up a server from the `public` folder on port 8080. Log in to your API using Oauth (either the hosted site or `test.example.com:8000` if doing this locally)
 Visit `http://test.example.com:8080/migrate.html`, paste the contents of `massagedData.json`, and submit. It will process the entire array of entries one at a time, POSTing them to the server. Check your developer console and network requests if it doesn't complete after a minute or two.

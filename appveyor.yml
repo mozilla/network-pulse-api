@@ -19,32 +19,31 @@ environment:
 
     matrix:
       - PYTHON: "C:\\Python36"
-        PYTHON_VERSION: "3.6.1"
+        PYTHON_VERSION: "3.6.4"
         PYTHON_ARCH: "32"
 
 init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
 
 install:
-  - "virtualenv pulseapi -p %PYTHON%/python.exe"
-  - "./pulseapi/Scripts/activate"
+  - "SET PYTHONPATH=%APPVEYOR_BUILD_FOLDER%"
   - "python -m pip install --upgrade pip"
-  - "pip install -r requirements.txt"
+  - "python -m pip install pipenv"
+  - "python -m pipenv install --dev"
 
 services:
   - postgresql
 
 before_test:
-  - "./pulseapi/Scripts/activate"
   - SET PGUSER=postgres
   - SET PGPASSWORD=Password12!
   - PATH=C:\Program Files\PostgreSQL\9.6\bin\;%PATH%
   - createdb pulseapi
-  - python manage.py migrate
+  - "python -m pipenv run manage.py migrate"
 
 test_script:
-  - "./pulseapi/Scripts/activate"
-  - "python manage.py test"
+  - "python -m pipenv run flake8 pulseapi --config=./pulseapi/tox.ini --ignore=E722"
+  - "python -m pipenv run python manage.py test"
 
 cache:
   - "%LOCALAPPDATA%\\pip\\Cache"
