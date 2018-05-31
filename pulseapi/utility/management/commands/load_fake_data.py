@@ -16,8 +16,16 @@ from pulseapi.profiles.factory import UserBookmarksFactory
 from pulseapi.tags.factory import TagFactory
 from pulseapi.users.factory import BasicEmailUserFactory, MozillaEmailUserFactory
 
-# Number of fake objects created by default
-fake_objects = {'tag': 5, 'user': 2}
+# TODO ADD EVERYTHING MISSING!!
+# Number of fake objects created by default: first value is the number of object, second is the number of variations
+#  possible
+fake_objects = {'tag': [5, 0],
+                'simple user': [1, 6],
+                'Mozilla user': [1, 7],
+                'non-featured entries': [20, 4],
+                'featured entries': [20, 3],
+                'get involved entries': [20, 3],
+                }
 
 
 class Command(BaseCommand):
@@ -63,16 +71,25 @@ class Command(BaseCommand):
         else:
             seed = randint(0, 5000000)
 
-        # Ask user for how much entries, tags, etc, they want or use default values
+        # Ask user for how many entries, tags, etc, they want or use default values
         if options['interactive']:
             print("Welcome to the interactive mode. For each factories, I will ask you how many elements you want."
                   "If you don't provide any value, I will use the default one.")
-            for o in fake_objects:
+            for fake_object in fake_objects:
                 while True:
                     try:
-                        fake_objects[o] = int(
-                            input(f'How many {o} do you want? [default is {fake_objects[o]}]: ') or fake_objects[o]
-                        )
+                        # Check if this object have variations or not (ex: a BasicEmailUser can be a person or a group)
+                        if fake_objects[fake_object][1] > 0:
+                            fake_objects[fake_object] = int(
+                                input(f'How many {fake_object} per variations do you want? This object has '
+                                      f'{fake_objects[fake_object][1]} variations. '
+                                      f'[default is {fake_objects[fake_object][0]}]: ') or fake_objects[fake_object][0]
+                            )
+                        else:
+                            fake_objects[fake_object] = int(
+                                input(f'How many {fake_object} do you want? '
+                                      f'[default is {fake_objects[fake_object][0]}]: ') or fake_objects[fake_object][0]
+                            )
                         break
                     except ValueError:
                         print("Value error: I'm excepting an integer!")
@@ -130,7 +147,8 @@ class Command(BaseCommand):
 
         # Select random entries and link them to 1 to 5 creators
         self.stdout.write('Linking random profiles as creators with random entries')
-        for e in sample(list(Entry.objects.all()), k=100):
+        all_entries = Entry.objects.all()
+        for e in sample(list(all_entries), k=len(all_entries) // 2):
             [EntryCreatorFactory.create(entry=e) for i in range(randint(1, 5))]
 
         self.stdout.write(self.style.SUCCESS('Done!'))
