@@ -16,6 +16,9 @@ from pulseapi.profiles.factory import UserBookmarksFactory
 from pulseapi.tags.factory import TagFactory
 from pulseapi.users.factory import BasicEmailUserFactory, MozillaEmailUserFactory
 
+# Number of fake objects created by default
+fake_objects = {'tag': 5, 'user': 2}
+
 
 class Command(BaseCommand):
     help = 'Generate and load fake data for testing purposes'
@@ -44,6 +47,13 @@ class Command(BaseCommand):
             help='The number of fellows to generate per program type, per year'
         )
 
+        parser.add_argument(
+            '--interactive',
+            action='store_true',
+            dest='interactive',
+            help='Generate a custom number of entries, tags, fellows, etc'
+        )
+
     def handle(self, *args, **options):
         if options['delete']:
             call_command('flush_data')
@@ -52,6 +62,20 @@ class Command(BaseCommand):
             seed = options['seed']
         else:
             seed = randint(0, 5000000)
+
+        # Ask user for how much entries, tags, etc, they want or use default values
+        if options['interactive']:
+            print("Welcome to the interactive mode. For each factories, I will ask you how many elements you want."
+                  "If you don't provide any value, I will use the default one.")
+            for o in fake_objects:
+                while True:
+                    try:
+                        fake_objects[o] = int(
+                            input(f'How many {o} do you want? [default is {fake_objects[o]}]: ') or fake_objects[o]
+                        )
+                        break
+                    except ValueError:
+                        print("Value error: I'm excepting an integer!")
 
         self.stdout.write('Seeding Faker with {}'. format(seed))
 
