@@ -77,39 +77,43 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            '-f',
             '--fellows-count',
             action='store',
             type=int,
             default=3,
             dest='fellows_count',
-            help='The number of fellows to generate per program type, per year'
+            help='The number of fellows to generate. Default: 3 per program type, per year'
         )
 
         parser.add_argument(
+            '-u',
             '--users-count',
             action='store',
             type=int,
             default=1,
             dest='users_count',
-            help='The number of users to generate per possible variations.'
+            help='The number of users to generate per possible variations. Default: 1, variations: 80'
         )
 
         parser.add_argument(
+            '-e',
             '--entries-count',
             action='store',
             type=int,
             default=20,
             dest='entries_count',
-            help='The number of entries to generate per possible variations.'
+            help='The number of entries to generate per possible variations. Default: 20, variations: 16'
         )
 
         parser.add_argument(
+            '-t',
             '--tags-count',
             action='store',
             type=int,
             default=6,
             dest='tags_count',
-            help='The number of tags to generate per possible variations.'
+            help='The number of tags to generate. Default: 6'
         )
 
     def handle(self, *args, **options):
