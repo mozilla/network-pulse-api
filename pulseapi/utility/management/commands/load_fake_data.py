@@ -8,6 +8,7 @@ from random import randint, sample
 
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
+from django.db import IntegrityError
 
 from pulseapi.entries.models import Entry
 
@@ -135,7 +136,15 @@ class Command(BaseCommand):
 
         print('Creating users')
         generate_fake_data(BasicEmailUserFactory, options['users_count'])
-        generate_fake_data(MozillaEmailUserFactory, options['users_count'])
+
+        # Since every Mozilla users' emails must be @mozillafoundation.org, we run into "UNIQUE constraint failed"
+        # error from time to time
+        try:
+            generate_fake_data(MozillaEmailUserFactory, options['users_count'])
+        except IntegrityError:
+            print('Failed to create user: this email address is already in the database. No more users will be '
+                  'created this run.')
+            pass
 
         print('Creating pulse entries')
         generate_fake_data(BasicEntryFactory, options['entries_count'])
@@ -154,6 +163,10 @@ class Command(BaseCommand):
         print('Linking random profiles as creators with random entries')
         all_entries = Entry.objects.all()
         for e in sample(list(all_entries), k=len(all_entries) // 2):
-            [EntryCreatorFactory.create(entry=e) for i in range(randint(1, 5))]
+            try:
+                [EntryCreatorFactory.create(entry=e) for i in range(randint(1, 5))]
+            # That creator and entry might already be linked. If it's the case, skip it and move on:
+            except IntegrityError:
+                continue
 
         print(self.style.SUCCESS('Done!'))
