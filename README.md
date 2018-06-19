@@ -641,7 +641,7 @@ Replies with an Atom feed consisting of (a subset of) only those entries that ar
 
 **If you're on Windows:** you will need to Create a super user by running `pipenv run python manage.py createsuperuser`
 
-`inv setup` takes care of installing the project's dependencies, copying environment variables, creating a superuser when possible and generating fake data. When it's done, do `inv runserver` to start your local server.
+`inv setup` takes care of installing the project's dependencies, copying environment variables, creating a superuser when possible and generating fake data. When it's done, follow the instructions. To start your local server, run `inv runserver`.
 
 You can get a full list of inv commands by running `inv -l`.
 
@@ -709,7 +709,8 @@ Available tasks:
 - `inv makemigrations`: Creates new migration(s) for apps
 - `inv migrate`: Updates database schema
 - `inv runserver`: Start a web server
-- `inv setup`: Prepare your dev environment after a fresh git clone.
+- `inv setup`: Automate project's configuration and dependencies installation
+- `inv catch-up`: Install dependencies and apply migrations
 - `inv test`: Run tests and linter
 
 For management commands not covered by an invoke tasks, use `inv manage [command]` (example: `inv manage load_fake_data`). You can pass flag and options to management commands using `inv manage [command] -o [positional argument] -f [optional argument]`. For example:
