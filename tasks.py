@@ -67,35 +67,51 @@ def test(ctx):
 
 @task
 def setup(ctx):
-    """Prepare your dev environment after a fresh git clone"""
+    """Automate project's configuration and dependencies installation"""
     with ctx.cd(ROOT):
-        print("Copying default environment variables")
-        copy("sample.env", ".env")
-        print("Installing Python dependencies")
-        ctx.run("pipenv install --dev")
-        print("Applying database migrations")
-        ctx.run("inv migrate")
-        print("Creating fake data")
-        ctx.run("inv manage load_fake_data")
-        print("Creating 'client_secrets.json' file")
-        ctx.run("pipenv run python generate_client_secrets.py", **PLATFORM_ARG)
-        # Windows doesn't support pty, skipping createsuperuser step
-        if platform == 'win32':
-            print("Done!\n"
-                  "To finish your setup:\n"
-                  "1. Set up a Google client here: https://console.developers.google.com/apis/credentials.\n"
-                  "Then, open 'client_secrets.json' and edit 'client_id' and 'client_secret' with your Google "
-                  "client's values.\n"
-                  "2. Create a superuser by running 'pipenv run python manage.py createsuperuser'\n"
-                  "When it's done, start your dev server by running 'inv runserver'. You can get a full list of inv "
-                  "commands with 'inv -l'")
+        if os.path.isfile(".env"):
+            print("'.env' file found:\n"
+                  "- If you want to completely redo your dev setup, delete your '.env' file and your database. Then "
+                  "run 'inv setup' again.\n"
+                  "- If you want to catch up with the latest changes, like after a 'git pull', run 'inv catch-up' "
+                  "instead.")
         else:
-            print("Creating superuser")
-            ctx.run("pipenv run python manage.py createsuperuser", pty=True)
-            print("Done!\n"
-                  "To finish your setup, set up a Google client here: "
-                  "https://console.developers.google.com/apis/credentials.\n"
-                  "Then, open 'client_secrets.json' and edit 'client_id' and 'client_secret' with your Google "
-                  "client's values.\n"
-                  "When it's done, start your dev server by running 'inv runserver'. You can get a full list of inv "
-                  "commands with 'inv -l'")
+            print("Copying default environment variables")
+            copy("sample.env", ".env")
+            print("Installing Python dependencies")
+            ctx.run("pipenv install --dev --three")
+            print("Applying database migrations")
+            ctx.run("inv migrate")
+            print("Creating fake data")
+            ctx.run("inv manage load_fake_data")
+            print("Creating 'client_secrets.json' file")
+            ctx.run("pipenv run python generate_client_secrets.py", **PLATFORM_ARG)
+            # Windows doesn't support pty, skipping createsuperuser step
+            if platform == 'win32':
+                print("Done!\n"
+                      "To finish your setup:\n"
+                      "1. Set up a Google client here: https://console.developers.google.com/apis/credentials.\n"
+                      "Then, open 'client_secrets.json' and edit 'client_id' and 'client_secret' with your Google "
+                      "client's values.\n"
+                      "2. Create a superuser by running 'pipenv run python manage.py createsuperuser'\n"
+                      "When it's done, start your dev server by running 'inv runserver'. You can get a full list of "
+                      "inv commands with 'inv -l'")
+            else:
+                print("Creating superuser")
+                ctx.run("pipenv run python manage.py createsuperuser", pty=True)
+                print("Done!\n"
+                      "To finish your setup, set up a Google client here: "
+                      "https://console.developers.google.com/apis/credentials.\n"
+                      "Then, open 'client_secrets.json' and edit 'client_id' and 'client_secret' with your Google "
+                      "client's values.\n"
+                      "When it's done, start your dev server by running 'inv runserver'. You can get a full list of "
+                      "inv commands with 'inv -l'")
+
+
+@task()
+def catch_up(ctx):
+    """Install dependencies and apply migrations"""
+    print("Installing Python dependencies")
+    ctx.run("pipenv install --dev")
+    print("Applying database migrations")
+    ctx.run("inv migrate")
