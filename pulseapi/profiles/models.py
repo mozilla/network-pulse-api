@@ -269,7 +269,7 @@ class UserProfile(models.Model):
     )
 
     # A long-form user bio
-    user_bio_long = models.CharField(
+    user_bio_long = models.TextField(
         max_length=4096,
         blank=True
     )
