@@ -238,7 +238,8 @@ class UserProfileEntriesSerializer(serializers.Serializer):
             }
 
         entry_queryset = Entry.objects.prefetch_related(
-            'related_entry_creators__profile__related_user'
+            'related_entry_creators__profile__related_user',
+            'bookmarked_by__profile__related_user',
         )
 
         if include_created:
