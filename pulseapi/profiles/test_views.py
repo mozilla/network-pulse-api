@@ -74,7 +74,10 @@ class TestProfileView(PulseMemberTestCase):
         self.assertEqual(profile_json['profile_id'], profile.id)
         self.assertNotIn('created_entries', profile_json)
 
-    def run_test_profile_entries(self, version, entry_type):
+    def run_test_profile_entries(self, version, entry_type, order_by=None):
+        get_created_entries = entry_type is 'created'
+        get_published_entries = entry_type is 'published'
+        get_favorited_entries = entry_type is 'favorited'
         entry_serializer_class = EntryWithCreatorsBaseSerializer
         if version == settings.API_VERSIONS['version_1']:
             entry_serializer_class = EntryWithV1CreatorsBaseSerializer
@@ -83,12 +86,12 @@ class TestProfileView(PulseMemberTestCase):
         # "Created" entry_type profile used as default
         profile = EntryCreator.objects.first().profile
 
-        if entry_type is 'published':
+        if get_published_entries:
             profile = user.profile
             approved = ModerationState.objects.get(name='Approved')
             for _ in range(0, 3):
                 BasicEntryFactory.create(published_by=user, moderation_state=approved)
-        elif entry_type is 'favorited':
+        elif get_favorited_entries:
             profile = user.profile
             for entry in Entry.objects.all()[:4]:
                 self.client.put(reverse('bookmark', kwargs={'entryid': entry.id}))
@@ -97,22 +100,29 @@ class TestProfileView(PulseMemberTestCase):
             instance=profile,
             context={
                 'user': self.user,
-                'created': entry_type is 'created',
-                'published': entry_type is 'published',
-                'favorited': entry_type is 'favorited',
+                'created': get_created_entries,
+                'published': get_published_entries,
+                'favorited': get_favorited_entries,
+                'created_ordering': order_by if get_created_entries else None,
+                'published_ordering': order_by if get_published_entries else None,
+                'favorited_ordering': order_by if get_favorited_entries else None,
                 'EntrySerializerClass': entry_serializer_class
             },
         ).data[entry_type]
 
-        response = self.client.get(
-            '{url}?{entry_type}'.format(
-                url=reverse(
-                    'profile-entries',
-                    args=[version + '/', profile.id]
-                ),
-                entry_type=entry_type
-            )
+        profile_entries_url = '{url}?{entry_type}'.format(
+            url=reverse(
+                'profile-entries',
+                args=[version + '/', profile.id]
+            ),
+            entry_type=entry_type
         )
+        if order_by:
+            profile_entries_url += '&{entry_type}_ordering={ordering_field}'.format(
+                entry_type=entry_type,
+                ordering_field=order_by
+            )
+        response = self.client.get(profile_entries_url)
         profile_json = json.loads(str(response.content, 'utf-8'))
         self.assertListEqual(profile_json[entry_type], expected_entries)
 
@@ -134,6 +144,16 @@ class TestProfileView(PulseMemberTestCase):
             entry_type='created',
         )
 
+    def test_profile_v2_entries_created_ordering(self):
+        """
+        Get the created entries for a profile (v2) with an order specified
+        """
+        self.run_test_profile_entries(
+            version=settings.API_VERSIONS['version_2'],
+            entry_type='created',
+            order_by='-created'
+        )
+
     def test_profile_v1_entries_published(self):
         """
         Get the published entries for a profile (v1)
@@ -152,6 +172,16 @@ class TestProfileView(PulseMemberTestCase):
             entry_type='published',
         )
 
+    def test_profile_v2_entries_published_ordering(self):
+        """
+        Get the published entries for a profile (v2) with an order specified
+        """
+        self.run_test_profile_entries(
+            version=settings.API_VERSIONS['version_2'],
+            entry_type='published',
+            order_by='-created'
+        )
+
     def test_profile_v1_entries_favorited(self):
         """
         Get the favorited entries for a profile (v1)
@@ -168,6 +198,16 @@ class TestProfileView(PulseMemberTestCase):
         self.run_test_profile_entries(
             version=settings.API_VERSIONS['version_2'],
             entry_type='favorited',
+        )
+
+    def test_profile_v2_entries_favorited_ordering(self):
+        """
+        Get the favorited entries for a profile (v2) with an order specified
+        """
+        self.run_test_profile_entries(
+            version=settings.API_VERSIONS['version_2'],
+            entry_type='favorited',
+            order_by='-created'
         )
 
     def test_profile_entries_count(self):

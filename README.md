@@ -504,6 +504,13 @@ __NOTE__: If none of the filters are specified, only the number of entries direc
 
 Based on the filter specified, the response payload will accordingly contain a `created`, `published`, and/or `favorited` property, each of whose value is a list of their corresponding entry objects.
 
+The order of the entries returned for each filter can be specified using the corresponding ordering query argument. The value of the query argument should be the entry field (prefixed with `-` for descending order) to use for ordering. The supported ordering arguments are:
+- `?created_ordering`: Specify the order of entries created by this profile.
+- `?published_ordering`: Specify the order of entries published by this profile.
+- `?favorited_ordering`: Specify the order of entries bookmarked/favorited by this profile.
+
+For example, `?created&created_ordering=-id` will return the entries created by the profile reverse ordered by the entry `id`.
+
 The schema of the entry objects is specified below:
 
 ```
@@ -706,7 +713,7 @@ The reason behind this is that our CORS withelist regex is messed up by [a bug i
 
 ### Using invoke
 
-Invoke is a task execution tool. Instead of running `pipenv run python manage.py runserver`, you can run `inv 
+Invoke is a task execution tool. Instead of running `pipenv run python manage.py runserver`, you can run `inv
 runserver`.
 
 Available tasks:

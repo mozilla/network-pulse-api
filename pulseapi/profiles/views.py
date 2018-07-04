@@ -131,6 +131,9 @@ class UserProfileEntriesAPIView(APIView):
                 'created': 'created' in query,
                 'published': 'published' in query,
                 'favorited': 'favorited' in query,
+                'created_ordering': query.get('created_ordering'),
+                'published_ordering': query.get('published_ordering'),
+                'favorited_ordering': query.get('favorited_ordering'),
                 'EntrySerializerClass': EntrySerializerClass,
             }).data
         )
