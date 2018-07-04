@@ -651,11 +651,16 @@ Fake model data can be loaded into your dev site with the following command:
 
 - `pipenv run python manage.py load_fake_data`
 
-Two options are available:
+`pipenv run python manage.py load_fake_data -e 30` will run the full `load_fake_data` script, but changes the number of entries per variations to 30 instead of 20.
+
+Options available:
 
 - `--delete`: Delete bookmarks, creators, entries, profiles, tags and users from the database,
 - `--seed`: A seed value to pass to Faker before generating data.
-- `--fellows-count`: The number of fellows to generate per program type, per year. Defaults to 3
+- `-f`, `--fellows-count`: The number of fellows to generate per program type, per year. Defaults to 3
+- `-u`, `--users-count`: The number of users to generate per possible variations. Default: 1, variations: 80
+- `-e`, `--entries-count`: The number of entries to generate per possible variations. Default: 20, variations: 16
+- `-t`, `--tags-count`: The number of tags to generate. Default: 6
 
 ## Pipenv and Invoke
 

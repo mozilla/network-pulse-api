@@ -1,6 +1,7 @@
 """
 Create fake users for local development and Heroku's review app.
 """
+from random import randint
 
 from factory import (
     DjangoModelFactory,
@@ -23,7 +24,7 @@ class BasicEmailUserFactory(DjangoModelFactory):
     class Params:
         group = Trait(
             profile=SubFactory(BasicUserProfileFactory, group=True),
-            name=Faker('color_name')
+            name=Faker('company')
         )
         active = Trait(
             profile=SubFactory(BasicUserProfileFactory, is_active=True)
@@ -35,7 +36,7 @@ class BasicEmailUserFactory(DjangoModelFactory):
             profile=SubFactory(BasicUserProfileFactory, use_custom_name=True)
         )
 
-    email = LazyAttribute(lambda o: o.name.replace(' ', '') + '@' + o.email_domain)
+    email = LazyAttribute(lambda o: o.name.replace(' ', '') + str(randint(0, 100)) + '@' + o.email_domain)
     name = Faker('name')
     profile = SubFactory(BasicUserProfileFactory)
 
@@ -59,5 +60,5 @@ class MozillaEmailUserFactory(BasicEmailUserFactory):
             profile=SubFactory(ExtendedUserProfileFactory)
         )
 
-    email = LazyAttribute(lambda o: '%s@mozillafoundation.org' % o.name.replace(' ', ''))
+    email = LazyAttribute(lambda o: o.name.replace(' ', '') + str(randint(0, 100)) + '@mozillafoundation.org')
     profile = SubFactory(BasicUserProfileFactory)
