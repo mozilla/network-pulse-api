@@ -4,8 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-apscheduler = "*"
-attrs = "*"
 boto3 = "*"
 dj-database-url = "*"
 Django = "==1.11.14"
