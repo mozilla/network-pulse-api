@@ -416,7 +416,7 @@ class EntriesListView(ListCreateAPIView):
 
         validation_result = post_validate(request)
 
-        if validation_result is True:
+        if validation_result:
             # invalidate the nonce, so this form cannot be
             # resubmitted with the current id
             request.session['nonce'] = False
@@ -439,7 +439,7 @@ class EntriesListView(ListCreateAPIView):
                     encdata = thumbnail['base64']
                     proxy = ContentFile(base64.b64decode(encdata), name=name)
                     request_data['thumbnail'] = proxy
-            except:
+            except KeyError:
                 pass
 
             # we also want to make sure that tags are properly split
