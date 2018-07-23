@@ -3,6 +3,7 @@ Views to get entries
 """
 import base64
 import django_filters
+from django.core.exceptions import ObjectDoesNotExist
 
 from django.core.files.base import ContentFile
 from django.conf import settings
@@ -244,15 +245,13 @@ class BookmarkedEntries(ListAPIView):
             request.session['nonce'] = False
 
             user = request.user
-            ids = self.request.query_params.get('ids', None)
+            entryids = self.request.query_params.get('ids', None)
 
-            def bookmark_entry(id):
-                entry = None
-
+            def bookmark_entry(entryid):
                 # find the entry for this id
                 try:
-                    entry = Entry.objects.get(id=id)
-                except:
+                    entry = Entry.objects.get(id=entryid)
+                except ObjectDoesNotExist:
                     return
 
                 # find out if there is already a {user,entry,(timestamp)} triple
@@ -263,9 +262,9 @@ class BookmarkedEntries(ListAPIView):
                 if not bookmarks:
                     UserBookmarks.objects.create(entry=entry, profile=profile)
 
-            if ids is not None and user.is_authenticated():
-                for id in ids.split(','):
-                    bookmark_entry(id)
+            if entryids is not None and user.is_authenticated():
+                for entryid in entryids.split(','):
+                    bookmark_entry(entryid)
 
             return Response("Entries bookmarked.", status=status.HTTP_204_NO_CONTENT)
         else:
