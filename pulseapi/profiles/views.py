@@ -80,7 +80,7 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
         }
 
     def put(self, request, *args, **kwargs):
-        '''
+        """
         If there is a thumbnail, and it was sent as part of an
         application/json payload, then we need to unpack a thumbnail
         object payload and convert it to a Python ContentFile payload
@@ -88,7 +88,7 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
         we need to check using "if hasattr(request.data,'thumbnail'):"
         as we as "if request.data['thumbnail']" and these are pretty
         much mutually exclusive patterns. A try/pass make far more sense.
-        '''
+        """
 
         payload = request.data
 
@@ -100,7 +100,7 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
                 encdata = thumbnail['base64']
                 proxy = ContentFile(base64.b64decode(encdata), name=name)
                 payload['thumbnail'] = proxy
-        except:
+        except KeyError:
             pass
 
         return super(UserProfileAPIView, self).put(request, *args, **kwargs)
