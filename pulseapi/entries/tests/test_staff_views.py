@@ -610,7 +610,7 @@ class TestEntryView(PulseStaffTestCase):
         self.assertEqual(postresponse.status_code, 204)
 
         # post with a non-existent id
-        invalidId = 'abc'
+        invalidId = '123'
 
         url = '/api/pulse/entries/bookmarks/?ids=' + invalidId
         payload = self.generatePostPayload()

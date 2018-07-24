@@ -364,8 +364,11 @@ class EntriesListView(ListCreateAPIView):
         ids = query_params.get('ids', None)
 
         if ids is not None:
-            ids = [int(x) for x in ids.split(',')]
-            queryset = queryset.filter(pk__in=ids)
+            try:
+                ids = [int(x) for x in ids.split(',')]
+                queryset = queryset.filter(pk__in=ids)
+            except ValueError:
+                pass
 
         creators = query_params.get('creators', None)
 
