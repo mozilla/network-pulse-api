@@ -467,7 +467,7 @@ class EntriesListView(ListCreateAPIView):
                     name='Pending'
                 )
 
-                if (is_staff_address(user.email)):
+                if is_staff_address(user.email):
                     moderation_state = ModerationState.objects.get(
                         name='Approved'
                     )
