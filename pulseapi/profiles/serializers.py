@@ -19,7 +19,7 @@ from pulseapi.entries.serializers import (
 def remove_key(data, key):
     try:
         del data[key]
-    except:
+    except KeyError:
         pass
 
 

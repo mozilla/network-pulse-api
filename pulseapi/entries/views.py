@@ -3,6 +3,7 @@ Views to get entries
 """
 import base64
 import django_filters
+from django.core.exceptions import ObjectDoesNotExist
 
 from django.core.files.base import ContentFile
 from django.conf import settings
@@ -10,7 +11,7 @@ from django.db.models import Q
 
 from rest_framework import filters, status
 from rest_framework.decorators import detail_route, api_view
-from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, ListAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, ListAPIView, get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
@@ -37,26 +38,18 @@ def toggle_bookmark(request, entryid, **kwargs):
     user = request.user
 
     if user.is_authenticated():
-        entry = None
         profile = user.profile
 
-        # find the entry for this id
-        try:
-            entry = Entry.objects.get(id=entryid)
-        except Entry.DoesNotExist:
-            return Response("No such entry", status=status.HTTP_404_NOT_FOUND)
+        entry = get_object_or_404(Entry, id=entryid)
 
         # find out if there is already a {user,entry,(timestamp)} triple
         bookmarks = entry.bookmarked_by.filter(profile=profile)
-        exists = bookmarks.count() > 0
 
         # if there is a bookmark, remove it. Otherwise, make one.
-        if exists:
-            for bookmark in bookmarks:
-                bookmark.delete()
+        if bookmarks:
+            bookmarks.delete()
         else:
-            bookmark = UserBookmarks(entry=entry, profile=profile)
-            bookmark.save()
+            UserBookmarks.objects.create(entry=entry, profile=profile)
 
         return Response("Toggled bookmark.", status=status.HTTP_204_NO_CONTENT)
     return Response("Anonymous bookmarks cannot be saved.", status=status.HTTP_403_FORBIDDEN)
@@ -70,20 +63,14 @@ def toggle_featured(request, entryid, **kwargs):
     user = request.user
 
     if user.has_perm('entries.change_entry'):
-
-        entry = None
-        # find the entry for this id
-        try:
-            entry = Entry.objects.get(id=entryid)
-        except Entry.DoesNotExist:
-            return Response("No such entry", status=status.HTTP_404_NOT_FOUND)
+        entry = get_object_or_404(Entry, id=entryid)
 
         entry.featured = not entry.featured
         entry.save()
         return Response("Toggled featured status.",
                         status=status.HTTP_204_NO_CONTENT)
     return Response(
-        "You donot have permission to change entry featured status.",
+        "You don't have permission to change entry featured status.",
         status=status.HTTP_403_FORBIDDEN)
 
 
@@ -98,27 +85,13 @@ def toggle_moderation(request, entryid, stateid, **kwargs):
     user = request.user
 
     if user.has_perm('entries.change_entry') is True:
-        entry = None
-        moderation_state = None
-        status404 = status.HTTP_404_NOT_FOUND
-
-        # find the Entry in question
-        try:
-            entry = Entry.objects.get(id=entryid)
-        except Entry.DoesNotExist:
-            return Response("No such entry", status=status404)
-
-        # find the ModerationState in question
-        try:
-            moderation_state = ModerationState.objects.get(id=stateid)
-        except ModerationState.DoesNotExist:
-            return Response("No such moderation state", status=status404)
+        entry = get_object_or_404(Entry, id=entryid)
+        moderation_state = get_object_or_404(ModerationState, id=stateid)
 
         entry.moderation_state = moderation_state
         entry.save()
 
-        status204 = status.HTTP_204_NO_CONTENT
-        return Response("Updated moderation state.", status=status204)
+        return Response("Updated moderation state.", status=status.HTTP_204_NO_CONTENT)
 
     return Response(
         "You do not have permission to change entry moderation states.",
@@ -272,30 +245,26 @@ class BookmarkedEntries(ListAPIView):
             request.session['nonce'] = False
 
             user = request.user
-            ids = self.request.query_params.get('ids', None)
+            entryids = self.request.query_params.get('ids', None)
 
-            def bookmark_entry(id):
-                entry = None
-
+            def bookmark_entry(entryid):
                 # find the entry for this id
                 try:
-                    entry = Entry.objects.get(id=id)
-                except:
+                    entry = Entry.objects.get(id=entryid)
+                except ObjectDoesNotExist:
                     return
 
                 # find out if there is already a {user,entry,(timestamp)} triple
                 profile = user.profile
                 bookmarks = entry.bookmarked_by.filter(profile=profile)
-                exists = bookmarks.count() > 0
 
                 # make a bookmark if there isn't one already
-                if exists is False:
-                    bookmark = UserBookmarks(entry=entry, profile=profile)
-                    bookmark.save()
+                if not bookmarks:
+                    UserBookmarks.objects.create(entry=entry, profile=profile)
 
-            if ids is not None and user.is_authenticated():
-                for id in ids.split(','):
-                    bookmark_entry(id)
+            if entryids is not None and user.is_authenticated():
+                for entryid in entryids.split(','):
+                    bookmark_entry(entryid)
 
             return Response("Entries bookmarked.", status=status.HTTP_204_NO_CONTENT)
         else:
@@ -395,8 +364,11 @@ class EntriesListView(ListCreateAPIView):
         ids = query_params.get('ids', None)
 
         if ids is not None:
-            ids = [int(x) for x in ids.split(',')]
-            queryset = queryset.filter(pk__in=ids)
+            try:
+                ids = [int(x) for x in ids.split(',')]
+                queryset = queryset.filter(pk__in=ids)
+            except ValueError:
+                pass
 
         creators = query_params.get('creators', None)
 
@@ -447,7 +419,7 @@ class EntriesListView(ListCreateAPIView):
 
         validation_result = post_validate(request)
 
-        if validation_result is True:
+        if validation_result:
             # invalidate the nonce, so this form cannot be
             # resubmitted with the current id
             request.session['nonce'] = False
@@ -470,7 +442,7 @@ class EntriesListView(ListCreateAPIView):
                     encdata = thumbnail['base64']
                     proxy = ContentFile(base64.b64decode(encdata), name=name)
                     request_data['thumbnail'] = proxy
-            except:
+            except KeyError:
                 pass
 
             # we also want to make sure that tags are properly split
@@ -498,7 +470,7 @@ class EntriesListView(ListCreateAPIView):
                     name='Pending'
                 )
 
-                if (is_staff_address(user.email)):
+                if is_staff_address(user.email):
                     moderation_state = ModerationState.objects.get(
                         name='Approved'
                     )

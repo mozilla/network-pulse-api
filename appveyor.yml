@@ -42,7 +42,7 @@ before_test:
   - "python -m pipenv run python manage.py migrate"
 
 test_script:
-  - "python -m pipenv run flake8 pulseapi --config=./pulseapi/tox.ini --ignore=E722"
+  - "python -m pipenv run flake8 pulseapi --config=./pulseapi/tox.ini"
   - "python -m pipenv run python manage.py test"
 
 cache:

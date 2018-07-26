@@ -49,18 +49,7 @@ class EntryQuerySet(models.query.QuerySet):
         """
         Return all entries that have been approved
         """
-        try:
-            # This has to happen in a try/catch, so that migrations
-            # don't break. Presumably this is due to the fact that
-            # during migrations, Entry can exist prior to ModerationState
-            # and so if its query set is checked, it'll crash out due
-            # to the absence of the associated ModerationState table.
-            approved = ModerationState.objects.get(name='Approved')
-            return self.filter(moderation_state=approved)
-
-        except:
-            print("could not make use of ModerationState!")
-            return self.all()
+        return self.filter(moderation_state__name='Approved')
 
     def with_related(self):
         """

@@ -60,7 +60,7 @@ def makemigrations(ctx):
 def test(ctx):
     """Run tests"""
     print("Running flake8")
-    ctx.run("pipenv run flake8 pulseapi  --ignore=E722", **PLATFORM_ARG)
+    ctx.run("pipenv run flake8 pulseapi", **PLATFORM_ARG)
     print("Running tests")
     manage(ctx, "test")
 

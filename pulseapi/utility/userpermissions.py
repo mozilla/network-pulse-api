@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Group
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def is_staff_address(email):
@@ -40,7 +41,7 @@ def assign_group_policy(user, name):
     try:
         group = Group.objects.get(name=name)
         group.user_set.add(user)
-    except:
+    except ObjectDoesNotExist:
         print("group", name, "not found")
 
 
