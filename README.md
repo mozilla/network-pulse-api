@@ -202,6 +202,7 @@ Each `related_creator` object will have the following schema:
 {
   name: <string: name of the creator profile>
   profile_id: <integer: id of the creator profile>
+  is_active: <boolean: flag indicating whether this creator profile is attached to a user>
 }
 ```
 

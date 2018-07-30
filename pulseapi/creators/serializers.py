@@ -10,7 +10,8 @@ from pulseapi.entries.models import Entry
 def serialize_profile_as_creator(profile):
     return {
         'name': profile.name,
-        'profile_id': profile.id
+        'profile_id': profile.id,
+        'is_active': profile.is_active,
     }
 
 
