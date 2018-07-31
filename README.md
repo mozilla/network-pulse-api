@@ -238,6 +238,7 @@ The schema for the payload returned is:
 - `?tag=<string>` - Filter entries by a specific tag
 - `?issue=<string>` - Filter entries by an issue area
 - `?help_type=<string>` - Filter entries by a specific help category
+- `?has_help_types=<True or False>` - Filter entries by whether they have help types or not. Note that `True` or `False` is case-sensitive.
 - `?featured=<true or false>` - Filter featured or non-featured entries
 - `?ordering=<string>` - Order entries by a certain property e.g. `?ordering=title`. Prepend the property with a hyphen to get entries in descending order, e.g. `?ordering=-title`
 - `?moderationstate=<string>` - Filter entries by its moderation state. This filter will only be applied if the API call was made by an authenticated user with moderation permissions

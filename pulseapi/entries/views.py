@@ -167,6 +167,11 @@ class EntryCustomFilter(filters.FilterSet):
         name='help_types__name',
         lookup_expr='iexact',
     )
+    has_help_types = django_filters.BooleanFilter(
+        name='help_types',
+        lookup_expr='isnull',
+        exclude=True,
+    )
     featured = django_filters.BooleanFilter(
         name='featured'
     )
