@@ -26,11 +26,6 @@ from pulseapi.profiles.serializers import (
 from pulseapi.profiles.factory import UserBookmarksFactory, ExtendedUserProfileFactory
 
 
-# Converts the JSON String to a named tuple - The name of the tuple (X) is unimportant
-def json_to_obj(data):
-    return json.loads(data, object_hook=lambda data: namedtuple('X', data.keys())(*data.values()))
-
-
 class TestProfileView(PulseMemberTestCase):
     def test_get_single_profile_data(self):
         """
@@ -443,25 +438,7 @@ class TestProfileView(PulseMemberTestCase):
     def test_profile_categories(self):
         profile_categories_url = reverse('categories_view')
         response = self.client.get(profile_categories_url)
-        categories = json_to_obj(str(response.content, 'utf-8'))
-        self.assertListEqual(categories.profile_types, [
-            'plain',
-            'staff',
-            'fellow',
-            'board member',
-            'grantee'
-        ])
-        self.assertListEqual(categories.program_types, [
-            'senior fellow',
-            'science fellow',
-            'open web fellow',
-            'tech policy fellow',
-            'media fellow'
-        ])
-        self.assertListEqual(categories.program_years, [
-            '2015',
-            '2016',
-            '2017',
-            '2018',
-            '2019'
-        ])
+        categories = json.loads(str(response.content, 'utf-8'))
+        self.assertListEqual(categories['profile_types'], list(ProfileType.objects.values_list('value', flat=True)))
+        self.assertListEqual(categories['program_types'], list(ProgramType.objects.values_list('value', flat=True)))
+        self.assertListEqual(categories['program_years'], list(ProgramYear.objects.values_list('value', flat=True)))
