@@ -260,7 +260,7 @@ class UserProfileListAPIView(ListAPIView):
 
 
 class UserProfileCategoriesView(APIView):
-    def get(self, *args, **kwargs):
+    def get(self, request, **kwargs):
         profile_types = list(ProfileType.objects.values_list('value', flat=True))
         program_types = list(ProgramType.objects.values_list('value', flat=True))
         program_years = list(ProgramYear.objects.values_list('value', flat=True))
