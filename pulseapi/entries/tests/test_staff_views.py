@@ -10,6 +10,7 @@ from rest_framework.request import Request
 from pulseapi.creators.models import EntryCreator
 from pulseapi.profiles.models import UserProfile
 from pulseapi.entries.models import Entry, ModerationState
+from pulseapi.helptypes.factory import HelpTypeFactory
 from pulseapi.entries.serializers import (
     EntrySerializerWithV1Creators,
     EntrySerializerWithCreators,
@@ -151,6 +152,31 @@ class TestEntryView(PulseStaffTestCase):
             data=self.generatePostPayload(data=payload)
         )
         self.assertEqual(postresponse.status_code, 200)
+
+    def test_no_help_type_filter(self):
+        """Test filtering entries that don't have a help type"""
+        counter = 0
+        for entry in self.entries:
+            if counter % 2 == 0:
+                help_type = HelpTypeFactory()
+                entry.help_types.add(help_type)
+            else:
+                entry.help_types.clear()
+            counter += 1
+
+        entries_without_help_types = Entry.objects.filter(help_types__isnull=True).count()
+        entries_with_help_types = Entry.objects.filter(help_types__isnull=False).count()
+
+        url = reverse('entries-list', args=[settings.API_VERSIONS['version_2'] + '/'])
+        response_1 = self.client.get('{url}?has_help_types=False'.format(url=url))
+        response_entries_without_help_types = json.loads(str(response_1.content, 'utf-8'))
+        response_2 = self.client.get('{url}?has_help_types=True'.format(
+            url=reverse('entries-list', args=[settings.API_VERSIONS['version_2'] + '/']),
+        ))
+        response_entries_with_help_types = json.loads(str(response_2.content, 'utf-8'))
+
+        self.assertEqual(response_entries_without_help_types['count'], entries_without_help_types)
+        self.assertEqual(response_entries_with_help_types['count'], entries_with_help_types)
 
     def test_featured_filter(self):
         """Entry with all content"""

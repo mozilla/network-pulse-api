@@ -167,6 +167,11 @@ class EntryCustomFilter(filters.FilterSet):
         name='help_types__name',
         lookup_expr='iexact',
     )
+    has_help_types = django_filters.BooleanFilter(
+        name='help_types',
+        lookup_expr='isnull',
+        exclude=True,
+    )
     featured = django_filters.BooleanFilter(
         name='featured'
     )
@@ -301,6 +306,9 @@ class EntriesListView(ListCreateAPIView):
     - `?tag=` - Allows filtering entries by a specific tag
     - `?issue=` - Allows filtering entries by a specific issue
     - `?help_type=` - Allows filtering entries by a specific help type
+    - `?has_help_types=<True or False>` - Filter entries by whether they have
+                                          help types or not. Note that `True`
+                                          or `False` is case-sensitive.
     - `?featured=True` (or False) - both capitalied. Boolean is set in admin UI
     - `?page=` - Page number, defaults to 1
     - `?page_size=` - Number of results on a page. Defaults to 48
