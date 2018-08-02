@@ -2,6 +2,7 @@ import json
 from urllib.parse import urlencode
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from collections import namedtuple
 
 from .models import UserProfile, ProfileType, ProgramType, ProgramYear
 
@@ -23,6 +24,11 @@ from pulseapi.profiles.serializers import (
     UserProfileBasicSerializer,
 )
 from pulseapi.profiles.factory import UserBookmarksFactory, ExtendedUserProfileFactory
+
+
+# Converts the JSON String to a named tuple - The name of the tuple (X) is unimportant
+def json_to_obj(data):
+    return json.loads(data, object_hook=lambda data: namedtuple('X', data.keys())(*data.values()))
 
 
 class TestProfileView(PulseMemberTestCase):
@@ -433,3 +439,29 @@ class TestProfileView(PulseMemberTestCase):
         response = self.client.get(url)
         entriesjson = json.loads(str(response.content, 'utf-8'))
         self.assertEqual(len(entriesjson), 0)
+
+    def test_profile_categories(self):
+        profile_categories_url = reverse('categories_view')
+        response = self.client.get(profile_categories_url)
+        categories = json_to_obj(str(response.content, 'utf-8'))
+        self.assertListEqual(categories.profile_types, [
+            'plain',
+            'staff',
+            'fellow',
+            'board member',
+            'grantee'
+        ])
+        self.assertListEqual(categories.program_types, [
+            'senior fellow',
+            'science fellow',
+            'open web fellow',
+            'tech policy fellow',
+            'media fellow'
+        ])
+        self.assertListEqual(categories.program_years, [
+            '2015',
+            '2016',
+            '2017',
+            '2018',
+            '2019'
+        ])

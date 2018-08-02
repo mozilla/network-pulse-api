@@ -15,7 +15,12 @@ from rest_framework.generics import (
     ListAPIView,
 )
 
-from pulseapi.profiles.models import UserProfile
+from pulseapi.profiles.models import (
+    UserProfile,
+    ProfileType,
+    ProgramType,
+    ProgramYear
+)
 from pulseapi.profiles.serializers import (
     UserProfileSerializer,
     UserProfilePublicSerializer,
@@ -252,3 +257,16 @@ class UserProfileListAPIView(ListAPIView):
         return {
             'user': self.request.user
         }
+
+
+class UserProfileCategoriesView(APIView):
+    def get(self, *args, **kwargs):
+        profile_types = list(ProfileType.objects.values_list('value', flat=True))
+        program_types = list(ProgramType.objects.values_list('value', flat=True))
+        program_years = list(ProgramYear.objects.values_list('value', flat=True))
+
+        return Response({
+            'profile_types': profile_types,
+            'program_types': program_types,
+            'program_years': program_years
+        })
