@@ -2,7 +2,6 @@ import json
 from urllib.parse import urlencode
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from collections import namedtuple
 
 from .models import UserProfile, ProfileType, ProgramType, ProgramYear
 
