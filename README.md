@@ -590,6 +590,18 @@ If a user's profile has the `enable_extended_information` flag set to `True`, th
 }
 ```
 
+### `GET /api/pulse/profiles/categories`
+
+This retrieves an object containing exhaustive lists of the profile types, program types, and program years available to use when filtering profiles
+
+```
+{
+    profile_types: ["plain", "staff", "fellow", "board member", "grantee"],
+    program_types: ["tech policy fellowship", "mozfest speaker"],
+    program_years: ["2014", "2015", "2016", "2017", "2018"]
+}
+```
+
 ## Tags
 
 ### `GET /api/pulse/tags/` with optional `?format=json`

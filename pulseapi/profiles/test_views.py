@@ -433,3 +433,11 @@ class TestProfileView(PulseMemberTestCase):
         response = self.client.get(url)
         entriesjson = json.loads(str(response.content, 'utf-8'))
         self.assertEqual(len(entriesjson), 0)
+
+    def test_profile_categories(self):
+        profile_categories_url = reverse('categories_view')
+        response = self.client.get(profile_categories_url)
+        categories = json.loads(str(response.content, 'utf-8'))
+        self.assertListEqual(categories['profile_types'], list(ProfileType.objects.values_list('value', flat=True)))
+        self.assertListEqual(categories['program_types'], list(ProgramType.objects.values_list('value', flat=True)))
+        self.assertListEqual(categories['program_years'], list(ProgramYear.objects.values_list('value', flat=True)))
