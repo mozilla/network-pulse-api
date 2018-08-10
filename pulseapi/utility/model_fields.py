@@ -1,5 +1,5 @@
 from django.db import models
-from .form_fields import TemporaryField
+from . import form_fields
 
 
 class TemporaryField(models.UUIDField):
@@ -21,6 +21,6 @@ class TemporaryField(models.UUIDField):
 
     def formfield(self, **kwargs):
         return super().formfield(**{
-            'form_class': TemporaryField,
+            'form_class': form_fields.TemporaryField,
             **kwargs,
         })
