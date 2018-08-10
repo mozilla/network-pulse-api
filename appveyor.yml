@@ -29,7 +29,7 @@ install:
   - "SET PYTHONPATH=%APPVEYOR_BUILD_FOLDER%"
   - "python -m pip install --upgrade pip"
   - "python -m pip install pipenv"
-  - "python -m pipenv install --dev"
+  - "python -m pipenv install --dev --deploy"
 
 services:
   - postgresql
