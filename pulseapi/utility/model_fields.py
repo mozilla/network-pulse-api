@@ -5,13 +5,11 @@ class TemporaryField(models.UUIDField):
 
     description = 'A unique identifier for a temporary instance'
 
-
     def __init__(self, *args, **kwargs):
         kwargs['verbose_name'] = None
         kwargs['null'] = True
         kwargs['unique'] = True
         super().__init__(*args, **kwargs)
-
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()

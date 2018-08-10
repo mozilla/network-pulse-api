@@ -6,7 +6,6 @@ class TemporaryCheckboxInput(widgets.CheckboxInput):
 
     template_name = 'widgets/temporary_checkbox.html'
 
-
     def value_from_datadict(self, data, files, name):
         value = data.get(name)
         if value is None:
@@ -21,7 +20,6 @@ class TemporaryCheckboxInput(widgets.CheckboxInput):
 class TemporaryField(fields.UUIDField):
 
     widget = TemporaryCheckboxInput
-
 
     def __init__(self, *args, **kwargs):
         kwargs['required'] = False
