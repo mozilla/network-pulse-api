@@ -1,4 +1,5 @@
 from django.db import models
+from .form_fields import TemporaryField
 
 
 class TemporaryField(models.UUIDField):
@@ -13,7 +14,13 @@ class TemporaryField(models.UUIDField):
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        del kwargs["verbose_name"]
-        del kwargs["null"]
-        del kwargs["unique"]
+        del kwargs['verbose_name']
+        del kwargs['null']
+        del kwargs['unique']
         return name, path, args, kwargs
+
+    def formfield(self, **kwargs):
+        return super().formfield(**{
+            'form_class': TemporaryField,
+            **kwargs,
+        })
