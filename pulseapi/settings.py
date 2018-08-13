@@ -90,6 +90,7 @@ INSTALLED_APPS = list(filter(None, [
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.forms',
     'corsheaders',
     'rest_framework',
     'storages',
@@ -129,6 +130,8 @@ INTERNAL_IPS = [
 AUTH_USER_MODEL = 'users.EmailUser'
 
 ROOT_URLCONF = 'pulseapi.urls'
+
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 TEMPLATES = [
     {
