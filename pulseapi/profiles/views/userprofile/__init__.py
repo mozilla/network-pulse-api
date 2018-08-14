@@ -1,0 +1,6 @@
+from profiles.views.userprofile.apiview import UserProfileAPIView
+from profiles.views.userprofile.categories import UserProfileCategoriesView
+from profiles.views.userprofile.userprofile_entries import UserProfileEntriesAPIView
+from profiles.views.userprofile.list import UserProfileListAPIView
+from profiles.views.userprofile.public import UserProfilePublicAPIView
+from profiles.views.userprofile.publicself import UserProfilePublicSelfAPIView
