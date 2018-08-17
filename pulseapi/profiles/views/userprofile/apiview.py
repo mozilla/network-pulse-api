@@ -4,7 +4,7 @@ from rest_framework import permissions
 from rest_framework.generics import RetrieveUpdateAPIView, get_object_or_404
 
 from profiles.models import UserProfile
-from profiles.serializers import UserProfileSerializer
+from pulseapi.profiles.serializers import UserProfileSerializer
 
 
 class IsProfileOwner(permissions.BasePermission):

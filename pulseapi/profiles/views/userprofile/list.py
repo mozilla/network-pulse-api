@@ -7,8 +7,11 @@ from rest_framework import filters
 from rest_framework.generics import ListAPIView
 
 from profiles.models import UserProfile
-from profiles.serializers import UserProfilePublicWithEntriesSerializer, UserProfileBasicSerializer, \
+from pulseapi.profiles.serializers import (
+    UserProfilePublicWithEntriesSerializer,
+    UserProfileBasicSerializer,
     UserProfilePublicSerializer
+)
 
 
 class NumberInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):

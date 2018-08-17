@@ -3,9 +3,9 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from entries.serializers import EntryWithCreatorsBaseSerializer, EntryWithV1CreatorsBaseSerializer
-from profiles.models import UserProfile
-from profiles.serializers import UserProfileEntriesSerializer
+from pulseapi.entries.serializers import EntryWithCreatorsBaseSerializer, EntryWithV1CreatorsBaseSerializer
+from pulseapi.profiles.models import UserProfile
+from pulseapi.profiles.serializers import UserProfileEntriesSerializer
 
 
 # We don't inherit from a generic API view class since we're customizing

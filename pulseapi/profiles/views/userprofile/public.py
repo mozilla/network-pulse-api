@@ -2,7 +2,7 @@ from django.conf import settings
 from rest_framework.generics import RetrieveAPIView
 
 from profiles.models import UserProfile
-from profiles.serializers import UserProfilePublicWithEntriesSerializer, UserProfilePublicSerializer
+from pulseapi.profiles.serializers import UserProfilePublicWithEntriesSerializer, UserProfilePublicSerializer
 
 
 class UserProfilePublicAPIView(RetrieveAPIView):
