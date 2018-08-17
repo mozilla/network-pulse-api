@@ -6,7 +6,7 @@ from django.db.models import Q
 from rest_framework import filters
 from rest_framework.generics import ListAPIView
 
-from profiles.models import UserProfile
+from pulseapi.profiles.models import UserProfile
 from pulseapi.profiles.serializers import (
     UserProfilePublicWithEntriesSerializer,
     UserProfileBasicSerializer,

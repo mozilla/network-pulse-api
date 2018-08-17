@@ -1,1 +1,1 @@
-from profiles.views.userprofile import *
+from pulseapi.profiles.views.userprofile import *

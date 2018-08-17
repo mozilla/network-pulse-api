@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from profiles.models import ProfileType, ProgramType, ProgramYear
+from pulseapi.profiles.models import ProfileType, ProgramType, ProgramYear
 
 
 class UserProfileCategoriesView(APIView):
