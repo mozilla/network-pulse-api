@@ -6,6 +6,8 @@ from pulseapi.profiles.models.categories import (
 from pulseapi.profiles.models.bookmarks import UserBookmarks
 from pulseapi.profiles.models.profiles import UserProfile, entry_thumbnail_path
 
+from pulseapi.profiles.models.organizationprofile import OrganizationProfile
+
 __all__ = [
     'ProfileType',
     'ProgramType',
@@ -13,4 +15,5 @@ __all__ = [
     'UserProfile',
     'UserBookmarks',
     'entry_thumbnail_path',
+    'OrganizationProfile',
 ]

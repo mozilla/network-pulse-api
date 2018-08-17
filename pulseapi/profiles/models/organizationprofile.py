@@ -4,10 +4,11 @@ from django.db import models
 from django.utils import timezone
 
 from pulseapi.issues.models import Issue
+from pulseapi.utility.model_fields import TemporaryField
 
 
 def entry_thumbnail_path(instance, filename):
-    return 'images/org-avsatars/{timestamp}{ext}'.format(
+    return 'images/org-avatars/{timestamp}{ext}'.format(
         timestamp=str(timezone.now()),
         ext=os.path.splitext(filename)[1]
     )
@@ -22,7 +23,7 @@ class OrganizationProfile(models.Model):
         verbose_name='Organization Name',
         blank=False,
         null=False,
-        max_length = 140
+        max_length=140
     )
 
     location = models.TextField(
@@ -82,3 +83,5 @@ class OrganizationProfile(models.Model):
         related_name='entries',
         blank=True
     )
+
+    temporary_code = TemporaryField()
