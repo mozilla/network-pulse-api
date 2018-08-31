@@ -35,6 +35,8 @@ urlpatterns = [
     # admin patterns
     url(r'^admin/', admin.site.urls),
 
+    url(r'^accounts/', include('allauth.urls')),
+
     # 'homepage'
     url(versioned_url(r'^'), include('pulseapi.users.urls')),
 

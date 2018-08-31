@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static socialaccount %}
+
+{% block head %}
+<link href="{% static 'account/css/login.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block head_title %}Sign in to Pulse{% endblock %}
+
+{% block body %}
+{% if user.is_authenticated %}
+{% else %}
+<div id="main" class="container">
+  <div class="main-container">
+    <div class="panel">
+      <img class="main-logo" src="{% static 'account/img/pulse-logo.svg' %}">
+      <div class="panel-content">
+        <p class="main-title">Sign In</p>
+        <p>Hey there! Sign in to your account to start posting content on Pulse</p>
+        <div class="social-buttons">
+          <a href="{% provider_login_url 'google' process='login' %}">
+            <button class="btn social-google">
+              <img class="social-icon" src="{% static 'account/img/google-icon-normal.svg' %}">
+              Sign in with Google
+            </button>
+          </a>
+        </div>
+      </div>
+      <p class="tos">By creating/having and account, you agree to <a href="https://www.mozilla.org/en-US/about/legal/terms/mozilla/">Mozilla's Terms of Service</a></p>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% block footer %}<!-- Don't show the footer for this page -->{% endblock %}
+{% endblock %}
+
+{% block github_repo_link %}https://github.com/mozilla/network-pulse/{% endblock %}
+

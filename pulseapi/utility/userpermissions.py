@@ -1,13 +1,13 @@
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 
+from pulseapi.settings import AUTH_STAFF_EMAIL_DOMAINS
+
 
 def is_staff_address(email):
     """
     This function determines whether a particular email address is a
-    mozilla address or not. We strictly control mozilla.com and
-    mozillafoundation.org addresses, and so filtering on the email
-    domain section using exact string matching is acceptable.
+    staff address or not.
     """
     if email is None:
         return False
@@ -16,13 +16,7 @@ def is_staff_address(email):
         parts = email.split('@')
         domain = parts[1]
 
-        if domain == 'mozilla.org':
-            return True
-
-        if domain == 'mozilla.com':
-            return True
-
-        if domain == 'mozillafoundation.org':
+        if domain in AUTH_STAFF_EMAIL_DOMAINS:
             return True
 
     return False

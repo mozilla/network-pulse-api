@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block head_title %}Mozilla Pulse API{% endblock %}</title>
+  <link href="https://www.mozillapulse.org/css/mofo-bootstrap.css" rel="stylesheet" type="text/css">
+  {% block head %}
+  {% endblock %}
+</head>
+<body>
+  {% block body %}
+  {% endblock %}
+  {% block footer %}
+  <footer class="mofo-footer">
+    <div class="container">
+      <ul class="list-unstyled footer-links row justify-content-center">
+        <li class="col-auto"><a class="footer-link-github" href="{% block github_repo_link %}https://github.com/mozilla/network-pulse-api/{% endblock %}">GitHub</a></li>
+        <li class="col-auto"><a class="footer-link-legal" href="https://www.mozilla.org/about/legal/terms/mozilla/">Legal</a></li>
+        <li class="col-auto"><a class="footer-link-cc-license" href="https://creativecommons.org/licenses/by/4.0/">License</a></li>
+        <li class="col-auto"><a class="footer-link-privacy" href="https://www.mozilla.org/privacy/websites/">Privacy</a></li>
+        <li class="col-auto"><a class="footer-link-email" href="https://mzl.la/pulse-contact">Contact Us</a></li>
+      </ul>
+      <div class="org-info mozilla">
+        <div class="logo-container"><a class="logo" href="https://mozilla.org"></a></div>
+        <p>Mozilla is a global non-profit dedicated to putting you in control of your online experience and shaping the future of the web for the public good. Visit us at <a href="https://mozilla.org">mozilla.org</a>.</p>
+      </div>
+    </div>
+  </footer>
+  {% endblock %}
+</body>

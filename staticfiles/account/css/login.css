@@ -1,0 +1,108 @@
+html {
+  height: 100%;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: rgb(255,80,110);
+  background: -moz-linear-gradient(160deg, rgba(255,80,110,1) 0%, rgba(165,110,255,1) 100%);
+  background: -webkit-linear-gradient(160deg, rgba(255,80,110,1) 0%, rgba(165,110,255,1) 100%);
+  background: linear-gradient(160deg, rgba(255,80,110,1) 0%, rgba(165,110,255,1) 100%);
+}
+
+footer {
+  flex-shrink: 0;
+}
+
+#main {
+  flex: 1 0 auto;
+  min-height: 65%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 50px;
+}
+
+#main .main-container {
+  margin-top: 50px;
+}
+
+#main .panel {
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+  background: #fff;
+  padding: 100px 0;
+}
+
+.main-logo {
+  width: 300px;
+}
+
+#main .panel-content {
+  font-family: "Zilla Slab", "Open Sans", sans-serif;
+  max-width: 59%;
+  margin: 20px auto 0;
+}
+
+.panel-content .main-title {
+  font-size: 2.2rem;
+  color: #e14164;
+  margin: 0 auto;
+}
+
+.panel-content .social-buttons {
+  margin: 50px auto 0;
+}
+
+.social-buttons a {
+  text-decoration: none;
+}
+
+.social-buttons .btn {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
+  white-space: normal;
+  text-align: left;
+}
+
+.social-google {
+  background-color: #318AF5;
+  color: #fff;
+  box-shadow: none;
+}
+
+.social-google:focus {
+  box-shadow: none;
+}
+
+.social-google:hover {
+  box-shadow: 0px 0px 0px 4px rgba(198,218,253,1);
+}
+
+.social-google:active {
+  background-color: #3367D6;
+  box-shadow: none;
+}
+
+.social-google .social-icon {
+  width: 50px;
+  height: 50px;
+  display: inline-block;
+  margin-right: 20px;
+}
+
+.tos {
+  max-width: 59%;
+  margin: 10px auto 0;
+  font-size: 0.875rem;
+}

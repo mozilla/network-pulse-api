@@ -1,4 +1,27 @@
-{% if user.is_authenticated %}
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<link href="{% static 'users/css/root.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block body %}
+<div id="main" class="container">
+  <div class="main-container">
+    <div class="panel">
+      <img class="main-logo" src="{% static 'users/img/pulseapi-logo.svg' %}">
+      <div class="panel-content">
+        <p class="main-title">Welcome to the Mozilla Pulse API Service</p>
+        {% url 'admin:index' as admin_url %}
+        <a href="{% url 'account_login' %}?next={{ admin_url | urlencode }}"><button class="btn btn-info mr-3">Go to the Admin Website</button></a>
+        <a href="{% url 'entries-list' 'v2/' %}"><button class="btn btn-info mr-3">Check out the Browsable API</button></a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+<!-- {% if user.is_authenticated %}
 <p>Hello {{user.email}}! Would you like to go to the <a href="admin">admin interface</a> or <a href="logout">log out</a>?</p>
 {% else %}
     {% if HEROKU_APP_NAME %}
@@ -16,4 +39,4 @@
         link.setAttribute('href', adminlink);
         </script>
      {% endif %}
-{% endif %}
+{% endif %} -->

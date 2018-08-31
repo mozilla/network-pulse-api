@@ -35,6 +35,7 @@ env = environ.Env(
     PULSE_FRONTEND_HOSTNAME=(str, ''),
     SECRET_KEY=(str, ''),
     CSRF_TRUSTED_ORIGINS=(list, []),
+    AUTH_STAFF_EMAIL_DOMAINS=(list, [])
 )
 
 SSL_PROTECTION = env('SSL_PROTECTION')
@@ -92,6 +93,10 @@ INSTALLED_APPS = list(filter(None, [
     'django.contrib.staticfiles',
     'django.forms',
     'corsheaders',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     'rest_framework',
     'storages',
     'pulseapi.utility',
@@ -127,7 +132,31 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+LOGIN_REDIRECT_URL = '/'
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    }
+}
+SOCIALACCOUNT_ADAPTER = 'pulseapi.users.adapter.PulseAccountAdapter'
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https' if SSL_PROTECTION is True else 'http'
 AUTH_USER_MODEL = 'users.EmailUser'
+AUTH_STAFF_EMAIL_DOMAINS = env('AUTH_STAFF_EMAIL_DOMAINS')
 
 ROOT_URLCONF = 'pulseapi.urls'
 

@@ -1,0 +1,74 @@
+html {
+  height: 100%;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+footer {
+  flex-shrink: 0;
+}
+
+#main {
+  flex: 1 0 auto;
+  min-height: 65%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 50px;
+}
+
+#main .main-container {
+  margin-top: 50px;
+}
+
+#main .panel {
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+  border-width: 5px;
+  border-style: solid;
+  -webkit-border-image: -webkit-gradient(linear, 100% 0, 0 0, from(#ff506e), to(#a56eff)) 1;
+  -webkit-border-image: -webkit-linear-gradient(right, #ff506e, #a56eff) 1;
+  -moz-border-image: -moz-linear-gradient(right, #ff506e, #a56eff) 1;
+  -o-border-image: -o-linear-gradient(right, #ff506e, #a56eff) 1;
+  border-image: linear-gradient(to right, #ff506e, #a56eff) 1;
+}
+
+#main .panel-content {
+  padding: 15px 10px 30px;
+  font-family: "Zilla Slab", "Open Sans", sans-serif;
+}
+
+.panel-content .main-title {
+  font-weight: 600;
+  font-size: 1.4rem;
+  width: 75%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.panel-content a {
+  width: 75%;
+  display: inline-block;
+}
+
+.panel-content .btn {
+  width: 100%;
+  white-space: normal;
+  border-radius: 4px;
+  border-style: none;
+}
+
+.panel-content .btn:first-of-type {
+  margin-bottom: 10px;
+}
+
+.main-logo {
+  max-width: 250px;
+  margin-top: -35px;
+}

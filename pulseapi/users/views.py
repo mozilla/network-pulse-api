@@ -135,11 +135,6 @@ def index(request, **kwargs):
     """
     Initial page with a link that lets us sign in through Google
     """
-
-    # generic state value
-    new_state_value(request)
-    FlowHandler.get_flow().params['state'] = request.session['state']
-
     return render(request, 'users/index.html', {
         'user': request.user
     })
