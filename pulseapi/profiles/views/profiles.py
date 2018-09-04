@@ -1,17 +1,102 @@
+import base64
 from itertools import chain
-
 import django_filters
+
+from django.core.files.base import ContentFile
 from django.conf import settings
 from django.db.models import Q
-from rest_framework import filters
-from rest_framework.generics import ListAPIView
+from rest_framework import permissions, filters
+from rest_framework.generics import (
+    RetrieveUpdateAPIView,
+    RetrieveAPIView,
+    ListAPIView,
+    get_object_or_404,
+)
 
 from pulseapi.profiles.models import UserProfile
 from pulseapi.profiles.serializers import (
+    UserProfileSerializer,
     UserProfilePublicWithEntriesSerializer,
+    UserProfilePublicSerializer,
     UserProfileBasicSerializer,
-    UserProfilePublicSerializer
 )
+
+
+class IsProfileOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.user == request.user
+
+
+class UserProfileAPIView(RetrieveUpdateAPIView):
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsProfileOwner
+    )
+
+    serializer_class = UserProfileSerializer
+
+    def get_object(self):
+        user = self.request.user
+        return get_object_or_404(
+            UserProfile.objects.prefetch_related(
+                'issues',
+                'related_user',
+                'bookmarks_from',
+            ),
+            related_user=user
+        )
+
+    def get_serializer_context(self):
+        return {
+            'user': self.request.user
+        }
+
+    def put(self, request, *args, **kwargs):
+        """
+        If there is a thumbnail, and it was sent as part of an
+        application/json payload, then we need to unpack a thumbnail
+        object payload and convert it to a Python ContentFile payload
+        instead. We use a try/catch because the optional nature means
+        we need to check using "if hasattr(request.data,'thumbnail'):"
+        as we as "if request.data['thumbnail']" and these are pretty
+        much mutually exclusive patterns. A try/pass make far more sense.
+        """
+
+        payload = request.data
+
+        try:
+            thumbnail = payload['thumbnail']
+            # do we actually need to repack as ContentFile?
+            if thumbnail['name'] and thumbnail['base64']:
+                name = thumbnail['name']
+                encdata = thumbnail['base64']
+                proxy = ContentFile(base64.b64decode(encdata), name=name)
+                payload['thumbnail'] = proxy
+        except KeyError:
+            pass
+
+        return super(UserProfileAPIView, self).put(request, *args, **kwargs)
+
+
+class UserProfilePublicAPIView(RetrieveAPIView):
+    queryset = UserProfile.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.version == settings.API_VERSIONS['version_1']:
+            return UserProfilePublicWithEntriesSerializer
+
+        return UserProfilePublicSerializer
+
+    def get_serializer_context(self):
+        return {
+            'user': self.request.user
+        }
+
+
+class UserProfilePublicSelfAPIView(UserProfilePublicAPIView):
+    def get_object(self):
+        user = self.request.user
+        return get_object_or_404(self.queryset, related_user=user)
 
 
 class NumberInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):

@@ -1,9 +1,11 @@
-from pulseapi.profiles.views.userprofile.apiview import UserProfileAPIView
-from pulseapi.profiles.views.userprofile.categories import UserProfileCategoriesView
-from pulseapi.profiles.views.userprofile.entries import UserProfileEntriesAPIView
-from pulseapi.profiles.views.userprofile.list import UserProfileListAPIView
-from pulseapi.profiles.views.userprofile.public import UserProfilePublicAPIView
-from pulseapi.profiles.views.userprofile.publicself import UserProfilePublicSelfAPIView
+from pulseapi.profiles.views.profiles import (
+    UserProfileAPIView,
+    UserProfilePublicAPIView,
+    UserProfilePublicSelfAPIView,
+    UserProfileListAPIView,
+)
+from pulseapi.profiles.views.categories import UserProfileCategoriesView
+from pulseapi.profiles.views.profile_entries import UserProfileEntriesAPIView
 
 __all__ = [
     'UserProfileAPIView',

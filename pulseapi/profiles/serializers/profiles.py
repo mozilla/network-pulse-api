@@ -14,6 +14,19 @@ def remove_key(data, key):
         pass
 
 
+class UserProfileBasicSerializer(serializers.BaseSerializer):
+    """
+    A read-only serializer that serializes a user profile by only including indentity
+    information like `id` and `name`.
+    """
+    def to_representation(self, obj):
+        return {
+            'id': obj.id,
+            'name': obj.name,
+            'is_active': obj.is_active,
+        }
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     """
     Serializes a user profile.
@@ -131,3 +144,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'id',
             'is_group',
         ]
+
+
+class UserProfilePublicSerializer(UserProfileSerializer):
+    """
+    Serializes a user profile for public view
+    """
+    name = serializers.CharField(read_only=True)
+    my_profile = serializers.SerializerMethodField()
+
+    def get_my_profile(self, instance):
+        user = self.context.get('user')
+        return user == instance.user

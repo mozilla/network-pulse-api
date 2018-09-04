@@ -1,9 +1,13 @@
-from pulseapi.profiles.serializers.userprofile.serializer import UserProfileSerializer
-from pulseapi.profiles.serializers.userprofile.basic import UserProfileBasicSerializer
-from pulseapi.profiles.serializers.userprofile.public import UserProfilePublicSerializer
-from pulseapi.profiles.serializers.userprofile.entries import UserProfileEntriesSerializer
-from pulseapi.profiles.serializers.userprofile.public_entries import UserProfilePublicWithEntriesSerializer
-from pulseapi.profiles.serializers.userprofile.userbookmarks import UserBookmarksSerializer
+from pulseapi.profiles.serializers.profiles import (
+    UserProfileBasicSerializer,
+    UserProfileSerializer,
+    UserProfilePublicSerializer,
+)
+from pulseapi.profiles.serializers.profile_entries import (
+    UserProfileEntriesSerializer,
+    UserProfilePublicWithEntriesSerializer,
+)
+from pulseapi.profiles.serializers.bookmarks import UserBookmarksSerializer
 
 __all__ = [
     'UserProfileSerializer',
