@@ -96,6 +96,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         allow_blank=True,
     )
 
+    is_active = serializers.BooleanField(
+        required=False,
+        allow_blank=True,
+    )
+
     profile_type = serializers.StringRelatedField()
     program_type = serializers.StringRelatedField()
     program_year = serializers.StringRelatedField()
@@ -162,6 +167,7 @@ class UserProfileBasicSerializer(serializers.BaseSerializer):
         return {
             'id': obj.id,
             'name': obj.name
+            'is_active': obj.is_active
         }
 
 
