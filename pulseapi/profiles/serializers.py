@@ -96,7 +96,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         allow_blank=True,
     )
 
-    is_active = serializers.BooleanField()
+    is_active = serializers.BooleanField(required=False)
 
     profile_type = serializers.StringRelatedField()
     program_type = serializers.StringRelatedField()
