@@ -96,6 +96,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         allow_blank=True,
     )
 
+    is_active = serializers.BooleanField(required=False)
+
     profile_type = serializers.StringRelatedField()
     program_type = serializers.StringRelatedField()
     program_year = serializers.StringRelatedField()
@@ -144,9 +146,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         Meta class. Because
         """
         model = UserProfile
-        read_only_fields = ('profile_type', 'entry_count',)
+        read_only_fields = ('profile_type', 'entry_count', 'is_active',)
         exclude = [
-            'is_active',
             'bookmarks',
             'id',
             'is_group',
@@ -161,7 +162,8 @@ class UserProfileBasicSerializer(serializers.BaseSerializer):
     def to_representation(self, obj):
         return {
             'id': obj.id,
-            'name': obj.name
+            'name': obj.name,
+            'is_active': obj.is_active,
         }
 
 
