@@ -254,7 +254,6 @@ class UserProfileListAPIView(ListAPIView):
         'program_year'
     )
 
-
     def get_serializer_class(self):
         request = self.request
 
