@@ -144,6 +144,10 @@ class UserProfileEntriesAPIView(APIView):
         )
 
 
+class NumberInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
+    pass
+
+
 # NOTE: DRF has deprecated the FilterSet class in favor of
 # django_filters.rest_framework.FilterSet in v3.7.x, which
 # we aren't far from upgrading to.
@@ -152,10 +156,16 @@ class ProfileCustomFilter(filters.FilterSet):
     """
       We add custom filtering to allow you to filter by:
 
+      * Profile ids  - pass the `?ids=` query parameter
       * Profile type - pass the `?profile_type=` query parameter
       * Program type - pass the `?program_type=` query parameter
       * Program year - pass the `?program_year=` query parameter
     """
+    ids = NumberInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
+
     profile_type = django_filters.CharFilter(
         name='profile_type__value',
         lookup_expr='iexact',
@@ -208,6 +218,7 @@ class ProfileCustomFilter(filters.FilterSet):
         """
         model = UserProfile
         fields = [
+            'ids',
             'profile_type',
             'program_type',
             'program_year',
@@ -242,6 +253,7 @@ class UserProfileListAPIView(ListAPIView):
         'program_type',
         'program_year'
     )
+
 
     def get_serializer_class(self):
         request = self.request
