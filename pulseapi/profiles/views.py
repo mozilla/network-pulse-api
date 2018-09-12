@@ -165,7 +165,6 @@ class ProfileCustomFilter(filters.FilterSet):
         field_name='id',
         lookup_expr='in'
     )
-
     profile_type = django_filters.CharFilter(
         name='profile_type__value',
         lookup_expr='iexact',
@@ -195,22 +194,26 @@ class ProfileCustomFilter(filters.FilterSet):
         a legal filtering argument, we return an empty
         queryset, rather than every profile in existence.
         """
-        empty_set = UserProfile.objects.none()
+        qs = UserProfile.objects.none()
 
         request = self.request
         if request is None:
-            return empty_set
+            return qs
 
         queries = self.request.query_params
         if queries is None:
-            return empty_set
+            return qs
 
         fields = ProfileCustomFilter.get_fields()
         for key in fields:
             if key in queries:
-                return super(ProfileCustomFilter, self).qs
+                qs = super(ProfileCustomFilter, self).qs
 
-        return empty_set
+        if 'limit' in queries:
+            value = int(queries['limit'])
+            qs = qs.limit(value)
+
+        return qs
 
     class Meta:
         """
