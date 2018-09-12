@@ -144,6 +144,10 @@ class UserProfileEntriesAPIView(APIView):
         )
 
 
+class NumberInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
+    pass
+
+
 # NOTE: DRF has deprecated the FilterSet class in favor of
 # django_filters.rest_framework.FilterSet in v3.7.x, which
 # we aren't far from upgrading to.
@@ -152,10 +156,16 @@ class ProfileCustomFilter(filters.FilterSet):
     """
       We add custom filtering to allow you to filter by:
 
+      * Profile ids  - pass the `?ids=` query parameter
       * Profile type - pass the `?profile_type=` query parameter
       * Program type - pass the `?program_type=` query parameter
       * Program year - pass the `?program_year=` query parameter
+      * Limit results - pass the `?limit=` query parameter
     """
+    ids = NumberInFilter(
+        field_name='id',
+        lookup_expr='in'
+    )
     profile_type = django_filters.CharFilter(
         name='profile_type__value',
         lookup_expr='iexact',
@@ -178,6 +188,11 @@ class ProfileCustomFilter(filters.FilterSet):
         ).exclude(startswith_lookup)
         return list(chain(qs_startswith, qs_contains))
 
+    limit = django_filters.NumberFilter(method='filter_limit')
+
+    def filter_limit(self, queryset, name, value):
+        return queryset.limit(value)
+
     @property
     def qs(self):
         """
@@ -185,22 +200,22 @@ class ProfileCustomFilter(filters.FilterSet):
         a legal filtering argument, we return an empty
         queryset, rather than every profile in existence.
         """
-        empty_set = UserProfile.objects.none()
+        qs = UserProfile.objects.none()
 
         request = self.request
         if request is None:
-            return empty_set
+            return qs
 
         queries = self.request.query_params
         if queries is None:
-            return empty_set
+            return qs
 
         fields = ProfileCustomFilter.get_fields()
         for key in fields:
             if key in queries:
-                return super(ProfileCustomFilter, self).qs
+                qs = super(ProfileCustomFilter, self).qs
 
-        return empty_set
+        return qs
 
     class Meta:
         """
@@ -208,11 +223,13 @@ class ProfileCustomFilter(filters.FilterSet):
         """
         model = UserProfile
         fields = [
+            'ids',
             'profile_type',
             'program_type',
             'program_year',
             'is_active',
             'name',
+            'limit'
         ]
 
 
@@ -223,15 +240,15 @@ class UserProfileListAPIView(ListAPIView):
       program_type=
       program_year=
       is_active=(True or False)
-      ordering=(custom_name, program_year) or negative (e.g. -custom_name) to reverse.
+      ordering=(id, custom_name, program_year) or negative (e.g. -id) to reverse.
       basic=
     """
     filter_backends = (
-        filters.DjangoFilterBackend,
         filters.OrderingFilter,
+        filters.DjangoFilterBackend,
     )
 
-    ordering_fields = ('custom_name', 'program_year',)
+    ordering_fields = ('id', 'custom_name', 'program_year',)
 
     filter_class = ProfileCustomFilter
 

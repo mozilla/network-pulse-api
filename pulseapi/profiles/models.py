@@ -78,6 +78,12 @@ class UserProfileQuerySet(models.query.QuerySet):
     A queryset for profiles with convenience queries
     """
 
+    def limit(self, size):
+        """
+        Limit the results to a fixed size subset
+        """
+        return self[:size]
+
     def active(self):
         """
         Return all profiles that have the is_active flag set to True
