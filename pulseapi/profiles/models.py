@@ -78,11 +78,11 @@ class UserProfileQuerySet(models.query.QuerySet):
     A queryset for profiles with convenience queries
     """
 
-    def limit(self, value):
+    def limit(self, size):
         """
-        Return only the last [limit] number of entries created.
+        Limit the results to a fixed size subset
         """
-        return self.order_by('-id')[:value]
+        return self[:size]
 
     def active(self):
         """

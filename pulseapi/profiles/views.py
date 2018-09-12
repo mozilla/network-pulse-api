@@ -160,6 +160,7 @@ class ProfileCustomFilter(filters.FilterSet):
       * Profile type - pass the `?profile_type=` query parameter
       * Program type - pass the `?program_type=` query parameter
       * Program year - pass the `?program_year=` query parameter
+      * Limit results - pass the `?limit=` query parameter
     """
     ids = NumberInFilter(
         field_name='id',
@@ -187,6 +188,11 @@ class ProfileCustomFilter(filters.FilterSet):
         ).exclude(startswith_lookup)
         return list(chain(qs_startswith, qs_contains))
 
+    limit = django_filters.NumberFilter(method='filter_limit')
+
+    def filter_limit(self, queryset, name, value):
+        return queryset.limit(value)
+
     @property
     def qs(self):
         """
@@ -209,10 +215,6 @@ class ProfileCustomFilter(filters.FilterSet):
             if key in queries:
                 qs = super(ProfileCustomFilter, self).qs
 
-        if 'limit' in queries:
-            value = int(queries['limit'])
-            qs = qs.limit(value)
-
         return qs
 
     class Meta:
@@ -227,6 +229,7 @@ class ProfileCustomFilter(filters.FilterSet):
             'program_year',
             'is_active',
             'name',
+            'limit'
         ]
 
 
@@ -237,15 +240,15 @@ class UserProfileListAPIView(ListAPIView):
       program_type=
       program_year=
       is_active=(True or False)
-      ordering=(custom_name, program_year) or negative (e.g. -custom_name) to reverse.
+      ordering=(id, custom_name, program_year) or negative (e.g. -id) to reverse.
       basic=
     """
     filter_backends = (
-        filters.DjangoFilterBackend,
         filters.OrderingFilter,
+        filters.DjangoFilterBackend,
     )
 
-    ordering_fields = ('custom_name', 'program_year',)
+    ordering_fields = ('id', 'custom_name', 'program_year',)
 
     filter_class = ProfileCustomFilter
 
