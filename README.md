@@ -541,10 +541,11 @@ __NOTE__: At least one filter or search query from below must be specified, othe
 - `?program_year=...`: filter the list by program year in the range 2015-2019 (inclusive).
 - `?is_active=<true or false>`: filter profiles by their active state.
 - `?name=...`: search for profiles by their name. Supports partial and full search matches.
+- `?limit=...`: limit the number of results to some maximum.
 
 #### Other Supported Queries
 
-- `?ordering=...` - You can sort these results using the `ordering` query param, passing it either `custom_name` or `program_year` (negated like `-custom_name` for descending order).
+- `?ordering=...` - You can sort these results using the `ordering` query param, passing it either `id`, `custom_name`, or `program_year` (reversed by prefixing a `-`, e.g. `-custom_name` for descending alphabetical order based on the custom profile name).
 - `?basic=<true or false>` - This provides a way to only get basic information about profiles. Each profile object in the list will only contain the `id` of the profile and the `name` of the profile. This query can be useful for providing autocomplete options for profiles. __NOTE__ - This query is not compatible with version 1 of the API.
 
 ### `GET /api/pulse/myprofile/` with optional `?format=json`
