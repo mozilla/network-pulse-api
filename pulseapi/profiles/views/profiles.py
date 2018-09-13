@@ -1,63 +1,30 @@
 import base64
+from itertools import chain
 import django_filters
 
-from itertools import chain
 from django.core.files.base import ContentFile
 from django.conf import settings
 from django.db.models import Q
-from rest_framework import filters, permissions
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework import permissions, filters
 from rest_framework.generics import (
-    get_object_or_404,
-    RetrieveAPIView,
     RetrieveUpdateAPIView,
+    RetrieveAPIView,
     ListAPIView,
+    get_object_or_404,
 )
 
-from pulseapi.profiles.models import (
-    UserProfile,
-    ProfileType,
-    ProgramType,
-    ProgramYear
-)
+from pulseapi.profiles.models import UserProfile
 from pulseapi.profiles.serializers import (
     UserProfileSerializer,
-    UserProfilePublicSerializer,
     UserProfilePublicWithEntriesSerializer,
-    UserProfileEntriesSerializer,
+    UserProfilePublicSerializer,
     UserProfileBasicSerializer,
-)
-from pulseapi.entries.serializers import (
-    EntryWithCreatorsBaseSerializer,
-    EntryWithV1CreatorsBaseSerializer,
 )
 
 
 class IsProfileOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return obj.user == request.user
-
-
-class UserProfilePublicAPIView(RetrieveAPIView):
-    queryset = UserProfile.objects.all()
-
-    def get_serializer_class(self):
-        if self.request.version == settings.API_VERSIONS['version_1']:
-            return UserProfilePublicWithEntriesSerializer
-
-        return UserProfilePublicSerializer
-
-    def get_serializer_context(self):
-        return {
-            'user': self.request.user
-        }
-
-
-class UserProfilePublicSelfAPIView(UserProfilePublicAPIView):
-    def get_object(self):
-        user = self.request.user
-        return get_object_or_404(self.queryset, related_user=user)
 
 
 class UserProfileAPIView(RetrieveUpdateAPIView):
@@ -111,37 +78,25 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
         return super(UserProfileAPIView, self).put(request, *args, **kwargs)
 
 
-# We don't inherit from a generic API view class since we're customizing
-# the get functionality more than the generic would allow.
-class UserProfileEntriesAPIView(APIView):
-    def get(self, request, pk, **kwargs):
-        """
-        Return a list of entries associated with this profile
-        that can be filtered by entries that this profile - was
-        a creator on, was a publisher of, or favorited.
-        """
-        profile = get_object_or_404(
-            UserProfile.objects.select_related('related_user'),
-            pk=pk,
-        )
-        query = request.query_params
-        EntrySerializerClass = EntryWithCreatorsBaseSerializer
+class UserProfilePublicAPIView(RetrieveAPIView):
+    queryset = UserProfile.objects.all()
 
-        if request and request.version == settings.API_VERSIONS['version_1']:
-            EntrySerializerClass = EntryWithV1CreatorsBaseSerializer
+    def get_serializer_class(self):
+        if self.request.version == settings.API_VERSIONS['version_1']:
+            return UserProfilePublicWithEntriesSerializer
 
-        return Response(
-            UserProfileEntriesSerializer(instance=profile, context={
-                'user': request.user,
-                'created': 'created' in query,
-                'published': 'published' in query,
-                'favorited': 'favorited' in query,
-                'created_ordering': query.get('created_ordering'),
-                'published_ordering': query.get('published_ordering'),
-                'favorited_ordering': query.get('favorited_ordering'),
-                'EntrySerializerClass': EntrySerializerClass,
-            }).data
-        )
+        return UserProfilePublicSerializer
+
+    def get_serializer_context(self):
+        return {
+            'user': self.request.user
+        }
+
+
+class UserProfilePublicSelfAPIView(UserProfilePublicAPIView):
+    def get_object(self):
+        user = self.request.user
+        return get_object_or_404(self.queryset, related_user=user)
 
 
 class NumberInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
@@ -274,16 +229,3 @@ class UserProfileListAPIView(ListAPIView):
         return {
             'user': self.request.user
         }
-
-
-class UserProfileCategoriesView(APIView):
-    def get(self, request, **kwargs):
-        profile_types = list(ProfileType.objects.values_list('value', flat=True))
-        program_types = list(ProgramType.objects.values_list('value', flat=True))
-        program_years = list(ProgramYear.objects.values_list('value', flat=True))
-
-        return Response({
-            'profile_types': profile_types,
-            'program_types': program_types,
-            'program_years': program_years
-        })
