@@ -12,7 +12,6 @@ from django.db.models import Q
 from rest_framework import filters, status
 from rest_framework.decorators import detail_route, api_view
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, ListAPIView, get_object_or_404
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 
@@ -25,6 +24,7 @@ from pulseapi.entries.serializers import (
 from pulseapi.profiles.models import UserBookmarks
 
 from pulseapi.utility.userpermissions import is_staff_address
+from pulseapi.utility.viewutils import DefaultPagination
 
 
 @api_view(['PUT'])
@@ -135,16 +135,6 @@ def post_validate(request):
     return True
 
 
-class EntriesPagination(PageNumberPagination):
-    """
-    Add support for pagination and custom page size
-    """
-    # page size decided in https://github.com/mozilla/network-pulse-api/issues/39
-    page_size = 48
-    page_size_query_param = 'page_size'
-    max_page_size = 1000
-
-
 class EntryCustomFilter(filters.FilterSet):
     """
     We add custom filtering to allow you to filter by:
@@ -210,7 +200,7 @@ class EntryView(RetrieveAPIView):
 
 
 class BookmarkedEntries(ListAPIView):
-    pagination_class = EntriesPagination
+    pagination_class = DefaultPagination
     parser_classes = (
         JSONParser,
     )
@@ -318,7 +308,7 @@ class EntriesListView(ListCreateAPIView):
                             state, by name. This will only filter if the calling
                             user has moderation permissions.
     """
-    pagination_class = EntriesPagination
+    pagination_class = DefaultPagination
     filter_backends = (
         filters.DjangoFilterBackend,
         filters.SearchFilter,
