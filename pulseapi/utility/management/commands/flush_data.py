@@ -6,7 +6,11 @@ from django.core.management.base import BaseCommand
 
 from pulseapi.creators.models import EntryCreator
 from pulseapi.entries.models import Entry
-from pulseapi.profiles.models import UserBookmarks, UserProfile
+from pulseapi.profiles.models import (
+    UserBookmarks,
+    UserProfile,
+    OrganizationProfile,
+)
 from pulseapi.tags.models import Tag
 from pulseapi.users.models import EmailUser
 
@@ -31,6 +35,9 @@ class Command(BaseCommand):
 
         self.stdout.write('Dropping EntryCreator objects')
         EntryCreator.objects.all().delete()
+
+        self.stdout.write('Dropping Organization Profile objects')
+        OrganizationProfile.objects.all().delete()
 
         self.stdout.write('Dropping Profile objects')
         UserProfile.objects.all().delete()

@@ -7,6 +7,8 @@ from pulseapi.profiles.views import (
     UserProfilePublicSelfAPIView,
     UserProfileEntriesAPIView,
     UserProfileCategoriesView,
+    OrganizationProfileAPIView,
+    OrganizationProfileListAPIView,
 )
 
 urlpatterns = [
@@ -30,6 +32,17 @@ urlpatterns = [
         UserProfileCategoriesView.as_view(),
         name='categories_view',
     ),
+    url(
+        r'^organizations/(?P<pk>[0-9]+)/$',
+        OrganizationProfileAPIView.as_view(),
+        name='organization-profile',
+    ),
+    url(
+        r'^organizations/$',
+        OrganizationProfileListAPIView.as_view(),
+        name='organization-profile-list',
+    ),
+
     # note that there is also a /myprofile route
     # defined in the root urls.py which connects
     # to the UserProfileAPIView class.

@@ -15,7 +15,11 @@ from pulseapi.entries.models import Entry
 # Factories
 from pulseapi.creators.factory import EntryCreatorFactory
 from pulseapi.entries.factory import BasicEntryFactory, GetInvolvedEntryFactory
-from pulseapi.profiles.factory import UserBookmarksFactory, ExtendedUserProfileFactory
+from pulseapi.profiles.factory import (
+    UserBookmarksFactory,
+    ExtendedUserProfileFactory,
+    OrganizationProfileFactory,
+)
 from pulseapi.profiles.models import ProgramYear, ProgramType, ProfileType
 from pulseapi.tags.factory import TagFactory
 from pulseapi.users.factory import BasicEmailUserFactory, MozillaEmailUserFactory
@@ -98,6 +102,16 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            '-o',
+            '--organization-count',
+            action='store',
+            type=int,
+            default=20,
+            dest='organization_profile_count',
+            help='The number of organization profiles to generate per possible variations. Default: 20, variations: 16'
+        )
+
+        parser.add_argument(
             '-e',
             '--entries-count',
             action='store',
@@ -152,6 +166,9 @@ class Command(BaseCommand):
 
         print('Creating fellows')
         generate_fellows(options['fellows_count'])
+
+        print('Creating organization profiles')
+        generate_fake_data(OrganizationProfileFactory, options['organization_profile_count'])
 
         # Select random published entries and bookmark them for 1 to 10 users
         print('Creating bookmarks')

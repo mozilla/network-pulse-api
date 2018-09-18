@@ -441,3 +441,6 @@ class TestProfileView(PulseMemberTestCase):
         self.assertListEqual(categories['profile_types'], list(ProfileType.objects.values_list('value', flat=True)))
         self.assertListEqual(categories['program_types'], list(ProgramType.objects.values_list('value', flat=True)))
         self.assertListEqual(categories['program_years'], list(ProgramYear.objects.values_list('value', flat=True)))
+
+
+class TestOrganizationProfileView(PulseMemberTestCase):

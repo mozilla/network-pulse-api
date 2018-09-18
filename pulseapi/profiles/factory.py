@@ -17,6 +17,7 @@ from pulseapi.profiles.models import (
     ProgramType,
     ProgramYear,
     UserBookmarks,
+    OrganizationProfile,
 )
 from pulseapi.utility.factories_utility import get_random_items, ImageProvider
 
@@ -73,3 +74,27 @@ class ExtendedUserProfileFactory(BasicUserProfileFactory):
     profile_type = Iterator(ProfileType.objects.all())
     program_type = Iterator(ProgramType.objects.all())
     program_year = Iterator(ProgramYear.objects.all())
+
+
+class OrganizationProfileFactory(DjangoModelFactory):
+    name = Faker('company')
+    tagline = Faker('sentence', nb_words=4, variable_nb_words=True)
+    about = Faker('text', max_nb_chars=500)
+    location = Faker('address')
+    twitter = Faker('url')
+    linkedin = Faker('url')
+    email = Faker('company_email')
+    website = Faker('url')
+    administrator = Iterator(UserProfile.objects.all())
+
+    @post_generation
+    def issues(self, create, extracted, **kwargs):
+        self.issues.add(*(get_random_items(Issue)))
+
+    @post_generation
+    def set_logo(self, create, extracted, **kwargs):
+        self.logo.name = Faker('generic_image').generate({})
+
+    class Meta:
+        model = OrganizationProfile
+

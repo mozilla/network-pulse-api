@@ -14,7 +14,7 @@ class TemporaryField(models.UUIDField):
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        del kwargs['verbose_name']
+        kwargs.pop('verbose_name', None)
         del kwargs['null']
         del kwargs['unique']
         return name, path, args, kwargs

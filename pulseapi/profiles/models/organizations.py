@@ -14,6 +14,18 @@ def org_profile_thumbnail_path(instance, filename):
     )
 
 
+class OrganizationProfileQueryset(models.query.QuerySet):
+    """
+    A manager for organization profiles with convenience queries
+    """
+
+    def saved(self):
+        """
+        Return all organization profiles that aren't temporarirly created
+        """
+        return self.filter(temporary_code=None)
+
+
 class OrganizationProfile(models.Model):
     """
     This class houses Organization Profile data
@@ -89,3 +101,8 @@ class OrganizationProfile(models.Model):
     )
 
     temporary_code = TemporaryField()
+
+    objects = OrganizationProfileQueryset.as_manager()
+
+    class Meta:
+        verbose_name = 'organization profile'
