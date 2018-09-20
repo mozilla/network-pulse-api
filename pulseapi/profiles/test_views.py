@@ -2,8 +2,11 @@ import json
 from urllib.parse import urlencode
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from math import ceil
+from django.http.request import HttpRequest
+from rest_framework.request import Request
 
-from .models import UserProfile, ProfileType, ProgramType, ProgramYear
+from .models import UserProfile, ProfileType, ProgramType, ProgramYear, OrganizationProfile
 
 from pulseapi.tests import PulseMemberTestCase
 from pulseapi.entries.models import Entry, ModerationState
@@ -21,8 +24,14 @@ from pulseapi.profiles.serializers import (
     UserProfilePublicSerializer,
     UserProfilePublicWithEntriesSerializer,
     UserProfileBasicSerializer,
+    OrganizationProfileSerializer,
 )
-from pulseapi.profiles.factory import UserBookmarksFactory, ExtendedUserProfileFactory
+from pulseapi.profiles.factory import (
+    UserBookmarksFactory,
+    ExtendedUserProfileFactory,
+    OrganizationProfileFactory,
+)
+from pulseapi.utility.viewutils import DefaultPagination
 
 
 class TestProfileView(PulseMemberTestCase):
@@ -444,3 +453,43 @@ class TestProfileView(PulseMemberTestCase):
 
 
 class TestOrganizationProfileView(PulseMemberTestCase):
+    def setUp(self):
+        super().setUp()
+        self.org_profiles = []
+        for i in range(5):
+            self.org_profiles.append(
+                OrganizationProfileFactory(
+                    is_temporary=True if i % 2 == 0 else False
+                )
+            )
+
+    def test_get_single_org_profile(self):
+        org_profile = OrganizationProfile.objects.saved()[0]
+        org_profile_data = OrganizationProfileSerializer(org_profile).data
+
+        response = self.client.get(reverse('organization-profile', kwargs={'pk': org_profile.id}))
+        response_org_profile = json.loads(str(response.content, 'utf-8'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(org_profile_data, response_org_profile)
+
+    def test_get_list_org_profiles(self):
+        org_profiles = OrganizationProfile.objects.saved()
+        page_size = DefaultPagination().get_page_size(
+            request=Request(request=HttpRequest())
+        )  # mock request to satisfy the required arguments)
+
+        for page_number in range(ceil(len(org_profiles) / page_size)):
+            start_profile_index = page_number * page_size
+            end_profile_index = start_profile_index + page_size
+            org_profile_list = OrganizationProfileSerializer(
+                org_profiles[start_profile_index:end_profile_index],
+                many=True,
+            ).data
+            response = self.client.get('{url}?page={page_number}'.format(
+                url=reverse('organization-profile-list'),
+                page_number=page_number + 1,
+            ))
+            self.assertEqual(response.status_code, 200)
+            response_org_profiles = json.loads(str(response.content, 'utf-8'))['results']
+            self.assertListEqual(response_org_profiles, org_profile_list)

@@ -15,7 +15,7 @@ from pulseapi.entries.serializers import (
     EntrySerializerWithV1Creators,
     EntrySerializerWithCreators,
 )
-from pulseapi.entries.views import EntriesPagination
+from pulseapi.utility.viewutils import DefaultPagination
 from pulseapi.tests import PulseStaffTestCase
 
 
@@ -312,7 +312,7 @@ class TestEntryView(PulseStaffTestCase):
     def run_test_get_entry_list(self, entries_url, serializer_class):
         """Get /entries endpoint"""
         entries = Entry.objects.public().with_related()
-        page_size = EntriesPagination().get_page_size(
+        page_size = DefaultPagination().get_page_size(
             request=Request(request=HttpRequest())
         )  # mock request to satisfy the required arguments)
 

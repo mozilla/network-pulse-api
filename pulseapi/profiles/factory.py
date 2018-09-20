@@ -8,7 +8,9 @@ from factory import (
     Faker,
     post_generation,
     Iterator,
+    LazyFunction,
 )
+import uuid
 
 from pulseapi.issues.models import Issue
 from pulseapi.profiles.models import (
@@ -85,7 +87,6 @@ class OrganizationProfileFactory(DjangoModelFactory):
     linkedin = Faker('url')
     email = Faker('company_email')
     website = Faker('url')
-    administrator = Iterator(UserProfile.objects.all())
 
     @post_generation
     def issues(self, create, extracted, **kwargs):
@@ -95,6 +96,10 @@ class OrganizationProfileFactory(DjangoModelFactory):
     def set_logo(self, create, extracted, **kwargs):
         self.logo.name = Faker('generic_image').generate({})
 
+    class Params:
+        is_temporary = Trait(
+            temporary_code=LazyFunction(uuid.uuid4),
+        )
+
     class Meta:
         model = OrganizationProfile
-
