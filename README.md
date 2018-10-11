@@ -654,7 +654,7 @@ Replies with an Atom feed consisting of (a subset of) only those entries that ar
 
 ## Setup
 
-**Requirements**: [python3.6 or later](https://www.python.org/), [pip](https://pypi.python.org/pypi), [pipenv](https://docs.pipenv.org/), [invoke](http://www.pyinvoke.org/installing.html).
+**Requirements**: [python3.6](https://www.python.org/), [pip](https://pypi.python.org/pypi), [pipenv](https://docs.pipenv.org/), [invoke](http://www.pyinvoke.org/installing.html).
 
 1. Clone this repo: `git clone https://github.com/mozilla/network-pulse-api.git`,
 2. Set up a Google client (https://console.developers.google.com/apis/credentials),
@@ -666,6 +666,8 @@ Replies with an Atom feed consisting of (a subset of) only those entries that ar
 `inv setup` takes care of installing the project's dependencies, copying environment variables, creating a superuser when possible and generating fake data. When it's done, follow the instructions. To start your local server, run `inv runserver`.
 
 You can get a full list of inv commands by running `inv -l`.
+
+Instructions on how to setup this project using `nix-shell` (Linux and MacOS) are [available here](#nix-shell).
 
 ## Generating fake data
 
@@ -744,6 +746,25 @@ For management commands not covered by an invoke tasks, use `inv manage [command
 - `inv manage runserver -o 3000`
 - `inv manage load_fake_data -f seed=VALUE`
 - `inv manage migrate -o news`
+
+### Nix-shell
+
+If you want to use nix-shell to isolate your dev environment:
+
+- Install [Nix](https://nixos.org/nix/): `curl https://nixos.org/nix/install | sh`,
+- In `network-pulse-api` directory, enter `nix-shell`. It will install Python 3.6, pipenv and invoke,
+- Enter `inv setup` to setup the project,
+- When it's done, use invoke and pipenv commands as usual.
+
+If you want to use another shell instead of bash, use `nix-shell --command SHELL` (`nix-shell --command zsh` for example).
+
+#### Direnv
+[Direnv](https://direnv.net/) will load your `nix-shell` automatically when you enter the `network-pulse-api` directory.
+
+To use it:
+- Follow the instruction to [install direnv](https://direnv.net/) on your system,
+- Allow direnv to auto-load your nix-shell by entering `direnv allow .` in the `network-pulse-api` directory.
+
 
 ### Testing the API using the "3rd party library" test file
 
