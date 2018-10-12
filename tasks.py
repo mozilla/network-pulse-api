@@ -79,7 +79,7 @@ def setup(ctx):
             print("Copying default environment variables")
             copy("sample.env", ".env")
             print("Installing Python dependencies")
-            ctx.run("pipenv install --dev --three")
+            ctx.run("pipenv install --dev")
             print("Applying database migrations")
             ctx.run("inv migrate")
             print("Creating fake data")
