@@ -28,6 +28,12 @@
               Sign in with Google
             </button>
           </a>
+          <a href="{% provider_login_url 'github' process='login' %}">
+            <button class="btn social-github">
+              <img class="social-icon" src="{% static 'account/img/github-icon.svg' %}">
+              Sign in with GitHub
+            </button>
+          </a>
           {% endif %}
           {% is_next_url_admin as show_superuser_login %}
           {% if show_superuser_login %}

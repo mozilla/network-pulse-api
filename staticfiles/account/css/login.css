@@ -95,11 +95,23 @@ footer {
   box-shadow: none;
 }
 
-.social-icon {
-  width: 50px;
-  height: 50px;
-  display: inline-block;
-  margin-right: 20px;
+.social-github {
+  background-color: #444;
+  color: #fff;
+  box-shadow: none;
+}
+
+.social-github:focus {
+  box-shadow: none;
+}
+
+.social-github:hover {
+  box-shadow: 0px 0px 0px 4px rgba(199,199,199,1);
+}
+
+.social-github:active {
+  background-color: #2b2b2b;
+  box-shadow: none;
 }
 
 .social-admin {
@@ -121,10 +133,16 @@ footer {
   box-shadow: none;
 }
 
-.social-admin .social-icon {
+.social-icon {
   width: 50px;
   height: 50px;
+  display: inline-block;
+  margin-right: 20px;
   padding: 5px;
+}
+
+.social-google .social-icon {
+  padding: 0;
 }
 
 .tos {

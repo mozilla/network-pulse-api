@@ -97,6 +97,7 @@ INSTALLED_APPS = list(filter(None, [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.github',
     'rest_framework',
     'storages',
     'pulseapi.utility',
@@ -148,7 +149,13 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {
             'access_type': 'online',
         }
-    }
+    },
+    'github': {
+        'SCOPE': [
+            'read:user',
+            'user:email',
+        ]
+    },
 }
 ACCOUNT_ADAPTER = 'pulseapi.users.adapter.PulseAccountAdapter'
 SOCIALACCOUNT_ADAPTER = 'pulseapi.users.adapter.PulseSocialAccountAdapter'
