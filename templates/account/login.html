@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static socialaccount %}
+{% load static socialaccount pulse_auth %}
 
 {% block head %}
 <link href="{% static 'account/css/login.css' %}" rel="stylesheet" type="text/css">
@@ -7,30 +7,43 @@
 
 {% block head_title %}Sign in to Pulse{% endblock %}
 
-{% block body %}
-{% if user.is_authenticated %}
-{% else %}
+{% block content %}
 <div id="main" class="container">
   <div class="main-container">
     <div class="panel">
       <img class="main-logo" src="{% static 'account/img/pulse-logo.svg' %}">
       <div class="panel-content">
         <p class="main-title">Sign In</p>
+        {% is_review_app as review_app %}
+        {% if review_app %}
+        <p>Hi! OAuth is not available on Review Apps.<br>Read the <a href="https://github.com/mozilla/network-pulse-api#review-app">review app documentation</a> if you need administrator access.</p>
+        {% else %}
         <p>Hey there! Sign in to your account to start posting content on Pulse</p>
+        {% endif %}
         <div class="social-buttons">
+          {% if not review_app %}
           <a href="{% provider_login_url 'google' process='login' %}">
             <button class="btn social-google">
               <img class="social-icon" src="{% static 'account/img/google-icon-normal.svg' %}">
               Sign in with Google
             </button>
           </a>
+          {% endif %}
+          {% is_next_url_admin as show_superuser_login %}
+          {% if show_superuser_login %}
+          <a href="{% url 'admin:login' %}">
+            <button class="btn social-admin">
+              <img class="social-icon" src="{% static 'account/img/admin-icon.svg' %}">
+              Sign in with Django Admin
+            </button>
+          </a>
+          {% endif %}
         </div>
       </div>
       <p class="tos">By creating/having and account, you agree to <a href="https://www.mozilla.org/en-US/about/legal/terms/mozilla/">Mozilla's Terms of Service</a></p>
     </div>
   </div>
 </div>
-{% endif %}
 {% block footer %}<!-- Don't show the footer for this page -->{% endblock %}
 {% endblock %}
 

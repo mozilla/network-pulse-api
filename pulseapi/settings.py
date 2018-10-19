@@ -137,6 +137,7 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 LOGIN_REDIRECT_URL = '/'
+LOGIN_ALLOWED_REDIRECT_DOMAINS = env('LOGIN_ALLOWED_REDIRECT_DOMAINS', cast=list, default=[])
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -149,7 +150,9 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
-SOCIALACCOUNT_ADAPTER = 'pulseapi.users.adapter.PulseAccountAdapter'
+ACCOUNT_ADAPTER = 'pulseapi.users.adapter.PulseAccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'pulseapi.users.adapter.PulseSocialAccountAdapter'
+ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_REQUIRED = True
