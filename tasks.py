@@ -68,6 +68,17 @@ def test(ctx):
 @task
 def setup(ctx):
     """Automate project's configuration and dependencies installation"""
+    setup_finish_instructions = (
+      "Done!\n"
+      "You can get a full list of inv commands with 'inv -l'\n\n"
+      "If you only want to login with Django admin credentials, your setup is complete and you can run the server using 'inv runserver',\n"
+      "To enable login using Google and/or Github:\n"
+      "1. Set up a Google client here: https://console.developers.google.com/apis/credentials. Optionally also create a Github client here: https://github.com/settings/applications/new.\n The Authorized domain is http://test.example.com:8000 and the redirect url is http://test.example.com:8000/accounts/google/login/callback/ (replace google with github for the github redirect url).\n"
+      "2. Create a superuser by running 'pipenv run python manage.py createsuperuser'\n"
+      "3. When it's done, start your dev server by running 'inv runserver'.\n"
+      "4. Login to the admin interface as a superuser and create an instance each of 'Social Application', one for Google and one for Github with their client ids and secrets filled in.\n"
+      "5. You can now login using Google and/or Github.\n"
+    )
     with ctx.cd(ROOT):
         if os.path.isfile(".env"):
             print("'.env' file found:\n"
@@ -84,28 +95,13 @@ def setup(ctx):
             ctx.run("inv migrate")
             print("Creating fake data")
             ctx.run("inv manage load_fake_data")
-            print("Creating 'client_secrets.json' file")
-            ctx.run("pipenv run python generate_client_secrets.py", **PLATFORM_ARG)
             # Windows doesn't support pty, skipping createsuperuser step
             if platform == 'win32':
-                print("Done!\n"
-                      "To finish your setup:\n"
-                      "1. Set up a Google client here: https://console.developers.google.com/apis/credentials.\n"
-                      "Then, open 'client_secrets.json' and edit 'client_id' and 'client_secret' with your Google "
-                      "client's values.\n"
-                      "2. Create a superuser by running 'pipenv run python manage.py createsuperuser'\n"
-                      "When it's done, start your dev server by running 'inv runserver'. You can get a full list of "
-                      "inv commands with 'inv -l'")
+                print(setup_finish_instructions)
             else:
                 print("Creating superuser")
                 ctx.run("pipenv run python manage.py createsuperuser", pty=True)
-                print("Done!\n"
-                      "To finish your setup, set up a Google client here: "
-                      "https://console.developers.google.com/apis/credentials.\n"
-                      "Then, open 'client_secrets.json' and edit 'client_id' and 'client_secret' with your Google "
-                      "client's values.\n"
-                      "When it's done, start your dev server by running 'inv runserver'. You can get a full list of "
-                      "inv commands with 'inv -l'")
+                print(setup_finish_instructions)
 
 
 @task()
