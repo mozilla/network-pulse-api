@@ -66,14 +66,16 @@ class PulseSocialAccountAdapter(DefaultSocialAccountAdapter):
     def is_auto_signup_allowed(self, request, sociallogin):
         email = user_email(sociallogin.user)
 
-        if sociallogin.account.provider == google_provider_id and \
-           email and \
-           email_address_exists(email):
-           # This is a hack to associate existing accounts on pulse
-           # that were added via Google Auth the old way.
-           # This associates the existing User model instance with the new
-           # SocialLogin instance being created here the first time a user
-           # logs into the allauth system. Subsequent logins bypass this flow.
+        if (
+                sociallogin.account.provider == google_provider_id and
+                email and
+                email_address_exists(email)
+        ):
+            # This is a hack to associate existing accounts on pulse
+            # that were added via Google Auth the old way.
+            # This associates the existing User model instance with the new
+            # SocialLogin instance being created here the first time a user
+            # logs into the allauth system. Subsequent logins bypass this flow.
             try:
                 user = get_user_model().objects.get(email=email)
 
