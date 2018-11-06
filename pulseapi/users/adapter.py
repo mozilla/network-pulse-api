@@ -65,6 +65,7 @@ class PulseSocialAccountAdapter(DefaultSocialAccountAdapter):
 
     def is_auto_signup_allowed(self, request, sociallogin):
         email = user_email(sociallogin.user)
+        print(f'auto signup for {email} using {sociallogin.account.provider}' )
 
         if (
                 sociallogin.account.provider == google_provider_id and
@@ -87,6 +88,10 @@ class PulseSocialAccountAdapter(DefaultSocialAccountAdapter):
                 # when they login for the first time.
                 if SocialAccount.objects.filter(user=user).exclude(provider=google_provider_id).exists():
                     return False
+
+                # Associate the existing user with the SocialLogin object
+                # being created
+                sociallogin.user = user
 
             except Model.DoesNotExist:
                 return False
