@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load static i18n pulse_auth %}
+
+{% block head_title %}{% trans "Pulse: Verify your E-mail" %}{% endblock %}
+
+{% block main_title %}{% trans "Verify Your E-mail Address" %}{% endblock %}
+
+{% block content %}
+<p class="mt-3">Before you continue, we need you to verify your email address connected to your social account. Please follow the link in the email we just sent you to complete the verification process.</p>
+{% endblock %}
+
+{% block bottom_panel_content %}
+{% get_pulse_contact_url as contact_url %}
+<p class="bottom-note">{% blocktrans %}Haven't received the email? Please <a href="{{ contact_url }}" target="__blank">contact us</a>!{% endblocktrans %}</p>
+{% endblock %}

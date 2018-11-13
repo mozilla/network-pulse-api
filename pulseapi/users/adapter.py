@@ -1,11 +1,18 @@
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.account.utils import user_email
-from allauth.utils import email_address_exists, get_user_model
 from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.providers.base import AuthProcess
 from allauth.socialaccount.providers.google.provider import GoogleProvider
-from django.db.models import Model
+from allauth.exceptions import ImmediateHttpResponse
+from allauth.utils import (
+    email_address_exists,
+    get_user_model,
+)
 from django.conf import settings
+from django.http import HttpResponseRedirect, QueryDict
+from django.urls import reverse
+from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
 
 from pulseapi.utility.userpermissions import is_staff_address
 from pulseapi.profiles.models import UserProfile
@@ -22,6 +29,38 @@ class PulseAccountAdapter(DefaultAccountAdapter):
         """
         from django.utils.http import is_safe_url
         return is_safe_url(url, allowed_hosts=settings.LOGIN_ALLOWED_REDIRECT_DOMAINS)
+
+    def get_email_confirmation_redirect_url(self, request):
+        """
+        Override this so that we can redirect to the `?next=` url
+        provided since allauth does not do this out of the box
+        """
+        if request.user.is_authenticated:
+            next_url = request.GET.get('next')
+            if next_url and self.is_safe_url(next_url):
+                return next_url
+
+        return super().get_email_confirmation_redirect_url(request)
+
+    def get_email_confirmation_url(self, request, emailconfirmation):
+        """
+        Override this so that we can set the `?next=` url in the email
+        confirmation url so that the user is redirected correctly after
+        confirming their email.
+        """
+        url = super().get_email_confirmation_url(request, emailconfirmation)
+        next_url = request.GET.get('next')
+
+        if not (next_url and self.is_safe_url(next_url)):
+            return url
+
+        # Parse the url and add the `next` url to it as a query string
+        url_parts = list(urlparse(url))
+        qs = dict(parse_qsl(url_parts[4]))
+        qs.update({'next': next_url})
+        url_parts[4] = urlencode(qs)
+
+        return urlunparse(url_parts)
 
 
 class PulseSocialAccountAdapter(DefaultSocialAccountAdapter):
@@ -63,39 +102,73 @@ class PulseSocialAccountAdapter(DefaultSocialAccountAdapter):
 
         return user
 
-    def is_auto_signup_allowed(self, request, sociallogin):
+    def pre_social_login(self, request, sociallogin):
         email = user_email(sociallogin.user)
-        print(f'auto signup for {email} using {sociallogin.account.provider}' )
+        UserModel = get_user_model()
+        login_provider_id = sociallogin.account.provider
 
         if (
-                sociallogin.account.provider == google_provider_id and
-                email and
-                email_address_exists(email)
+                not email or
+                not email_address_exists(email) or
+                sociallogin.state.get('process') != AuthProcess.LOGIN
         ):
+            # This is a new email address, or we're connecting social accounts
+            # so we don't need to do anything
+            return
+
+        try:
+            user = UserModel.objects.get(email=email)
+        except UserModel.DoesNotExist:
+            # This case shouldn't really happen, but even if it does, we
+            # don't do anything and let the default behavior kick in.
+            return
+
+        social_accounts = list(SocialAccount.objects.filter(
+            user=user
+        ).values_list('provider', flat=True))
+
+        if len(social_accounts) == 0:
             # This is a hack to associate existing accounts on pulse
-            # that were added via Google Auth the old way.
-            # This associates the existing User model instance with the new
-            # SocialLogin instance being created here the first time a user
-            # logs into the allauth system. Subsequent logins bypass this flow.
-            try:
-                user = get_user_model().objects.get(email=email)
+            # that were added via Google Auth the old way to the new allauth
+            # system. We only do this for new logins into this system.
+            request.migrate_user = user
+        elif login_provider_id in social_accounts:
+            # In this case, the existing user already has a social account
+            # and is logging into it using the same provider.
+            return
+        else:
+            # Here the user already has a Pulse social account (e.g. Google)
+            # but is logging in through a different social network
+            # (e.g. Github) that uses the same email for the first time.
+            # We redirect them to the login view where they have to login
+            # through their existing social account on Pulse before going to
+            # the Social Account Connections view to connect their secondary
+            # social account.
+            url = reverse('account_login')
+            qs = QueryDict(mutable=True)
+            next_url = sociallogin.get_redirect_url(request)
+            if next_url:
+                # We encode the final destination url in the connection
+                # view url so that users are correctly rerouted after
+                # connecting their accounts.
+                qs['next'] = next_url
+            next_url = '{url}?{qs}'.format(
+                url=reverse('socialaccount_connections'),
+                qs=qs.urlencode()
+            )
+            qs = QueryDict(mutable=True)
+            qs['next'] = next_url
+            qs['promptconnection'] = True
 
-                # Make sure that there is no other social account with the same
-                # email. This is a security check to make sure that if a
-                # malicious user creates a pulse account through a non-google
-                # provider using a gmail address, the real owner of that gmail
-                # account doesn't get auto-linked to that same pulse account
-                # when they login for the first time.
-                if SocialAccount.objects.filter(user=user).exclude(provider=google_provider_id).exists():
-                    return False
+            raise ImmediateHttpResponse(
+                response=HttpResponseRedirect(f'{url}?{qs.urlencode()}')
+            )
 
-                # Associate the existing user with the SocialLogin object
-                # being created
-                sociallogin.user = user
-
-            except Model.DoesNotExist:
-                return False
-
+    def is_auto_signup_allowed(self, request, sociallogin):
+        if hasattr(request, 'migrate_user'):
+            # Associate the existing user with the SocialLogin object
+            # being created
+            sociallogin.user = request.migrate_user
             return True
 
         return super().is_auto_signup_allowed(request, sociallogin)

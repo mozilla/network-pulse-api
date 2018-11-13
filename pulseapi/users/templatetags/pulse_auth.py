@@ -14,3 +14,13 @@ def is_next_url_admin(context):
 @register.assignment_tag()
 def is_review_app():
     return bool(settings.HEROKU_APP_NAME)
+
+
+@register.simple_tag()
+def get_pulse_contact_url():
+    return settings.PULSE_CONTACT_URL
+
+
+@register.assignment_tag(takes_context=True)
+def signin_before_connect(context):
+    return bool(context['request'].GET.get('promptconnection'))

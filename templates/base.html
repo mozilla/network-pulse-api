@@ -1,32 +1,34 @@
-{% load static %}
+{% load static i18n pulse_auth %}
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block head_title %}Mozilla Pulse API{% endblock %}</title>
+  <title>{% block head_title %}{% trans "Mozilla Pulse API" %}{% endblock %}</title>
   <link href="https://www.mozillapulse.org/css/mofo-bootstrap.css" rel="stylesheet" type="text/css">
+  <link href="{% static 'users/css/root.css' %}" rel="stylesheet" type="text/css">
   {% block head %}
   {% endblock %}
 </head>
 <body>
-  {% block content %}
-  {% endblock %}
-  {% block footer %}
-  <footer class="mofo-footer">
-    <div class="container">
-      <ul class="list-unstyled footer-links row justify-content-center">
-        <li class="col-auto"><a class="footer-link-github" href="{% block github_repo_link %}https://github.com/mozilla/network-pulse-api/{% endblock %}">GitHub</a></li>
-        <li class="col-auto"><a class="footer-link-legal" href="https://www.mozilla.org/about/legal/terms/mozilla/">Legal</a></li>
-        <li class="col-auto"><a class="footer-link-cc-license" href="https://creativecommons.org/licenses/by/4.0/">License</a></li>
-        <li class="col-auto"><a class="footer-link-privacy" href="https://www.mozilla.org/privacy/websites/">Privacy</a></li>
-        <li class="col-auto"><a class="footer-link-email" href="https://mzl.la/pulse-contact">Contact Us</a></li>
-      </ul>
-      <div class="org-info mozilla">
-        <div class="logo-container"><a class="logo" href="https://mozilla.org"></a></div>
-        <p>Mozilla is a global non-profit dedicated to putting you in control of your online experience and shaping the future of the web for the public good. Visit us at <a href="https://mozilla.org">mozilla.org</a>.</p>
+  <div id="main" class="container">
+    <div class="main-container">
+      <div class="panel">
+        <img class="main-logo" src="{% block logo_url %}{% static 'account/img/pulse-logo.svg' %}{% endblock %}">
+        <div class="panel-content">
+          <p class="main-title">{% block main_title %}{% trans "Welcome to the Mozilla Pulse API Service" %}{% endblock %}</p>
+          {% block review_app_warning %}
+          {% is_review_app as review_app %}
+          {% if review_app %}
+          {% blocktrans %}<p>Hi! OAuth is not available on Review Apps.<br>Read the <a href="https://github.com/mozilla/network-pulse-api#review-app">review app documentation</a> if you need administrator access.</p>{% endblocktrans %}
+          {% endif %}
+          {% endblock %}
+          {% block content %}{% endblock %}
+        </div>
+        {% block bottom_panel_content %}{% endblock %}
       </div>
     </div>
-  </footer>
+  </div>
+  {% block footer %}
   {% endblock %}
 </body>

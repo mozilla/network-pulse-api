@@ -709,6 +709,14 @@ Example.com and example.org are "special" domains in that they *cannot* resolve 
    - Fill in the client ID and client secret
 5. Logout of the admin interface.
 
+## Setting up Email
+
+This app allows Django to send email to users for various purposes (e.g. email verification during social login). An email backend is required to make this possible and the email backend is determined based on the value of the `USE_CONSOLE_EMAIL` environment variable.
+
+If it is set to `True` (or no value is provided), all emails will be sent to the terminal window in which Pulse API is running.
+
+If it is set to `False`, you are required to use [Mailgun](https://www.mailgun.com/) as the email SMTP server and configure the `MAILGUN_SMTP_SERVER`, `MAILGUN_SMTP_PORT`, `MAILGUN_SMTP_LOGIN`, and `MAILGUN_SMTP_PASSWORD` environment variables.
+
 ## Generating fake data
 
 Fake model data can be loaded into your dev site with the following command:
@@ -813,14 +821,58 @@ Fire up a localhost server with port 8080 pointing at the `public` directory (so
 
 ## Environment variables
 
-The following environment variables are used in this codebase
+Heroku provisions some environments on its own, like a `PORT` and `DATABASE_URL` variable, which this codebase will make use of if it sees them, but these values are only really relevant to Heroku deployments and not something you need to mess with for local development purposes.
 
- - `LOGIN_ALLOWED_REDIRECT_DOMAINS`: This should match the redirect uri that you provided in your social credentials console. For local testing this will be "http://test.example.com:8000/accounts/<'google' or 'github'>/login/callback/" but for a Heroku instance you will need to replace `http://test.example.com:8000` with your Heroku url, and you'll have to make sure that your Google credentials use that same uri.
- - `SSL_PROTECTION`: Defaults to `False` to make development easier, but if you're deploying you probably want this to be `True`. This sets a slew of security-related variables in `settings.py` that you can override individually if desired.
- Heroku provisions some environmnets on its own, like a `PORT` and `DATABASE_URL` variable, which this codebase will make use of if it sees them, but these values are only really relevant to Heroku deployments and not something you need to mess with for local development purposes.
- - `PULSE_FRONTEND_HOSTNAME`: Defaults to `localhost:3000`. Used by the RSS and Atom feed views to create entry URLs that link to the network pulse frontend rather than the JSON API.
- - `AUTH_STAFF_EMAIL_DOMAINS`: Defaults to `mozillafoundation.org`. A comma-separated list of email domains whose users to automatically mark as staff and allow access to the admin interface.
+Configure the following environment variables as needed in your `.env` file. All variables are optional, but some are highly recommended to be set explicitly.
 
+### Authentication variables
+
+ - `LOGIN_ALLOWED_REDIRECT_DOMAINS` &mdash; A comma-separated list of domains that are allowed to be redirected to after logging in a user. **Defaults to  `test.example.com:3000`.**
+ - `AUTH_STAFF_EMAIL_DOMAINS` &mdash; A comma-separated list of email domains that should be considered "safe" to make as "staff" in Django. **Defaults to `mozillafoundation.org`.**
+ - `AUTH_REQUIRE_EMAIL_VERIFICATION` &mdash; A boolean indicating whether a user needs to verify their email attached to a social account (e.g. Github) before being able to login. **Defaults to `False`.**
+ - `PULSE_CONTACT_URL` &mdash; A contact url for users to file questions or problems when authenticating. **Defaults to an empty string.**
+
+ ### Email variables
+
+ - `USE_CONSOLE_EMAIL` - A boolean to indicate whether the terminal should be used to display emails sent from Django, instead of an email backend. Useful for local development. **Defaults to `True`.**
+
+ These variables are only used (and are required) if `USE_CONSOLE_EMAIL` is set to `False`.
+
+ - `MAILGUN_SMTP_SERVER` &mdash; The url for the Mailgun SMTP server that will be used to send emails.
+ - `MAILGUN_SMTP_PORT` &mdash; The port (as a number) to connect to the Mailgun server.
+ - `MAILGUN_SMTP_LOGIN` &mdash; The login user credential to use to authenticate with the Mailgun server.
+ - `MAILGUN_SMTP_PASSWORD` &mdash; The password to authenticate with the Mailgun server.
+
+ ### Data storage variables
+
+ - `DATABASE_URL` &mdash; The url to connect to the database. **Defaults to `False` which forces Django to create a local SQLite database file.**
+ - `USE_S3` &mdash; A boolean to indicate whether to store user generated assets (like images) on Amazon S3. **Defaults to `False`.**
+
+ These variables are only used (and are required) if `USE_S3` is set to `True`.
+
+ - `AWS_ACCESS_KEY_ID` &mdash; Amazon user Access Key for authentication.
+ - `AWS_SECRET_ACCESS_KEY` &mdash; Amazon user Secret Key for authentication.
+ - `AWS_STORAGE_BUCKET_NAME` &mdash; S3 bucket name where the assets will be stored.
+ - `AWS_STORAGE_ROOT` &mdash; S3 root path in the bucket where assets will be stored.
+ - `AWS_S3_CUSTOM_DOMAIN` &mdash; A custom domain (for e.g. Amazon CloudFront) used to access assets in the S3 bucket.
+
+ ### Security variables
+
+ - `DEBUG` *(recommended)* &mdash; A boolean that indicates whether Django should run in debug mode. DO NOT SET THIS TO `True` IN PRODUCTION ENVIRONMENTS SINCE YOU RISK EXPOSING PRIVATE DATA SUCH AS CREDENTIALS. **Defaults to `True`.**
+ - `SECRET_KEY` *(recommended)* &mdash; A unique, unpredictable string that will be used for cryptographic signing. PLEASE GENERATE A NEW SECRET STRING FOR PRODUCTION ENVIRONMENTS. **Defaults to a set string of characters.**
+ - `SSL_PROTECTION` *(recommended)* &mdash; A catch-all boolean that indicates whether SSL encryption, XSS filtering, content-type sniff protection, HSTS, and cookie security should be enabled. THIS SHOULD LIKELY BE SET TO `True` IN A PRODUCTION ENVIRONMENT. **Defaults to `False`.**
+ - `ALLOWED_HOSTS` &mdash; A comma-separated list of host domains that this app can serve. This is meant to prevent HTTP Host header attacks. **Defaults to a list of `test.example.com`, `localhost`, `network-pulse-api-staging.herokuapp.com`, and `network-pulse-api-production.herokuapp.com`.**
+ - `CORS_ORIGIN_REGEX_WHITELIST` *(recommended)* &mdash; A comma-separated list of python regular expressions matching domains that should be enabled for CORS. **Defaults to anything running on `localhost` or on `test.example.com`.**
+ - `CORS_ORIGIN_WHITELIST` &mdash; A comma-separated list of domains that should be allowed to make CORS requests. **Defaults to an empty list.**
+ - `CSRF_TRUSTED_ORIGINS` &mdash; A comma-separated list of trusted domains that can send POST, PUT, and DELETE requests to this API. **Defaults to a list of `localhost:3000`, `localhost:8000`, `localhost:8080` , `test.example.com:8000`, and `test.example.com:3000`.**
+
+ ### Front-end variables
+
+ - `PULSE_FRONTEND_HOSTNAME` &mdash; The hostname for the front-end used for Pulse. This is used for the RSS and Atom feed data. **Defaults to `localhost:3000`.**
+
+ ### Miscellaneous variables
+
+ - `HEROKU_APP_NAME` *(optional)* &mdash; A domain used to indicate if this app is running as a review app on Heroku. This is used to determine if social authentication is available or not (since it isn't for review apps). **Defaults to an empty string.**
 
 ## Deploying to Heroku
 

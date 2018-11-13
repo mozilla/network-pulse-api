@@ -1,22 +1,35 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static i18n pulse_auth %}
 
 {% block head %}
-<link href="{% static 'users/css/root.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'users/css/index.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
+{% block logo_url %}{% static 'users/img/pulseapi-logo.svg' %}{% endblock %}
+
+{% block review_app_warning %}<!-- Don't show the login for review apps warning for this page -->{% endblock %}
+
 {% block content %}
-<div id="main" class="container">
-  <div class="main-container">
-    <div class="panel">
-      <img class="main-logo" src="{% static 'users/img/pulseapi-logo.svg' %}">
-      <div class="panel-content">
-        <p class="main-title">Welcome to the Mozilla Pulse API Service</p>
-        {% url 'admin:index' as admin_url %}
-        <a href="{% url 'account_login' %}?next={{ admin_url | urlencode }}"><button class="btn btn-info mr-3">Go to the Admin Website</button></a>
-        <a href="{% url 'entries-list' 'v2/' %}"><button class="btn btn-info mr-3">Check out the Browsable API</button></a>
-      </div>
+{% url 'admin:index' as admin_url %}
+<a href="{% url 'account_login' %}?next={{ admin_url | urlencode }}"><button class="btn btn-info mr-3">{% trans "Go to the Admin Website" %}</button></a>
+<a href="{% url 'entries-list' 'v2/' %}"><button class="btn btn-info mr-3">{% trans "Check out the Browsable API" %}</button></a>
+{% endblock %}
+
+{% block footer %}
+<footer class="mofo-footer">
+  <div class="container">
+    <ul class="list-unstyled footer-links row justify-content-center">
+      <li class="col-auto"><a class="footer-link-github" href="https://github.com/mozilla/network-pulse-api/">GitHub</a></li>
+      <li class="col-auto"><a class="footer-link-legal" href="https://www.mozilla.org/about/legal/terms/mozilla/">{% trans "Legal" %}</a></li>
+      <li class="col-auto"><a class="footer-link-cc-license" href="https://creativecommons.org/licenses/by/4.0/">{% trans "License" %}</a></li>
+      <li class="col-auto"><a class="footer-link-privacy" href="https://www.mozilla.org/privacy/websites/">{% trans "Privacy" %}</a></li>
+      <li class="col-auto"><a class="footer-link-email" href="{% get_pulse_contact_url %}">{% trans "Contact Us" %}</a></li>
+    </ul>
+    <div class="org-info mozilla">
+      <div class="logo-container"><a class="logo" href="https://mozilla.org"></a></div>
+      <p>{% blocktrans %}Mozilla is a global non-profit dedicated to putting you in control of your online experience and shaping the future of the web for the public good. Visit us at <a href="https://mozilla.org">mozilla.org</a>.{% endblocktrans %}</p>
     </div>
   </div>
-</div>
+</footer>
 {% endblock %}
+

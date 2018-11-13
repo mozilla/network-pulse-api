@@ -87,7 +87,7 @@ def remove_tags_with_commas(app, schema_editor):
         # Create a list of plain string "tags" that we get by
         # resolving the comma(s) in our comma-laden tag.
         trimmed = tag.name.strip()
-        splitlist = re.split('\s*,\s*', trimmed)
+        splitlist = re.split(r'\s*,\s*', trimmed)
         filtered = list(filter(None, splitlist))
 
         # For each tag string we now have, update the entries that
