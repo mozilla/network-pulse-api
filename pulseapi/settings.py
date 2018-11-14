@@ -15,6 +15,8 @@ import sys
 import dj_database_url
 import environ
 
+from urllib.parse import quote_plus
+
 if sys.version_info < (3, 6):
     raise ValueError("Please upgrade to Python 3.6 or later")
 
@@ -35,6 +37,7 @@ env = environ.Env(
     PULSE_FRONTEND_HOSTNAME=(str, ''),
     SECRET_KEY=(str, ''),
     CSRF_TRUSTED_ORIGINS=(list, []),
+    AUTH_STAFF_EMAIL_DOMAINS=(list, [])
 )
 
 SSL_PROTECTION = env('SSL_PROTECTION')
@@ -92,6 +95,11 @@ INSTALLED_APPS = list(filter(None, [
     'django.contrib.staticfiles',
     'django.forms',
     'corsheaders',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.github',
     'rest_framework',
     'storages',
     'pulseapi.utility',
@@ -127,7 +135,64 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+LOGIN_REDIRECT_URL = '/'
+LOGIN_ALLOWED_REDIRECT_DOMAINS = env('LOGIN_ALLOWED_REDIRECT_DOMAINS', cast=list, default=[])
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = env('AUTH_EMAIL_REDIRECT_URL', default=LOGIN_REDIRECT_URL)
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/accounts/login/?next={next_url}'.format(
+    next_url=quote_plus(ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL)
+)
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    },
+    'github': {
+        'SCOPE': [
+            'read:user',
+            'user:email',
+        ]
+    },
+}
+ACCOUNT_ADAPTER = 'pulseapi.users.adapter.PulseAccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'pulseapi.users.adapter.PulseSocialAccountAdapter'
+SOCIALACCOUNT_STORE_TOKENS = False
+ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https' if SSL_PROTECTION is True else 'http'
 AUTH_USER_MODEL = 'users.EmailUser'
+AUTH_STAFF_EMAIL_DOMAINS = env('AUTH_STAFF_EMAIL_DOMAINS')
+ACCOUNT_EMAIL_VERIFICATION = (
+    'mandatory'
+    if env('AUTH_REQUIRE_EMAIL_VERIFICATION', cast=bool, default=False)
+    else 'optional'
+)
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+
+
+# Email settings (currently used for auth email verification only)
+EMAIL_VERIFICATION_FROM = env('EMAIL_VERIFICATION_FROM', default='webmaster@localhost')
+if env('USE_CONSOLE_EMAIL', cast=bool, default=True):
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = env('MAILGUN_SMTP_SERVER')
+    EMAIL_PORT = env('MAILGUN_SMTP_PORT')
+    EMAIL_HOST_USER = env('MAILGUN_SMTP_LOGIN')
+    EMAIL_HOST_PASSWORD = env('MAILGUN_SMTP_PASSWORD')
 
 ROOT_URLCONF = 'pulseapi.urls'
 
@@ -269,6 +334,8 @@ X_FRAME_OPTIONS = "DENY"
 
 # Frontend URL is required for the RSS and Atom feeds
 PULSE_FRONTEND_HOSTNAME = env('PULSE_FRONTEND_HOSTNAME')
+
+PULSE_CONTACT_URL = env('PULSE_CONTACT_URL', default='')
 
 USE_S3 = env('USE_S3')
 

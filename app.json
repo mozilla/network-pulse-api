@@ -7,15 +7,6 @@
     "SECRET_KEY": {
       "generator": "secret"
     },
-    "REDIRECT_URIS": {
-      "required": true
-    },
-    "client_id": {
-      "required": true
-    },
-    "client_secret": {
-      "required": true
-    },
     "AWS_ACCESS_KEY_ID": {
       "required": true
     },

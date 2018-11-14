@@ -1,0 +1,24 @@
+{% load account pulse_auth %}{% load i18n %}{% blocktrans with site_name=current_site.name %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Welcome to {{ site_name }}</title>
+  </head>
+  <body>
+    <p>Welcome to {{ site_name }}!</p>
+
+    <p>You are receiving this email because you just signed up for an account on {{ site_name }} to join a network to discover & collaborate on projects for a healthy internet.</p>
+
+    <p>To confirm your email address, please click <a href="{{ activate_url }}">here</a>.</p>
+    {% endblocktrans %}
+
+    <p>If you did not sign up for a {% blocktrans with site_name=current_site.name %}{{ site_name }}{% endblocktrans %} account, please <a href="{% get_pulse_contact_url %}">contact us</a>.</p>
+
+    {% blocktrans with site_name=current_site.name %}
+    <p>Thanks,<br>{{ site_name }} team.</p>
+
+    <p><em>This is an automated email, please do not reply to it.</em></p>
+  </body>
+</html>
+{% endblocktrans %}

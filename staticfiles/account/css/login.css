@@ -1,0 +1,93 @@
+/*
+ * Login page CSS rules
+ */
+
+.social-buttons {
+  margin: 30px auto 0;
+}
+
+.social-buttons a {
+  text-decoration: none;
+}
+
+.social-buttons .btn {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin: 0 auto 10px;
+  white-space: normal;
+  text-align: left;
+}
+
+.social-google {
+  background-color: #318AF5;
+  color: #fff;
+  box-shadow: none;
+}
+
+.social-google:focus {
+  box-shadow: none;
+}
+
+.social-google:hover {
+  box-shadow: 0px 0px 0px 4px rgba(198,218,253,1);
+}
+
+.social-google:active {
+  background-color: #3367D6;
+  box-shadow: none;
+}
+
+.social-github {
+  background-color: #444;
+  color: #fff;
+  box-shadow: none;
+}
+
+.social-github:focus {
+  box-shadow: none;
+}
+
+.social-github:hover {
+  box-shadow: 0px 0px 0px 4px rgba(199,199,199,1);
+}
+
+.social-github:active {
+  background-color: #2b2b2b;
+  box-shadow: none;
+}
+
+.social-admin {
+  background-color: #417690;
+  color: #fff;
+  box-shadow: none;
+}
+
+.social-admin:focus {
+  box-shadow: none;
+}
+
+.social-admin:hover {
+  box-shadow: 0 0 0 4px rgba(176,217,235,1);
+}
+
+.social-admin:active {
+  background-color: #325c71;
+  box-shadow: none;
+}
+
+.social-icon {
+  width: 50px;
+  height: 50px;
+  display: inline-block;
+  margin-right: 20px;
+  padding: 5px;
+}
+
+.social-google .social-icon {
+  padding: 0;
+}

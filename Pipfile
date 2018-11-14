@@ -23,6 +23,7 @@ Pillow = "*"
 requests = "*"
 whitenoise = "*"
 "psycopg2-binary" = "*"
+django-allauth = "*"
 
 [dev-packages]
 autoflake = "*"

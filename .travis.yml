@@ -28,3 +28,4 @@ env:
     - SSL_PROTECTION=False
     - DATABASE_URL=postgres://postgres:5432@localhost:5432/pulseapi
     - SECRET_KEY=BetPHpGoUXUwjaAXm6ArIhV95xLdDZtu8QEGnNXY3eTknIkD
+    - AUTH_STAFF_EMAIL_DOMAINS=mozillafoundation.org

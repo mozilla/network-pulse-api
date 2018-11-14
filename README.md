@@ -656,10 +656,10 @@ Replies with an Atom feed consisting of (a subset of) only those entries that ar
 
 **Requirements**: [python3.6](https://www.python.org/), [pip](https://pypi.python.org/pypi), [pipenv](https://docs.pipenv.org/), [invoke](http://www.pyinvoke.org/installing.html).
 
-1. Clone this repo: `git clone https://github.com/mozilla/network-pulse-api.git`,
-2. Set up a Google client (https://console.developers.google.com/apis/credentials),
-3. Run `inv setup`,
-4. Open `client_secrets.json` and edit `client_id` and `client_secret` with your Google client's values.
+1. Clone this repo: `git clone https://github.com/mozilla/network-pulse-api.git`
+2. Run `inv setup`
+3. If you only want to use Django Admin login, your setup is done.
+4. To enable Google and/or GitHub login, follow the [instructions below](#setting-up-social-authentication).
 
 **If you're on Windows:** you will need to Create a super user by running `pipenv run python manage.py createsuperuser`
 
@@ -668,6 +668,54 @@ Replies with an Atom feed consisting of (a subset of) only those entries that ar
 You can get a full list of inv commands by running `inv -l`.
 
 Instructions on how to setup this project using `nix-shell` (Linux and MacOS) are [available here](#nix-shell).
+
+## Setting up Social Authentication
+
+### **Important**: using a localhost rebinding to a "real" domain
+
+Social authentication does not like oauth2 to `localhost`, so you will need to set up a host binding such that 127.0.0.1 looks like a real domain. You can do this by editing your `hosts` file (in `/etc/hosts` on most unix-like systems, or `Windows\System32\Drivers\etc\hosts` in Windows). Add the following rule:
+
+`127.0.0.1    test.example.com`
+
+and then use `http://test.example.com:8000` instead of `http://localhost:8000` everywhere. Social authentication apps should now be perfectly happy.
+
+#### Why "test.example.com"?
+
+Example.com and example.org are "special" domains in that they *cannot* resolve to a real domain as part of the policy we, as the internet-connected world, agreed on. This means that if you forget to set that `hosts` binding, visiting test.example.com will be a guaranteed failure. Any other domain may in fact exist, and you don't want to be hitting a real website when you're doing login and authentication.
+
+### Google
+
+1. Set up a [Google OAuth client](https://console.developers.google.com/apis/credentials).
+   - Use `http://test.example.com:8000` as the "Authorized Javascript URL"
+   - Use `http://test.example.com:8000/accounts/google/login/callback/` as the "Authorized Redirect URL"
+   - Keep the client ID and client secret handy
+2. Create a superuser (if you haven't already) and run the server.
+3. Go to http://test.example.com:8000/admin and login using superuser credentials.
+4. Add and save a new "Social Application" instance.
+   - The "Provider" should be 'Google'
+   - Fill in the client ID and client secret
+5. Logout of the admin interface.
+
+### GitHub
+
+1. Login to GitHub and setup a [GitHub OAuth client](https://github.com/settings/applications/new).
+   - Use `http://test.example.com:8000` as the "Homepage URL"
+   - Use `http://test.example.com:8000/accounts/github/login/callback/` as the "Authorized Callback URL"
+   - Keep the client ID and client secret handy
+2. Create a superuser (if you haven't already) and run the server.
+3. Go to http://test.example.com:8000/admin and login using superuser credentials.
+4. Add and save a new "Social Application" instance.
+   - The "Provider" should be 'GitHub'
+   - Fill in the client ID and client secret
+5. Logout of the admin interface.
+
+## Setting up Email
+
+This app allows Django to send email to users for various purposes (e.g. email verification during social login). An email backend is required to make this possible and the email backend is determined based on the value of the `USE_CONSOLE_EMAIL` environment variable.
+
+If it is set to `True` (or no value is provided), all emails will be sent to the terminal window in which Pulse API is running.
+
+If it is set to `False`, you are required to use [Mailgun](https://www.mailgun.com/) as the email SMTP server and configure the `MAILGUN_SMTP_SERVER`, `MAILGUN_SMTP_PORT`, `MAILGUN_SMTP_LOGIN`, and `MAILGUN_SMTP_PASSWORD` environment variables.
 
 ## Generating fake data
 
@@ -770,32 +818,63 @@ To use it:
 
 Fire up a localhost server with port 8080 pointing at the `public` directory (some localhost servers like [http-server](https://npmjs.com/package/http-server) do this automatically for you) and point your browser to [http://localhost:8080](http://localhost:8080). If all went well (but read this README.md to the end, first) you should be able to post to the API server running "on" http://test.example.com:8000
 
-### **Important**: using a localhost rebinding to a "real" domain
-
-Google Auth does not like oauth2 to `localhost`, so you will need to set up a host binding such that 127.0.0.1 looks like a real domain. You can do this by editing your `hosts` file (in `/etc/hosts` on most unix-like systems, or `Windows\System32\Drivers\etc\hosts` in Windows). Add the following rule:
-
-`127.0.0.1    test.example.com`
-
-and then use `http://test.example.com:8000` instead of `http://localhost:8000` everywhere. Google Auth should now be perfectly happy.
-
-#### Why "test.example.com"?
-
-Example.com and example.org are "special" domains in that they *cannot* resolve to a real domain as part of the policy we, as the internet-connected world, agreed on. This means that if you forget to set that `hosts` binding, visiting test.example.com will be a guaranteed failure. Any other domain may in fact exist, and you don't want to be hitting a real website when you're doing login and authentication.
-
 
 ## Environment variables
 
-The following environment variables are used in this codebase
+Heroku provisions some environments on its own, like a `PORT` and `DATABASE_URL` variable, which this codebase will make use of if it sees them, but these values are only really relevant to Heroku deployments and not something you need to mess with for local development purposes.
 
- - `CLIENT_ID`: The client_id that Google gives you in the credentials console.
- - `CLIENT_SECRET`: The client_secret that Google gives you in the credentials console.
- - `REDIRECT_URIS`: This should match the redirect uri that you provided in the Google credentials console. For local testing this will be 'http://test.example.com:8000/api/pulse/oauth2callback' but for a Heroku instance you will need to replace `http://test.example.com:8000` with your Heroku url, and you'll have to make sure that your Google credentials use that same uri.
- - `AUTH_URI`: optional, defaults to 'https://accounts.google.com/o/oauth2/auth' and there is no reason to change it.
- - `TOKEN_URI`: optional, defaults to 'https://accounts.google.com/o/oauth2/token' and there is no reason to change it.
- - `SSL_PROTECTION`: Defaults to `False` to make development easier, but if you're deploying you probably want this to be `True`. This sets a slew of security-related variables in `settings.py` that you can override individually if desired.
- Heroku provisions some environmnets on its own, like a `PORT` and `DATABASE_URL` variable, which this codebase will make use of if it sees them, but these values are only really relevant to Heroku deployments and not something you need to mess with for local development purposes.
- - `PULSE_FRONTEND_HOSTNAME`: Defaults to `localhost:3000`. Used by the RSS and Atom feed views to create entry URLs that link to the network pulse frontend rather than the JSON API.
+Configure the following environment variables as needed in your `.env` file. All variables are optional, but some are highly recommended to be set explicitly.
 
+### Authentication variables
+
+ - `LOGIN_ALLOWED_REDIRECT_DOMAINS` &mdash; A comma-separated list of domains that are allowed to be redirected to after logging in a user. **Defaults to  `test.example.com:3000`.**
+ - `AUTH_STAFF_EMAIL_DOMAINS` &mdash; A comma-separated list of email domains that should be considered "safe" to make as "staff" in Django. **Defaults to `mozillafoundation.org`.**
+ - `AUTH_REQUIRE_EMAIL_VERIFICATION` &mdash; A boolean indicating whether a user needs to verify their email attached to a social account (e.g. Github) before being able to login. **Defaults to `False`.**
+ - `AUTH_EMAIL_REDIRECT_URL` &mdash; The url to redirect to after a user verifies their email to login successfully. **Defaults to `/`.**
+ - `PULSE_CONTACT_URL` &mdash; A contact url for users to file questions or problems when authenticating. **Defaults to an empty string.**
+
+ ### Email variables
+
+ - `USE_CONSOLE_EMAIL` &mdash; A boolean to indicate whether the terminal should be used to display emails sent from Django, instead of an email backend. Useful for local development. **Defaults to `True`.**
+ - `EMAIL_VERIFICATION_FROM` &mdash; The email address used in the "From:" section of emails sent by Django. **Defaults to `webmaster@localhost`.**
+
+ These variables are only used (and are required) if `USE_CONSOLE_EMAIL` is set to `False`.
+
+ - `MAILGUN_SMTP_SERVER` &mdash; The url for the Mailgun SMTP server that will be used to send emails.
+ - `MAILGUN_SMTP_PORT` &mdash; The port (as a number) to connect to the Mailgun server.
+ - `MAILGUN_SMTP_LOGIN` &mdash; The login user credential to use to authenticate with the Mailgun server.
+ - `MAILGUN_SMTP_PASSWORD` &mdash; The password to authenticate with the Mailgun server.
+
+ ### Data storage variables
+
+ - `DATABASE_URL` &mdash; The url to connect to the database. **Defaults to `False` which forces Django to create a local SQLite database file.**
+ - `USE_S3` &mdash; A boolean to indicate whether to store user generated assets (like images) on Amazon S3. **Defaults to `False`.**
+
+ These variables are only used (and are required) if `USE_S3` is set to `True`.
+
+ - `AWS_ACCESS_KEY_ID` &mdash; Amazon user Access Key for authentication.
+ - `AWS_SECRET_ACCESS_KEY` &mdash; Amazon user Secret Key for authentication.
+ - `AWS_STORAGE_BUCKET_NAME` &mdash; S3 bucket name where the assets will be stored.
+ - `AWS_STORAGE_ROOT` &mdash; S3 root path in the bucket where assets will be stored.
+ - `AWS_S3_CUSTOM_DOMAIN` &mdash; A custom domain (for e.g. Amazon CloudFront) used to access assets in the S3 bucket.
+
+ ### Security variables
+
+ - `DEBUG` *(recommended)* &mdash; A boolean that indicates whether Django should run in debug mode. DO NOT SET THIS TO `True` IN PRODUCTION ENVIRONMENTS SINCE YOU RISK EXPOSING PRIVATE DATA SUCH AS CREDENTIALS. **Defaults to `True`.**
+ - `SECRET_KEY` *(recommended)* &mdash; A unique, unpredictable string that will be used for cryptographic signing. PLEASE GENERATE A NEW SECRET STRING FOR PRODUCTION ENVIRONMENTS. **Defaults to a set string of characters.**
+ - `SSL_PROTECTION` *(recommended)* &mdash; A catch-all boolean that indicates whether SSL encryption, XSS filtering, content-type sniff protection, HSTS, and cookie security should be enabled. THIS SHOULD LIKELY BE SET TO `True` IN A PRODUCTION ENVIRONMENT. **Defaults to `False`.**
+ - `ALLOWED_HOSTS` &mdash; A comma-separated list of host domains that this app can serve. This is meant to prevent HTTP Host header attacks. **Defaults to a list of `test.example.com`, `localhost`, `network-pulse-api-staging.herokuapp.com`, and `network-pulse-api-production.herokuapp.com`.**
+ - `CORS_ORIGIN_REGEX_WHITELIST` *(recommended)* &mdash; A comma-separated list of python regular expressions matching domains that should be enabled for CORS. **Defaults to anything running on `localhost` or on `test.example.com`.**
+ - `CORS_ORIGIN_WHITELIST` &mdash; A comma-separated list of domains that should be allowed to make CORS requests. **Defaults to an empty list.**
+ - `CSRF_TRUSTED_ORIGINS` &mdash; A comma-separated list of trusted domains that can send POST, PUT, and DELETE requests to this API. **Defaults to a list of `localhost:3000`, `localhost:8000`, `localhost:8080` , `test.example.com:8000`, and `test.example.com:3000`.**
+
+ ### Front-end variables
+
+ - `PULSE_FRONTEND_HOSTNAME` &mdash; The hostname for the front-end used for Pulse. This is used for the RSS and Atom feed data. **Defaults to `localhost:3000`.**
+
+ ### Miscellaneous variables
+
+ - `HEROKU_APP_NAME` &mdash; A domain used to indicate if this app is running as a review app on Heroku. This is used to determine if social authentication is available or not (since it isn't for review apps). **Defaults to an empty string.**
 
 ## Deploying to Heroku
 

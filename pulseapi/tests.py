@@ -187,7 +187,7 @@ class PulseStaffTestCase(TestCase):
         boostrap(
             self,
             name="staff user",
-            email="test@mozilla.org"
+            email="test@mozillafoundation.org"
         )
 
     def generatePostPayload(self, data={}):

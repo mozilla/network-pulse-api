@@ -1,0 +1,15 @@
+{% load account pulse_auth %}{% load i18n %}{% autoescape off %}{% blocktrans with site_name=current_site.name site_domain=current_site.domain %}
+Welcome to {{ site_name }}!
+
+You are receiving this email because you just signed up for an account on {{ site_name }}.
+
+To confirm your email address, please go to {{ activate_url }}.
+
+Thank you for joining a network to discover & collaborate on projects for a healthy internet!
+
+If you did not sign up for a {{ site_name }}{% endblocktrans %} account, please contact us at {% get_pulse_contact_url %}.
+
+- {% blocktrans with site_name=current_site.name %}{{ site_name }}{% endblocktrans %} team
+
+This is an automated email, please do not reply to it.
+{% endautoescape %}
