@@ -830,11 +830,13 @@ Configure the following environment variables as needed in your `.env` file. All
  - `LOGIN_ALLOWED_REDIRECT_DOMAINS` &mdash; A comma-separated list of domains that are allowed to be redirected to after logging in a user. **Defaults to  `test.example.com:3000`.**
  - `AUTH_STAFF_EMAIL_DOMAINS` &mdash; A comma-separated list of email domains that should be considered "safe" to make as "staff" in Django. **Defaults to `mozillafoundation.org`.**
  - `AUTH_REQUIRE_EMAIL_VERIFICATION` &mdash; A boolean indicating whether a user needs to verify their email attached to a social account (e.g. Github) before being able to login. **Defaults to `False`.**
+ - `AUTH_EMAIL_REDIRECT_URL` &mdash; The url to redirect to after a user verifies their email to login successfully. **Defaults to `/`.**
  - `PULSE_CONTACT_URL` &mdash; A contact url for users to file questions or problems when authenticating. **Defaults to an empty string.**
 
  ### Email variables
 
- - `USE_CONSOLE_EMAIL` - A boolean to indicate whether the terminal should be used to display emails sent from Django, instead of an email backend. Useful for local development. **Defaults to `True`.**
+ - `USE_CONSOLE_EMAIL` &mdash; A boolean to indicate whether the terminal should be used to display emails sent from Django, instead of an email backend. Useful for local development. **Defaults to `True`.**
+ - `EMAIL_VERIFICATION_FROM` &mdash; The email address used in the "From:" section of emails sent by Django. **Defaults to `webmaster@localhost`.**
 
  These variables are only used (and are required) if `USE_CONSOLE_EMAIL` is set to `False`.
 
@@ -872,7 +874,7 @@ Configure the following environment variables as needed in your `.env` file. All
 
  ### Miscellaneous variables
 
- - `HEROKU_APP_NAME` *(optional)* &mdash; A domain used to indicate if this app is running as a review app on Heroku. This is used to determine if social authentication is available or not (since it isn't for review apps). **Defaults to an empty string.**
+ - `HEROKU_APP_NAME` &mdash; A domain used to indicate if this app is running as a review app on Heroku. This is used to determine if social authentication is available or not (since it isn't for review apps). **Defaults to an empty string.**
 
 ## Deploying to Heroku
 

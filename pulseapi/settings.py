@@ -15,6 +15,8 @@ import sys
 import dj_database_url
 import environ
 
+from urllib.parse import quote_plus
+
 if sys.version_info < (3, 6):
     raise ValueError("Please upgrade to Python 3.6 or later")
 
@@ -139,6 +141,10 @@ AUTHENTICATION_BACKENDS = [
 ]
 LOGIN_REDIRECT_URL = '/'
 LOGIN_ALLOWED_REDIRECT_DOMAINS = env('LOGIN_ALLOWED_REDIRECT_DOMAINS', cast=list, default=[])
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = env('AUTH_EMAIL_REDIRECT_URL', default=LOGIN_REDIRECT_URL)
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/accounts/login/?next={next_url}'.format(
+    next_url=quote_plus(ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL)
+)
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -178,6 +184,7 @@ ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
 
 # Email settings (currently used for auth email verification only)
+EMAIL_VERIFICATION_FROM = env('EMAIL_VERIFICATION_FROM', default='webmaster@localhost')
 if env('USE_CONSOLE_EMAIL', cast=bool, default=True):
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:

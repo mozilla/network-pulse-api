@@ -1,6 +1,7 @@
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.account.utils import user_email
+from allauth.socialaccount import providers
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.base import AuthProcess
 from allauth.socialaccount.providers.google.provider import GoogleProvider
@@ -47,6 +48,12 @@ class PulseAccountAdapter(DefaultAccountAdapter):
         Override this so that we can set the `?next=` url in the email
         confirmation url so that the user is redirected correctly after
         confirming their email.
+
+        FIXME: This currently does not work because no `?next=` parameter
+        is passed to the email confirmation view. Our current workaround
+        for this is to set the
+        `ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL` to be
+        the pulse front-end url via an environment veriable on production.
         """
         url = super().get_email_confirmation_url(request, emailconfirmation)
         next_url = request.GET.get('next')
@@ -159,6 +166,7 @@ class PulseSocialAccountAdapter(DefaultSocialAccountAdapter):
             qs = QueryDict(mutable=True)
             qs['next'] = next_url
             qs['promptconnection'] = True
+            qs['provider'] = providers.registry.by_id(login_provider_id).name
 
             raise ImmediateHttpResponse(
                 response=HttpResponseRedirect(f'{url}?{qs.urlencode()}')

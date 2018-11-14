@@ -55,3 +55,22 @@ footer {
   margin: 20px auto 0;
   font-size: 0.875rem;
 }
+
+@media (max-width: 575.98px) {
+  body {
+    padding: 5% 0;
+  }
+
+  #main {
+    background: #fff;
+    padding: 0;
+  }
+
+  #main .panel {
+    padding: 0;
+  }
+
+  #main .panel-content, .bottom-note {
+    max-width: 90%;
+  }
+}
