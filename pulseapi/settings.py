@@ -185,6 +185,7 @@ ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
 # Email settings (currently used for auth email verification only)
 EMAIL_VERIFICATION_FROM = env('EMAIL_VERIFICATION_FROM', default='webmaster@localhost')
+DEFAULT_FROM_EMAIL = EMAIL_VERIFICATION_FROM
 if env('USE_CONSOLE_EMAIL', cast=bool, default=True):
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
