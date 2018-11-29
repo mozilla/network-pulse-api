@@ -63,17 +63,16 @@ class UserProfileAPIView(RetrieveUpdateAPIView):
         """
 
         payload = request.data
+        thumbnail = payload.get('thumbnail')
 
-        try:
-            thumbnail = payload['thumbnail']
-            # do we actually need to repack as ContentFile?
-            if thumbnail['name'] and thumbnail['base64']:
-                name = thumbnail['name']
-                encdata = thumbnail['base64']
-                proxy = ContentFile(base64.b64decode(encdata), name=name)
-                payload['thumbnail'] = proxy
-        except KeyError:
-            pass
+        if thumbnail:
+            name = thumbnail.get('name')
+            encdata = thumbnail.get('base64')
+            if name and encdata:
+                request.data['thumbnail'] = ContentFile(
+                    base64.b64decode(encdata),
+                    name=name,
+                )
 
         return super(UserProfileAPIView, self).put(request, *args, **kwargs)
 
