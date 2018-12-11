@@ -10,7 +10,7 @@ services: postgresql
 install:
   - pip install --upgrade pip
   - pip install pipenv
-  - pipenv install --dev --deploy
+  - pipenv sync --dev
 
 before_script:
   - psql -c "CREATE DATABASE pulseapi;" -U postgres
