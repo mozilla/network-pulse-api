@@ -32,7 +32,7 @@ class UserProfileEntriesSerializer(serializers.Serializer):
             return queryset
 
         if prefix:
-            if ordering_param[0] is '-':
+            if ordering_param[0] == '-':
                 ordering_param = '-' + prefix + ordering_param[1:]
             else:
                 ordering_param = prefix + ordering_param
