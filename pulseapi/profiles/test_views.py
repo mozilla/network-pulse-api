@@ -75,9 +75,9 @@ class TestProfileView(PulseMemberTestCase):
         self.assertNotIn('created_entries', profile_json)
 
     def run_test_profile_entries(self, version, entry_type, order_by=None):
-        get_created_entries = entry_type is 'created'
-        get_published_entries = entry_type is 'published'
-        get_favorited_entries = entry_type is 'favorited'
+        get_created_entries = entry_type is 'created'  # noqa F632
+        get_published_entries = entry_type is 'published'  # noqa F632
+        get_favorited_entries = entry_type is 'favorited'  # noqa F632
         entry_serializer_class = EntryWithCreatorsBaseSerializer
         if version == settings.API_VERSIONS['version_1']:
             entry_serializer_class = EntryWithV1CreatorsBaseSerializer
