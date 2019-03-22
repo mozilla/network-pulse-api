@@ -2,6 +2,7 @@ from pulseapi.profiles.serializers.profiles import (
     UserProfileBasicSerializer,
     UserProfileSerializer,
     UserProfilePublicSerializer,
+    UserProfileListSerializer,
 )
 from pulseapi.profiles.serializers.profile_entries import (
     UserProfileEntriesSerializer,
@@ -16,4 +17,5 @@ __all__ = [
     'UserProfileEntriesSerializer',
     'UserProfilePublicWithEntriesSerializer',
     'UserBookmarksSerializer',
+    'UserProfileListSerializer',
 ]

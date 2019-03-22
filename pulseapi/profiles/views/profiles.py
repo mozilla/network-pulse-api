@@ -19,6 +19,7 @@ from pulseapi.profiles.serializers import (
     UserProfilePublicWithEntriesSerializer,
     UserProfilePublicSerializer,
     UserProfileBasicSerializer,
+    UserProfileListSerializer,
 )
 
 
@@ -154,15 +155,19 @@ class ProfileCustomFilter(filters.FilterSet):
         a legal filtering argument, we return an empty
         queryset, rather than every profile in existence.
         """
-        qs = UserProfile.objects.none()
 
         request = self.request
         if request is None:
-            return qs
+            return UserProfile.objects.none()
 
         queries = self.request.query_params
         if queries is None:
-            return qs
+            return UserProfile.objects.none()
+
+        if 'search' in queries:
+            qs = super(ProfileCustomFilter, self).qs
+        else:
+            qs = UserProfile.objects.none()
 
         fields = ProfileCustomFilter.get_fields()
         for key in fields:
@@ -189,40 +194,75 @@ class ProfileCustomFilter(filters.FilterSet):
 
 class UserProfileListAPIView(ListAPIView):
     """
-      Query Params:
-      profile_type=
-      program_type=
-      program_year=
-      is_active=(True or False)
-      ordering=(id, custom_name, program_year) or negative (e.g. -id) to reverse.
-      basic=
+    Query Params:
+        search=(search in name, affiliation, user_bio, user_bio_long, location)
+        profile_type=
+        program_type=
+        program_year=
+        is_active=(True or False)
+        ordering=(id, custom_name, program_year) or negative (e.g. -id) to reverse.
+        basic=
+
+    One of the queries above must be specified to get a result set
     """
     filter_backends = (
         filters.OrderingFilter,
         filters.DjangoFilterBackend,
+        filters.SearchFilter,
     )
 
     ordering_fields = ('id', 'custom_name', 'program_year',)
+    search_fields = (
+        'custom_name',
+        'related_user__name',
+        'affiliation',
+        'user_bio',
+        'user_bio_long',
+        'location',
+    )
 
     filter_class = ProfileCustomFilter
 
-    queryset = UserProfile.objects.all().prefetch_related(
-        'related_user',
-        'issues',
-        'profile_type',
-        'program_type',
-        'program_year'
-    )
+    def get_queryset(self):
+        request = self.request
+        queryset = UserProfile.objects.all().prefetch_related('related_user')
+
+        if not request or request.version != settings.API_VERSIONS['version_2']:
+            # for all requests that aren't v2, we don't need to prefetch
+            # anything else because no other relationship data is selected
+            return queryset
+
+        return queryset.prefetch_related(
+            'issues',
+            'profile_type',
+            'program_type',
+            'program_year',
+            'bookmarks_from',
+        )
 
     def get_serializer_class(self):
         request = self.request
 
-        if request and request.version == settings.API_VERSIONS['version_1']:
+        if not request:
+            # mock serializer testing
+            return UserProfileListSerializer
+
+        version = request.version
+
+        if version == settings.API_VERSIONS['version_1']:
+            # v1
             return UserProfilePublicWithEntriesSerializer
 
         if 'basic' in request.query_params:
+            # v2 and above, 'basic' takes precedence over versioned serializers
             return UserProfileBasicSerializer
-        return UserProfilePublicSerializer
+
+        if version == settings.API_VERSIONS['version_2']:
+            # v2
+            return UserProfilePublicSerializer
+
+        # v3 and above
+        return UserProfileListSerializer
 
     def get_serializer_context(self):
         return {

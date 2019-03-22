@@ -278,6 +278,7 @@ STATICFILES_DIRS = [
 API_VERSION_LIST = [
     ('version_1', 'v1',),
     ('version_2', 'v2',),
+    ('version_3', 'v3',),
 ]
 DEFAULT_VERSION = 'version_1'
 # A dictionary of api versions with the value of each version key being

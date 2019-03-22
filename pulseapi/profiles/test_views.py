@@ -21,6 +21,7 @@ from pulseapi.profiles.serializers import (
     UserProfilePublicSerializer,
     UserProfilePublicWithEntriesSerializer,
     UserProfileBasicSerializer,
+    UserProfileListSerializer,
 )
 from pulseapi.profiles.factory import UserBookmarksFactory, ExtendedUserProfileFactory
 
@@ -320,7 +321,14 @@ class TestProfileView(PulseMemberTestCase):
         (profile, created) = ProgramYear.objects.get_or_create(value='2018')
         self.assertEqual(created, False)
 
-    def run_test_profile_list(self, api_version, profile_serializer_class, profile_params={}, query_dict=''):
+    def run_test_profile_list(
+        self,
+        api_version,
+        profile_serializer_class,
+        profile_params={},
+        query_dict={},
+        additional_filter_options={}
+    ):
         profile_type = profile_params.pop('profile_type', None)
         if not profile_type:
             (profile_type, _) = ProfileType.objects.get_or_create(value='temporary-type')
@@ -338,7 +346,7 @@ class TestProfileView(PulseMemberTestCase):
         response_profiles = json.loads(str(response.content, 'utf-8'))
 
         profile_list = profile_serializer_class(
-            UserProfile.objects.filter(profile_type=profile_type),
+            UserProfile.objects.filter(profile_type=profile_type, **additional_filter_options),
             context={'user': self.user},
             many=True,
         ).data
@@ -355,6 +363,12 @@ class TestProfileView(PulseMemberTestCase):
         self.run_test_profile_list(
             api_version=settings.API_VERSIONS['version_2'],
             profile_serializer_class=UserProfilePublicSerializer
+        )
+
+    def test_profile_list_v3(self):
+        self.run_test_profile_list(
+            api_version=settings.API_VERSIONS['version_3'],
+            profile_serializer_class=UserProfileListSerializer
         )
 
     def test_profile_list_basic_v2(self):
@@ -425,6 +439,15 @@ class TestProfileView(PulseMemberTestCase):
             profile_serializer_class=UserProfilePublicSerializer,
             profile_params={'is_active': True},
             query_dict={'is_active': True},
+        )
+
+    def test_profile_list_search_v3(self):
+        self.run_test_profile_list(
+            api_version=settings.API_VERSIONS['version_3'],
+            profile_serializer_class=UserProfileListSerializer,
+            profile_params={'custom_name': 'Search name'},
+            query_dict={'search': 'arch'},
+            additional_filter_options={'custom_name__contains': 'arch'}
         )
 
     def test_invalid_profile_list_filtering_argument(self):

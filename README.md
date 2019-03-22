@@ -49,6 +49,7 @@ To maintain legacy support, if the version is not specified in the url, we defau
 
 ## Supported API Versions
 
+- Version 3 - `/api/pulse/v3/` and `/v3/`
 - Version 2 - `/api/pulse/v2/` and `/v2/`
 - Version 1 - `/api/pulse/v1/` and `/v1/`
 
@@ -530,17 +531,41 @@ Depending on the API version specified, the `related_creator` object schema will
 
 ### `GET /api/pulse/profiles/?...` with filter arguments, and optional `format=json`
 
-Returns a list of [user profile objects](#profile-object-schema). This route supports filtering based on properties of profiles and also supports searching for profiles based on `name`.
+Returns a list of user profile objects each with the following schema:
+```
+{
+  id: <integer: id of the profile>,
+  name: <string: the custom name if set, otherwise the name of the user associated with this profile>,
+  location: <string: location of the person this profile is associated to>,
+  thumbnail: <string: url of the thumbnail for this profile>,
+  user_bio: <string: biography of this profile>,
+  profile_type: <integer: the id of the profile type associated with this profile>,
+  is_active: <boolean: true if the profile has a user attached to it, false otherwise>,
+  is_group: <boolean: whether this profile belongs to a group>,
+
+  // The following properties will only be included if they are enabled
+  // for the profile
+  affiliation: <string: affiliations associated with this profile>,
+  user_bio_long: <string: a longer biography for this profile>,
+  program_type: <integer: the id of the program type this profile is associated with>,
+  program_year: <integer: the id of the program year this profile belongs to>
+}
+```
+
+__NOTE__: Versions below `v3` will not use the above schema and will follow the [general profile object schema](#profile-object-schema) instead.
+
+This route supports filtering based on properties of profiles.
 
 __NOTE__: At least one filter or search query from below must be specified, otherwise an empty array is returned in the payload.
 
 #### Filters and Search Queries
 
+- `?search=...`: search for profiles by their name, user bio, affiliation, or their location
 - `?profile_type=...`: filter the list by profile types `board member`, `fellow`, `grantee`, `plain`, or `staff`.
 - `?program_type=...`: filter the list by program types `media fellow`, `open web fellow`, `science fellow`, `senior fellow`, or `tech policy fellow`.
 - `?program_year=...`: filter the list by program year in the range 2015-2019 (inclusive).
 - `?is_active=<true or false>`: filter profiles by their active state.
-- `?name=...`: search for profiles by their name. Supports partial and full search matches.
+- `?name=...`: filter profiles by their name. Supports partial and full matches.
 - `?limit=...`: limit the number of results to some maximum.
 
 #### Other Supported Queries

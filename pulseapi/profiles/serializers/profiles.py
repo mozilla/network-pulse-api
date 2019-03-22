@@ -27,7 +27,50 @@ class UserProfileBasicSerializer(serializers.BaseSerializer):
         }
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserProfileTrimExtendedInfoMixin:
+    def trim_extended_information_from_dict(self, profile, profile_dict):
+        if profile and profile.enable_extended_information is False:
+            remove_key(profile_dict, 'user_bio_long')
+            remove_key(profile_dict, 'program_type')
+            remove_key(profile_dict, 'program_year')
+            remove_key(profile_dict, 'affiliation')
+        # Whether this flag is set or not, it should not
+        # end up in the actual serialized profile data.
+        remove_key(profile_dict, 'enable_extended_information')
+        return profile_dict
+
+
+class UserProfileListSerializer(UserProfileTrimExtendedInfoMixin, serializers.ModelSerializer):
+    """
+    A serializer to serialize user profiles for optimally viewing
+    in a list
+    """
+    def to_representation(self, instance):
+        serialized_profile = super().to_representation(instance)
+        return self.trim_extended_information_from_dict(
+            instance,
+            serialized_profile
+        )
+
+    class Meta:
+        model = UserProfile
+        read_only_fields = fields = (
+            'id',
+            'name',
+            'is_active',
+            'is_group',
+            'thumbnail',
+            'user_bio',
+            'user_bio_long',
+            'location',
+            'affiliation',
+            'profile_type',
+            'program_type',
+            'program_year',
+        )
+
+
+class UserProfileSerializer(UserProfileTrimExtendedInfoMixin, serializers.ModelSerializer):
     """
     Serializes a user profile.
 
@@ -107,27 +150,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'favorited': obj.bookmarks_from.count(),
         }
 
-    @staticmethod
-    def trim_extended_information_from_dict(profile, profile_dict):
-        if profile and profile.enable_extended_information is False:
-            remove_key(profile_dict, 'user_bio_long')
-            remove_key(profile_dict, 'program_type')
-            remove_key(profile_dict, 'program_year')
-            remove_key(profile_dict, 'affiliation')
-        # Whether this flag is set or not, it should not
-        # end up in the actual serialized profile data.
-        remove_key(profile_dict, 'enable_extended_information')
-        return profile_dict
-
     def to_representation(self, instance):
         serialized_profile = super().to_representation(instance)
-        return UserProfileSerializer.trim_extended_information_from_dict(
+        return self.trim_extended_information_from_dict(
             instance,
             serialized_profile
         )
 
     def update(self, instance, validated_data):
-        validated_data = UserProfileSerializer.trim_extended_information_from_dict(
+        validated_data = self.trim_extended_information_from_dict(
             instance,
             validated_data
         )
