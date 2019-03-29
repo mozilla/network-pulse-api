@@ -1,7 +1,10 @@
 import json
+from math import ceil
 from urllib.parse import urlencode
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.http.request import HttpRequest
+from rest_framework.request import Request
 
 from .models import UserProfile, ProfileType, ProgramType, ProgramYear
 
@@ -12,6 +15,7 @@ from pulseapi.entries.serializers import (
     EntryWithCreatorsBaseSerializer,
     EntryWithV1CreatorsBaseSerializer,
 )
+from pulseapi.profiles.views.profiles import ProfilesPagination
 from pulseapi.entries.factory import BasicEntryFactory
 from pulseapi.users.factory import BasicEmailUserFactory
 from pulseapi.creators.models import EntryCreator
@@ -337,21 +341,58 @@ class TestProfileView(PulseMemberTestCase):
             profile.thumbnail = None
             profile.save()
 
+        # Expected queryset
+        ordering = query_dict.get('ordering', '-id').split(',')
+        profile_list = UserProfile.objects.filter(
+            profile_type=profile_type, **additional_filter_options
+        ).order_by(*ordering)
+
         url = reverse('profile_list', args=[api_version + '/'])
-        response = self.client.get('{url}?profile_type={type}&{qs}'.format(
-            url=url,
-            type=profile_type.value,
-            qs=urlencode(query_dict)
-        ))
-        response_profiles = json.loads(str(response.content, 'utf-8'))
 
-        profile_list = profile_serializer_class(
-            UserProfile.objects.filter(profile_type=profile_type, **additional_filter_options),
-            context={'user': self.user},
-            many=True,
-        ).data
+        if api_version == settings.API_VERSIONS['version_1'] or api_version == settings.API_VERSIONS['version_2']:
+            # v1 & v2 don't have pagination so we test only once
+            response_profiles = json.loads(str(
+                self.client.get(
+                    '{url}?profile_type={type}&{qs}'.format(
+                        url=url,
+                        type=profile_type.value,
+                        qs=urlencode(query_dict)
+                    )
+                ).content,
+                'utf-8'
+            ))
+            serialized_profile_list = profile_serializer_class(
+                profile_list,
+                context={'user': self.user},
+                many=True,
+            ).data
+            self.assertListEqual(response_profiles, serialized_profile_list)
+            return None
 
-        self.assertListEqual(response_profiles, profile_list)
+        page_size = ProfilesPagination().get_page_size(
+            request=Request(request=HttpRequest())
+        )
+
+        for page_number in range(ceil(len(profile_list) / page_size)):
+            start_index = page_number * page_size
+            end_index = start_index + page_size
+            response_profiles = json.loads(str(
+                self.client.get(
+                    '{url}?profile_type={type}&{qs}&page={page_number}'.format(
+                        url=url,
+                        type=profile_type.value,
+                        qs=urlencode(query_dict),
+                        page_number=page_number + 1
+                    )
+                ).content,
+                'utf-8'
+            ))['results']
+            serialized_profile_list = profile_serializer_class(
+                profile_list[start_index:end_index],
+                context={'user': self.user},
+                many=True,
+            ).data
+            self.assertListEqual(response_profiles, serialized_profile_list)
 
     def test_profile_list_v1(self):
         self.run_test_profile_list(
