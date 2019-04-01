@@ -23,6 +23,7 @@ requests = "*"
 whitenoise = "*"
 "psycopg2-binary" = "*"
 django-allauth = "*"
+oauth2client = "*"
 
 [dev-packages]
 autoflake = "*"
