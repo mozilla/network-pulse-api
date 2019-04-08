@@ -6,6 +6,7 @@ from django.core.files.base import ContentFile
 from django.conf import settings
 from django.db.models import Q
 from rest_framework import permissions, filters
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import (
     RetrieveUpdateAPIView,
     RetrieveAPIView,
@@ -192,6 +193,12 @@ class ProfileCustomFilter(filters.FilterSet):
         ]
 
 
+class ProfilesPagination(PageNumberPagination):
+    page_size = 30
+    page_size_query_param = 'page_size'
+    max_page_size = 50
+
+
 class UserProfileListAPIView(ListAPIView):
     """
     Query Params:
@@ -204,14 +211,17 @@ class UserProfileListAPIView(ListAPIView):
         basic=
 
     One of the queries above must be specified to get a result set
+    You can also control pagination using the following query params:
+        page_size=(number)
+        page=(number)
     """
     filter_backends = (
         filters.OrderingFilter,
         filters.DjangoFilterBackend,
         filters.SearchFilter,
     )
-
     ordering_fields = ('id', 'custom_name', 'program_year',)
+    ordering = ('-id',)
     search_fields = (
         'custom_name',
         'related_user__name',
@@ -220,6 +230,7 @@ class UserProfileListAPIView(ListAPIView):
         'user_bio_long',
         'location',
     )
+    pagination_class = ProfilesPagination
 
     filter_class = ProfileCustomFilter
 
@@ -239,6 +250,20 @@ class UserProfileListAPIView(ListAPIView):
             'program_year',
             'bookmarks_from',
         )
+
+    def paginate_queryset(self, queryset):
+        request = self.request
+
+        if not request:
+            return super().paginate_queryset(queryset)
+
+        version = request.version
+
+        if version == settings.API_VERSIONS['version_1'] or version == settings.API_VERSIONS['version_2']:
+            # Don't paginate version 1 and 2 of the API
+            return None
+
+        return super().paginate_queryset(queryset)
 
     def get_serializer_class(self):
         request = self.request

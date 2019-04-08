@@ -531,7 +531,7 @@ Depending on the API version specified, the `related_creator` object schema will
 
 ### `GET /api/pulse/profiles/?...` with filter arguments, and optional `format=json`
 
-Returns a list of user profile objects each with the following schema:
+Returns a list (paginated for `v3` and above) of user profile objects each with the following schema:
 ```
 {
   id: <integer: id of the profile>,
@@ -549,6 +549,16 @@ Returns a list of user profile objects each with the following schema:
   user_bio_long: <string: a longer biography for this profile>,
   program_type: <integer: the id of the program type this profile is associated with>,
   program_year: <integer: the id of the program year this profile belongs to>
+}
+```
+
+The schema for the paginated payload returned for `v3` and above is:
+```
+{
+    "count": <integer: total number of profiles found for this query>,
+    "next": <string: url to the next page of profiles> or null,
+    "previous": <string: url to the previous page of profiles> or null,
+    "results": <array: list of profile objects (see above)>
 }
 ```
 
@@ -572,6 +582,8 @@ __NOTE__: At least one filter or search query from below must be specified, othe
 
 - `?ordering=...` - You can sort these results using the `ordering` query param, passing it either `id`, `custom_name`, or `program_year` (reversed by prefixing a `-`, e.g. `-custom_name` for descending alphabetical order based on the custom profile name).
 - `?basic=<true or false>` - This provides a way to only get basic information about profiles. Each profile object in the list will only contain the `id` of the profile and the `name` of the profile. This query can be useful for providing autocomplete options for profiles. __NOTE__ - This query is not compatible with version 1 of the API.
+- `?page_size=<number>` - Specify how many profiles will be in each page of the API call (only for `v3` and above)
+- `?page=<number>` - Page number of the API call (`v3` and above)
 
 ### `GET /api/pulse/myprofile/` with optional `?format=json`
 
