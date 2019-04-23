@@ -73,8 +73,22 @@ class Entry(models.Model):
     """
     A pulse entry
     """
+    ENTRY_TYPES = (
+        ('base','base'),
+        ('project','project'),
+        ('news','news'),
+        ('curriculum', 'curriculum'),
+        ('research','research'),
+        ('session','session'),
+    )
 
     # required fields
+    entry_type = models.CharField(
+        max_length=20,
+        choices=ENTRY_TYPES,
+        default=ENTRY_TYPES[0][0],
+        null=False,
+    )
     title = models.CharField(max_length=140)
     content_url = models.URLField()
 
