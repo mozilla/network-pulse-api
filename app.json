@@ -1,5 +1,6 @@
 {
   "name": "network-pulse-api",
+  "stack": "container",
   "env": {
     "HEROKU_APP_NAME": {
       "required": true

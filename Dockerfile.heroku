@@ -1,0 +1,47 @@
+FROM python:3.7-alpine AS application
+
+# Ensure logs are output to console
+ENV PYTHONUNBUFFERED 1
+
+# Reduce image size by not writing python bytecode
+ENV PYTHONDONTWRITEBYTECODE 1
+
+# Create a group and user for the app
+RUN addgroup -S django && adduser -S django -G django
+
+WORKDIR /app
+
+# Build dependencies for pillow and psycopg
+# curl is required for release step output
+RUN apk add --no-cache \
+    jpeg-dev \
+    zlib-dev \
+    postgresql-dev \
+    curl
+
+# Install pipenv
+RUN pip install pipenv
+
+# Copy project files to container
+COPY pulseapi ./pulseapi
+COPY media ./media
+COPY public ./public
+COPY staticfiles ./staticfiles
+COPY templates ./templates
+COPY manage.py Pipfile Pipfile.lock LICENSE ./
+
+# this suppresses annoying warnings from django-environ
+RUN touch .env
+
+# Install build deps, install app deps then remove build deps
+RUN apk add --no-cache --virtual .build-deps \
+    build-base \
+    linux-headers && \
+    pipenv install --system && \
+    apk del .build-deps
+
+# Allow the www user to read/write the app directory
+RUN chown -R django /app
+
+# Tell docker that all commands should be run as the www user
+USER django

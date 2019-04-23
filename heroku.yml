@@ -1,0 +1,13 @@
+build:
+  docker:
+    web:
+      dockerfile: Dockerfile.heroku
+      target: application
+
+release:
+  image: web
+  command:
+    - python manage.py migrate --no-input
+
+run:
+  web: gunicorn pulseapi.wsgi
