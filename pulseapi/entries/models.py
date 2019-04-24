@@ -74,12 +74,12 @@ class Entry(models.Model):
     A pulse entry
     """
     ENTRY_TYPES = (
-        ('base','base'),
-        ('project','project'),
-        ('news','news'),
+        ('base', 'base'),
+        ('project', 'project'),
+        ('news', 'news'),
         ('curriculum', 'curriculum'),
-        ('research','research'),
-        ('session','session'),
+        ('research', 'research'),
+        ('session', 'session'),
     )
 
     # required fields
