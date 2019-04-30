@@ -28,6 +28,7 @@ class EntryAdmin(admin.ModelAdmin):
     fields = (
         'id',
         'created',
+        'entry_type',
         'moderation_state',
         'title',
         'description',
@@ -59,6 +60,7 @@ class EntryAdmin(admin.ModelAdmin):
 
     list_display = (
         'id',
+        'entry_type',
         'title',
         'created',
         'published_by',
