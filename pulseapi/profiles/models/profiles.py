@@ -182,7 +182,7 @@ class UserProfile(models.Model):
         default=False
     )
 
-    ## TODO: Deprecate
+    # TODO: Deprecate
     profile_type = models.ForeignKey(
         'profiles.ProfileType',
         null=True,
@@ -191,7 +191,7 @@ class UserProfile(models.Model):
         # default is handled in save()
     )
 
-    ## TODO: Deprecate
+    # TODO: Deprecate
     program_type = models.ForeignKey(
         'profiles.ProgramType',
         null=True,
@@ -199,7 +199,7 @@ class UserProfile(models.Model):
         on_delete=models.SET_NULL
     )
 
-    ## TODO: Deprecate
+    # TODO: Deprecate
     program_year = models.ForeignKey(
         'profiles.ProgramYear',
         null=True,

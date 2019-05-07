@@ -97,7 +97,7 @@ class UserProfileProgramParticipation(models.Model):
 
     def clean(self):
         # Don't allow both the cohort and year to be empty
-        if self.year == None and not self.cohort:
+        if self.year is None and not self.cohort:
             raise ValidationError(
                 _('Either the year or cohort must have a value')
             )
