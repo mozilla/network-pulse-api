@@ -595,18 +595,26 @@ Allows an authenticated user to update their profile data. The payload that need
 
 ```
 {
-  user_bio: optional string (max length 140 characters)
-  custom_name: optional string containing the user's alternative name (max length 70 characters)
-  thumbnail: optional object {
-    name: name of the file,
-    base64: the base64 encoded binary representation of the file's bytes
-  }, if you pass in null, the thumbnail will be set to null
-  twitter: optional url link to twitter account
-  linkedin: optional url link to linkedin account
-  github: optional url link to github account
-  website: optional url link to the user's website
+	custom_name: <optional string: a custom name for this profile>,
+	location: <optional string: location of the person this profile is associated to>,
+	thumbnail: <optional object: a thumbnail object (see below) with the profile's image>,
+	issues: <optional array: list of issue areas related to this profile as strings>,
+	twitter: <optional string: url to Twitter profile>,
+	linkedin: <optional string: url to LinkedIn profile>,
+	github: <optional string: url to Github profile>,
+	website: <optional string: url to personal website>,
+	user_bio: <optional string: biography of this profile>
 }
 ```
+
+The thumbnail object should have the following schema:
+```
+{
+  name: <string: name of the image file>,
+  base64: <string: the base64 encoded binary representation of the image file's bytes>
+}
+```
+The thumbnail object can also be `null` to set the thumbnail to `null` in the database (i.e. delete the image).
 
 Also note that this PUT **must** be accompanied by the following header:
 
@@ -621,10 +629,10 @@ If a user's profile has the `enable_extended_information` flag set to `True`, th
 ```
 {
   ...
-  program_type: one of the above-listed program types
-  program_year: one of the above-listed program years
-  affiliation: the name of the primary organisation associated with the program the user is part of
-  user_bio_long: a long-form text for the user biography information (4096 character limit)
+  program_type: <string: the name of the program type this profile is associated with (must already exist)>,
+  program_year: <string: the program year this profile belongs to (must already exist)>,
+  affiliation: <string: affiliations associated with this profile>,
+  user_bio_long: <string: a longer biography for this profile>
 }
 ```
 
