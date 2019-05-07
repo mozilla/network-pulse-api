@@ -1,4 +1,8 @@
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+
+from pulseapi.utility.validators import YearValidator
 
 
 class ProfileType(models.Model):
@@ -59,3 +63,80 @@ class ProgramYear(models.Model):
 
     def __str__(self):
         return self.value
+
+
+class UserProfileProgramParticipation(models.Model):
+    profile = models.ForeignKey(
+        'profiles.UserProfile',
+        on_delete=models.CASCADE,
+        related_name='program_participation',
+    )
+
+    program = models.ForeignKey(
+        'profiles.ProgramType',
+        on_delete=models.CASCADE,
+        related_name='participation',
+    )
+
+    year = models.PositiveSmallIntegerField(
+        # TODO: Change to MaxValueValidator with callable when
+        #       we update to Django > v2.2
+        validators=[YearValidator(max_offset=2)],
+        null=True,
+        blank=True,
+    )
+
+    cohort = models.CharField(
+        null=True,
+        blank=True,
+        max_length=200,
+    )
+
+    def __str__(self):
+        return f'{self.profile.name} - {self.program} {self.year} {self.cohort}'
+
+    def clean(self):
+        # Don't allow both the cohort and year to be empty
+        if self.year == None and not self.cohort:
+            raise ValidationError(
+                _('Either the year or cohort must have a value')
+            )
+
+    class Meta:
+        verbose_name = 'Profile participation in a program'
+        # This meta option creates an _order column in the table
+        # See https://docs.djangoproject.com/en/1.11/ref/models/options/#order-with-respect-to for more details
+        order_with_respect_to = 'profile'
+        indexes = [
+            models.Index(fields=['profile', '_order'], name='uk_participate_profileid_order'),
+        ]
+
+
+class UserProfileProfileType(models.Model):
+    profile = models.ForeignKey(
+        'profiles.UserProfile',
+        on_delete=models.CASCADE,
+        related_name='related_types',
+    )
+
+    profile_type = models.ForeignKey(
+        'profiles.ProfileType',
+        on_delete=models.CASCADE,
+        related_name='related_profiles',
+    )
+
+    is_current = models.BooleanField(default=True)
+
+    def __str__(self):
+        is_was = 'is' if self.is_current else 'was'
+        return f'{self.profile.name} {is_was} a {self.role}'
+
+    class Meta:
+        verbose_name = 'Role of a profile'
+        # This meta option creates an _order column in the table
+        # See https://docs.djangoproject.com/en/1.11/ref/models/options/#order-with-respect-to for more details
+        order_with_respect_to = 'profile'
+        indexes = [
+            models.Index(fields=['profile', 'is_current', '_order'], name='uk_role_current_order'),
+            models.Index(fields=['profile', 'is_current', 'profile_type'], name='uk_profileid_current_role'),
+        ]
