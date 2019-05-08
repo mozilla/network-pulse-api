@@ -65,17 +65,17 @@ class ProgramYear(models.Model):
         return self.value
 
 
-class UserProfileProgramParticipation(models.Model):
+class ProgramMembershipRecord(models.Model):
     profile = models.ForeignKey(
         'profiles.UserProfile',
         on_delete=models.CASCADE,
-        related_name='program_participation',
+        related_name='program_membership_records',
     )
 
     program = models.ForeignKey(
         'profiles.ProgramType',
-        on_delete=models.CASCADE,
-        related_name='participation',
+        on_delete=models.PROTECT,
+        related_name='membership_records',
     )
 
     year = models.PositiveSmallIntegerField(
@@ -86,33 +86,34 @@ class UserProfileProgramParticipation(models.Model):
         blank=True,
     )
 
-    cohort = models.CharField(
+    cohort_name = models.CharField(
         null=True,
         blank=True,
         max_length=200,
     )
 
     def __str__(self):
-        return f'{self.profile.name} - {self.program} {self.year} {self.cohort}'
+        return f'{self.profile.name} - {self.program} {self.year} {self.cohort_name}'
 
     def clean(self):
         # Don't allow both the cohort and year to be empty
-        if self.year is None and not self.cohort:
+        if self.year is None and not self.cohort_name:
             raise ValidationError(
                 _('Either the year or cohort must have a value')
             )
 
     class Meta:
-        verbose_name = 'Profile participation in a program'
+        verbose_name = 'record of a profile\'s membership in a program'
+        verbose_name_plural = 'records of program membership'
         # This meta option creates an _order column in the table
         # See https://docs.djangoproject.com/en/1.11/ref/models/options/#order-with-respect-to for more details
         order_with_respect_to = 'profile'
         indexes = [
-            models.Index(fields=['profile', '_order'], name='uk_participate_profileid_order'),
+            models.Index(fields=['profile', '_order'], name='uk_membership_profile_order'),
         ]
 
 
-class UserProfileProfileType(models.Model):
+class ProfileRole(models.Model):
     profile = models.ForeignKey(
         'profiles.UserProfile',
         on_delete=models.CASCADE,
@@ -132,11 +133,10 @@ class UserProfileProfileType(models.Model):
         return f'{self.profile.name} {is_was} a {self.role}'
 
     class Meta:
-        verbose_name = 'Role of a profile'
         # This meta option creates an _order column in the table
         # See https://docs.djangoproject.com/en/1.11/ref/models/options/#order-with-respect-to for more details
         order_with_respect_to = 'profile'
         indexes = [
-            models.Index(fields=['profile', 'is_current', '_order'], name='uk_role_current_order'),
-            models.Index(fields=['profile', 'is_current', 'profile_type'], name='uk_profileid_current_role'),
+            models.Index(fields=['profile', 'is_current', '_order'], name='uk_role_profile_current_order'),
+            models.Index(fields=['profile', 'is_current', 'profile_type'], name='uk_role_profile_current_type'),
         ]
