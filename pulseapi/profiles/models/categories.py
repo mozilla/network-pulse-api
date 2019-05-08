@@ -65,17 +65,17 @@ class ProgramYear(models.Model):
         return self.value
 
 
-class ProgramMembershipRecord(models.Model):
+class CohortRecord(models.Model):
     profile = models.ForeignKey(
         'profiles.UserProfile',
         on_delete=models.CASCADE,
-        related_name='program_membership_records',
+        related_name='cohort_records',
     )
 
     program = models.ForeignKey(
         'profiles.ProgramType',
         on_delete=models.PROTECT,
-        related_name='membership_records',
+        related_name='profile_cohort_records',
     )
 
     year = models.PositiveSmallIntegerField(
@@ -103,8 +103,7 @@ class ProgramMembershipRecord(models.Model):
             )
 
     class Meta:
-        verbose_name = 'record of a profile\'s membership in a program'
-        verbose_name_plural = 'records of program membership'
+        verbose_name = 'cohort record'
         # This meta option creates an _order column in the table
         # See https://docs.djangoproject.com/en/1.11/ref/models/options/#order-with-respect-to for more details
         order_with_respect_to = 'profile'
