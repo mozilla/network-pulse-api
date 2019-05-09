@@ -128,8 +128,8 @@ class ProfileRole(models.Model):
     is_current = models.BooleanField(default=True)
 
     def __str__(self):
-        is_was = 'is' if self.is_current else 'was'
-        return f'{self.profile.name} {is_was} a {self.role}'
+        copular_verb = 'is' if self.is_current else 'was'
+        return f'{self.profile.name} {copular_verb} a {self.role}'
 
     class Meta:
         # This meta option creates an _order column in the table
