@@ -3,7 +3,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from pulseapi.entries.serializers import EntryWithCreatorsBaseSerializer, EntryWithV1CreatorsBaseSerializer
+from pulseapi.entries.serializers.base import EntryWithCreatorsBaseSerializer, EntryWithV1CreatorsBaseSerializer
 from pulseapi.profiles.models import UserProfile
 from pulseapi.profiles.serializers import UserProfileEntriesSerializer
 

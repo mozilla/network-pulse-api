@@ -59,6 +59,12 @@ class EntryBaseSerializer(serializers.ModelSerializer):
     Serializes an entry with minimal information
     """
 
+    # As an optional-for-some-types-of-entries, this
+    # field is required "by default" in this serializer,
+    # and marked as "not required" for the various entry
+    # types that don't actually need it.
+    content_url = serializers.URLField(required=True)
+
     is_bookmarked = serializers.SerializerMethodField()
 
     def get_is_bookmarked(self, instance):

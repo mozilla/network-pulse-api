@@ -8,6 +8,11 @@ from pulseapi.entries.views import (
     BookmarkedEntries,
     ModerationStateView,
     EntriesListView,
+    ProjectEntriesListView,
+    NewsEntriesListView,
+    CurriculumEntriesListView,
+    InfoEntriesListView,
+    SessionEntriesListView,
 )
 
 urlpatterns = [
@@ -15,6 +20,31 @@ urlpatterns = [
         '^$',
         EntriesListView.as_view(),
         name='entries-list'
+    ),
+    url(
+        'curriculum/',
+        CurriculumEntriesListView.as_view(),
+        name='curriculum-entries'
+    ),
+    url(
+        'info/',
+        InfoEntriesListView.as_view(),
+        name='info-entries'
+    ),
+    url(
+        'news/',
+        NewsEntriesListView.as_view(),
+        name='news-entries'
+    ),
+    url(
+        'project/',
+        ProjectEntriesListView.as_view(),
+        name='project-entries'
+    ),
+    url(
+        'session/',
+        SessionEntriesListView.as_view(),
+        name='session-entries'
     ),
     url(
         'bookmarks/',

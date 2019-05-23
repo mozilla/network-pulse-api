@@ -134,7 +134,7 @@ def generate_default_payload(values):
     }
 
 
-def generate_payload(test, data={}, payload=False):
+def generate_payload(test, data={}, exclude={}, payload=False):
     values = json.loads(
         str(test.client.get('/api/pulse/nonce/').content, 'utf-8')
     )
@@ -144,6 +144,9 @@ def generate_payload(test, data={}, payload=False):
 
     for key in data:
         payload[key] = data[key]
+
+    for key in exclude:
+        del payload[key]
 
     return json.dumps(payload)
 
@@ -173,8 +176,8 @@ class PulseMemberTestCase(TestCase):
             email="test@example.org"
         )
 
-    def generatePostPayload(self, data={}):
-        return generate_payload(self, data)
+    def generatePostPayload(self, data={}, exclude=[]):
+        return generate_payload(self, data, exclude)
 
 
 class PulseStaffTestCase(TestCase):
@@ -190,8 +193,8 @@ class PulseStaffTestCase(TestCase):
             email="test@mozillafoundation.org"
         )
 
-    def generatePostPayload(self, data={}):
-        return generate_payload(self, data)
+    def generatePostPayload(self, data={}, exclude=[]):
+        return generate_payload(self, data, exclude)
 
 
 class PulseModeratorTestCase(TestCase):
@@ -206,8 +209,8 @@ class PulseModeratorTestCase(TestCase):
             is_moderator=True
         )
 
-    def generatePostPayload(self, data={}):
-        return generate_payload(self, data)
+    def generatePostPayload(self, data={}, exclude=[]):
+        return generate_payload(self, data, exclude)
 
 
 class TestAPIVersioning(TestCase):
