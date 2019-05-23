@@ -22,6 +22,14 @@ from pulseapi.entries.serializers import (
     EntrySerializerWithCreators,
     ModerationStateSerializer,
 )
+from .serializers import (
+    ProjectEntrySerializer,
+    NewsEntrySerializer,
+    CurriculumEntrySerializer,
+    InfoEntrySerializer,
+    SessionEntrySerializer
+)
+
 from pulseapi.profiles.models import UserBookmarks
 
 from pulseapi.utility.userpermissions import is_staff_address
@@ -469,6 +477,7 @@ class EntriesListView(ListCreateAPIView):
                 data=request_data,
                 context={'user': user},
             )
+
             if serializer.is_valid():
                 # ensure that the published_by is always the user doing
                 # the posting, and set 'featured' to false.
@@ -502,3 +511,28 @@ class EntriesListView(ListCreateAPIView):
                 "post validation failed - {}".format(validation_result),
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class ProjectEntriesListView(EntriesListView):
+    def get_serializer_class(self):
+        return ProjectEntrySerializer
+
+
+class NewsEntriesListView(EntriesListView):
+    def get_serializer_class(self):
+        return NewsEntrySerializer
+
+
+class CurriculumEntriesListView(EntriesListView):
+    def get_serializer_class(self):
+        return CurriculumEntrySerializer
+
+
+class InfoEntriesListView(EntriesListView):
+    def get_serializer_class(self):
+        return InfoEntrySerializer
+
+
+class SessionEntriesListView(EntriesListView):
+    def get_serializer_class(self):
+        return SessionEntrySerializer

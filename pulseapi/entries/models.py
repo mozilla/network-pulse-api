@@ -87,10 +87,11 @@ class Entry(models.Model):
         max_length=20,
         choices=ENTRY_TYPES,
         default=ENTRY_TYPES[0][0],
-        null=False,
     )
     title = models.CharField(max_length=140)
-    content_url = models.URLField()
+    content_url = models.URLField(
+        blank=True,
+    )
 
     # optional fields
     description = models.CharField(max_length=600, blank=True)
