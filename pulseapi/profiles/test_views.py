@@ -10,7 +10,7 @@ from .models import UserProfile, ProfileType, ProgramType, ProgramYear
 
 from pulseapi.tests import PulseMemberTestCase
 from pulseapi.entries.models import Entry, ModerationState
-from pulseapi.entries.serializers.base import (
+from pulseapi.entries.serializers import (
     EntrySerializerWithV1Creators,
     EntryWithCreatorsBaseSerializer,
     EntryWithV1CreatorsBaseSerializer,
