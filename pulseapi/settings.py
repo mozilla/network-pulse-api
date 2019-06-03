@@ -31,6 +31,8 @@ env = environ.Env(
     CORS_ORIGIN_REGEX_WHITELIST=(list, []),
     CORS_ORIGIN_WHITELIST=(list, []),
     CSRF_TRUSTED_ORIGINS=(list, []),
+    CRM_AWS_SQS_ACCESS_KEY_ID=(str, None),
+    CRM_PETITION_SQS_QUEUE_URL=(str, None),
     DEBUG=(bool, False),
     DJANGO_LOG_LEVEL=(str, 'INFO'),
     HEROKU_APP_NAME=(str, ''),
@@ -345,6 +347,9 @@ else:
     # Otherwise use the default filesystem storage
     MEDIA_ROOT = root('media/')
     MEDIA_URL = '/media/'
+
+CRM_AWS_SQS_ACCESS_KEY_ID = env('CRM_AWS_SQS_ACCESS_KEY_ID')
+CRM_PETITION_SQS_QUEUE_URL = env('CRM_PETITION_SQS_QUEUE_URL')
 
 # Remove the default Django loggers and configure new ones
 LOGGING_CONFIG = None
