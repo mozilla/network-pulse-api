@@ -31,7 +31,8 @@ footer {
 }
 
 .main-logo {
-  width: 300px;
+  width: 80%;
+  max-width: 340px;
   margin-bottom: 26px;
 }
 
@@ -56,7 +57,7 @@ footer {
 }
 
 .bottom-note {
-  max-width: 59%;
+  max-width: 60%;
   margin: 48px auto 0;
   font-family: 'Nunito Sans', sans-serif;
   font-size: 12px;
@@ -98,6 +99,6 @@ footer {
   }
 
   #main .panel-content, .bottom-note {
-    max-width: 90%;
+    max-width: 75%;
   }
 }
