@@ -35,17 +35,17 @@ crm_sqs = {
 }
 
 # But if there's an SQS access key, bind a "real client".
-if settings.CRM_AWS_SQS_ACCESS_KEY_ID:
+if settings.AWS_SQS_ACCESS_KEY_ID:
     crm_sqs['client'] = boto3.client(
         'sqs',
-        region_name=settings.CRM_AWS_SQS_REGION,
-        aws_access_key_id=settings.CRM_AWS_SQS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.CRM_AWS_SQS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_SQS_REGION,
+        aws_access_key_id=settings.AWS_SQS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SQS_SECRET_ACCESS_KEY,
     )
 
 
 # sqs destination for salesforce
-crm_queue_url = settings.CRM_PETITION_SQS_QUEUE_URL
+crm_queue_url = settings.SQS_QUEUE_URL
 
 logger = logging.getLogger(__name__)
 
