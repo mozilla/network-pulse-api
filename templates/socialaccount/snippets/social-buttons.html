@@ -23,7 +23,7 @@
   {% endif %}
   {% is_next_url_admin as show_superuser_login %}
   {% if show_superuser_login and auth_process == 'login' %}
-  <a href="{% url 'admin:login' %}" class="d-none">
+  <a href="{% url 'admin:login' %}">
     <button class="btn social-admin pr-3">
       <img class="social-icon" src="{% static 'account/img/admin-icon.svg' %}">
       {% trans "Sign in with Django <br> Admin" %}
