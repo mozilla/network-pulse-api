@@ -73,3 +73,10 @@ class ExtendedUserProfileFactory(BasicUserProfileFactory):
     profile_type = Iterator(ProfileType.objects.all())
     program_type = Iterator(ProgramType.objects.all())
     program_year = Iterator(ProgramYear.objects.all())
+
+
+class ProgramTypeFactory(DjangoModelFactory):
+    value = Faker('job')
+
+    class Meta:
+        model = ProgramType

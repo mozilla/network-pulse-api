@@ -93,14 +93,20 @@ class CohortRecord(models.Model):
     )
 
     def __str__(self):
-        return f'{self.profile.name} - {self.program} {self.year} {self.cohort_name}'
+        return f'{self.profile.name} - {self.program} {str(self.year)} {self.cohort_name}'
 
     def clean(self):
+        super().clean()
+
         # Don't allow both the cohort and year to be empty
         if self.year is None and not self.cohort_name:
             raise ValidationError(
                 _('Either the year or cohort must have a value')
             )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'cohort record'
