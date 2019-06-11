@@ -48,12 +48,11 @@ footer {
   font-size: 24px;
   font-weight: 500;
   line-height: 1.25;
-  width: 80%;
+  width: 75%;
   margin: 0 auto;
 }
 
 .panel-content .body-text {
-  width: 80%;
   font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   line-height: 1.5;
@@ -93,6 +92,10 @@ footer {
 @media (min-width: 575px) {
   body {
     background: rgb(242, 242, 242);
+  }
+  
+  .panel-content .body-text {
+    width: 80%;
   }
 }
 
