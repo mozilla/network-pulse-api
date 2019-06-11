@@ -3,7 +3,7 @@
 {% is_review_app as review_app %}
 <div class="social-buttons">
   {% with auth_process=process|default:"login" excluded_provider=exclude|lower %}
-  {% if review_app %}
+  {% if not review_app %}
   {% if excluded_provider != 'google' %}
   <a href="{% provider_login_url 'google' process=auth_process scope=scope auth_params=auth_params %}">
     <button class="btn social-google pr-3">

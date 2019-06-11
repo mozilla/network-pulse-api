@@ -10,7 +10,7 @@
 {% block main_title %}
 {% signin_before_connect as show_social_connection_text %}
 {% if show_social_connection_text %}
-{% trans "An Account With This Email Exists" %}
+{% trans "An account with this email exists" %}
 {% endif %}
 {% endblock %}
 
@@ -18,8 +18,8 @@
 {% signin_before_connect as show_social_connection_text %}
 {% if show_social_connection_text %}
 {% get_login_attempt_provider_name as provider_name %}
-<p class="mt-3">{% blocktrans %}Looks like there already is a Pulse account with the same email address that is used by your {{ provider_name }} account.{% endblocktrans %}</p>
-<p>{% blocktrans %}Before linking your {{ provider_name }} account to Pulse, please sign in to your existing Pulse account below.{% endblocktrans %}</p>
+<p class="mt-3 mb-4 body-text mx-auto">{% blocktrans %}Looks like there already is a Pulse account with the same email address that is used by your {{ provider_name }} account.{% endblocktrans %}</p>
+<p class="body-text mx-auto mb-5">{% blocktrans %}Before linking your {{ provider_name }} account to Pulse, please sign in to your existing Pulse account below.{% endblocktrans %}</p>
 {% else %}
 <p class="sign-in mt-3 mb-5">{% trans "Hey there! Sign in to start posting content on Pulse" %}</p>
 {% endif %}
@@ -28,6 +28,6 @@
 {% include "socialaccount/snippets/social-buttons.html" with process="login" exclude=provider_name %}
 {% endblock %}
 
-{% block bottom_panel_content %}<p class="bottom-note">{% blocktrans %}By creating/having an account, you agree to <a class="bottom-note-link" href="https://www.mozilla.org/en-US/about/legal/terms/mozilla/">Mozilla's Terms of Service</a>{% endblocktrans %}</p>{% endblock %}
+{% block bottom_panel_content %}<p class="bottom-note">{% blocktrans %}By creating/having an account, you agree to <a class="bottom-note-link" href="https://www.mozilla.org/en-US/about/legal/terms/mozilla/">Mozilla's Terms of Service</a> and <a class="bottom-note-link" href="https://www.mozilla.org/about/legal/terms/mozilla/">Privacy Notice</a>{% endblocktrans %}</p>{% endblock %}
 
 {% block footer %}<!-- Don't show the footer for this page -->{% endblock %}

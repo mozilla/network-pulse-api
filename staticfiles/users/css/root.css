@@ -43,10 +43,21 @@ footer {
 }
 
 .panel-content .main-title {
-  font-size: 2.2rem;
-  line-height: 2.4rem;
-  color: #e14164;
+  color: #000;
+  font-family: "Zilla Slab", serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.25;
+  width: 80%;
   margin: 0 auto;
+}
+
+.panel-content .body-text {
+  width: 80%;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #000;
 }
 
 .panel-content .sign-in {
@@ -54,6 +65,7 @@ footer {
   font-size: 20px;
   font-weight: 300;
   line-height: 1.4;
+  color: #000;
 }
 
 .bottom-note {

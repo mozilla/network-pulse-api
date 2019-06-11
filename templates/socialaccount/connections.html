@@ -7,11 +7,11 @@
 
 {% block head_title %}{% trans "Pulse: Connect your social account" %}{% endblock %}
 
-{% block main_title %}{% trans "Link a Social Account" %}{% endblock %}
+{% block main_title %}{% trans "Link a social account" %}{% endblock %}
 
 {% block content %}
-<p class="mt-3">{% trans "You have successfully signed in to your Pulse account!" %}</p>
-<p>{% trans "You can now sign in below to the social account you want to additionally link to your Pulse account. You can then sign in to Pulse using any of your connected social accounts." %}</p>
+<p class="mt-3 mb-4 body-text mx-auto">{% trans "You have successfully signed in to your Pulse account!" %}</p>
+<p class="body-text mx-auto mb-5">{% trans "You can now sign in below to the social account you want to additionally link to your Pulse account. You can then sign in to Pulse using any of your connected social accounts." %}</p>
 {% include "socialaccount/snippets/social-buttons.html" with process="connect" scope=scope auth_params=auth_params %}
 
 {% include "socialaccount/snippets/login_extra.html" %}
