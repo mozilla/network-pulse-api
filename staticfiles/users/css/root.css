@@ -78,14 +78,14 @@ footer {
 }
 
 .bottom-note-link {
-  color: #595cf3;
+  color: #0d10bf;
   text-decoration: none;
 }
 
 .bottom-note-link:hover,
 .bottom-note-link:active,
 .bottom-note-link:focus {
-  color: #595cf3;
+  color: #0d10bf;
   text-decoration: underline;
 }
 
