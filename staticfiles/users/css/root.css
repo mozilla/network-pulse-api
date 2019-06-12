@@ -8,6 +8,7 @@ body {
   flex-direction: column;
   justify-content: space-between;
   background: rgb(255, 255, 255);
+  font-family: "Nunito Sans", sans-serif;
 }
 
 footer {
@@ -37,7 +38,6 @@ footer {
 }
 
 #main .panel-content {
-  font-family: "Zilla Slab", "Open Sans", sans-serif;
   max-width: 75%;
   margin: 20px auto 0;
 }
@@ -53,14 +53,12 @@ footer {
 }
 
 .panel-content .body-text {
-  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   line-height: 1.5;
   color: #000;
 }
 
 .panel-content .sign-in {
-  font-family: 'Nunito Sans', sans-serif;
   font-size: 20px;
   font-weight: 300;
   line-height: 1.4;
@@ -70,7 +68,6 @@ footer {
 .bottom-note {
   max-width: 60%;
   margin: 48px auto 0;
-  font-family: 'Nunito Sans', sans-serif;
   font-size: 12px;
   font-weight: 400;
   line-height: 1.33;
