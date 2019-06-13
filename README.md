@@ -738,7 +738,9 @@ Example.com and example.org are "special" domains in that they *cannot* resolve 
 3. Go to http://test.example.com:8000/admin and login using superuser credentials.
 4. Add and save a new "Social Application" instance.
    - The "Provider" should be 'Google'
+   - The "Name" can be anything that will identify your Google social application
    - Fill in the client ID and client secret
+   - Add Your site domain to the list of "Chosen sites"
 5. Logout of the admin interface.
 
 ### GitHub
@@ -751,7 +753,9 @@ Example.com and example.org are "special" domains in that they *cannot* resolve 
 3. Go to http://test.example.com:8000/admin and login using superuser credentials.
 4. Add and save a new "Social Application" instance.
    - The "Provider" should be 'GitHub'
+   - The "Name" can be anything that will identify your GitHub social application
    - Fill in the client ID and client secret
+   - Add Your site domain to the list of "Chosen sites"
 5. Logout of the admin interface.
 
 ## Setting up Email
