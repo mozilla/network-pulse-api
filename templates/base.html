@@ -21,9 +21,9 @@
           <p class="main-title">{% block main_title %}{% trans "Welcome to the Mozilla Pulse API Service" %}{% endblock %}</p>
           {% block review_app_warning %}
           {% is_review_app as review_app %}
-          <!-- {% if review_app %}
+          {% if review_app %}
           {% blocktrans %}<p>Hi! OAuth is not available on Review Apps.<br>Read the <a href="https://github.com/mozilla/network-pulse-api#review-app">review app documentation</a> if you need administrator access.</p>{% endblocktrans %}
-          {% endif %} -->
+          {% endif %}
           {% endblock %}
           {% block content %}{% endblock %}
         </div>
