@@ -23,6 +23,10 @@ footer {
   justify-content: center;
 }
 
+.btn {
+  font-family: "Nunito Sans", sans-serif;
+}
+
 #main .panel {
   max-width: 450px;
   margin: 0 auto;
