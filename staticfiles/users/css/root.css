@@ -7,10 +7,8 @@ body {
   min-height: 100vh;
   flex-direction: column;
   justify-content: space-between;
-  background: rgb(255,80,110);
-  background: -moz-linear-gradient(160deg, rgba(255,80,110,1) 0%, rgba(165,110,255,1) 100%);
-  background: -webkit-linear-gradient(160deg, rgba(255,80,110,1) 0%, rgba(165,110,255,1) 100%);
-  background: linear-gradient(160deg, rgba(255,80,110,1) 0%, rgba(165,110,255,1) 100%);
+  background: rgb(255, 255, 255);
+  font-family: "Nunito Sans", sans-serif;
 }
 
 footer {
@@ -25,35 +23,81 @@ footer {
   justify-content: center;
 }
 
+.btn {
+  font-family: "Nunito Sans", sans-serif;
+}
+
 #main .panel {
-  max-width: 500px;
+  max-width: 450px;
   margin: 0 auto;
   text-align: center;
   background: #fff;
-  padding: 100px 0;
+  padding: 50px 0;
 }
 
 .main-logo {
-  width: 300px;
+  width: 80%;
+  max-width: 340px;
+  margin-bottom: 26px;
 }
 
 #main .panel-content {
-  font-family: "Zilla Slab", "Open Sans", sans-serif;
-  max-width: 60%;
+  max-width: 75%;
   margin: 20px auto 0;
 }
 
 .panel-content .main-title {
-  font-size: 2.2rem;
-  line-height: 2.4rem;
-  color: #e14164;
+  color: #000;
+  font-family: "Zilla Slab", serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.25;
+  width: 75%;
   margin: 0 auto;
 }
 
+.panel-content .body-text {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #000;
+}
+
+.panel-content .sign-in {
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1.4;
+  color: #000;
+}
+
 .bottom-note {
-  max-width: 59%;
-  margin: 20px auto 0;
-  font-size: 0.875rem;
+  max-width: 60%;
+  margin: 48px auto 0;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.33;
+  color: #999999;
+}
+
+.bottom-note-link {
+  color: #0d10bf;
+  text-decoration: none;
+}
+
+.bottom-note-link:hover,
+.bottom-note-link:active,
+.bottom-note-link:focus {
+  color: #0d10bf;
+  text-decoration: underline;
+}
+
+@media (min-width: 575px) {
+  body {
+    background: rgb(242, 242, 242);
+  }
+  
+  .panel-content .body-text {
+    width: 80%;
+  }
 }
 
 @media (max-width: 575.98px) {
@@ -71,6 +115,6 @@ footer {
   }
 
   #main .panel-content, .bottom-note {
-    max-width: 90%;
+    max-width: 75%;
   }
 }

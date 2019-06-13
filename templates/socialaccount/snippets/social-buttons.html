@@ -6,7 +6,7 @@
   {% if not review_app %}
   {% if excluded_provider != 'google' %}
   <a href="{% provider_login_url 'google' process=auth_process scope=scope auth_params=auth_params %}">
-    <button class="btn social-google">
+    <button class="btn social-google pr-3">
       <img class="social-icon" src="{% static 'account/img/google-icon-normal.svg' %}">
       {% trans "Sign in with Google" %}
     </button>
@@ -14,7 +14,7 @@
   {% endif %}
   {% if excluded_provider != 'github' %}
   <a href="{% provider_login_url 'github' process=auth_process scope=scope auth_params=auth_params %}">
-    <button class="btn social-github">
+    <button class="btn social-github pr-3">
       <img class="social-icon" src="{% static 'account/img/github-icon.svg' %}">
       {% trans "Sign in with GitHub" %}
     </button>
@@ -24,7 +24,7 @@
   {% is_next_url_admin as show_superuser_login %}
   {% if show_superuser_login and auth_process == 'login' %}
   <a href="{% url 'admin:login' %}">
-    <button class="btn social-admin">
+    <button class="btn social-admin pr-3">
       <img class="social-icon" src="{% static 'account/img/admin-icon.svg' %}">
       {% trans "Sign in with Django Admin" %}
     </button>

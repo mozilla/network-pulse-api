@@ -2,29 +2,24 @@
  * Login page CSS rules
  */
 
-.social-buttons {
-  margin: 30px auto 0;
-}
-
 .social-buttons a {
   text-decoration: none;
 }
 
 .social-buttons .btn {
-  font-family: "Open Sans", sans-serif;
   font-weight: 600;
   font-size: 1rem;
+  line-height: 1.25;
   padding: 0;
-  width: 100%;
   display: flex;
   align-items: center;
-  margin: 0 auto 10px;
+  margin: 0 auto 16px;
   white-space: normal;
   text-align: left;
 }
 
 .social-google {
-  background-color: #318AF5;
+  background-color: #4285f4;
   color: #fff;
   box-shadow: none;
 }
@@ -43,7 +38,7 @@
 }
 
 .social-github {
-  background-color: #444;
+  background-color: #333;
   color: #fff;
   box-shadow: none;
 }
@@ -62,6 +57,7 @@
 }
 
 .social-admin {
+  max-width: 212px;
   background-color: #417690;
   color: #fff;
   box-shadow: none;
@@ -81,10 +77,10 @@
 }
 
 .social-icon {
-  width: 50px;
-  height: 50px;
+  width: 36px;
+  height: 36px;
   display: inline-block;
-  margin-right: 20px;
+  margin-right: 10px;
   padding: 5px;
 }
 
