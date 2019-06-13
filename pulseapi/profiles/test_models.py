@@ -1,21 +1,55 @@
-"""UserProfile Model Generator"""
-from pulseapi.profiles.models import UserProfile
+from datetime import date
+from django.test import TestCase
+from django.core.exceptions import ValidationError
 
-import factory
-from faker import Factory
+from pulseapi.profiles.models import CohortRecord
+from pulseapi.utility.validators import YearValidator
+from pulseapi.profiles.factory import (
+    BasicUserProfileFactory,
+    ProgramTypeFactory,
+)
 
-fake = Factory.create()
 
+class TestProfileCategories(TestCase):
+    def setUp(self):
+        self.profile = BasicUserProfileFactory()
+        self.programs = [ProgramTypeFactory() for i in range(3)]
 
-class UserProfileFactory(factory.Factory):
-    """Generate UserProfiles for tests"""
-    is_active = True
-    user_bio = factory.LazyAttribute(
-        lambda o: 'user_bio {fake_bio}'.format(
-            fake_bio=''.join(fake.text(max_nb_chars=130))
-        )
-    )
+    def test_cohortrecord_year_under_valid_range(self):
+        current_year = date.today().year
+        expected_message = ValidationError(
+            YearValidator.message,
+            YearValidator.code,
+            params={'min_year': 2000, 'max_year': current_year + 2}
+        ).messages[0]
 
-    class Meta:
-        """Tell factory that it should be generating UserProfiles"""
-        model = UserProfile
+        with self.assertRaisesMessage(ValidationError, expected_message):
+            CohortRecord.objects.create(
+                profile=self.profile,
+                program=self.programs[0],
+                year=1999
+            )
+
+    def test_cohortrecord_year_over_valid_range(self):
+        current_year = date.today().year
+        expected_message = ValidationError(
+            YearValidator.message,
+            YearValidator.code,
+            params={'min_year': 2000, 'max_year': current_year + 2}
+        ).messages[0]
+
+        with self.assertRaisesMessage(ValidationError, expected_message):
+            CohortRecord.objects.create(
+                profile=self.profile,
+                program=self.programs[0],
+                year=current_year + 10
+            )
+
+    def test_cohortrecord_missing_year_and_cohort_name(self):
+        expected_message = 'Either the year or cohort must have a value'
+
+        with self.assertRaisesMessage(ValidationError, expected_message):
+            CohortRecord.objects.create(
+                profile=self.profile,
+                program=self.programs[0],
+            )

@@ -1,4 +1,8 @@
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+
+from pulseapi.utility.validators import YearValidator
 
 
 class ProfileType(models.Model):
@@ -59,3 +63,87 @@ class ProgramYear(models.Model):
 
     def __str__(self):
         return self.value
+
+
+class CohortRecord(models.Model):
+    profile = models.ForeignKey(
+        'profiles.UserProfile',
+        on_delete=models.CASCADE,
+        related_name='cohort_records',
+    )
+
+    program = models.ForeignKey(
+        'profiles.ProgramType',
+        on_delete=models.PROTECT,
+        related_name='profile_cohort_records',
+    )
+
+    year = models.PositiveSmallIntegerField(
+        # TODO: Change to MaxValueValidator with callable when
+        #       we update to Django > v2.2
+        validators=[YearValidator(max_offset=2)],
+        null=True,
+        blank=True,
+    )
+
+    cohort_name = models.CharField(
+        null=True,
+        blank=True,
+        max_length=200,
+    )
+
+    def __str__(self):
+        return f'{self.profile.name} - {self.program} {str(self.year)} {self.cohort_name}'
+
+    def clean(self):
+        super().clean()
+
+        # Don't allow both the cohort and year to be empty
+        if self.year is None and not self.cohort_name:
+            raise ValidationError(
+                _('Either the year or cohort must have a value')
+            )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = 'cohort record'
+        # This meta option creates an _order column in the table
+        # See https://docs.djangoproject.com/en/1.11/ref/models/options/#order-with-respect-to for more details
+        order_with_respect_to = 'profile'
+        # We prefix the index name in the database with uk to indicate that the constraint is a unique key
+        indexes = [
+            models.Index(fields=['profile', '_order'], name='uk_membership_profile_order'),
+        ]
+
+
+class ProfileRole(models.Model):
+    profile = models.ForeignKey(
+        'profiles.UserProfile',
+        on_delete=models.CASCADE,
+        related_name='related_types',
+    )
+
+    profile_type = models.ForeignKey(
+        'profiles.ProfileType',
+        on_delete=models.CASCADE,
+        related_name='related_profiles',
+    )
+
+    is_current = models.BooleanField(default=True)
+
+    def __str__(self):
+        copular_verb = 'is' if self.is_current else 'was'
+        return f'{self.profile.name} {copular_verb} a {self.role}'
+
+    class Meta:
+        # This meta option creates an _order column in the table
+        # See https://docs.djangoproject.com/en/1.11/ref/models/options/#order-with-respect-to for more details
+        order_with_respect_to = 'profile'
+        # We prefix the index name in the database with uk to indicate that the constraint is a unique key
+        indexes = [
+            models.Index(fields=['profile', 'is_current', '_order'], name='uk_role_profile_current_order'),
+            models.Index(fields=['profile', 'is_current', 'profile_type'], name='uk_role_profile_current_type'),
+        ]
