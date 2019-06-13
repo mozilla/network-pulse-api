@@ -7,7 +7,7 @@
 }
 
 .social-buttons .btn {
-  font-weight: 700;
+  font-weight: 600;
   font-size: 1rem;
   line-height: 1.25;
   padding: 0;
@@ -57,6 +57,7 @@
 }
 
 .social-admin {
+  max-width: 212px;
   background-color: #417690;
   color: #fff;
   box-shadow: none;
