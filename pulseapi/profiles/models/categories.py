@@ -113,6 +113,7 @@ class CohortRecord(models.Model):
         # This meta option creates an _order column in the table
         # See https://docs.djangoproject.com/en/1.11/ref/models/options/#order-with-respect-to for more details
         order_with_respect_to = 'profile'
+        # We prefix the index name in the database with uk to indicate that the constraint is a unique key
         indexes = [
             models.Index(fields=['profile', '_order'], name='uk_membership_profile_order'),
         ]
@@ -141,6 +142,7 @@ class ProfileRole(models.Model):
         # This meta option creates an _order column in the table
         # See https://docs.djangoproject.com/en/1.11/ref/models/options/#order-with-respect-to for more details
         order_with_respect_to = 'profile'
+        # We prefix the index name in the database with uk to indicate that the constraint is a unique key
         indexes = [
             models.Index(fields=['profile', 'is_current', '_order'], name='uk_role_profile_current_order'),
             models.Index(fields=['profile', 'is_current', 'profile_type'], name='uk_role_profile_current_type'),
