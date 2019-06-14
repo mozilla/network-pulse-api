@@ -3,7 +3,6 @@
 {% is_review_app as review_app %}
 <div class="social-buttons">
   {% with auth_process=process|default:"login" excluded_provider=exclude|lower %}
-  {% if not review_app %}
   {% if excluded_provider != 'google' %}
   <a href="{% provider_login_url 'google' process=auth_process scope=scope auth_params=auth_params %}">
     <button class="btn social-google pr-3">
@@ -19,7 +18,6 @@
       {% trans "Sign in with GitHub" %}
     </button>
   </a>
-  {% endif %}
   {% endif %}
   {% is_next_url_admin as show_superuser_login %}
   {% if show_superuser_login and auth_process == 'login' %}
