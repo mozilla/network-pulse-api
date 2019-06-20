@@ -82,10 +82,12 @@ class PulseSocialAccountAdapter(DefaultSocialAccountAdapter):
     def populate_user(self, request, sociallogin, data):
         user = super().populate_user(request, sociallogin, data)
         name = data.get('name')
-        user.name = ' '.join([
-            data.get('first_name', ''),
-            data.get('last_name', '')
-        ]).strip() if not name else name
+        user.name = ' '.join(
+            list(filter(None, [
+                data.get('first_name', ''),
+                data.get('last_name', '')
+            ]))
+        ).strip() if not name else name
 
         if sociallogin.account.provider == google_provider_id and is_staff_address(user_email(user)):
             user.is_staff = True
