@@ -86,7 +86,7 @@ class PulseSocialAccountAdapter(DefaultSocialAccountAdapter):
         if not name:
             first_name = data.get('first_name') or ''
             last_name = data.get('last_name') or ''
-            name = f"{first_name if first_name else ''} {last_name if last_name else ''}".strip()
+            name = f"{first_name} {last_name}".strip()
         user.name = name if name else 'Unnamed Pulse user'
 
         if sociallogin.account.provider == google_provider_id and is_staff_address(user_email(user)):
