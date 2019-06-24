@@ -84,7 +84,7 @@ class PulseSocialAccountAdapter(DefaultSocialAccountAdapter):
         
         name = data.get('name')
         if not name:
-            first_name = data.get('first_name')
+            first_name = data.get('first_name') or ''
             last_name = data.get('last_name')
             name = f"{first_name if first_name else ''} {last_name if last_name else ''}".strip()
         user.name = name if name else 'Unnamed Pulse user'
