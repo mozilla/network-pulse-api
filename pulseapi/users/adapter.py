@@ -81,7 +81,7 @@ class PulseSocialAccountAdapter(DefaultSocialAccountAdapter):
     """
     def populate_user(self, request, sociallogin, data):
         user = super().populate_user(request, sociallogin, data)
-        
+
         name = data.get('name')
         if not name:
             first_name = data.get('first_name') or ''
