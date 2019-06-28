@@ -16,6 +16,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     Show the profile-associated user.
     """
     fields = (
+        'created_at',
         'is_active',
         'user_account',
         'name',
@@ -40,6 +41,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     )
 
     readonly_fields = (
+        'created_at',
         'user_account',
         'name',
         'thumbnail_image_tag',
