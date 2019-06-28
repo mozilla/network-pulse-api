@@ -45,7 +45,6 @@ class UserProfile(models.Model):
         auto_now_add=True
     )
 
-
     # This flag determines whether this profile has been
     # activated, meaning it can be retrieved through REST
     # API calls and might get crosslinked into data structures
