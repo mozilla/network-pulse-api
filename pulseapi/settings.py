@@ -28,7 +28,6 @@ root = app - 1
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 env = environ.Env(
     AUTH_STAFF_EMAIL_DOMAINS=(list, []),
-    CORS_ORIGIN_REGEX_WHITELIST=(list, []),
     CORS_ORIGIN_WHITELIST=(list, []),
     CSRF_TRUSTED_ORIGINS=(list, []),
     AWS_SQS_REGION=(str, None),
@@ -310,8 +309,6 @@ CORS_ALLOW_CREDENTIALS = True
 
 # and we want origin whitelisting
 CORS_ORIGIN_WHITELIST = env('CORS_ORIGIN_WHITELIST')
-
-CORS_ORIGIN_REGEX_WHITELIST = env('CORS_ORIGIN_REGEX_WHITELIST')
 
 CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS')
 CSRF_COOKIE_HTTPONLY = env('CSRF_COOKIE_HTTPONLY', default=SSL_PROTECTION)

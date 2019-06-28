@@ -913,7 +913,6 @@ Configure the following environment variables as needed in your `.env` file. All
  - `SECRET_KEY` *(recommended)* &mdash; A unique, unpredictable string that will be used for cryptographic signing. PLEASE GENERATE A NEW SECRET STRING FOR PRODUCTION ENVIRONMENTS. **Defaults to a set string of characters.**
  - `SSL_PROTECTION` *(recommended)* &mdash; A catch-all boolean that indicates whether SSL encryption, XSS filtering, content-type sniff protection, HSTS, and cookie security should be enabled. THIS SHOULD LIKELY BE SET TO `True` IN A PRODUCTION ENVIRONMENT. **Defaults to `False`.**
  - `ALLOWED_HOSTS` &mdash; A comma-separated list of host domains that this app can serve. This is meant to prevent HTTP Host header attacks. **Defaults to a list of `test.example.com`, `localhost`, `network-pulse-api-staging.herokuapp.com`, and `network-pulse-api-production.herokuapp.com`.**
- - `CORS_ORIGIN_REGEX_WHITELIST` *(recommended)* &mdash; A comma-separated list of python regular expressions matching domains that should be enabled for CORS. **Defaults to anything running on `localhost` or on `test.example.com`.**
  - `CORS_ORIGIN_WHITELIST` &mdash; A comma-separated list of domains that should be allowed to make CORS requests. **Defaults to an empty list.**
  - `CSRF_TRUSTED_ORIGINS` &mdash; A comma-separated list of trusted domains that can send POST, PUT, and DELETE requests to this API. **Defaults to a list of `localhost:3000`, `localhost:8000`, `localhost:8080` , `test.example.com:8000`, and `test.example.com:3000`.**
 
