@@ -171,6 +171,7 @@ class UserProfileSerializer(UserProfileTrimExtendedInfoMixin, serializers.ModelS
         model = UserProfile
         read_only_fields = ('profile_type', 'entry_count', 'is_active',)
         exclude = [
+            'created_at',
             'bookmarks',
             'id',
             'is_group',
