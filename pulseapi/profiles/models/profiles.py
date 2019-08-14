@@ -40,6 +40,11 @@ class UserProfile(models.Model):
     bookmarks on the site, etc.
     """
 
+    # make sure we record when a profile got created.
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
     # This flag determines whether this profile has been
     # activated, meaning it can be retrieved through REST
     # API calls and might get crosslinked into data structures
