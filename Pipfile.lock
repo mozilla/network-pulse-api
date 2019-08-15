@@ -414,10 +414,10 @@
     "develop": {
         "autoflake": {
             "hashes": [
-                "sha256:c103e63466f11db3617167a2c68ff6a0cda35b940222920631c6eeec6b67e807"
+                "sha256:680cb9dade101ed647488238ccb8b8bfb4369b53d58ba2c8cdf7d5d54e01f95b"
             ],
             "index": "pypi",
-            "version": "==1.2"
+            "version": "==1.3.1"
         },
         "cli-helpers": {
             "extras": [
