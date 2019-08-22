@@ -20,9 +20,6 @@ from django.conf.urls.static import static
 from ajax_select import urls as ajax_select_urls
 
 from pulseapi.profiles.views import UserProfileAPIView
-from pulseapi.utility.newsletters.signup import (
-    signup_submission_view
-)
 from pulseapi.utility.syndication import (
     RSSFeedLatestFromPulse,
     AtomFeedLatestFromPulse,
@@ -68,9 +65,6 @@ urlpatterns = [
 
     # Autocomplete
     url(r'^ajax_select/', include(ajax_select_urls)),
-
-    # Newsletter signup
-    url(r'signup/', signup_submission_view, name='newsletter-signup'),
 ]
 
 if settings.USE_S3 is not True:
