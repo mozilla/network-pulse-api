@@ -26,10 +26,10 @@
         },
         "botocore": {
             "hashes": [
-                "sha256:1a9b246b40a7694c6c1707c386e6dc00cd473647efd92aa8b5b812c8a223ff4d",
-                "sha256:7fa1ea16e11d8537dab675577e609b95d3cea6f5db005f3adc934afdae6b72bc"
+                "sha256:63ca29cf8a47b190886923c789a3f2b2a7e1665b5f6e22a97fed057af2e5f1af",
+                "sha256:bebb869754459035fe45eac1f8a93a97dd8698522bc7f7ebde791e32311b035a"
             ],
-            "version": "==1.12.208"
+            "version": "==1.12.216"
         },
         "cachetools": {
             "hashes": [
@@ -92,11 +92,11 @@
         },
         "django-cors-headers": {
             "hashes": [
-                "sha256:1ccedec2973087be9d73f96d58c4f6660c823efc0385581e13efb77f060d0e02",
-                "sha256:fb44f6b9f10de847919305c3f0d38fcfbadfe0dd5cf1c866f37df66ad0dda1bb"
+                "sha256:e4b12209b3a0bc577883fe0ac0aa3adac9e82742389f8ddb6c6b41c66b1e9c4f",
+                "sha256:e69b1c909f2eddc7ef2a24f071583bc22b73b871731ea3370ac52b3318c43b3c"
             ],
             "index": "pypi",
-            "version": "==2.5.2"
+            "version": "==3.1.0"
         },
         "django-debug-toolbar": {
             "hashes": [
@@ -140,11 +140,11 @@
         },
         "docutils": {
             "hashes": [
-                "sha256:02aec4bd92ab067f6ff27a38a38a41173bf01bed8f89157768c1573f53e474a6",
-                "sha256:51e64ef2ebfb29cae1faa133b3710143496eca21c530f3f71424d77687764274",
-                "sha256:7a4bd47eaf6596e1295ecb11361139febe29b084a87bf005bf899f9a42edc3c6"
+                "sha256:6c4f696463b79f1fb8ba0c594b63840ebd41f059e92b31957c46b74a4599b6d0",
+                "sha256:9e4d7ecfc600058e07ba661411a2b7de2fd0fafa17d1a7f7361cd47b1175c827",
+                "sha256:a2aeea129088da402665e92e0b25b04b073c04b2dce4ab65caaa38b7ce2e1a99"
             ],
-            "version": "==0.14"
+            "version": "==0.15.2"
         },
         "factory-boy": {
             "hashes": [
@@ -441,11 +441,11 @@
         },
         "docutils": {
             "hashes": [
-                "sha256:02aec4bd92ab067f6ff27a38a38a41173bf01bed8f89157768c1573f53e474a6",
-                "sha256:51e64ef2ebfb29cae1faa133b3710143496eca21c530f3f71424d77687764274",
-                "sha256:7a4bd47eaf6596e1295ecb11361139febe29b084a87bf005bf899f9a42edc3c6"
+                "sha256:6c4f696463b79f1fb8ba0c594b63840ebd41f059e92b31957c46b74a4599b6d0",
+                "sha256:9e4d7ecfc600058e07ba661411a2b7de2fd0fafa17d1a7f7361cd47b1175c827",
+                "sha256:a2aeea129088da402665e92e0b25b04b073c04b2dce4ab65caaa38b7ce2e1a99"
             ],
-            "version": "==0.14"
+            "version": "==0.15.2"
         },
         "entrypoints": {
             "hashes": [
