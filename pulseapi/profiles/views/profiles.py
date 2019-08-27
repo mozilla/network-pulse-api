@@ -123,15 +123,15 @@ class ProfileCustomFilter(filters.FilterSet):
         lookup_expr='in'
     )
     profile_type = django_filters.CharFilter(
-        name='profile_type__value',
+        field_name='profile_type__value',
         lookup_expr='iexact',
     )
     program_type = django_filters.CharFilter(
-        name='program_type__value',
+        field_name='program_type__value',
         lookup_expr='iexact',
     )
     program_year = django_filters.CharFilter(
-        name='program_year__value',
+        field_name='program_year__value',
         lookup_expr='iexact',
     )
     name = django_filters.CharFilter(method='filter_name')
@@ -232,7 +232,7 @@ class UserProfileListAPIView(ListAPIView):
     )
     pagination_class = ProfilesPagination
 
-    filter_class = ProfileCustomFilter
+    filterset_class = ProfileCustomFilter
 
     def get_queryset(self):
         request = self.request
