@@ -31,10 +31,6 @@ env = environ.Env(
     CORS_ORIGIN_REGEX_WHITELIST=(list, []),
     CORS_ORIGIN_WHITELIST=(list, []),
     CSRF_TRUSTED_ORIGINS=(list, []),
-    AWS_SQS_REGION=(str, None),
-    AWS_SQS_ACCESS_KEY_ID=(str, None),
-    AWS_SQS_SECRET_ACCESS_KEY=(str, None),
-    SQS_QUEUE_URL=(str, None),
     DEBUG=(bool, False),
     DJANGO_LOG_LEVEL=(str, 'INFO'),
     HEROKU_APP_NAME=(str, ''),
@@ -349,11 +345,6 @@ else:
     # Otherwise use the default filesystem storage
     MEDIA_ROOT = root('media/')
     MEDIA_URL = '/media/'
-
-AWS_SQS_REGION = env('AWS_SQS_REGION')
-AWS_SQS_ACCESS_KEY_ID = env('AWS_SQS_ACCESS_KEY_ID')
-AWS_SQS_SECRET_ACCESS_KEY = env('AWS_SQS_SECRET_ACCESS_KEY')
-SQS_QUEUE_URL = env('SQS_QUEUE_URL')
 
 # Remove the default Django loggers and configure new ones
 LOGGING_CONFIG = None
