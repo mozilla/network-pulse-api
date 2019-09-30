@@ -31,5 +31,5 @@ docutils = "*"
 flake8 = "*"
 pgcli = "*"
 
-[required]
-Python == "3.6"
+[requires]
+python_version = "3.6"
