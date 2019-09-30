@@ -2,7 +2,7 @@ from itertools import chain
 from django.db.models import Q
 from django.conf import settings
 from rest_framework import filters
-from rest_framework.filters import DjangoFilterBackend
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import exceptions
