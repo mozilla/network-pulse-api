@@ -6,6 +6,7 @@ from django.core.files.base import ContentFile
 from django.conf import settings
 from django.db.models import Q
 from rest_framework import permissions, filters
+from rest_framework.filters import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import (
     RetrieveUpdateAPIView,
@@ -217,7 +218,7 @@ class UserProfileListAPIView(ListAPIView):
     """
     filter_backends = (
         filters.OrderingFilter,
-        filters.DjangoFilterBackend,
+        DjangoFilterBackend,
         filters.SearchFilter,
     )
     ordering_fields = ('id', 'custom_name', 'program_year',)

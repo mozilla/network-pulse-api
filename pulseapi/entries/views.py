@@ -11,6 +11,7 @@ from django.db.models import Q
 
 from rest_framework import filters, status
 from rest_framework.decorators import detail_route, api_view
+from rest_framework.filters import DjangoFilterBackend
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, ListAPIView, get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -328,7 +329,7 @@ class EntriesListView(ListCreateAPIView):
     """
     pagination_class = EntriesPagination
     filter_backends = (
-        filters.DjangoFilterBackend,
+        DjangoFilterBackend,
         filters.SearchFilter,
         filters.OrderingFilter,
     )

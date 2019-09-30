@@ -30,6 +30,3 @@ autoflake = "*"
 docutils = "*"
 flake8 = "*"
 pgcli = "*"
-
-[requires]
-python_version = "3.6"
