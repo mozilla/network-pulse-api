@@ -10,7 +10,7 @@ from django.conf import settings
 from django.db.models import Q
 
 from rest_framework import filters, status
-from rest_framework.filters import FilterSet
+from django_filters.rest_framework import FilterSet
 from rest_framework.decorators import detail_route, api_view
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, ListAPIView, get_object_or_404
