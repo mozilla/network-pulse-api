@@ -10,6 +10,7 @@ from django.conf import settings
 from django.db.models import Q
 
 from rest_framework import filters, status
+from rest_framework.filters import FilterSet
 from rest_framework.decorators import detail_route, api_view
 from rest_framework.filters import DjangoFilterBackend
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, ListAPIView, get_object_or_404
@@ -154,7 +155,7 @@ class EntriesPagination(PageNumberPagination):
     max_page_size = 1000
 
 
-class EntryCustomFilter(filters.FilterSet):
+class EntryCustomFilter(FilterSet):
     """
     We add custom filtering to allow you to filter by:
         * Tag - pass the `?tag=` query parameter
