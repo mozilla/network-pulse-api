@@ -51,6 +51,9 @@ class RSSFeedFromPulse(Feed):
 
     def item_link(self, entry):
         return entry.frontend_entry_url()
+    
+    def item_categories(self, entry):
+        return list(entry.tags.values_list('name', flat=True)) + list(entry.issues.values_list('name', flat=True))
 
 
 # RSS feed for latest entries
