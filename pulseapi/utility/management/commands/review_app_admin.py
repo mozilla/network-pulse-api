@@ -14,7 +14,7 @@ from pulseapi.users.models import EmailUser
 
 
 class Command(BaseCommand):
-    help = 'Create a superuser for use on Heroku review apps'
+    help = 'Create a superuser to use on Heroku review apps'
 
     def handle(self, *args, **options):
         try:
