@@ -33,7 +33,9 @@
     },
     "USE_S3": "True",
     "SSL_PROTECTION": "False",
-    "DEBUG": "True"
+    "DEBUG": "True",
+    "GITHUB_TOKEN": "True",
+    "SLACK_WEBHOOK_RA": "True"
   },
   "addons": [
     "heroku-postgresql:hobby-dev"
