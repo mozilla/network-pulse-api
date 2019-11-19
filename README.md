@@ -921,6 +921,11 @@ Configure the following environment variables as needed in your `.env` file. All
 
  - `PULSE_FRONTEND_HOSTNAME` &mdash; The hostname for the front-end used for Pulse. This is used for the RSS and Atom feed data. **Defaults to `localhost:3000`.**
 
+### Review Apps bot variables
+
+- `GITHUB_TOKEN` &mdash; Used to get the PR title.
+- `SLACK_WEBHOOK_RA` &mdash; Incoming webhook of the `HerokuReviewAppBot` Slack app.
+
  ### Miscellaneous variables
 
  - `HEROKU_APP_NAME` &mdash; A domain used to indicate if this app is running as a review app on Heroku. This is used to determine if social authentication is available or not (since it isn't for review apps). **Defaults to an empty string.**
