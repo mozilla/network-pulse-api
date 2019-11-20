@@ -38,6 +38,8 @@ env = environ.Env(
     SECRET_KEY=(str, ''),
     SSL_PROTECTION=(bool, False),
     USE_S3=(bool, False),
+    GITHUB_TOKEN=(str, ''),
+    SLACK_WEBHOOK_RA=(str, ''),
 )
 
 SSL_PROTECTION = env('SSL_PROTECTION')
@@ -403,3 +405,7 @@ LOGGING = {
 }
 DJANGO_LOG_LEVEL = env('DJANGO_LOG_LEVEL')
 logging.config.dictConfig(LOGGING)
+
+# Review app slack bot
+GITHUB_TOKEN = env('GITHUB_TOKEN')
+SLACK_WEBHOOK_RA = env('SLACK_WEBHOOK_RA')

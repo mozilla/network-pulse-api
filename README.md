@@ -921,6 +921,11 @@ Configure the following environment variables as needed in your `.env` file. All
 
  - `PULSE_FRONTEND_HOSTNAME` &mdash; The hostname for the front-end used for Pulse. This is used for the RSS and Atom feed data. **Defaults to `localhost:3000`.**
 
+### Review Apps bot variables
+
+- `GITHUB_TOKEN` &mdash; Used to get the PR title.
+- `SLACK_WEBHOOK_RA` &mdash; Incoming webhook of the `HerokuReviewAppBot` Slack app.
+
  ### Miscellaneous variables
 
  - `HEROKU_APP_NAME` &mdash; A domain used to indicate if this app is running as a review app on Heroku. This is used to determine if social authentication is available or not (since it isn't for review apps). **Defaults to an empty string.**
@@ -931,8 +936,9 @@ While for local development we provide a `sample.env` that you can use as defaul
 
 ### Review App
 
-Opening a PR will automatically create a Review App in the `network-pulse-api` pipeline. It's not possible to use OAuth but you can still access the admin with `test@mozillafoundation.org` as a user. To get the password, you need to go to the Heroku dashboard, click on the menu of your Review App and select `View initial app setup...`. The password is in the `Run scripts & scale dynos` log.
+Opening a PR will automatically create a Review App in the `network-pulse-api` pipeline. Since it's not possible to use OAuth, you will need to log using Django admin. A slack bot posts credentials and links to Review Apps in to the `mofo-pulse-api-review-app` channel.
 
+This only work for Mo-Fo staff: you will need to manually open a Review App on Heroku for PRs opened by external contributors.
 
 ## Debugging all the things
 

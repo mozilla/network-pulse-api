@@ -31,6 +31,12 @@
     "CSRF_TRUSTED_ORIGINS": {
       "required": true
     },
+    "GITHUB_TOKEN": {
+      "required": true
+    },
+    "SLACK_WEBHOOK_RA": {
+      "required": true
+    },
     "USE_S3": "True",
     "SSL_PROTECTION": "False",
     "DEBUG": "True"
