@@ -936,7 +936,7 @@ While for local development we provide a `sample.env` that you can use as defaul
 
 ### Review App
 
-Opening a PR will automatically create a Review App in the `network-pulse-api` pipeline. Since it's not possible to use OAuth, you will need to log using Django admin. A slack bot posts credentials and links to Review Apps in to the `mofo-pulse-api-review-app` channel.
+Opening a PR will automatically create a Review App in the `network-pulse-api` pipeline. Since it's not possible to use OAuth, you will need to log using Django admin. A slack bot posts credentials and links to Review Apps in to the `mofo-ra-pulse-api` channel.
 
 This only work for Mo-Fo staff: you will need to manually open a Review App on Heroku for PRs opened by external contributors.
 
