@@ -2,6 +2,7 @@ from itertools import chain
 from django.db.models import Q
 from django.conf import settings
 from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import exceptions
@@ -71,7 +72,7 @@ class CreatorListView(ListAPIView):
     serializer_class = CreatorSerializer
 
     filter_backends = (
-        filters.DjangoFilterBackend,
+        DjangoFilterBackend,
         FilterCreatorNameBackend,
     )
 
