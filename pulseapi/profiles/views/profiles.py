@@ -1,5 +1,4 @@
 import base64
-from itertools import chain
 import django_filters
 
 from django.core.files.base import ContentFile
@@ -121,15 +120,15 @@ class ProfileCustomFilter(FilterSet):
         lookup_expr='in'
     )
     profile_type = django_filters.CharFilter(
-        name='profile_type__value',
+        field_name='profile_type__value',
         lookup_expr='iexact',
     )
     program_type = django_filters.CharFilter(
-        name='program_type__value',
+        field_name='program_type__value',
         lookup_expr='iexact',
     )
     program_year = django_filters.CharFilter(
-        name='program_year__value',
+        field_name='program_year__value',
         lookup_expr='iexact',
     )
     name = django_filters.CharFilter(method='filter_name')
@@ -140,7 +139,7 @@ class ProfileCustomFilter(FilterSet):
         qs_contains = queryset.filter(
             Q(custom_name__icontains=value) | Q(related_user__name__icontains=value)
         ).exclude(startswith_lookup)
-        return list(chain(qs_startswith, qs_contains))
+        return qs_startswith | qs_contains
 
     limit = django_filters.NumberFilter(method='filter_limit')
 
@@ -164,14 +163,14 @@ class ProfileCustomFilter(FilterSet):
             return UserProfile.objects.none()
 
         if 'search' in queries:
-            qs = super(ProfileCustomFilter, self).qs
+            qs = super().qs
         else:
             qs = UserProfile.objects.none()
 
         fields = ProfileCustomFilter.get_fields()
         for key in fields:
             if key in queries:
-                qs = super(ProfileCustomFilter, self).qs
+                qs = super().qs
 
         return qs
 
@@ -230,7 +229,7 @@ class UserProfileListAPIView(ListAPIView):
     )
     pagination_class = ProfilesPagination
 
-    filter_class = ProfileCustomFilter
+    filterset_class = ProfileCustomFilter
 
     def get_queryset(self):
         request = self.request

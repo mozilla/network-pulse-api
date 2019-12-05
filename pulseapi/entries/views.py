@@ -166,24 +166,24 @@ class EntryCustomFilter(FilterSet):
     category.
     """
     tag = django_filters.CharFilter(
-        name='tags__name',
+        field_name='tags__name',
         lookup_expr='iexact',
     )
     issue = django_filters.CharFilter(
-        name='issues__name',
+        field_name='issues__name',
         lookup_expr='iexact',
     )
     help_type = django_filters.CharFilter(
-        name='help_types__name',
+        field_name='help_types__name',
         lookup_expr='iexact',
     )
     has_help_types = django_filters.BooleanFilter(
-        name='help_types',
+        field_name='help_types',
         lookup_expr='isnull',
         exclude=True,
     )
     featured = django_filters.BooleanFilter(
-        name='featured'
+        field_name='featured'
     )
 
     class Meta:
@@ -334,7 +334,7 @@ class EntriesListView(ListCreateAPIView):
         filters.SearchFilter,
         filters.OrderingFilter,
     )
-    filter_class = EntryCustomFilter
+    filterset_class = EntryCustomFilter
     search_fields = (
         'title',
         'description',
