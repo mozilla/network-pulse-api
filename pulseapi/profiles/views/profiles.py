@@ -1,5 +1,4 @@
 import base64
-from itertools import chain
 import django_filters
 
 from django.core.files.base import ContentFile
