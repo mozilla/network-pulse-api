@@ -140,7 +140,7 @@ class ProfileCustomFilter(FilterSet):
         qs_contains = queryset.filter(
             Q(custom_name__icontains=value) | Q(related_user__name__icontains=value)
         ).exclude(startswith_lookup)
-        return list(chain(qs_startswith, qs_contains))
+        return qs_startswith | qs_contains
 
     limit = django_filters.NumberFilter(method='filter_limit')
 
@@ -164,14 +164,14 @@ class ProfileCustomFilter(FilterSet):
             return UserProfile.objects.none()
 
         if 'search' in queries:
-            qs = super(ProfileCustomFilter, self).qs
+            qs = super().qs
         else:
             qs = UserProfile.objects.none()
 
         fields = ProfileCustomFilter.get_fields()
         for key in fields:
             if key in queries:
-                qs = super(ProfileCustomFilter, self).qs
+                qs = super().qs
 
         return qs
 
