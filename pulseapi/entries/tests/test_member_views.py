@@ -103,3 +103,16 @@ class TestMemberEntryView(PulseMemberTestCase):
 
         for creator, entry_creator in zip(related_creators, entry_creators):
             self.assertEqual(entry_creator.profile.custom_name, creator['name'])
+
+    def test_entry_api(self):
+        """
+        ...GENERATE ENTRIES WITH TAGS HERE...
+        """
+        response = self.client.get('/api/pulse/entries/?format=json')
+        self.assertEqual(response.status_code, 200)
+
+        response_data = json.loads(str(response.content, 'utf-8'))
+        print(response_data)
+
+        count = response_data['count']
+        self.assertEqual(count, 120)
