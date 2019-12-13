@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 
 from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.creators.models import EntryCreator
+from pulseapi.tags.models import Tag
 from pulseapi.tests import PulseMemberTestCase
 
 
@@ -104,15 +105,46 @@ class TestMemberEntryView(PulseMemberTestCase):
         for creator, entry_creator in zip(related_creators, entry_creators):
             self.assertEqual(entry_creator.profile.custom_name, creator['name'])
 
-    def test_entry_api(self):
-        """
-        ...GENERATE ENTRIES WITH TAGS HERE...
-        """
-        response = self.client.get('/api/pulse/entries/?format=json')
+
+class TestEntryAPIJSONView(PulseMemberTestCase):
+    def setUp(self):
+        super().setUp()
+
+        (curricculum, created) = Tag.objects.get_or_create(name='curricculum')
+        (libraries, created) = Tag.objects.get_or_create(name='libraries')
+
+        cur_entry = Entry.objects.create(title='cur_entry', entry_type='news', published_by=self.user)
+        cur_entry.set_moderation_state('Approved')
+        cur_entry.tags.add(curricculum)
+        cur_entry.save()
+
+        lib_entry = Entry.objects.create(title='lib_entry', entry_type='news', published_by=self.user)
+        lib_entry.set_moderation_state('Approved')
+        lib_entry.tags.add(libraries)
+        lib_entry.save()
+
+        dual_entry = Entry.objects.create(title='dual_entry', entry_type='news', published_by=self.user)
+        dual_entry.set_moderation_state('Approved')
+        dual_entry.tags.add(curricculum)
+        dual_entry.tags.add(libraries)
+        dual_entry.save()
+
+    def test_single_tag_search(self):
+        response = self.client.get('/api/pulse/entries/?search=curricculum&format=json')
         self.assertEqual(response.status_code, 200)
-
         response_data = json.loads(str(response.content, 'utf-8'))
-        print(response_data)
-
         count = response_data['count']
-        self.assertEqual(count, 120)
+        self.assertEqual(count, 2)
+
+        response = self.client.get('/api/pulse/entries/?search=libraries&format=json')
+        self.assertEqual(response.status_code, 200)
+        response_data = json.loads(str(response.content, 'utf-8'))
+        count = response_data['count']
+        self.assertEqual(count, 2)
+
+    def test_dual_tag_search(self):
+        response = self.client.get('/api/pulse/entries/?search=curricculum libraries&format=json')
+        self.assertEqual(response.status_code, 200)
+        response_data = json.loads(str(response.content, 'utf-8'))
+        count = response_data['count']
+        self.assertEqual(count, 1)
