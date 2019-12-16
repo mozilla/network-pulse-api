@@ -9,10 +9,20 @@ from django.core.files.base import ContentFile
 from django.conf import settings
 from django.db.models import Q
 
-from rest_framework import filters, status
+from rest_framework import status
 from rest_framework.decorators import detail_route, api_view
-from rest_framework.filters import DjangoFilterBackend, SearchFilter, OrderingFilter
-from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, ListAPIView, get_object_or_404
+from rest_framework.filters import (
+    DjangoFilterBackend,
+    FilterSet,
+    OrderingFilter,
+    SearchFilter,
+)
+from rest_framework.generics import (
+    ListCreateAPIView,
+    RetrieveAPIView,
+    ListAPIView,
+    get_object_or_404,
+)
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
@@ -154,7 +164,7 @@ class EntriesPagination(PageNumberPagination):
     max_page_size = 1000
 
 
-class EntryCustomFilter(filters.FilterSet):
+class EntryCustomFilter(FilterSet):
     """
     We add custom filtering to allow you to filter by:
         * Tag - pass the `?tag=` query parameter

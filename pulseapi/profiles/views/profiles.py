@@ -5,8 +5,13 @@ import django_filters
 from django.core.files.base import ContentFile
 from django.conf import settings
 from django.db.models import Q
-from rest_framework import permissions, filters
-from rest_framework.filters import DjangoFilterBackend, OrderingFilter, SearchFilter
+from rest_framework import permissions
+from rest_framework.filters import (
+    DjangoFilterBackend,
+    FilterSet,
+    OrderingFilter,
+    SearchFilter,
+)
 from rest_framework.generics import (
     RetrieveUpdateAPIView,
     RetrieveAPIView,
@@ -109,7 +114,7 @@ class NumberInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
 # django_filters.rest_framework.FilterSet in v3.7.x, which
 # we aren't far from upgrading to.
 # SEE: https://github.com/mozilla/network-pulse-api/issues/288
-class ProfileCustomFilter(filters.FilterSet):
+class ProfileCustomFilter(FilterSet):
     """
       We add custom filtering to allow you to filter by:
 
