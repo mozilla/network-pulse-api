@@ -6,13 +6,14 @@ from django.core.files.base import ContentFile
 from django.conf import settings
 from django.db.models import Q
 from rest_framework import permissions, filters
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.filters import DjangoFilterBackend, OrderingFilter, SearchFilter
 from rest_framework.generics import (
     RetrieveUpdateAPIView,
     RetrieveAPIView,
     ListAPIView,
     get_object_or_404,
 )
+from rest_framework.pagination import PageNumberPagination
 
 from pulseapi.profiles.models import UserProfile
 from pulseapi.profiles.serializers import (
@@ -216,9 +217,9 @@ class UserProfileListAPIView(ListAPIView):
         page=(number)
     """
     filter_backends = (
-        filters.OrderingFilter,
-        filters.DjangoFilterBackend,
-        filters.SearchFilter,
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
     )
     ordering_fields = ('id', 'custom_name', 'program_year',)
     ordering = ('-id',)
