@@ -133,18 +133,15 @@ class TestEntryAPIJSONView(PulseMemberTestCase):
         response = self.client.get('/api/pulse/entries/?search=curricculum&format=json')
         self.assertEqual(response.status_code, 200)
         response_data = json.loads(str(response.content, 'utf-8'))
-        count = response_data['count']
-        self.assertEqual(count, 2)
+        self.assertEqual(response_data['count'], 2)
 
         response = self.client.get('/api/pulse/entries/?search=libraries&format=json')
         self.assertEqual(response.status_code, 200)
         response_data = json.loads(str(response.content, 'utf-8'))
-        count = response_data['count']
-        self.assertEqual(count, 2)
+        self.assertEqual(response_data['count'], 2)
 
     def test_dual_tag_search(self):
         response = self.client.get('/api/pulse/entries/?search=curricculum libraries&format=json')
         self.assertEqual(response.status_code, 200)
         response_data = json.loads(str(response.content, 'utf-8'))
-        count = response_data['count']
-        self.assertEqual(count, 1)
+        self.assertEqual(response_data['count'], 1)
