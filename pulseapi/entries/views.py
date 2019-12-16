@@ -11,9 +11,11 @@ from django.db.models import Q
 
 from rest_framework import status
 from rest_framework.decorators import detail_route, api_view
-from rest_framework.filters import (
+from django_filters.rest_framework import (
     DjangoFilterBackend,
     FilterSet,
+)
+from rest_framework.filters import (
     OrderingFilter,
     SearchFilter,
 )

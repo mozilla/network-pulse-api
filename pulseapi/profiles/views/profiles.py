@@ -6,9 +6,11 @@ from django.core.files.base import ContentFile
 from django.conf import settings
 from django.db.models import Q
 from rest_framework import permissions
-from rest_framework.filters import (
+from django_filters.rest_framework import (
     DjangoFilterBackend,
     FilterSet,
+)
+from rest_framework.filters import (
     OrderingFilter,
     SearchFilter,
 )
