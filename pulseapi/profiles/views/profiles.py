@@ -112,10 +112,6 @@ class NumberInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
     pass
 
 
-# NOTE: DRF has deprecated the FilterSet class in favor of
-# django_filters.rest_framework.FilterSet in v3.7.x, which
-# we aren't far from upgrading to.
-# SEE: https://github.com/mozilla/network-pulse-api/issues/288
 class ProfileCustomFilter(FilterSet):
     """
       We add custom filtering to allow you to filter by:
