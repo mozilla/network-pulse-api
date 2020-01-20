@@ -948,7 +948,7 @@ You can manually create a review app for any branch pushed to this repo. It's us
 
 To create one:
 - log into Heroku.
-- Go to the `foundation-site` pipeline.
+- Go to the `network-pulse-api` pipeline.
 - Click on `+ New app` and select the branch you want to use.
 
 The review app slack bot will post a message in the `foundation-site` with links and credentials as soon as the review app is ready.
