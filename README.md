@@ -951,7 +951,7 @@ To create one:
 - Go to the `network-pulse-api` pipeline.
 - Click on `+ New app` and select the branch you want to use.
 
-The review app slack bot will post a message in the `foundation-site` with links and credentials as soon as the review app is ready.
+The review app slack bot will post a message in the `mofo-ra-pulse-api` channel with links and credentials as soon as the review app is ready.
 
 #### Environment variables:
 
