@@ -936,9 +936,29 @@ While for local development we provide a `sample.env` that you can use as defaul
 
 ### Review App
 
-Opening a PR will automatically create a Review App in the `network-pulse-api` pipeline. Since it's not possible to use OAuth, you will need to log using Django admin. A slack bot posts credentials and links to Review Apps in to the `mofo-ra-pulse-api` channel.
+#### Review App for PRs
 
-This only work for Mo-Fo staff: you will need to manually open a Review App on Heroku for PRs opened by external contributors.
+Opening a PR will automatically create a Review App in the `network-pulse-api` pipeline. A slack bot posts credentials and links to Review Apps in to the `mofo-ra-pulse-api` Slack channel.
+
+*Note:* This only work for Mo-Fo staff: you will need to manually open a Review App on Heroku for PRs opened by external contributors.
+
+#### Review App for branches
+
+You can manually create a review app for any branch pushed to this repo. It's useful if you want to test your code on Heroku without opening a PR yet.
+
+To create one:
+- log into Heroku.
+- Go to the `foundation-site` pipeline.
+- Click on `+ New app` and select the branch you want to use.
+
+The review app slack bot will post a message in the `foundation-site` with links and credentials as soon as the review app is ready.
+
+#### Environment variables:
+
+- `GITHUB_TOKEN`: GITHUB API authentication,
+- `SLACK_WEBHOOK_RA`: Webhook to `mofo-ra-foundation`
+
+Non-secret envs can be added to the `app.json` file. Secrets must be set on Heroku in the `Review Apps` (pipelines' `settings` tab).
 
 ## Debugging all the things
 
