@@ -34,6 +34,8 @@ env = environ.Env(
     DEBUG=(bool, False),
     DJANGO_LOG_LEVEL=(str, 'INFO'),
     HEROKU_APP_NAME=(str, ''),
+    HEROKU_PR_NUMBER=(str, ''),
+    HEROKU_BRANCH=(str, ''),
     PULSE_FRONTEND_HOSTNAME=(str, ''),
     SECRET_KEY=(str, ''),
     SSL_PROTECTION=(bool, False),
@@ -60,6 +62,8 @@ ALLOWED_HOSTS = os.getenv(
 ).split(',')
 
 HEROKU_APP_NAME = env('HEROKU_APP_NAME')
+HEROKU_PR_NUMBER = env('HEROKU_PR_NUMBER')
+HEROKU_BRANCH = env('HEROKU_BRANCH')
 
 
 # Create a simple function to show Django Debug Toolbar on Review App
