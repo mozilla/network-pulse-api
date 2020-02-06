@@ -4,11 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-"psycopg2-binary" = "*"
 boto3 = "*"
 dj-database-url = "*"
 Django = "==1.11.28"
-django-allauth = "==0.40.0"
 django-cors-headers = "*"
 django-debug-toolbar = "*"
 django-ajax-selects = "==1.7.1"
@@ -20,10 +18,12 @@ factory_boy = "*"
 Faker = "*"
 google-api-python-client = "*"
 gunicorn = "*"
-oauth2client = "*"
 Pillow = "*"
 requests = "*"
 whitenoise = "*"
+"psycopg2-binary" = "*"
+django-allauth = "==0.40.0"
+oauth2client = "*"
 
 [dev-packages]
 autoflake = "*"
