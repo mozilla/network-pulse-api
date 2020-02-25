@@ -24,7 +24,6 @@ whitenoise = "*"
 "psycopg2-binary" = "*"
 django-allauth = "==0.40.0"
 oauth2client = "*"
-django-rest-framework = "*"
 
 [dev-packages]
 autoflake = "*"
