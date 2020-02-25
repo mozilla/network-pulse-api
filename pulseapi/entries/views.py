@@ -1,15 +1,23 @@
 """
 Views to get entries
 """
+
 import base64
+import operator
 import django_filters
+
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.core.files.base import ContentFile
 from django.conf import settings
+from django.db import models
 from django.db.models import Q
+from django.utils import six
+
+from functools import reduce
 
 from rest_framework import filters, status
+from rest_framework.compat import distinct
 from rest_framework.decorators import detail_route, api_view
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, ListAPIView, get_object_or_404
 from rest_framework.pagination import PageNumberPagination
@@ -298,6 +306,45 @@ class ModerationStateView(ListAPIView):
     )
 
 
+# see https://stackoverflow.com/questions/60326973
+class SearchWithNormalTagFiltering(filters.SearchFilter):
+    def filter_queryset(self, request, queryset, view):
+        """
+        override https://github.com/encode/django-rest-framework/blob/3.6.3/rest_framework/filters.py#L129-L155
+        """
+        search_fields = getattr(view, 'search_fields', None)
+        search_terms = self.get_search_terms(request)
+
+        if not search_fields or not search_terms:
+            return queryset
+
+        orm_lookups = [
+            self.construct_search(six.text_type(search_field))
+            for search_field in search_fields
+        ]
+
+        # Adopted from a future version of DRF:
+        base = queryset
+        conditions = []
+        for search_term in search_terms:
+            queries = [
+                models.Q(**{orm_lookup: search_term})
+                for orm_lookup in orm_lookups
+            ]
+            conditions.append(reduce(operator.or_, queries))
+
+        # This is the only line we add:
+        queryset = queryset.filter(reduce(operator.or_, conditions))
+
+        if self.must_call_distinct(queryset, search_fields):
+            # Filtering against a many-to-many field requires us to
+            # call queryset.distinct() in order to avoid duplicate items
+            # in the resulting queryset.
+            # We try to avoid this if possible, for performance reasons.
+            queryset = distinct(queryset, base)
+        return queryset
+
+
 class EntriesListView(ListCreateAPIView):
     """
     A view that permits a GET to allow listing all the entries
@@ -327,12 +374,15 @@ class EntriesListView(ListCreateAPIView):
                             user has moderation permissions.
     """
     pagination_class = EntriesPagination
+
     filter_backends = (
         filters.DjangoFilterBackend,
-        filters.SearchFilter,
+        SearchWithNormalTagFiltering,
         filters.OrderingFilter,
     )
+
     filter_class = EntryCustomFilter
+
     search_fields = (
         'title',
         'description',
@@ -340,6 +390,7 @@ class EntriesListView(ListCreateAPIView):
         'interest',
         'tags__name',
     )
+
     parser_classes = (
         JSONParser,
     )
