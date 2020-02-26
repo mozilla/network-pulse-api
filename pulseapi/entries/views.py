@@ -20,7 +20,7 @@ from django_filters.rest_framework import (
 
 from rest_framework import status
 from rest_framework.compat import distinct
-from rest_framework.decorators import detail_route, api_view
+from rest_framework.decorators import action, api_view
 from rest_framework.filters import (
     OrderingFilter,
     SearchFilter
@@ -267,7 +267,7 @@ class BookmarkedEntries(ListAPIView):
     # When people POST to this route, we want to do some
     # custom validation involving CSRF and nonce validation,
     # so we intercept the POST handling a little.
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def post(self, request, *args, **kwargs):
         validation_result = post_validate(request)
 
@@ -521,7 +521,7 @@ class EntriesListView(ListCreateAPIView):
     # When people POST to this route, we want to do some
     # custom validation involving CSRF and nonce validation,
     # so we intercept the POST handling a little.
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def post(self, request, *args, **kwargs):
         request_data = request.data
         user = request.user if hasattr(request, 'user') else None
