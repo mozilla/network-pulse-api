@@ -5,20 +5,32 @@ Views to get entries
 import base64
 import operator
 import django_filters
+from functools import reduce
 
 from django.core.exceptions import ObjectDoesNotExist
-
 from django.core.files.base import ContentFile
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
 
-from functools import reduce
+from django_filters.rest_framework import (
+    DjangoFilterBackend,
+    FilterSet
+)
 
-from rest_framework import filters, status
+from rest_framework import status
 from rest_framework.compat import distinct
-from rest_framework.decorators import detail_route, api_view
-from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, ListAPIView, get_object_or_404
+from rest_framework.decorators import action, api_view
+from rest_framework.filters import (
+    OrderingFilter,
+    SearchFilter
+)
+from rest_framework.generics import (
+    ListCreateAPIView,
+    RetrieveAPIView,
+    ListAPIView,
+    get_object_or_404
+)
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
@@ -160,7 +172,7 @@ class EntriesPagination(PageNumberPagination):
     max_page_size = 1000
 
 
-class EntryCustomFilter(filters.FilterSet):
+class EntryCustomFilter(FilterSet):
     """
     We add custom filtering to allow you to filter by:
         * Tag - pass the `?tag=` query parameter
@@ -255,7 +267,7 @@ class BookmarkedEntries(ListAPIView):
     # When people POST to this route, we want to do some
     # custom validation involving CSRF and nonce validation,
     # so we intercept the POST handling a little.
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def post(self, request, *args, **kwargs):
         validation_result = post_validate(request)
 
@@ -306,7 +318,7 @@ class ModerationStateView(ListAPIView):
 
 
 # see https://stackoverflow.com/questions/60326973
-class SearchWithNormalTagFiltering(filters.SearchFilter):
+class SearchWithNormalTagFiltering(SearchFilter):
     """
     This is a custom search filter that allows the same kind of
     matching that DRF v3.6.3 allowed wrt many to many relations,
@@ -401,9 +413,9 @@ class EntriesListView(ListCreateAPIView):
     pagination_class = EntriesPagination
 
     filter_backends = (
-        filters.DjangoFilterBackend,
+        DjangoFilterBackend,
         SearchWithNormalTagFiltering,
-        filters.OrderingFilter,
+        OrderingFilter,
     )
 
     filter_class = EntryCustomFilter
@@ -509,7 +521,7 @@ class EntriesListView(ListCreateAPIView):
     # When people POST to this route, we want to do some
     # custom validation involving CSRF and nonce validation,
     # so we intercept the POST handling a little.
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def post(self, request, *args, **kwargs):
         request_data = request.data
         user = request.user if hasattr(request, 'user') else None
