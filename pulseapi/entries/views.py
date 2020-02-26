@@ -64,7 +64,7 @@ def toggle_bookmark(request, entryid, **kwargs):
     """
     user = request.user
 
-    if user.is_authenticated():
+    if user.is_authenticated:
         profile = user.profile
 
         entry = get_object_or_404(Entry, id=entryid)
@@ -245,7 +245,7 @@ class BookmarkedEntries(ListAPIView):
     def get_queryset(self):
         user = self.request.user
 
-        if user.is_authenticated() is False:
+        if user.is_authenticated is False:
             return Entry.objects.none()
 
         bookmarks = UserBookmarks.objects.filter(profile=user.profile)
@@ -294,7 +294,7 @@ class BookmarkedEntries(ListAPIView):
                 if not bookmarks:
                     UserBookmarks.objects.create(entry=entry, profile=profile)
 
-            if entryids is not None and user.is_authenticated():
+            if entryids is not None and user.is_authenticated:
                 for entryid in entryids.split(','):
                     bookmark_entry(entryid)
 

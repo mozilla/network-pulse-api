@@ -74,7 +74,7 @@ class EntryBaseSerializer(serializers.ModelSerializer):
         """
         user = self.context.get('user')
 
-        if user and user.is_authenticated():
+        if user and user.is_authenticated:
             # instance.bookmarked_by.all() is already prefetched and cached in the QuerySet
             return any(bookmark_by.profile.user == user for bookmark_by in instance.bookmarked_by.all())
 

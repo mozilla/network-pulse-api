@@ -1,4 +1,4 @@
-from django.core import urlresolvers
+from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
 
 
@@ -10,4 +10,4 @@ def get_admin_url(instance):
         content_type.model
     )
 
-    return urlresolvers.reverse(route, args=(instance.id,))
+    return reverse(route, args=(instance.id,))
