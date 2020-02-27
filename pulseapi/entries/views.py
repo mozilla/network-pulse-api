@@ -1,17 +1,36 @@
 """
 Views to get entries
 """
-import base64
-import django_filters
-from django.core.exceptions import ObjectDoesNotExist
 
+import base64
+import operator
+import django_filters
+from functools import reduce
+
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.conf import settings
+from django.db import models
 from django.db.models import Q
 
-from rest_framework import filters, status
-from rest_framework.decorators import detail_route, api_view
-from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, ListAPIView, get_object_or_404
+from django_filters.rest_framework import (
+    DjangoFilterBackend,
+    FilterSet
+)
+
+from rest_framework import status
+from rest_framework.compat import distinct
+from rest_framework.decorators import action, api_view
+from rest_framework.filters import (
+    OrderingFilter,
+    SearchFilter
+)
+from rest_framework.generics import (
+    ListCreateAPIView,
+    RetrieveAPIView,
+    ListAPIView,
+    get_object_or_404
+)
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
@@ -153,7 +172,7 @@ class EntriesPagination(PageNumberPagination):
     max_page_size = 1000
 
 
-class EntryCustomFilter(filters.FilterSet):
+class EntryCustomFilter(FilterSet):
     """
     We add custom filtering to allow you to filter by:
         * Tag - pass the `?tag=` query parameter
@@ -248,7 +267,7 @@ class BookmarkedEntries(ListAPIView):
     # When people POST to this route, we want to do some
     # custom validation involving CSRF and nonce validation,
     # so we intercept the POST handling a little.
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def post(self, request, *args, **kwargs):
         validation_result = post_validate(request)
 
@@ -298,6 +317,71 @@ class ModerationStateView(ListAPIView):
     )
 
 
+# see https://stackoverflow.com/questions/60326973
+class SearchWithNormalTagFiltering(SearchFilter):
+    """
+    This is a custom search filter that allows the same kind of
+    matching that DRF v3.6.3 allowed wrt many to many relations,
+    where multiple terms have to all match, but do _not_ need
+    to match against single m2m relations, so a ?search=a,b
+    will match an entry with two tags a and b, but not with
+    single tag a or tag b.
+    """
+    def required_m2m_optimization(self, view):
+        return getattr(view, 'use_m2m_optimization', True)
+
+    def get_search_fields(self, view, request):
+        # For DRF versions >=3.9.2 remove this method,
+        # as it already has get_search_fields built in.
+        return getattr(view, 'search_fields', None)
+
+    def chained_queryset_filter(self, queryset, search_terms, orm_lookups):
+        for search_term in search_terms:
+            queries = [
+                models.Q(**{orm_lookup: search_term})
+                for orm_lookup in orm_lookups
+            ]
+            queryset = queryset.filter(reduce(operator.or_, queries))
+        return queryset
+
+    def optimized_queryset_filter(self, queryset, search_terms, orm_lookups):
+        conditions = []
+        for search_term in search_terms:
+            queries = [
+                models.Q(**{orm_lookup: search_term})
+                for orm_lookup in orm_lookups
+            ]
+            conditions.append(reduce(operator.or_, queries))
+
+        return queryset.filter(reduce(operator.and_, conditions))
+
+    def filter_queryset(self, request, queryset, view):
+        search_fields = self.get_search_fields(view, request)
+        search_terms = self.get_search_terms(request)
+
+        if not search_fields or not search_terms:
+            return queryset
+
+        orm_lookups = [
+            self.construct_search(str(search_field))
+            for search_field in search_fields
+        ]
+
+        base = queryset
+        if self.required_m2m_optimization(view):
+            queryset = self.optimized_queryset_filter(queryset, search_terms, orm_lookups)
+        else:
+            queryset = self.chained_queryset_filter(queryset, search_terms, orm_lookups)
+
+        if self.must_call_distinct(queryset, search_fields):
+            # Filtering against a many-to-many field requires us to
+            # call queryset.distinct() in order to avoid duplicate items
+            # in the resulting queryset.
+            # We try to avoid this if possible, for performance reasons.
+            queryset = distinct(queryset, base)
+        return queryset
+
+
 class EntriesListView(ListCreateAPIView):
     """
     A view that permits a GET to allow listing all the entries
@@ -327,12 +411,15 @@ class EntriesListView(ListCreateAPIView):
                             user has moderation permissions.
     """
     pagination_class = EntriesPagination
+
     filter_backends = (
-        filters.DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
+        DjangoFilterBackend,
+        SearchWithNormalTagFiltering,
+        OrderingFilter,
     )
+
     filter_class = EntryCustomFilter
+
     search_fields = (
         'title',
         'description',
@@ -340,6 +427,12 @@ class EntriesListView(ListCreateAPIView):
         'interest',
         'tags__name',
     )
+
+    # Forces DRF to use pre-3.6.4 matching for many-to-many relations, so that
+    # searching for multiple terms will find only entry that match all terms,
+    # but many-to-many will resolve on the m2m set, not "one relation in the set".
+    use_m2m_optimization = False
+
     parser_classes = (
         JSONParser,
     )
@@ -428,7 +521,7 @@ class EntriesListView(ListCreateAPIView):
     # When people POST to this route, we want to do some
     # custom validation involving CSRF and nonce validation,
     # so we intercept the POST handling a little.
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def post(self, request, *args, **kwargs):
         request_data = request.data
         user = request.user if hasattr(request, 'user') else None

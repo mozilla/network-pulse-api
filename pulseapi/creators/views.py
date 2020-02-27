@@ -1,10 +1,12 @@
 from itertools import chain
 from django.db.models import Q
 from django.conf import settings
-from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
+
+from rest_framework import exceptions
+from rest_framework.filters import BaseFilterBackend
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
-from rest_framework import exceptions
 
 from pulseapi.profiles.models import UserProfile
 from pulseapi.creators.serializers import CreatorSerializer
@@ -20,7 +22,7 @@ class CreatorsPagination(PageNumberPagination):
     max_page_size = 20
 
 
-class FilterCreatorNameBackend(filters.BaseFilterBackend):
+class FilterCreatorNameBackend(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         search_term = request.query_params.get('name', None)
 
@@ -71,7 +73,7 @@ class CreatorListView(ListAPIView):
     serializer_class = CreatorSerializer
 
     filter_backends = (
-        filters.DjangoFilterBackend,
+        DjangoFilterBackend,
         FilterCreatorNameBackend,
     )
 

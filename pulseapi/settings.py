@@ -34,10 +34,14 @@ env = environ.Env(
     DEBUG=(bool, False),
     DJANGO_LOG_LEVEL=(str, 'INFO'),
     HEROKU_APP_NAME=(str, ''),
+    HEROKU_PR_NUMBER=(str, ''),
+    HEROKU_BRANCH=(str, ''),
     PULSE_FRONTEND_HOSTNAME=(str, ''),
     SECRET_KEY=(str, ''),
     SSL_PROTECTION=(bool, False),
     USE_S3=(bool, False),
+    GITHUB_TOKEN=(str, ''),
+    SLACK_WEBHOOK_RA=(str, ''),
 )
 
 SSL_PROTECTION = env('SSL_PROTECTION')
@@ -58,6 +62,8 @@ ALLOWED_HOSTS = os.getenv(
 ).split(',')
 
 HEROKU_APP_NAME = env('HEROKU_APP_NAME')
+HEROKU_PR_NUMBER = env('HEROKU_PR_NUMBER')
+HEROKU_BRANCH = env('HEROKU_BRANCH')
 
 
 # Create a simple function to show Django Debug Toolbar on Review App
@@ -91,6 +97,7 @@ INSTALLED_APPS = list(filter(None, [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.forms',
+    'django_filters',
     'corsheaders',
     'allauth',
     'allauth.account',
@@ -403,3 +410,7 @@ LOGGING = {
 }
 DJANGO_LOG_LEVEL = env('DJANGO_LOG_LEVEL')
 logging.config.dictConfig(LOGGING)
+
+# Review app slack bot
+GITHUB_TOKEN = env('GITHUB_TOKEN')
+SLACK_WEBHOOK_RA = env('SLACK_WEBHOOK_RA')

@@ -5,14 +5,24 @@ import django_filters
 from django.core.files.base import ContentFile
 from django.conf import settings
 from django.db.models import Q
-from rest_framework import permissions, filters
-from rest_framework.pagination import PageNumberPagination
+
+from django_filters.rest_framework import (
+    DjangoFilterBackend,
+    FilterSet,
+)
+
+from rest_framework import permissions
+from rest_framework.filters import (
+    SearchFilter,
+    OrderingFilter
+)
 from rest_framework.generics import (
     RetrieveUpdateAPIView,
     RetrieveAPIView,
     ListAPIView,
     get_object_or_404,
 )
+from rest_framework.pagination import PageNumberPagination
 
 from pulseapi.profiles.models import UserProfile
 from pulseapi.profiles.serializers import (
@@ -104,11 +114,7 @@ class NumberInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
     pass
 
 
-# NOTE: DRF has deprecated the FilterSet class in favor of
-# django_filters.rest_framework.FilterSet in v3.7.x, which
-# we aren't far from upgrading to.
-# SEE: https://github.com/mozilla/network-pulse-api/issues/288
-class ProfileCustomFilter(filters.FilterSet):
+class ProfileCustomFilter(FilterSet):
     """
       We add custom filtering to allow you to filter by:
 
@@ -216,9 +222,9 @@ class UserProfileListAPIView(ListAPIView):
         page=(number)
     """
     filter_backends = (
-        filters.OrderingFilter,
-        filters.DjangoFilterBackend,
-        filters.SearchFilter,
+        OrderingFilter,
+        DjangoFilterBackend,
+        SearchFilter,
     )
     ordering_fields = ('id', 'custom_name', 'program_year',)
     ordering = ('-id',)

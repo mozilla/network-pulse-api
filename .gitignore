@@ -82,6 +82,7 @@ venv
 
 #Editor
 /.vscode/
+/.idea/
 
 # Static files from python manage.py collectstatic
 /static/
