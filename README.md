@@ -63,7 +63,7 @@ All routes, including those with the `/api/pulse/` prefix should include a versi
 
 ### `GET /login?original_url=<url>`
 
-This will kick off a Google OAuth2 login process. This process is entirely based on browser redirects, and once this process completes the user will be redirect to `original_url` with an additional url query argument `loggedin=True` or `loggedin=False` depending on whether the login attemp succeeded or not.
+This will kick off a Google OAuth2 login process. This process is entirely based on browser redirects, and once this process completes the user will be redirect to `original_url` with an additional url query argument `loggedin=True` or `loggedin=False` depending on whether the login attempt succeeded or not.
 
 ### `GET /logout`
 
