@@ -96,7 +96,6 @@ INSTALLED_APPS = list(filter(None, [
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_filters',
     'django.forms',
     'django_filters',
     'corsheaders',
