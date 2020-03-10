@@ -525,10 +525,9 @@ class EntriesListView(ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         request_data = request.data
         user = request.user if hasattr(request, 'user') else None
-
         validation_result = post_validate(request)
 
-        if validation_result:
+        if validation_result is True:
             # invalidate the nonce, so this form cannot be
             # resubmitted with the current id
             request.session['nonce'] = False
