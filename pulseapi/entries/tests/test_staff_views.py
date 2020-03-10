@@ -1,6 +1,6 @@
 import json
 from math import ceil
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.conf import settings
 from django.test.client import MULTIPART_CONTENT
 from django.http.request import HttpRequest

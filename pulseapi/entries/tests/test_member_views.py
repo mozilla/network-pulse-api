@@ -1,5 +1,5 @@
 import json
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.creators.models import EntryCreator

@@ -77,7 +77,7 @@ def nonce(request, **kwargs):
     and inform the user what this value is so they can use
     it for signing their POST for a new entry.
     """
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return HttpResponse('Not authorized', status=403)
 
     new_nonce_value(request)
@@ -102,7 +102,7 @@ def userstatus(request, **kwargs):
     email = False
 
     user = request.user
-    loggedin = user.is_authenticated()
+    loggedin = user.is_authenticated
 
     # A user is a moderator if they are in the moderator group
     # or if they are a superuser, because superusers can do anything.

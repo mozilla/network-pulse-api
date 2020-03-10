@@ -150,7 +150,8 @@ class Entry(models.Model):
     # automatically managed fields
     published_by = models.ForeignKey(
         EmailUser,
-        related_name='entries'
+        related_name='entries',
+        on_delete=models.CASCADE
     )
     created = models.DateTimeField(
         default=timezone.now

@@ -1,6 +1,6 @@
 import json
 from urllib.parse import quote
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.conf import settings
 from django.http.request import HttpRequest
 from rest_framework.request import Request

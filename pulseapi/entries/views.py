@@ -64,7 +64,7 @@ def toggle_bookmark(request, entryid, **kwargs):
     """
     user = request.user
 
-    if user.is_authenticated():
+    if user.is_authenticated:
         profile = user.profile
 
         entry = get_object_or_404(Entry, id=entryid)
@@ -183,24 +183,24 @@ class EntryCustomFilter(FilterSet):
     category.
     """
     tag = django_filters.CharFilter(
-        name='tags__name',
+        field_name='tags__name',
         lookup_expr='iexact',
     )
     issue = django_filters.CharFilter(
-        name='issues__name',
+        field_name='issues__name',
         lookup_expr='iexact',
     )
     help_type = django_filters.CharFilter(
-        name='help_types__name',
+        field_name='help_types__name',
         lookup_expr='iexact',
     )
     has_help_types = django_filters.BooleanFilter(
-        name='help_types',
+        field_name='help_types',
         lookup_expr='isnull',
         exclude=True,
     )
     featured = django_filters.BooleanFilter(
-        name='featured'
+        field_name='featured'
     )
 
     class Meta:
@@ -245,7 +245,7 @@ class BookmarkedEntries(ListAPIView):
     def get_queryset(self):
         user = self.request.user
 
-        if user.is_authenticated() is False:
+        if user.is_authenticated is False:
             return Entry.objects.none()
 
         bookmarks = UserBookmarks.objects.filter(profile=user.profile)
@@ -294,7 +294,7 @@ class BookmarkedEntries(ListAPIView):
                 if not bookmarks:
                     UserBookmarks.objects.create(entry=entry, profile=profile)
 
-            if entryids is not None and user.is_authenticated():
+            if entryids is not None and user.is_authenticated:
                 for entryid in entryids.split(','):
                     bookmark_entry(entryid)
 
