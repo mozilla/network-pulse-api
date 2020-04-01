@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 boto3 = "*"
 dj-database-url = "*"
-Django = "==2.2.11"
+Django = "==3.0.5"
 django-cors-headers = "*"
 django-debug-toolbar = "*"
 django-ajax-selects = "==1.9.1"
