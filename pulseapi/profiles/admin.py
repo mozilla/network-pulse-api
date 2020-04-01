@@ -48,7 +48,7 @@ class UserProfileAdmin(admin.ModelAdmin):
         'bookmark_count',
     )
 
-    list_select_related = ("profile_type", "program_year", "program_type", "related_user")
+    list_select_related = ('profile_type', 'program_year', 'program_type', 'related_user')
 
     list_display = (
         'name',
