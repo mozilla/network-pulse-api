@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
+from pulseapi.profiles.forms import ProfileAdminForm
 from pulseapi.utility.get_admin_url import get_admin_url
 from .models import (
     ProfileType,
@@ -15,6 +16,9 @@ class UserProfileAdmin(admin.ModelAdmin):
     """
     Show the profile-associated user.
     """
+
+    form = ProfileAdminForm
+
     fields = (
         'created_at',
         'is_active',

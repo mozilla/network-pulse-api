@@ -2,6 +2,7 @@ from django import forms
 from ajax_select.fields import AutoCompleteSelectMultipleField
 
 from pulseapi.creators.models import EntryCreator
+from pulseapi.utility.image_validation import enforce_image_size_limit
 
 
 class EntryAdminForm(forms.ModelForm):
@@ -39,3 +40,7 @@ class EntryAdminForm(forms.ModelForm):
         for creator_profile_id in creator_profile_id_list:
             profile_id = int(creator_profile_id)
             EntryCreator.objects.create(entry=entry, profile_id=profile_id)
+
+    def clean_thumbnail(self):
+        data = self.cleaned_data["thumbnail"]
+        return enforce_image_size_limit(data)
