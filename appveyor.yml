@@ -43,7 +43,7 @@ before_test:
   - createdb pulseapi
 
 test_script:
-  - "flake8 pulseapi --config=./pulseapi/tox.ini"
+  - "flake8 pulseapi"
   - "python manage.py test"
 
 cache:
