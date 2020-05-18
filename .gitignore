@@ -79,6 +79,7 @@ client_secrets.json
 
 # virtualenv
 venv
+pulsevenv/
 
 #Editor
 /.vscode/

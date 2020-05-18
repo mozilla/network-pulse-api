@@ -33,6 +33,7 @@ env = environ.Env(
     CSRF_TRUSTED_ORIGINS=(list, []),
     DEBUG=(bool, False),
     DJANGO_LOG_LEVEL=(str, 'INFO'),
+    DATABASE_URL=(str, None),
     HEROKU_APP_NAME=(str, ''),
     HEROKU_PR_NUMBER=(str, ''),
     HEROKU_BRANCH=(str, ''),
@@ -233,9 +234,9 @@ DATABASES = {
     }
 }
 
-DATABASE_URL = os.getenv('DATABASE_URL', False)
+DATABASE_URL = env('DATABASE_URL')
 
-if DATABASE_URL is not False:
+if DATABASE_URL is not None:
     DATABASES['default'].update(dj_database_url.config())
 
 
