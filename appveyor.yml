@@ -28,9 +28,8 @@ init:
 
 install:
   - "SET PYTHONPATH=%APPVEYOR_BUILD_FOLDER%"
-  - "python -m pip install --upgrade pip"
-  - "python -m pip install pipenv"
-  - "python -m pipenv install --dev --deploy"
+  - "pip install --upgrade pip"
+  - "pip install -r requirements.txt -r dev-requirements.txt"
 
 services:
   - postgresql
@@ -40,11 +39,11 @@ before_test:
   - SET PGPASSWORD=Password12!
   - PATH=C:\Program Files\PostgreSQL\9.6\bin\;%PATH%
   - createdb pulseapi
-  - "python -m pipenv run python manage.py migrate"
+  - "python manage.py migrate"
 
 test_script:
-  - "python -m pipenv run flake8 pulseapi --config=./pulseapi/tox.ini"
-  - "python -m pipenv run python manage.py test"
+  - "python -m flake8 pulseapi --config=./pulseapi/tox.ini"
+  - "python manage.py test"
 
 cache:
   - "%LOCALAPPDATA%\\pip\\Cache"
