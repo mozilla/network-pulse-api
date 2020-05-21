@@ -22,7 +22,7 @@ Pillow = "*"
 requests = "*"
 whitenoise = "*"
 "psycopg2-binary" = "*"
-django-allauth = "==0.40.0"
+django-allauth = "==0.41.0"
 oauth2client = "*"
 
 [dev-packages]
