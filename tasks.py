@@ -85,8 +85,8 @@ def catch_up(ctx):
 def new_db(ctx):
     """Create a new database with fake data"""
     print("* Reset the database")
-    ctx.run("dropdb --if-exists pulse")
-    ctx.run("createdb pulse")
+    ctx.run("dropdb --if-exists -h localhost pulse")
+    ctx.run("createdb -h localhost pulse")
     print("* Migrating database")
     migrate(ctx)
     print("* Creating fake data")
