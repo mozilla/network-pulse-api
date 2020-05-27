@@ -26,7 +26,7 @@ All API routes are prefixed with `/api/pulse/`. The "pulse" might seem redundant
 # Developer information
 
 - [Getting up and running for local development](#getting-up-and-running-for-local-development)
-- [Pipenv and Invoke](#pipenv-and-invoke)
+- [Local development documentation](#local-development)
 - [Environment variables](#environment-variables)
 - [Deploying to Heroku](#deploying-to-heroku)
 - [Debugging](#debugging-all-the-things)
@@ -699,16 +699,15 @@ Replies with an Atom feed consisting of (a subset of) only those entries that ar
 
 ## Setup
 
-**Requirements**: [python3.6](https://www.python.org/), [pip](https://pypi.python.org/pypi), [pipenv](https://docs.pipenv.org/), [invoke](http://www.pyinvoke.org/installing.html).
+**Requirements**: [python3.7](https://www.python.org/), [invoke](http://www.pyinvoke.org/installing.html).
 
-1. Clone this repo: `git clone https://github.com/mozilla/network-pulse-api.git`
-2. Run `inv setup`
-3. If you only want to use Django Admin login, your setup is done.
-4. To enable Google and/or GitHub login, follow the [instructions below](#setting-up-social-authentication).
+- Install [Invoke](http://www.pyinvoke.org/installing.html) using [pipx](https://pypi.org/project/pipx/).
+- Run `inv setup`.
+- Start your server with `inv runserver`.
+- To enable Google and/or GitHub login, follow the [instructions below](#setting-up-social-authentication).
 
-**If you're on Windows:** you will need to Create a super user by running `pipenv run python manage.py createsuperuser`
-
-`inv setup` takes care of installing the project's dependencies, copying environment variables, creating a superuser when possible and generating fake data. When it's done, follow the instructions. To start your local server, run `inv runserver`.
+Update your branch by doing a git pull and `inv catchup`.
+When switching branches, get a new virtualenv and database by running `inv new-env`.
 
 You can get a full list of inv commands by running `inv -l`.
 
@@ -770,9 +769,9 @@ If it is set to `False`, you are required to use [Mailgun](https://www.mailgun.c
 
 Fake model data can be loaded into your dev site with the following command:
 
-- `pipenv run python manage.py load_fake_data`
+- `inv manage load_fake_data`
 
-`pipenv run python manage.py load_fake_data -e 30` will run the full `load_fake_data` script, but changes the number of entries per variations to 30 instead of 20.
+`inv manage "load_fake_data -e 30"` will run the full `load_fake_data` script, but changes the number of entries per variations to 30 instead of 20.
 
 Options available:
 
@@ -783,75 +782,67 @@ Options available:
 - `-e`, `--entries-count`: The number of entries to generate per possible variations. Default: 20, variations: 16
 - `-t`, `--tags-count`: The number of tags to generate. Default: 6
 
-## Pipenv and Invoke
+## Local development 
 
-This project doesn't use a `requirements.txt` file, but `Pipfile` and `Pipfile.lock` files, managed by Pipenv. It also uses a set of Invoke tasks to provide shortcuts for commonly used commands.
+### How to use
 
-### Using pipenv
+- Install [Invoke](http://www.pyinvoke.org/installing.html) using [pipx](https://pypi.org/project/pipx/).
+- Run `inv setup`.
+- Start your server with `inv runserver`.
 
-Checking [Pipenv's documentation](https://docs.pipenv.org/) is highly recommended if you're new to it.
-
-#### Running commands
-
-The general syntax is:
-
-- `pipenv run python [COMMAND]`. For example: `pipenv run python manage.py runserver`
-
-#### Installing dependencies
-
-- `pipenv install [package name]`
-
-After installing a package, pipenv automatically runs a `pipenv lock` that updates the `pipfile.lock`. You need to add both `pipfile` and `pipfile.lock` to your commit.
-
-#### Updating dependencies
-
-- `pipenv check` to check security vulnerabilities,
-- `pipenv update --outdated` to list dependencies that need to be updated,
-- `pipenv update` to update dependencies
-
-If a dependency is updated, pipenv automatically runs a `pipenv lock` that updates the `pipfile.lock`. You need to add both `pipfile` and `pipfile.lock` to your commit.
-
-#### Listing installed dependencies
-
-- `pipenv graph`
-
-#### Virtual environment
-
-- `pipenv shell` activates your virtual environment and automatically loads your `.env`. Run `exit` to leave it. **You don't need to be in your virtual environment to run python commands:** Use `pipenv run python [COMMAND]` instead.
-
-#### Known issues
-
-If you run `pipenv run python manage.py runserver` but get a `Cross-Origin Request Blocked` in the front, deactivate the auto-loading of the `.env`. ex: `PIPENV_DONT_LOAD_ENV=1 pipenv run ./manage.py runserver`
-
-The reason behind this is that our CORS withelist regex is messed up by [a bug in python-dotenv](https://github.com/theskumar/python-dotenv/issues/112).
+Update your branch by doing a git pull and `inv catchup`.
+When switching branches, get a new virtualenv and database by running `inv new-env`.
 
 ### Using invoke
 
-Invoke is a task execution tool. Instead of running `pipenv run python manage.py runserver`, you can run `inv
+Invoke is a task execution tool. Instead of running `./pulsevenv/bin/python manage.py runserver`, you can run `inv
 runserver`.
 
 Available tasks:
-- `inv -l`: list available invoke tasks
-- `inv makemigrations`: Creates new migration(s) for apps
-- `inv migrate`: Updates database schema
-- `inv runserver`: Start a web server
-- `inv setup`: Automate project's configuration and dependencies installation
-- `inv catch-up`: Install dependencies and apply migrations
-- `inv test`: Run tests and linter
+```
+  catch-up (catchup)                           Install dependencies and apply migrations
+  makemigrations                               Creates new migration(s) for apps
+  manage                                       Shorthand to manage.py. inv docker-manage "[COMMAND] [ARG]"
+  migrate                                      Updates database schema
+  new-db                                       Create a new database with fake data
+  pip-compile (docker-pip-compile)             Shorthand to pip-tools. inv pip-compile "[COMMAND] [ARG]"
+  pip-compile-lock (docker-pip-compile-lock)   Lock prod and dev dependencies
+  pip-sync (docker-pip-sync)                   Sync your python virtualenv
+  runserver                                    Start a web server
+  setup (new-env)                              Automate project's configuration and dependencies installation
+  test                                         Run tests
+```
 
-For management commands not covered by an invoke tasks, use `inv manage [command]` (example: `inv manage load_fake_data`). You can pass flag and options to management commands using `inv manage [command] -o [positional argument] -f [optional argument]`. For example:
-- `inv manage runserver -o 3000`
-- `inv manage load_fake_data -f seed=VALUE`
-- `inv manage migrate -o news`
+### How to install or update dependencies?
+
+**Note on [pip-tools](https://github.com/jazzband/pip-tools)**:
+- Only edit the `.in` files and use `invoke pip-compile-lock` to generate `.txt` files.
+- Both `(dev-)requirements.txt` and `(dev-)requirements.in` files need to be pushed to Github.
+- `.txt` files act as lockfiles, where dependencies are pinned to a precise version.
+
+Dependencies live on your filesystem: you don't need to rebuild the `backend` image when installing or updating dependencies. 
+
+**Install packages:**
+
+- Modify the `requirements.in` or `dev-requirements.in` to add the dependency you want to install.
+- Run `invoke pip-compile-lock`.
+- Run `invoke pip-sync`.
+
+**Update packages:**
+
+- `invoke pip-compile "-upgrade (dev-)requirements.in"`: update all (the dev) dependencies.
+- `invoke pip-compile "--upgrade-package [PACKAGE](==x.x.x)"`: update the specified dependency. To update multiple dependencies, you always need to add the `-P` flag.
+
+When it's done, run `inv pip-sync`.
 
 ### Nix-shell
 
 If you want to use nix-shell to isolate your dev environment:
 
 - Install [Nix](https://nixos.org/nix/): `curl https://nixos.org/nix/install | sh`,
-- In `network-pulse-api` directory, enter `nix-shell`. It will install Python 3.6, pipenv and invoke,
-- Enter `inv setup` to setup the project,
-- When it's done, use invoke and pipenv commands as usual.
+- In `network-pulse-api` directory, enter `nix-shell`. It will install Python 3.7 and invoke.
+- Enter `inv setup` to setup the project.
+- When it's done, use invoke commands as usual.
 
 If you want to use another shell instead of bash, use `nix-shell --command SHELL` (`nix-shell --command zsh` for example).
 
@@ -859,7 +850,7 @@ If you want to use another shell instead of bash, use `nix-shell --command SHELL
 [Direnv](https://direnv.net/) will load your `nix-shell` automatically when you enter the `network-pulse-api` directory.
 
 To use it:
-- Follow the instruction to [install direnv](https://direnv.net/) on your system,
+- Follow the instruction to [install direnv](https://direnv.net/) on your system.
 - Allow direnv to auto-load your nix-shell by entering `direnv allow .` in the `network-pulse-api` directory.
 
 
@@ -969,13 +960,13 @@ You may have noticed that when running with `DEBUG=TRUE`, there is a debugger to
 
 When working across multiple branches with multiple model changes, it sometimes becomes necessary to reset migrations and build a new database from scratch. You can either do this manually by deleting your `db.sqlite3` as well as all model migration files that start with a number (**except** for the 0001 migration for `issues`, which instantiates various records in addition to boostrapping the issues table, and should never be deleted), but because this is inconvenient, there is a helper script to do this for you.
 
-run `pipenv run python reset_database.py` and the steps mentioned above will be run automatically.
+run `pulsevenv/bin/python reset_database.py` and the steps mentioned above will be run automatically.
 
-**Note:** This does wipe *everything* so you will still need to call `pipenv run python manage.py createsuperuser` afterwards to make sure you have a super user set up again.
+**Note:** This does wipe *everything* so you will still need to call `pulsevenv/bin/python manage.py createsuperuser` afterwards to make sure you have a super user set up again.
 
 ## Migrating data from Google sheets
 
-To migrate data, export JSON from the Google Sheets db, and save it in the root directory as `migrationData.json`. Then run `pipenv run python migrate.py`. This generates `massagedData.json`.
+To migrate data, export JSON from the Google Sheets db, and save it in the root directory as `migrationData.json`. Then run `pulsevenv/bin/python migrate.py`. This generates `massagedData.json`.
 In `public/migrate.html`, update the endpoint to be the address of the one you're trying to migrate data into. If it's a local db, leave as is.
 Spin up a server from the `public` folder on port 8080. Log in to your API using Oauth (either the hosted site or `test.example.com:8000` if doing this locally)
 Visit `http://test.example.com:8080/migrate.html`, paste the contents of `massagedData.json`, and submit. It will process the entire array of entries one at a time, POSTing them to the server. Check your developer console and network requests if it doesn't complete after a minute or two.

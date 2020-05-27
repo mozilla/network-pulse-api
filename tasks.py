@@ -1,5 +1,5 @@
+import re
 from sys import platform
-from shutil import copy
 
 from invoke import task
 
@@ -12,21 +12,98 @@ ROOT = os.path.dirname(os.path.realpath(__file__))
 # Python commands's outputs are not rendering properly. Setting pty for *Nix system and
 # "PYTHONUNBUFFERED" env var for Windows at True.
 if platform == 'win32':
-    PLATFORM_ARG = dict(env={'PYTHONUNBUFFERED': 'True', 'PIPENV_DONT_LOAD_ENV': '1'})
+    PLATFORM_ARG = dict(env={'PYTHONUNBUFFERED': 'True'})
 else:
-    PLATFORM_ARG = dict(pty=True, env={'PIPENV_DONT_LOAD_ENV': '1'})
+    PLATFORM_ARG = dict(pty=True)
 
 
-@task(optional=['option', 'flag'])
-def manage(ctx, command, option=None, flag=None):
-    """Shorthand to manage.py. inv manage [COMMAND] [-o OPTION] [-f FLAG]. ex: inv manage runserver -o 3000"""
+def create_env_file(env_file):
+    """Create or update the .env file"""
+    with open(env_file, 'r') as f:
+        env_vars = f.read()
+    # update the DATABASE_URL env
+    new_db_url = "DATABASE_URL=postgres://postgres@localhost:5432/pulse"
+    old_db_url = re.search('DATABASE_URL=.*', env_vars)
+    if old_db_url:
+        env_vars = env_vars.replace(old_db_url.group(0), new_db_url)
+    else:
+        env_vars = env_vars + "DATABASE_URL=postgres://postgres@localhost:5432/pulse\n"
+
+    # update the ALLOWED_HOSTS env
+    new_hosts = "ALLOWED_HOSTS=*"
+    old_hosts = re.search('ALLOWED_HOSTS=.*', env_vars)
+    if old_hosts:
+        env_vars = env_vars.replace(old_hosts.group(0), new_hosts)
+    else:
+        env_vars = env_vars + "ALLOWED_HOSTS=*\n"
+
+    # create the new env file
+    with open('.env', 'w') as f:
+        f.write(env_vars)
+
+
+def create_super_user(ctx):
+    preamble = "from django.contrib.auth import get_user_model;User = get_user_model();"
+    create = "User.objects.create_superuser('admin', 'admin@mozillafoundation.org', 'admin')"
+    manage(ctx, f'shell -c "{preamble} {create}"')
+    print("\nCreated superuser `admin@mozillafoundation.org` with password `admin`.")
+
+
+# Project setup and update
+@task(aliases=["new-env"])
+def setup(ctx):
+    """Automate project's configuration and dependencies installation"""
     with ctx.cd(ROOT):
-        if option:
-            ctx.run(f"pipenv run python manage.py {command} {option}", **PLATFORM_ARG)
-        elif flag:
-            ctx.run(f"pipenv run python manage.py {command} --{flag}", **PLATFORM_ARG)
+        if os.path.isfile(".env"):
+            print("* Updating your .env")
+            create_env_file(".env")
         else:
-            ctx.run(f"pipenv run python manage.py {command}", **PLATFORM_ARG)
+            print("* Creating a new .env")
+            create_env_file("sample.env")
+        # create virtualenv
+        if not os.path.isfile("./pulsevenv/bin/python"):
+            print("* Creating a Python virtual environment")
+            ctx.run("python3 -m venv pulsevenv")
+            print("* Installing pip-tools")
+            ctx.run("./pulsevenv/bin/pip install pip-tools")
+        # install deps
+        print("* Installing Python dependencies")
+        pip_sync(ctx)
+        new_db(ctx)
+
+
+@task(aliases=["catchup"])
+def catch_up(ctx):
+    """Install dependencies and apply migrations"""
+    print("Installing Python dependencies")
+    pip_sync(ctx)
+    print("Applying database migrations")
+    migrate(ctx)
+
+
+@task
+def new_db(ctx):
+    """Create a new database with fake data"""
+    print("* Reset the database")
+    ctx.run("dropdb --if-exists -h localhost pulse -U postgres")
+    ctx.run("createdb -h localhost pulse -U postgres")
+    print("* Migrating database")
+    migrate(ctx)
+    print("* Creating fake data")
+    manage(ctx, "load_fake_data")
+    create_super_user(ctx)
+    print("* Done!\n"
+          "You can get a full list of inv commands with 'inv -l'\n"
+          "Start you server with 'inv runserver'\n"
+          )
+
+
+# Django shorthands
+@task
+def manage(ctx, command):
+    """Shorthand to manage.py. inv docker-manage \"[COMMAND] [ARG]\""""
+    with ctx.cd(ROOT):
+        ctx.run(f"./pulsevenv/bin/python manage.py {command}", **PLATFORM_ARG)
 
 
 @task
@@ -47,58 +124,46 @@ def makemigrations(ctx):
     manage(ctx, "makemigrations")
 
 
+# Tests
 @task
 def test(ctx):
     """Run tests"""
     print("Running flake8")
-    ctx.run("pipenv run flake8 pulseapi", **PLATFORM_ARG)
+    ctx.run("./pulsevenv/bin/python -m flake8 pulseapi", **PLATFORM_ARG)
     print("Running tests")
     manage(ctx, "test")
 
 
-@task
-def setup(ctx):
-    """Automate project's configuration and dependencies installation"""
-    setup_finish_instructions = (
-      "Done!\n"
-      "You can get a full list of inv commands with 'inv -l'\n\n"
-      "If you only want to login with Django admin credentials, your setup is complete and you can run the server using 'inv runserver',\n"
-      "To enable login using Google and/or Github:\n"
-      "1. Set up a Google client here: https://console.developers.google.com/apis/credentials. Optionally also create a Github client here: https://github.com/settings/applications/new.\n The Authorized domain is http://test.example.com:8000 and the redirect url is http://test.example.com:8000/accounts/google/login/callback/ (replace google with github for the github redirect url).\n"
-      "2. Create a superuser by running 'pipenv run python manage.py createsuperuser'\n"
-      "3. When it's done, start your dev server by running 'inv runserver'.\n"
-      "4. Login to the admin interface as a superuser and create an instance each of 'Social Application', one for Google and one for Github with their client ids and secrets filled in.\n"
-      "5. You can now login using Google and/or Github.\n"
-    )
+# Pip-tools
+@task(aliases=["docker-pip-compile"])
+def pip_compile(ctx, command):
+    """Shorthand to pip-tools. inv pip-compile \"[COMMAND] [ARG]\""""
     with ctx.cd(ROOT):
-        if os.path.isfile(".env"):
-            print("'.env' file found:\n"
-                  "- If you want to completely redo your dev setup, delete your '.env' file and your database. Then "
-                  "run 'inv setup' again.\n"
-                  "- If you want to catch up with the latest changes, like after a 'git pull', run 'inv catch-up' "
-                  "instead.")
-        else:
-            print("Copying default environment variables")
-            copy("sample.env", ".env")
-            print("Installing Python dependencies")
-            ctx.run("pipenv install --dev")
-            print("Applying database migrations")
-            ctx.run("inv migrate")
-            print("Creating fake data")
-            ctx.run("inv manage load_fake_data")
-            # Windows doesn't support pty, skipping createsuperuser step
-            if platform == 'win32':
-                print(setup_finish_instructions)
-            else:
-                print("Creating superuser")
-                ctx.run("pipenv run python manage.py createsuperuser", pty=True)
-                print(setup_finish_instructions)
+        ctx.run(
+            f"./pulsevenv/bin/pip-compile {command}",
+            **PLATFORM_ARG,
+        )
 
 
-@task()
-def catch_up(ctx):
-    """Install dependencies and apply migrations"""
-    print("Installing Python dependencies")
-    ctx.run("pipenv install --dev")
-    print("Applying database migrations")
-    ctx.run("inv migrate")
+@task(aliases=["docker-pip-compile-lock"])
+def pip_compile_lock(ctx):
+    """Lock prod and dev dependencies"""
+    with ctx.cd(ROOT):
+        ctx.run(
+            "./pulsevenv/bin/pip-compile",
+            **PLATFORM_ARG,
+        )
+        ctx.run(
+            "./pulsevenv/bin/pip-compile dev-requirements.in",
+            **PLATFORM_ARG,
+        )
+
+
+@task(aliases=["docker-pip-sync"])
+def pip_sync(ctx):
+    """Sync your python virtualenv"""
+    with ctx.cd(ROOT):
+        ctx.run(
+            "./pulsevenv/bin/pip-sync requirements.txt dev-requirements.txt",
+            **PLATFORM_ARG,
+        )
