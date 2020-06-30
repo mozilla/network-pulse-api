@@ -5,31 +5,38 @@ from invoke import task
 
 # Workaround for homebrew installation of Python (https://bugs.python.org/issue22490)
 import os
-os.environ.pop('__PYVENV_LAUNCHER__', None)
+os.environ.pop("__PYVENV_LAUNCHER__", None)
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
+VENV_DIR = "pulseenv"
 
-# Python commands's outputs are not rendering properly. Setting pty for *Nix system and
-# "PYTHONUNBUFFERED" env var for Windows at True.
-# venv bin name is also different on both OS.
-if platform == 'win32':
-    PLATFORM_ARG = dict(env={'PYTHONUNBUFFERED': 'True'})
+# Account for platform differences:
+# - *n*x supports `pty`, but windows does not,
+# - the virtual environment dir structure differs between *n*x and windows,
+# - *n*x uses "python3", but on windows it was kept "python".
+if platform == "win32":
+    PLATFORM_ARG = dict(
+        env={
+            "PYTHONUNBUFFERED": "True"
+        }
+    )
     VENV_BIN_NAME = "Scripts"
+    PYTHON = "python"
 else:
     PLATFORM_ARG = dict(pty=True)
     VENV_BIN_NAME = "bin"
+    PYTHON = "python3"
 
-# Create a path that works on Windows and POSIX systems. Add a empty string at the end to add a "\" or a "/".
 VENV_BIN_PATH = os.path.join(".", "pulsevenv", VENV_BIN_NAME, "")
 
 
 def create_env_file(env_file):
     """Create or update the .env file"""
-    with open(env_file, 'r') as f:
+    with open(env_file, "r") as f:
         env_vars = f.read()
     # update the DATABASE_URL env
     new_db_url = "DATABASE_URL=postgres://postgres@localhost:5432/pulse"
-    old_db_url = re.search('DATABASE_URL=.*', env_vars)
+    old_db_url = re.search("DATABASE_URL=.*", env_vars)
     if old_db_url:
         env_vars = env_vars.replace(old_db_url.group(0), new_db_url)
     else:
@@ -37,14 +44,14 @@ def create_env_file(env_file):
 
     # update the ALLOWED_HOSTS env
     new_hosts = "ALLOWED_HOSTS=*"
-    old_hosts = re.search('ALLOWED_HOSTS=.*', env_vars)
+    old_hosts = re.search("ALLOWED_HOSTS=.*", env_vars)
     if old_hosts:
         env_vars = env_vars.replace(old_hosts.group(0), new_hosts)
     else:
         env_vars = env_vars + "ALLOWED_HOSTS=*\n"
 
     # create the new env file
-    with open('.env', 'w') as f:
+    with open(".env", "w") as f:
         f.write(env_vars)
 
 
@@ -52,7 +59,7 @@ def create_super_user(ctx):
     preamble = "from django.contrib.auth import get_user_model;User = get_user_model();"
     create = "User.objects.create_superuser('admin', 'admin@mozillafoundation.org', 'admin')"
     manage(ctx, f'shell -c "{preamble} {create}"')
-    print("\nCreated superuser `admin@mozillafoundation.org` with password `admin`.")
+    print("\nCreated superuser `admin` with email `admin@mozillafoundation.org` and password `admin`.")
 
 
 # Project setup and update
@@ -67,11 +74,13 @@ def setup(ctx):
             print("* Creating a new .env")
             create_env_file("sample.env")
         # create virtualenv
-        if not os.path.isfile(VENV_BIN_PATH + "python3"):
-            print("* Creating a Python virtual environment")
-            ctx.run("python3 -m venv pulsevenv")
-            print("* Installing pip-tools")
-            ctx.run(VENV_BIN_PATH + "pip install pip-tools")
+        print("* Creating a Python virtual environment")
+        if platform == "win32" and not os.path.isfile(VENV_BIN_PATH + "python.exe"):
+            ctx.run(f"{PYTHON} -m venv pulsevenv")
+        elif not os.path.isfile(VENV_BIN_PATH + "python3"):
+            ctx.run(f"{PYTHON} -m venv pulsevenv")
+        print("* Installing pip-tools")
+        ctx.run(VENV_BIN_PATH + "pip install pip-tools")
         # install deps
         print("* Installing Python dependencies")
         pip_sync(ctx)
@@ -91,8 +100,8 @@ def catch_up(ctx):
 def new_db(ctx):
     """Create a new database with fake data"""
     print("* Reset the database")
-    ctx.run("dropdb --if-exists -h localhost pulse -U postgres")
-    ctx.run("createdb -h localhost pulse -U postgres")
+    ctx.run("dropdb --if-exists -h localhost -U postgres pulse")
+    ctx.run("createdb -h localhost -U postgres pulse")
     print("* Migrating database")
     migrate(ctx)
     print("* Creating fake data")
@@ -109,7 +118,7 @@ def new_db(ctx):
 def manage(ctx, command):
     """Shorthand to manage.py. inv docker-manage \"[COMMAND] [ARG]\""""
     with ctx.cd(ROOT):
-        ctx.run(VENV_BIN_PATH + f"python3 manage.py {command}", **PLATFORM_ARG)
+        ctx.run(VENV_BIN_PATH + f"{PYTHON} manage.py {command}", **PLATFORM_ARG)
 
 
 @task
@@ -135,7 +144,7 @@ def makemigrations(ctx):
 def test(ctx):
     """Run tests"""
     print("Running flake8")
-    ctx.run(VENV_BIN_PATH + "python3 -m flake8 pulseapi", **PLATFORM_ARG)
+    ctx.run(VENV_BIN_PATH + f"{PYTHON} -m flake8 pulseapi", **PLATFORM_ARG)
     print("Running tests")
     manage(ctx, "test")
 
