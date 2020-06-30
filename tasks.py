@@ -8,8 +8,6 @@ import os
 os.environ.pop("__PYVENV_LAUNCHER__", None)
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
-VENV_DIR = "pulseenv"
-
 # Account for platform differences:
 # - *n*x supports `pty`, but windows does not,
 # - the virtual environment dir structure differs between *n*x and windows,
