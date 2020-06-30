@@ -11,10 +11,16 @@ ROOT = os.path.dirname(os.path.realpath(__file__))
 
 # Python commands's outputs are not rendering properly. Setting pty for *Nix system and
 # "PYTHONUNBUFFERED" env var for Windows at True.
+# venv bin name is also different on both OS.
 if platform == 'win32':
     PLATFORM_ARG = dict(env={'PYTHONUNBUFFERED': 'True'})
+    VENV_BIN_NAME = "Scripts"
 else:
     PLATFORM_ARG = dict(pty=True)
+    VENV_BIN_NAME = "bin"
+
+# Create a path that works on Windows and POSIX systems. Add a empty string at the end to add a "\" or a "/".
+VENV_BIN_PATH = os.path.join(".", "pulsevenv", VENV_BIN_NAME, "")
 
 
 def create_env_file(env_file):
@@ -61,11 +67,11 @@ def setup(ctx):
             print("* Creating a new .env")
             create_env_file("sample.env")
         # create virtualenv
-        if not os.path.isfile("./pulsevenv/bin/python"):
+        if not os.path.isfile(VENV_BIN_PATH + "python3"):
             print("* Creating a Python virtual environment")
             ctx.run("python3 -m venv pulsevenv")
             print("* Installing pip-tools")
-            ctx.run("./pulsevenv/bin/pip install pip-tools")
+            ctx.run(VENV_BIN_PATH + "pip install pip-tools")
         # install deps
         print("* Installing Python dependencies")
         pip_sync(ctx)
@@ -103,7 +109,7 @@ def new_db(ctx):
 def manage(ctx, command):
     """Shorthand to manage.py. inv docker-manage \"[COMMAND] [ARG]\""""
     with ctx.cd(ROOT):
-        ctx.run(f"./pulsevenv/bin/python manage.py {command}", **PLATFORM_ARG)
+        ctx.run(VENV_BIN_PATH + f"python3 manage.py {command}", **PLATFORM_ARG)
 
 
 @task
@@ -129,7 +135,7 @@ def makemigrations(ctx):
 def test(ctx):
     """Run tests"""
     print("Running flake8")
-    ctx.run("./pulsevenv/bin/python -m flake8 pulseapi", **PLATFORM_ARG)
+    ctx.run(VENV_BIN_PATH + "python3 -m flake8 pulseapi", **PLATFORM_ARG)
     print("Running tests")
     manage(ctx, "test")
 
@@ -140,7 +146,7 @@ def pip_compile(ctx, command):
     """Shorthand to pip-tools. inv pip-compile \"[COMMAND] [ARG]\""""
     with ctx.cd(ROOT):
         ctx.run(
-            f"./pulsevenv/bin/pip-compile {command}",
+            VENV_BIN_PATH + f"pip-compile {command}",
             **PLATFORM_ARG,
         )
 
@@ -150,11 +156,11 @@ def pip_compile_lock(ctx):
     """Lock prod and dev dependencies"""
     with ctx.cd(ROOT):
         ctx.run(
-            "./pulsevenv/bin/pip-compile",
+            VENV_BIN_PATH + "pip-compile",
             **PLATFORM_ARG,
         )
         ctx.run(
-            "./pulsevenv/bin/pip-compile dev-requirements.in",
+            VENV_BIN_PATH + "pip-compile dev-requirements.in",
             **PLATFORM_ARG,
         )
 
@@ -164,6 +170,6 @@ def pip_sync(ctx):
     """Sync your python virtualenv"""
     with ctx.cd(ROOT):
         ctx.run(
-            "./pulsevenv/bin/pip-sync requirements.txt dev-requirements.txt",
+            VENV_BIN_PATH + "pip-sync requirements.txt dev-requirements.txt",
             **PLATFORM_ARG,
         )
