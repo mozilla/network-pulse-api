@@ -116,7 +116,7 @@ def new_db(ctx):
 def manage(ctx, command):
     """Shorthand to manage.py. inv docker-manage \"[COMMAND] [ARG]\""""
     with ctx.cd(ROOT):
-        ctx.run(VENV_BIN_PATH + f"{PYTHON} manage.py {command}", **PLATFORM_ARG)
+        ctx.run(VENV_BIN_PATH + f"python manage.py {command}", **PLATFORM_ARG)
 
 
 @task
@@ -142,7 +142,7 @@ def makemigrations(ctx):
 def test(ctx):
     """Run tests"""
     print("Running flake8")
-    ctx.run(VENV_BIN_PATH + f"{PYTHON} -m flake8 pulseapi", **PLATFORM_ARG)
+    ctx.run(VENV_BIN_PATH + "python -m flake8 pulseapi", **PLATFORM_ARG)
     print("Running tests")
     manage(ctx, "test")
 
