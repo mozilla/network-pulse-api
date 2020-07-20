@@ -97,6 +97,9 @@ class Command(BaseCommand):
                                 'url': f'{github_url}'
                             }
                         ]
+                    },
+                    {
+                        type: "divider",
                     }
                 ]
             }
