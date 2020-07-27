@@ -16,7 +16,7 @@ django-allauth==0.42.0    # via -r requirements.in
 django-cors-headers==3.4.0  # via -r requirements.in
 django-debug-toolbar==2.2  # via -r requirements.in
 django-environ==0.4.5     # via -r requirements.in
-django-filter==2.2        # via -r requirements.in
+django-filter==2.3.0      # via -r requirements.in
 django-storages==1.9.1    # via -r requirements.in
 django==2.2.13            # via -r requirements.in, django-allauth, django-cors-headers, django-debug-toolbar, django-filter, django-storages, djangorestframework
 djangorestframework==3.11.0  # via -r requirements.in
