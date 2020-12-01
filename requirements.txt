@@ -43,7 +43,7 @@ python-dateutil==2.8.1    # via botocore, faker
 python3-openid==3.1.0     # via django-allauth
 pytz==2020.1              # via django, google-api-core
 requests-oauthlib==1.3.0  # via django-allauth
-requests==2.23.0          # via -r requirements.in, django-allauth, google-api-core, requests-oauthlib
+requests==2.25.0          # via -r requirements.in, django-allauth, google-api-core, requests-oauthlib
 rsa==4.0                  # via google-auth, oauth2client
 s3transfer==0.3.3         # via boto3
 six==1.14.0               # via django-ajax-selects, google-api-core, google-api-python-client, google-auth, oauth2client, protobuf, python-dateutil
