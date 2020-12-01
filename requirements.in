@@ -7,7 +7,7 @@ django-ajax-selects==1.9.1
 django-environ
 django-filter==2.2
 django-storages
-djangorestframework==3.11.0
+djangorestframework==3.12.2
 factory_boy
 Faker
 google-api-python-client
