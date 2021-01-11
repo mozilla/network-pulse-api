@@ -24,7 +24,7 @@ jobs:
       DEBUG: True
       REDIRECT_URIS: http://test.example.com:8000/api/pulse/oauth2callback
       SSL_PROTECTION: False
-      DATABASE_URL: postgres://postgres@postgres@localhost:5432/pulseapi
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/pulseapi
       SECRET_KEY: BetPHpGoUXUwjaAXm6ArIhV95xLdDZtu8QEGnNXY3eTknIkD
       AUTH_STAFF_EMAIL_DOMAINS: mozillafoundation.org
     steps:
