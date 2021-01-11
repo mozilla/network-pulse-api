@@ -33,7 +33,11 @@ jobs:
       with:
         python-version: 3.7
     - name: Install Python Dependencies
-      run: pip install -r requirements.txt -r dev-requirements.txt
+      run: |
+        python3 -m pip install --user pipx
+        python3 -m pipx ensurepath
+        pipx install invoke
+        inv setup
     - name: Run Tests
       run: |
         flake8 pulseapi
