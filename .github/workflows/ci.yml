@@ -1,0 +1,40 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ 'master' ]
+  pull_request:
+    branches: [ 'master' ]
+
+jobs:
+  test_DRF:
+    name: Django Rest Framework CI
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:9.6
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pulseapi
+        ports:
+        - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      DEBUG: True
+      REDIRECT_URIS: http://test.example.com:8000/api/pulse/oauth2callback
+      SSL_PROTECTION: False
+      DATABASE_URL: postgres://postgres@postgres@localhost:5432/pulseapi
+      SECRET_KEY: BetPHpGoUXUwjaAXm6ArIhV95xLdDZtu8QEGnNXY3eTknIkD
+      AUTH_STAFF_EMAIL_DOMAINS: mozillafoundation.org
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: Install Python Dependencies
+      run: pip install -r requirements.txt -r dev-requirements.txt
+    - name: Run Tests
+      run: |
+        flake8 pulseapi
+        python manage.py test
