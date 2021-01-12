@@ -34,9 +34,7 @@ jobs:
         python-version: 3.7
     - name: Install Python Dependencies
       run: |
-        python -m pip install pipx
-        python -m pipx ensurepath
-        pipx install invoke
+        pip install invoke
         invoke setup
     - name: Run Tests
       run: |
