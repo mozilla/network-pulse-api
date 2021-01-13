@@ -699,12 +699,15 @@ Replies with an Atom feed consisting of (a subset of) only those entries that ar
 
 ## Setup
 
-**Requirements**: [python3.7](https://www.python.org/), [invoke](http://www.pyinvoke.org/installing.html).
+**Requirements**:
+- python 3.7 (https://www.python.org/)
+- invoke (with python installed, `pip install invoke` - if you are on legacy hardward or a legacy OS that still has python 2.7 installed, `pip3 install invoke`).
+- PostgreSQL, consult the internet for how to install this for your Operating System.
 
-- Install [Invoke](http://www.pyinvoke.org/installing.html) using [pipx](https://pypi.org/project/pipx/).
 - Run `inv setup`.
 - Start your server with `inv runserver`.
-- To enable Google and/or GitHub login, follow the [instructions below](#setting-up-social-authentication).
+- Your admin login is `admin@mozillafoundation.org` with password `admin`.
+- (Optional) To enable Google and/or GitHub login, follow the [instructions below](#setting-up-social-authentication).
 
 Update your branch by doing a git pull and `inv catchup`.
 When switching branches, get a new virtualenv and database by running `inv new-env`.
