@@ -1,0 +1,30 @@
+version: 2
+updates:
+- package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: monthly
+  open-pull-requests-limit: 99
+  labels:
+  - dependencies
+  ignore:
+  - dependency-name: django
+    versions:
+    - ">= 3.a, < 4"
+  - dependency-name: faker
+    versions:
+    - 5.3.0
+    - 5.8.0
+  - dependency-name: boto3
+    versions:
+    - 1.16.47
+    - 1.16.63
+  - dependency-name: django-cors-headers
+    versions:
+    - 3.6.0
+  - dependency-name: pillow
+    versions:
+    - 8.0.1
+  - dependency-name: django
+    versions:
+    - 2.2.17
