@@ -1,6 +1,6 @@
 boto3
 dj-database-url
-Django==2.2.13
+Django==2.2.21
 django-cors-headers
 django-debug-toolbar
 django-ajax-selects==1.9.1
