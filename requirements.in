@@ -16,5 +16,5 @@ Pillow
 requests
 whitenoise
 psycopg2-binary
-django-allauth==0.42.0
+django-allauth==0.45.0
 oauth2client
