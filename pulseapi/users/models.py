@@ -11,12 +11,6 @@ from pulseapi.profiles.models import UserProfile
 
 class EmailUserManager(BaseUserManager):
     def create_user(self, name, email, password=None):
-        """
-        TEMPORARY MEASURE TO PREVENT SIGNUP SPAM,
-        SEE https://github.com/mozilla/network-pulse-api/issues/762
-        """
-        raise ValueError('Not accepting new users at this time.')
-
         if not name:
             raise ValueError('Users must have a name')
 
