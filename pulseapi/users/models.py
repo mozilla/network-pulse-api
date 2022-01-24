@@ -26,7 +26,6 @@ class EmailUserManager(BaseUserManager):
         if not password:
             password = self.make_random_password()
 
-
         # Ensure that new users get a user profile associated
         # with them, even though it'll be empty by default.
         profile = UserProfile.objects.create(is_active=True)
