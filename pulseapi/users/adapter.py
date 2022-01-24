@@ -23,6 +23,9 @@ google_provider_id = GoogleProvider.id
 
 
 class PulseAccountAdapter(DefaultAccountAdapter):
+    def is_open_for_signup(self, request):
+        return settings.ALLOW_SIGNUP
+
     def is_safe_url(self, url):
         """
         We override this because the default implementation only
@@ -79,6 +82,9 @@ class PulseSocialAccountAdapter(DefaultSocialAccountAdapter):
         2. Handle the transition from the old auth system to "upgrade" existing
         accounts to the new allauth system.
     """
+    def is_open_for_signup(self, request):
+        return settings.ALLOW_SIGNUP
+
     def populate_user(self, request, sociallogin, data):
         user = super().populate_user(request, sociallogin, data)
 
