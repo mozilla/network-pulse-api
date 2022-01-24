@@ -21,8 +21,14 @@ from pulseapi.profiles.models import UserProfile
 
 google_provider_id = GoogleProvider.id
 
+# See https://github.com/mozilla/network-pulse-api/issues/762 for why this is false
+ACCEPTING_lOGINS = False
+
 
 class PulseAccountAdapter(DefaultAccountAdapter):
+    def is_open_for_signup(self, request):
+        return ACCEPTING_lOGINS
+
     def is_safe_url(self, url):
         """
         We override this because the default implementation only
@@ -71,6 +77,9 @@ class PulseAccountAdapter(DefaultAccountAdapter):
 
 
 class PulseSocialAccountAdapter(DefaultSocialAccountAdapter):
+    def is_open_for_signup(self, request):
+        return ACCEPTING_lOGINS
+
     """
     Override the default implementation for DefaultSocialAccountAdapter
     for two reasons:
