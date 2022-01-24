@@ -56,7 +56,7 @@ class EmailUserAdmin(UserAdmin):
 
     def account_created(self, instance):
         return instance.profile.created_at
-    
+
     def bio(self, instance):
         return instance.profile.user_bio
 
