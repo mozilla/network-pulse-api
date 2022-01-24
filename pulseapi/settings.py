@@ -27,6 +27,7 @@ root = app - 1
 
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 env = environ.Env(
+    ALLOW_SIGNUP=(bool, True),
     AUTH_STAFF_EMAIL_DOMAINS=(list, []),
     CORS_ORIGIN_REGEX_WHITELIST=(list, []),
     CORS_ORIGIN_WHITELIST=(list, []),
@@ -46,7 +47,6 @@ env = environ.Env(
 )
 
 SSL_PROTECTION = env('SSL_PROTECTION')
-
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
@@ -144,6 +144,7 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
+ALLOW_SIGNUP = env('ALLOW_SIGNUP')
 LOGIN_REDIRECT_URL = '/'
 LOGIN_ALLOWED_REDIRECT_DOMAINS = env('LOGIN_ALLOWED_REDIRECT_DOMAINS', cast=list, default=[])
 ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = env('AUTH_EMAIL_REDIRECT_URL', default=LOGIN_REDIRECT_URL)

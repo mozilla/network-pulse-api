@@ -21,13 +21,10 @@ from pulseapi.profiles.models import UserProfile
 
 google_provider_id = GoogleProvider.id
 
-# See https://github.com/mozilla/network-pulse-api/issues/762 for why this is false
-ACCEPTING_lOGINS = False
-
 
 class PulseAccountAdapter(DefaultAccountAdapter):
     def is_open_for_signup(self, request):
-        return ACCEPTING_lOGINS
+        return settings.ALLOW_SIGNUP
 
     def is_safe_url(self, url):
         """
@@ -77,9 +74,6 @@ class PulseAccountAdapter(DefaultAccountAdapter):
 
 
 class PulseSocialAccountAdapter(DefaultSocialAccountAdapter):
-    def is_open_for_signup(self, request):
-        return ACCEPTING_lOGINS
-
     """
     Override the default implementation for DefaultSocialAccountAdapter
     for two reasons:
@@ -88,6 +82,9 @@ class PulseSocialAccountAdapter(DefaultSocialAccountAdapter):
         2. Handle the transition from the old auth system to "upgrade" existing
         accounts to the new allauth system.
     """
+    def is_open_for_signup(self, request):
+        return settings.ALLOW_SIGNUP
+
     def populate_user(self, request, sociallogin, data):
         user = super().populate_user(request, sociallogin, data)
 
