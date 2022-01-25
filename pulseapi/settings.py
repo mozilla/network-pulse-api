@@ -40,7 +40,6 @@ env = environ.Env(
     HEROKU_BRANCH=(str, ''),
     HEROKU_PR_NUMBER=(str, ''),
     PULSE_FRONTEND_HOSTNAME=(str, ''),
-    RECAPTCHA_KEY=(str,''),
     RECAPTCHA_SECRET=(str, ''),
     SECRET_KEY=(str, ''),
     SLACK_WEBHOOK_RA=(str, ''),
@@ -50,7 +49,6 @@ env = environ.Env(
 )
 
 USE_RECAPTCHA = env('USE_RECAPTCHA')
-RECAPTCHA_KEY = env('RECAPTCHA_KEY')
 RECAPTCHA_SECRET = env('RECAPTCHA_SECRET')
 
 SSL_PROTECTION = env('SSL_PROTECTION')
