@@ -7,6 +7,7 @@ from django.views.generic.base import RedirectView
 from requests import post
 from requests.exceptions import RequestException
 
+# see https://developers.google.com/recaptcha/docs/verify
 RECAPTCHA_VERIFICATION_URL = 'https://www.google.com/recaptcha/api/siteverify'
 
 
@@ -44,7 +45,7 @@ class LoginRedirectView(RedirectView):
     """
     A utility view that redirects requests to the real
     login route, but only if recaptcha validation passes
-    (provided recaptcha is enabled). If recaptcha fails
+    (provided recaptcha is enabled). If recaptcha fails,
     we send an http 403 response.
     """
 
