@@ -303,7 +303,7 @@ REST_FRAMEWORK = {
     # Default to v1 if no version is specified in the URL
     # For e.g. /api/pulse/entries/ will default to /api/pulse/v1/
     'DEFAULT_VERSION': API_VERSIONS[DEFAULT_VERSION],
-    'ALLOWED_VERSIONS': list(API_VERSIONS.values())
+    'ALLOWED_VERSIONS': list(API_VERSIONS.values()),
 }
 
 # CORS settings

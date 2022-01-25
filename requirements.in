@@ -10,9 +10,11 @@ django-storages
 djangorestframework==3.11.0
 factory_boy
 Faker
-google-api-python-client
+google-api-core=1.18.0
+google-api-python-client==1.9.0
 gunicorn
-Pillow
+Pillow==8.3.2
+protobuf==3.12.2
 requests
 whitenoise
 psycopg2-binary
