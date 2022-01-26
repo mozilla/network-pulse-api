@@ -39,10 +39,10 @@ class EmailUserAdmin(UserAdmin):
         'name',
     )
 
-    list_display = ('name', 'email', 'profile',)
+    list_display = ('pk', 'name', 'email', 'account_created', 'bio',)
     list_filter = ('is_staff', 'is_superuser', 'groups',)
     search_fields = ('name', 'email',)
-    ordering = ('name',)
+    ordering = ('-pk', 'name')
 
     def entries(self, instance):
         entries = Entry.objects.filter(published_by=instance)
@@ -53,6 +53,12 @@ class EmailUserAdmin(UserAdmin):
         ) for entry in entries]
         return format_html('<table>{rows}</table>'.format(rows=''.join(rows)))
     entries.short_description = 'Entries posted by this user'
+
+    def account_created(self, instance):
+        return instance.profile.created_at
+
+    def bio(self, instance):
+        return instance.profile.user_bio
 
     def user_profile(self, instance):
         """
