@@ -32,19 +32,24 @@ env = environ.Env(
     CORS_ORIGIN_REGEX_WHITELIST=(list, []),
     CORS_ORIGIN_WHITELIST=(list, []),
     CSRF_TRUSTED_ORIGINS=(list, []),
+    DATABASE_URL=(str, None),
     DEBUG=(bool, False),
     DJANGO_LOG_LEVEL=(str, 'INFO'),
-    DATABASE_URL=(str, None),
-    HEROKU_APP_NAME=(str, ''),
-    HEROKU_PR_NUMBER=(str, ''),
-    HEROKU_BRANCH=(str, ''),
-    PULSE_FRONTEND_HOSTNAME=(str, ''),
-    SECRET_KEY=(str, ''),
-    SSL_PROTECTION=(bool, False),
-    USE_S3=(bool, False),
     GITHUB_TOKEN=(str, ''),
+    HEROKU_APP_NAME=(str, ''),
+    HEROKU_BRANCH=(str, ''),
+    HEROKU_PR_NUMBER=(str, ''),
+    PULSE_FRONTEND_HOSTNAME=(str, ''),
+    RECAPTCHA_SECRET=(str, ''),
+    SECRET_KEY=(str, ''),
     SLACK_WEBHOOK_RA=(str, ''),
+    SSL_PROTECTION=(bool, False),
+    USE_RECAPTCHA=(bool, False),
+    USE_S3=(bool, False),
 )
+
+USE_RECAPTCHA = env('USE_RECAPTCHA')
+RECAPTCHA_SECRET = env('RECAPTCHA_SECRET')
 
 SSL_PROTECTION = env('SSL_PROTECTION')
 

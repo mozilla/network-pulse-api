@@ -31,10 +31,16 @@ from pulseapi.utility.urlutils import (
     versioned_api_url,
 )
 
+from .users.utils import LoginRedirectView
+
 urlpatterns = [
     # admin patterns
     url(r'^admin/', admin.site.urls),
 
+    # separate login route so we can gate login behind recaptcha
+    url(r'^login/', LoginRedirectView.as_view(), name='login_redirect'),
+
+    # real login (and other django-allauth) routes
     url(r'^accounts/', include('allauth.urls')),
 
     # 'homepage'
