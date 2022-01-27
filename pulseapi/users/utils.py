@@ -27,7 +27,7 @@ def verify_recaptcha(response_token):
         return False
 
     data = json.loads(response.text)
-    
+
     if data.get('success') is not True:
         return False
 
@@ -51,9 +51,9 @@ class LoginRedirectView(RedirectView):
             response_token = request.GET.get('token', None)
 
             if response_token is None:
-                return HttpResponseForbidden() 
+                return HttpResponseForbidden()
 
             if not verify_recaptcha(response_token):
                 return HttpResponseForbidden()
-        
+
         return super().get(request, *args, **kwargs)
