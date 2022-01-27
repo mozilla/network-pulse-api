@@ -17,23 +17,16 @@ def verify_recaptcha(response_token):
     against what it supposedly generated.
     """
     try:
-        print(f"secret: {settings.RECAPTCHA_SECRET}")
-        
         response = post(RECAPTCHA_VERIFICATION_URL, timeout=5, data={
             'response': response_token,
             'secret': settings.RECAPTCHA_SECRET,
         })
-        
-        print(response)
-
         response.raise_for_status()
 
     except RequestException:
         return False
 
     data = json.loads(response.text)
-    
-    print(data)
     
     if data.get('success') is not True:
         return False
@@ -56,8 +49,6 @@ class LoginRedirectView(RedirectView):
     def get(self, request, *args, **kwargs):
         if settings.USE_RECAPTCHA:
             response_token = request.GET.get('token', None)
-
-            print(f"response_token: {response_token}")
 
             if response_token is None:
                 return HttpResponseForbidden() 
