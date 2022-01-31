@@ -56,6 +56,8 @@ def augmented_get_context_data(self, **kwargs):
             raise PermissionDenied()
 
         session_token = session['recaptcha_token']
+        # clear the token after reading it so someone can't just set a valid session and then
+        # bulk-load the allauth route with a hundred tabs.
         session['recaptcha_token'] = None
         if session_token is None:
             raise PermissionDenied()
