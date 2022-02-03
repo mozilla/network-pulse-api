@@ -413,6 +413,10 @@ LOGGING = {
             'handlers': ['debug-error'],
             'level': 'ERROR'
         },
+        'django.utils.autoreload': {
+            'handlers': ['debug'],
+            'level': 'INFO',
+        }
     }
 }
 DJANGO_LOG_LEVEL = env('DJANGO_LOG_LEVEL')
