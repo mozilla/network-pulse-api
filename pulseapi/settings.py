@@ -415,7 +415,7 @@ LOGGING = {
         },
         'django.utils.autoreload': {
             'handlers': ['debug'],
-           'level': 'INFO',
+            'level': 'INFO',
         }
     }
 }
