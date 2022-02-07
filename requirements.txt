@@ -39,7 +39,7 @@ django-allauth==0.48.0
     # via -r requirements.in
 django-cors-headers==3.4.0
     # via -r requirements.in
-django-debug-toolbar==2.2
+django-debug-toolbar==2.2.1
     # via -r requirements.in
 django-environ==0.4.5
     # via -r requirements.in
