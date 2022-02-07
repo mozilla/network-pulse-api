@@ -7,7 +7,7 @@ django-debug-toolbar
 django-environ
 django-filter==2.4.0
 django-storages
-Django==2.2.13
+Django==2.2.26
 djangorestframework==3.11.0
 factory_boy
 Faker
