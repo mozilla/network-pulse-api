@@ -18,7 +18,7 @@ client_secrets = {
 }
 
 data = json.dumps(client_secrets, sort_keys=True, indent=4, separators=(',', ': '))
-
-text_file = open("client_secrets.json", "w")
+text_file = open('client_secrets.json', 'w')
 text_file.write(data)
 text_file.close()
+print('created ./client_secrets.json')
