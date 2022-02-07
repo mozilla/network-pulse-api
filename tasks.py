@@ -111,6 +111,13 @@ def new_db(ctx):
           )
 
 
+# Django allauth
+@task(aliases=["secrets"])
+def generate_secrets(ctx):
+    with ctx.cd(ROOT):
+        ctx.run(VENV_BIN_PATH + f"python generate_client_secrets.py", **PLATFORM_ARG)
+
+
 # Django shorthands
 @task
 def manage(ctx, command):
