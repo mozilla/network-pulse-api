@@ -82,7 +82,7 @@ class PulseSocialAccountAdapter(DefaultSocialAccountAdapter):
         2. Handle the transition from the old auth system to "upgrade" existing
         accounts to the new allauth system.
     """
-    def is_open_for_signup(self, request):
+    def is_open_for_signup(self, request, socialaccount):
         return settings.ALLOW_SIGNUP
 
     def populate_user(self, request, sociallogin, data):
