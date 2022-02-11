@@ -89,7 +89,7 @@ oauthlib==3.1.0
     # via requests-oauthlib
 pillow==8.3.2
     # via -r requirements.in
-protobuf==3.12.2
+protobuf==3.15.0
     # via
     #   -r requirements.in
     #   google-api-core
