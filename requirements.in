@@ -15,7 +15,7 @@ google-api-core==1.18.0
 google-api-python-client==1.9.0
 gunicorn
 oauth2client
-Pillow==8.3.2
+Pillow==9.0.1
 protobuf==3.12.2
 psycopg2-binary
 requests
