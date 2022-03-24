@@ -120,7 +120,7 @@ def manage(ctx, command):
 
 
 @task
-def runserver(ctx, arguments):
+def runserver(ctx, arguments=""):
     """Start a web server"""
     manage(ctx, f"runserver {arguments}")
 
