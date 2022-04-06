@@ -96,15 +96,3 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.toString()
-
-
-
-@receiver(post_delete, sender=EmailUser)
-def delete_profile_for_user(sender, **kwargs):
-    related_profile_id = kwargs['instance'].profile_id
-
-    related_profile = UserProfile.objects.get(
-            id=related_profile_id
-    )
-
-    related_profile.delete()

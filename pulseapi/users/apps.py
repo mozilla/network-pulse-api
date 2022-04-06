@@ -4,4 +4,7 @@ from django.apps import AppConfig
 
 
 class UsersConfig(AppConfig):
-    name = 'users'
+    name = 'pulseapi.users'
+        
+    def ready(self):
+        import pulseapi.users.signals
