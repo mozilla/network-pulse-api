@@ -7,4 +7,4 @@ class UsersConfig(AppConfig):
     name = 'pulseapi.users'
 
     def ready(self):
-        import pulseapi.users.signals
+        import pulseapi.users.signals  # noqa: F401
