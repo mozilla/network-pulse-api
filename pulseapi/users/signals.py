@@ -13,6 +13,7 @@ def default_to_non_active(sender, instance, **kwargs):
     if instance._state.adding is True:
         instance.is_active = False
 
+
 @receiver(post_delete, sender=EmailUser)
 def delete_profile_for_user(sender, **kwargs):
     related_profile_id = kwargs['instance'].profile_id
