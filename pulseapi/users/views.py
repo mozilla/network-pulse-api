@@ -13,6 +13,7 @@ from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
+from .signals import *  # noqa: F401,F403
 from .models import EmailUser
 from pulseapi.utility.userpermissions import is_staff_address
 from pulseapi.settings import API_VERSION_LIST

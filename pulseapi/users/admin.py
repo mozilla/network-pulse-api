@@ -27,6 +27,7 @@ class EmailUserAdmin(UserAdmin):
                 'name',
                 'is_staff',
                 'is_superuser',
+                'is_active',
                 'user_profile',
                 'entries',
             )
@@ -39,7 +40,7 @@ class EmailUserAdmin(UserAdmin):
         'name',
     )
 
-    list_display = ('pk', 'name', 'email', 'account_created', 'bio',)
+    list_display = ('pk', 'name', 'email', 'account_created', 'is_active', 'bio',)
     list_filter = ('is_staff', 'is_superuser', 'groups',)
     search_fields = ('name', 'email',)
     ordering = ('-pk', 'name')

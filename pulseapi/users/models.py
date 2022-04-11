@@ -63,6 +63,11 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
         verbose_name="this user counts as django::staff",
     )
 
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="is this user active (i.e. can they log in)",
+    )
+
     # A user can have only zero or one profile. For social auth, the profile is
     # automatically created for the user.
     profile = models.OneToOneField(
