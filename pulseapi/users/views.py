@@ -187,24 +187,26 @@ def do_final_redirect(state, loggedin, msg):
     either be 'true' or 'false', and can be used to determine whether the login
     attempd succeeded or not.
     """
-    redirectUrl = '/'
+    redirect_url = '/'
 
     # Do we need to redirect the user to some explicit URL after login?
     try:
         validator = URLValidator()
         validator(state)
-        redirectUrl = state
+        redirect_url = state
     except ValidationError:
         pass
 
-    # Add the result of the login attempt to the redirect URL as query pair
-    if '?' in redirectUrl:
-        redirectUrl += '&'
-    else:
-        redirectUrl += '?'
-    redirectUrl += 'loggedin=' + str(loggedin)
+    print(f'want to redirect to {redirect_url}')
 
-    return redirect(redirectUrl)
+    # Add the result of the login attempt to the redirect URL as query pair
+    if '?' in redirect_url:
+        redirect_url += '&'
+    else:
+        redirect_url += '?'
+    redirect_url += 'loggedin=' + str(loggedin)
+
+    return redirect(redirect_url)
 
 
 # API Route: /oauth2callback (Redirects to / on success)

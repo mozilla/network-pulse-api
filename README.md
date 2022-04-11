@@ -718,46 +718,37 @@ Instructions on how to setup this project using `nix-shell` (Linux and MacOS) ar
 
 ## Setting up Social Authentication
 
-### **Important**: using a localhost rebinding to a "real" domain
-
-Social authentication does not like oauth2 to `localhost`, so you will need to set up a host binding such that 127.0.0.1 looks like a real domain. You can do this by editing your `hosts` file (in `/etc/hosts` on most unix-like systems, or `Windows\System32\Drivers\etc\hosts` in Windows). Add the following rule:
-
-`127.0.0.1    test.example.com`
-
-and then use `http://test.example.com:8000` instead of `http://localhost:8000` everywhere. Social authentication apps should now be perfectly happy.
-
-#### Why "test.example.com"?
-
-Example.com and example.org are "special" domains in that they *cannot* resolve to a real domain as part of the policy we, as the internet-connected world, agreed on. This means that if you forget to set that `hosts` binding, visiting test.example.com will be a guaranteed failure. Any other domain may in fact exist, and you don't want to be hitting a real website when you're doing login and authentication.
-
 ### Google
 
 1. Set up a [Google OAuth client](https://console.developers.google.com/apis/credentials).
-   - Use `http://test.example.com:8000` as the "Authorized Javascript URL"
-   - Use `http://test.example.com:8000/accounts/google/login/callback/` as the "Authorized Redirect URL"
-   - Keep the client ID and client secret handy
-2. Create a superuser (if you haven't already) and run the server.
-3. Go to http://test.example.com:8000/admin and login using superuser credentials.
-4. Add and save a new "Social Application" instance.
-   - The "Provider" should be 'Google'
-   - The "Name" can be anything that will identify your Google social application
-   - Fill in the client ID and client secret
-   - Add Your site domain to the list of "Chosen sites"
-5. Logout of the admin interface.
+  - If you need to set up an oauth consent screen, click through and:
+    - make sure it's set to "testing" (not "production") and
+    - make sure it's set to "external" (not "internal")
+  - Use `http://localhost:8000` as the "Authorized Javascript URL"
+  - Use `http://localhost:8000/accounts/google/login/callback/` as the "Authorized Redirect URL"
+  - Keep the client ID and client secret handy
+2. Run the server with `inv runserver`
+3. Go to http://localhost:8000/admin and log in using the superuser credentials [noted above](#requirements)
+4. Add and save a new "Social Application" instance:
+  - The "Provider" should be `Google`
+  - The "Name" can be anything that will identify your Google social application
+  - Fill in the client ID and client secret (leave "key" empty)
+  - move `example.com` from the "Available sites" list to the "Chosen sites" list
+5. Log out of the admin interface.
 
 ### GitHub
 
-1. Login to GitHub and setup a [GitHub OAuth client](https://github.com/settings/applications/new).
-   - Use `http://test.example.com:8000` as the "Homepage URL"
-   - Use `http://test.example.com:8000/accounts/github/login/callback/` as the "Authorized Callback URL"
-   - Keep the client ID and client secret handy
-2. Create a superuser (if you haven't already) and run the server.
-3. Go to http://test.example.com:8000/admin and login using superuser credentials.
-4. Add and save a new "Social Application" instance.
-   - The "Provider" should be 'GitHub'
-   - The "Name" can be anything that will identify your GitHub social application
-   - Fill in the client ID and client secret
-   - Add Your site domain to the list of "Chosen sites"
+1. Log in to GitHub and setup a [GitHub OAuth client](https://github.com/settings/applications/new).
+  - Use `http://localhost:8000` as the "Homepage URL"
+  - Use `http://localhost:8000/accounts/github/login/callback/` as the "Authorized Callback URL"
+  - Keep the client ID and client secret handy
+2. Run the server with `inv runserver`.
+3. Go to http://localhost:8000/admin and log in using the superuser credentials [noted above](#requirements)
+4. Add and save a new "Social Application" instance:
+  - The "Provider" should be `GitHub`
+  - The "Name" can be anything that will identify your GitHub social application
+  - Fill in the client ID and client secret
+  - move `example.com` from the "Available sites" list to the "Chosen sites" list
 5. Logout of the admin interface.
 
 ## Setting up Email
@@ -785,7 +776,7 @@ Options available:
 - `-e`, `--entries-count`: The number of entries to generate per possible variations. Default: 20, variations: 16
 - `-t`, `--tags-count`: The number of tags to generate. Default: 6
 
-## Local development 
+## Local development
 
 ### How to use
 
@@ -823,7 +814,7 @@ Available tasks:
 - Both `(dev-)requirements.txt` and `(dev-)requirements.in` files need to be pushed to Github.
 - `.txt` files act as lockfiles, where dependencies are pinned to a precise version.
 
-Dependencies live on your filesystem: you don't need to rebuild the `backend` image when installing or updating dependencies. 
+Dependencies live on your filesystem: you don't need to rebuild the `backend` image when installing or updating dependencies.
 
 **Install packages:**
 
@@ -859,7 +850,7 @@ To use it:
 
 ### Testing the API using the "3rd party library" test file
 
-Fire up a localhost server with port 8080 pointing at the `public` directory (some localhost servers like [http-server](https://npmjs.com/package/http-server) do this automatically for you) and point your browser to [http://localhost:8080](http://localhost:8080). If all went well (but read this README.md to the end, first) you should be able to post to the API server running "on" http://test.example.com:8000
+Fire up a localhost server with port 8080 pointing at the `public` directory (some localhost servers like [http-server](https://npmjs.com/package/http-server) do this automatically for you) and point your browser to [http://localhost:8080](http://localhost:8080). If all went well (but read this README.md to the end, first) you should be able to post to the API server running "on" http://localhost:8000
 
 
 ## Environment variables
@@ -871,7 +862,7 @@ Configure the following environment variables as needed in your `.env` file. All
 ### Authentication variables
 
 - `ALLOW_SIGNUP` &mdash; Determines whether signing up for a new account is permitted. **Defaults to `True`.**
-- `LOGIN_ALLOWED_REDIRECT_DOMAINS` &mdash; A comma-separated list of domains that are allowed to be redirected to after logging in a user. **Defaults to  `test.example.com:3000`.**
+- `LOGIN_ALLOWED_REDIRECT_DOMAINS` &mdash; A comma-separated list of domains that are allowed to be redirected to after logging in a user. **Defaults to  `localhost:3000`.**
 - `AUTH_STAFF_EMAIL_DOMAINS` &mdash; A comma-separated list of email domains that should be considered "safe" to make as "staff" in Django. **Defaults to `mozillafoundation.org`.**
 - `AUTH_REQUIRE_EMAIL_VERIFICATION` &mdash; A boolean indicating whether a user needs to verify their email attached to a social account (e.g. Github) before being able to login. **Defaults to `False`.**
 - `AUTH_EMAIL_REDIRECT_URL` &mdash; The url to redirect to after a user verifies their email to login successfully. **Defaults to `/`.**
@@ -909,10 +900,10 @@ These variables are only used (and are required) if `USE_S3` is set to `True`.
 - `DEBUG` *(recommended)* &mdash; A boolean that indicates whether Django should run in debug mode. DO NOT SET THIS TO `True` IN PRODUCTION ENVIRONMENTS SINCE YOU RISK EXPOSING PRIVATE DATA SUCH AS CREDENTIALS. **Defaults to `True`.**
 - `SECRET_KEY` *(recommended)* &mdash; A unique, unpredictable string that will be used for cryptographic signing. PLEASE GENERATE A NEW SECRET STRING FOR PRODUCTION ENVIRONMENTS. **Defaults to a set string of characters.**
 - `SSL_PROTECTION` *(recommended)* &mdash; A catch-all boolean that indicates whether SSL encryption, XSS filtering, content-type sniff protection, HSTS, and cookie security should be enabled. THIS SHOULD LIKELY BE SET TO `True` IN A PRODUCTION ENVIRONMENT. **Defaults to `False`.**
-- `ALLOWED_HOSTS` &mdash; A comma-separated list of host domains that this app can serve. This is meant to prevent HTTP Host header attacks. **Defaults to a list of `test.example.com`, `localhost`, `network-pulse-api-staging.herokuapp.com`, and `network-pulse-api-production.herokuapp.com`.**
-- `CORS_ORIGIN_REGEX_WHITELIST` *(recommended)* &mdash; A comma-separated list of python regular expressions matching domains that should be enabled for CORS. **Defaults to anything running on `localhost` or on `test.example.com`.**
+- `ALLOWED_HOSTS` &mdash; A comma-separated list of host domains that this app can serve. This is meant to prevent HTTP Host header attacks. **Defaults to a list of `localhost`, `localhost`, `network-pulse-api-staging.herokuapp.com`, and `network-pulse-api-production.herokuapp.com`.**
+- `CORS_ORIGIN_REGEX_WHITELIST` *(recommended)* &mdash; A comma-separated list of python regular expressions matching domains that should be enabled for CORS. **Defaults to anything running on `localhost` or on `localhost`.**
 - `CORS_ORIGIN_WHITELIST` &mdash; A comma-separated list of domains that should be allowed to make CORS requests. **Defaults to an empty list.**
-- `CSRF_TRUSTED_ORIGINS` &mdash; A comma-separated list of trusted domains that can send POST, PUT, and DELETE requests to this API. **Defaults to a list of `localhost:3000`, `localhost:8000`, `localhost:8080` , `test.example.com:8000`, and `test.example.com:3000`.**
+- `CSRF_TRUSTED_ORIGINS` &mdash; A comma-separated list of trusted domains that can send POST, PUT, and DELETE requests to this API. **Defaults to a list of `localhost:3000`, `localhost:8000`, `localhost:8080` , `localhost:8000`, and `localhost:3000`.**
 
 ### Front-end variables
 
@@ -974,5 +965,5 @@ run `pulsevenv/bin/python reset_database.py` and the steps mentioned above will 
 
 To migrate data, export JSON from the Google Sheets db, and save it in the root directory as `migrationData.json`. Then run `pulsevenv/bin/python migrate.py`. This generates `massagedData.json`.
 In `public/migrate.html`, update the endpoint to be the address of the one you're trying to migrate data into. If it's a local db, leave as is.
-Spin up a server from the `public` folder on port 8080. Log in to your API using Oauth (either the hosted site or `test.example.com:8000` if doing this locally)
-Visit `http://test.example.com:8080/migrate.html`, paste the contents of `massagedData.json`, and submit. It will process the entire array of entries one at a time, POSTing them to the server. Check your developer console and network requests if it doesn't complete after a minute or two.
+Spin up a server from the `public` folder on port 8080. Log in to your API using Oauth (either the hosted site or `localhost:8000` if doing this locally)
+Visit `http://localhost:8080/migrate.html`, paste the contents of `massagedData.json`, and submit. It will process the entire array of entries one at a time, POSTing them to the server. Check your developer console and network requests if it doesn't complete after a minute or two.
