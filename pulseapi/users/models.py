@@ -65,7 +65,7 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
 
     is_active = models.BooleanField(
         default=True,
-        verbose_name="is this user active (i.e. can they log in)",
+        help_text="is this user active (i.e. can they log in)",
     )
 
     # A user can have only zero or one profile. For social auth, the profile is
