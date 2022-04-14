@@ -19,6 +19,8 @@ from urllib.parse import quote_plus
 if sys.version_info < (3, 6):
     raise ValueError("Please upgrade to Python 3.6 or later")
 
+TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -117,7 +119,7 @@ INSTALLED_APPS = list(filter(None, [
     'pulseapi.tags',
     'pulseapi.issues',
     'pulseapi.helptypes',
-    'pulseapi.users',
+    'pulseapi.users.apps.UsersConfig',  # necessary for signals.py to work
     'pulseapi.profiles',
     'pulseapi.creators',
     # see INTERNAL_IPS for when this actually activates when DEBUG is set:
