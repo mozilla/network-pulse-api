@@ -56,20 +56,29 @@ class EmailUserAdmin(UserAdmin):
     entries.short_description = 'Entries posted by this user'
 
     def account_created(self, instance):
-        return instance.profile.created_at
+        try:
+            return instance.profile.created_at
+        except AttributeError:
+            return 'Missing profile'
 
     def bio(self, instance):
-        return instance.profile.user_bio
+        try:
+            return instance.profile.user_bio
+        except AttributeError:
+            return 'Missing profile'
 
     def user_profile(self, instance):
         """
         Link to this user's profile
         """
-        profile = instance.profile
 
-        html = '<a href="{url}">Click here for this user\'s profile</a>'.format(
-            url=get_admin_url(profile)
-        )
+        try:
+            profile = instance.profile
+            html = '<a href="{url}">Click here for this user\'s profile</a>'.format(
+                url=get_admin_url(profile)
+            )
+        except AttributeError:
+            html = '<p>No profile found for this user.</p>'
 
         return format_html(html)
 
