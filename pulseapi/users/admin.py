@@ -66,7 +66,7 @@ class EmailUserAdmin(UserAdmin):
             return instance.profile.user_bio
         except AttributeError:
             return 'Missing profile'
-    
+
     def user_profile(self, instance):
         """
         Link to this user's profile
