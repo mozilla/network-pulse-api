@@ -71,11 +71,14 @@ class EmailUserAdmin(UserAdmin):
         """
         Link to this user's profile
         """
-        profile = instance.profile
 
-        html = '<a href="{url}">Click here for this user\'s profile</a>'.format(
-            url=get_admin_url(profile)
-        )
+        try:
+            profile = instance.profile
+            html = '<a href="{url}">Click here for this user\'s profile</a>'.format(
+                url=get_admin_url(profile)
+            )
+        except AttributeError:
+            html = '<p>No profile found for this user.</p>'
 
         return format_html(html)
 
