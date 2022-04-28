@@ -61,14 +61,12 @@ class EmailUserAdmin(UserAdmin):
         except AttributeError:
             return 'Missing profile'
 
-
     def bio(self, instance):
         try:
             return instance.profile.user_bio
         except AttributeError:
             return 'Missing profile'
-
-            
+    
     def user_profile(self, instance):
         """
         Link to this user's profile
