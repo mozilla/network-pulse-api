@@ -242,7 +242,7 @@ class UserProfileListAPIView(ListAPIView):
 
     def get_queryset(self):
         request = self.request
-        queryset = UserProfile.objects.all().prefetch_related('related_user')
+        queryset = UserProfile.objects.filter(related_user__is_active=True).prefetch_related('related_user')
 
         if not request or request.version != settings.API_VERSIONS['version_2']:
             # for all requests that aren't v2, we don't need to prefetch

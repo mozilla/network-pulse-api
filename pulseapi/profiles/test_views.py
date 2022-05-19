@@ -339,6 +339,9 @@ class TestProfileView(PulseMemberTestCase):
         for _ in range(3):
             profile = ExtendedUserProfileFactory(profile_type=profile_type, **profile_params)
             profile.thumbnail = None
+            # Creating an "active" user account to link to the profile,
+            # as we are filtering to show only active profiles in our API views.
+            BasicEmailUserFactory(profile=profile, is_active=True)
             profile.save()
 
         # Expected queryset
@@ -435,6 +438,9 @@ class TestProfileView(PulseMemberTestCase):
                     profile.profile_type = profile_type
                     profile.program_type = program_type
                     profile.program_year = program_year
+                    # Creating an "active" user account to link to the profile,
+                    # as we are filtering to show only active profiles in our API views.
+                    BasicEmailUserFactory(profile=profile, is_active=True)
                     profile.save()
 
         profile_url = reverse('profile_list')

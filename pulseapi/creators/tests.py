@@ -6,6 +6,7 @@ from django.http.request import HttpRequest
 from rest_framework.request import Request
 
 from pulseapi.profiles.models import UserProfile
+from pulseapi.users.factory import BasicEmailUserFactory
 from pulseapi.creators.serializers import CreatorSerializer
 from pulseapi.creators.views import CreatorsPagination
 from pulseapi.tests import PulseStaffTestCase
@@ -18,7 +19,7 @@ class TestEntryCreatorViews(PulseStaffTestCase):
         page = CreatorsPagination()
         expected_data = CreatorSerializer(
             page.paginate_queryset(
-                UserProfile.objects.all().order_by('id'),
+                UserProfile.objects.filter(related_user__is_active=True).order_by('id'),
                 request=Request(request=HttpRequest())  # mock request to satisfy the required arguments
             ),
             many=True
@@ -37,6 +38,9 @@ class TestEntryCreatorViews(PulseStaffTestCase):
     def test_creator_filtering(self):
         """search creators, for autocomplete"""
         profile = UserProfile.objects.last()
+        # Creating an "active" user account to link to the profile,
+        # as we are filtering to show only active profiles in our API views.
+        BasicEmailUserFactory(profile=profile, is_active=True)
 
         response = self.client.get('{creator_url}?name={search}'.format(
             creator_url=reverse('creators-list'),
