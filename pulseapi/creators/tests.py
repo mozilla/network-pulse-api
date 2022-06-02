@@ -50,3 +50,19 @@ class TestEntryCreatorViews(PulseStaffTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(profile.id, response_creator['creator_id'])
+
+    def test_creator_filtering_hiding_inactive_users(self):
+        """Testing that inactive users are not returned in the creator view"""
+        profile = UserProfile.objects.last()
+        # Creating an "inactive" user account to link to the profile,
+        # as we are filtering to show only active profiles in our API views.
+        BasicEmailUserFactory(profile=profile, is_active=False)
+
+        response = self.client.get('{creator_url}?name={search}'.format(
+            creator_url=reverse('creators-list'),
+            search=quote(profile.name)
+        ))
+        search_results = json.loads(str(response.content, 'utf-8'))['results']
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(search_results, [])
