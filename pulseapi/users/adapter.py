@@ -111,7 +111,7 @@ class PulseSocialAccountAdapter(DefaultSocialAccountAdapter):
         try:
             UserProfile.objects.get(related_user=user)
         except UserProfile.DoesNotExist:
-            profile = UserProfile.objects.create(is_active=True)
+            profile = UserProfile.objects.create(is_active=False)
             user.profile = profile
             user.save()
 
