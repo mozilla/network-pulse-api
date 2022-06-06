@@ -4,6 +4,7 @@ from django.db.models.signals import post_delete
 from .models import EmailUser
 from pulseapi.profiles.models import UserProfile
 
+
 @receiver(post_delete, sender=EmailUser)
 def delete_profile_for_user(sender, **kwargs):
     if kwargs['instance'].profile_id:
