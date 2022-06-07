@@ -111,8 +111,7 @@ class PulseSocialAccountAdapter(DefaultSocialAccountAdapter):
         try:
             UserProfile.objects.get(related_user=user)
         except UserProfile.DoesNotExist:
-            
-            # Is_active is False by default, so we can hide this 
+            # Is_active is False by default, so we can hide this
             # users profile and entries, until set to active by a moderator.
             profile = UserProfile.objects.create(is_active=False)
             user.profile = profile
