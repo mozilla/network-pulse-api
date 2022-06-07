@@ -10,4 +10,5 @@ def delete_profile_for_user(sender, **kwargs):
     if kwargs['instance'].profile_id:
         related_profile_id = kwargs['instance'].profile_id
         related_profile = UserProfile.objects.get(id=related_profile_id)
-        related_profile.delete()
+        if related_profile:
+            related_profile.delete()
