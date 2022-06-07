@@ -24,7 +24,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(
-            match_profile_isactive_to_user_isactive
-        ),
+        migrations.RunPython(code=match_profile_isactive_to_user_isactive, reverse_code=migrations.RunPython.noop)
     ]

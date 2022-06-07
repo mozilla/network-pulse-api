@@ -22,6 +22,8 @@ class EmailUserManager(BaseUserManager):
 
         # Ensure that new users get a user profile associated
         # with them, even though it'll be empty by default.
+        # Is_active is set to False, so we can hide this 
+        # user's profile and entries, until set to active by a moderator.
         profile = UserProfile.objects.create(is_active=False)
         user = self.model(
             email=email,
