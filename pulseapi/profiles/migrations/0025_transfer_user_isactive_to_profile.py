@@ -10,14 +10,11 @@ def match_profile_isactive_to_user_isactive(apps, schema):
 
     for user in network_pulse_users:
 
-        users_profile, created = UserProfile.objects.get_or_create(related_user=user)
+        user_profile, created = UserProfile.objects.get_or_create(related_user=user)
 
-        if user.is_active:
-            users_profile.is_active = True
-        else:
-            users_profile.is_active = False
+        user_profile.is_active = user.is_active
 
-        users_profile.save()
+        user_profile.save()
 
 
 class Migration(migrations.Migration):
