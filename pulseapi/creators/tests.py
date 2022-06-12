@@ -18,7 +18,7 @@ class TestEntryCreatorViews(PulseStaffTestCase):
         page = CreatorsPagination()
         expected_data = CreatorSerializer(
             page.paginate_queryset(
-                UserProfile.objects.filter(is_active=True).order_by('id'), # Filtering for active profiles only
+                UserProfile.objects.active().order_by('id'),  # Filtering for active profiles only
                 request=Request(request=HttpRequest())  # mock request to satisfy the required arguments
             ),
             many=True

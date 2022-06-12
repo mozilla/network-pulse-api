@@ -5,6 +5,7 @@ from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.creators.models import EntryCreator
 from pulseapi.tags.models import Tag
 from pulseapi.tests import PulseMemberTestCase
+from pulseapi.users.factory import BasicEmailUserFactory
 
 
 class TestMemberEntryView(PulseMemberTestCase):
@@ -129,6 +130,12 @@ class TestEntryAPIJSONView(PulseMemberTestCase):
         dual_entry.tags.add(libraries)
         dual_entry.save()
 
+        inactive_profile_user = BasicEmailUserFactory.create(active=False)
+        inactive_profile_entry = Entry.objects.create(
+            title='inactive_profile_entry', entry_type='news', published_by=inactive_profile_user)
+        inactive_profile_entry.set_moderation_state('Approved')
+        inactive_profile_entry.save()
+
     def test_single_tag_search(self):
         response = self.client.get('/api/pulse/entries/?search=curricculum&format=json')
         self.assertEqual(response.status_code, 200)
@@ -148,3 +155,10 @@ class TestEntryAPIJSONView(PulseMemberTestCase):
         response_data = json.loads(str(response.content, 'utf-8'))
         count = response_data['count']
         self.assertEqual(count, 1)
+
+    def test_inactive_profile_entry_is_hidden(self):
+        response = self.client.get('/api/pulse/entries/?search=inactive_profile_entry&format=json')
+        self.assertEqual(response.status_code, 200)
+        response_data = json.loads(str(response.content, 'utf-8'))
+        count = response_data['count']
+        self.assertEqual(count, 0)

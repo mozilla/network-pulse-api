@@ -479,8 +479,6 @@ class TestProfileView(PulseMemberTestCase):
         self.run_test_profile_list(
             api_version=settings.API_VERSIONS['version_2'],
             profile_serializer_class=UserProfilePublicSerializer,
-            profile_params={'is_active': True},
-            query_dict={'is_active': True},
         )
 
     def test_profile_list_search_v3(self):
