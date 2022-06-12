@@ -432,6 +432,7 @@ class TestProfileView(PulseMemberTestCase):
                     (program_year, _) = ProgramYear.objects.get_or_create(value=v3)
                     profile = UserProfile.objects.create()
                     profile.enable_extended_information = True
+                    profile.is_active = True
                     profile.profile_type = profile_type
                     profile.program_type = program_type
                     profile.program_year = program_year

@@ -466,7 +466,7 @@ class EntriesListView(ListCreateAPIView):
                     queryset = Entry.objects.filter(moderation_state=mvalue)
 
         if queryset is False:
-            queryset = Entry.objects.public().with_related()
+            queryset = Entry.objects.public().with_related().by_active_profile()
 
         # If the query was for a set of specific entries,
         # filter the query set further.
