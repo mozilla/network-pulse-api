@@ -11,7 +11,36 @@
 
 {% block content %}
 {% url 'admin:index' as admin_url %}
-<a href="{% url 'account_login' %}?next={{ admin_url | urlencode }}"><button class="btn btn-info mr-3">{% trans "Go to the Admin Website" %}</button></a>
+<div class="g-recaptcha"
+      data-sitekey="{}"
+      data-callback="onSubmit"
+      data-size="invisible">
+</div>
+<script src="https://www.google.com/recaptcha/api.js?render={}"></script>
+<script>
+    const updateLogInButton = (token) => {
+      console.log(token)
+      // // we record that the user started a login in localStorage,
+      // // then the app gets closed and oauth happens. Once the
+      // // oauth callback drops the user back at a URL that loads
+      // // the app again, pages can run `user.verify` to finalise
+      // // the login process.
+      // localstorage.setItem(`pulse:user:attemptingLogin`, `True`);
+      // window.location = Login.getLoginURL(redirectUrl, token);
+      const button = document.getElementById('login-button');
+      button.parentNode.setAttribute('href',`login?token=${token}&next=${encodeURI(window.location.toString())}`)
+    };
+
+    // if (useRecaptcha) {
+      grecaptcha.ready(() =>
+        grecaptcha
+          .execute("{}", { action: "submit" })
+          .then((recaptcha_response) => updateLogInButton(recaptcha_response))
+      );
+    // } else performLogin();
+  
+</script>
+<a href="{% url 'account_login' %}?next={{ admin_url | urlencode }}"><button id="login-button" class="btn btn-info mr-3">{% trans "Go to the Admin Website" %}</button></a>
 <a href="{% url 'entries-list' 'v2/' %}"><button class="btn btn-info mr-3">{% trans "Check out the Browsable API" %}</button></a>
 {% endblock %}
 
