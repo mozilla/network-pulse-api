@@ -55,8 +55,9 @@ def create_env_file(env_file):
 
 def create_super_user(ctx):
     preamble = "from django.contrib.auth import get_user_model;User = get_user_model();"
-    create = "User.objects.create_superuser('admin', 'admin@mozillafoundation.org', 'admin')"
-    manage(ctx, f'shell -c "{preamble} {create}"')
+    create = "User.objects.create_superuser('admin', 'admin@mozillafoundation.org', 'admin');"
+    make_active = "admin = User.objects.get(name='admin');admin.is_active=True;admin.save();"
+    manage(ctx, f'shell -c "{preamble} {create} {make_active}"')
     print("\nCreated superuser `admin` with email `admin@mozillafoundation.org` and password `admin`.")
 
 
