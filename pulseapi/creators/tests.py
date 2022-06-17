@@ -53,15 +53,20 @@ class TestEntryCreatorViews(PulseStaffTestCase):
 
     def test_hiding_inactive_profiles(self):
         """Testing that inactive profiles are not returned in the creator view"""
-        # This profiles "is_active" is False by default, and should not be returned
-        # in the API response.
         profile = UserProfile.objects.last()
+        profile.is_active = True
+        profile.save()
 
-        response = self.client.get('{creator_url}?name={search}'.format(
-            creator_url=reverse('creators-list'),
-            search=quote(profile.name)
+        inactive_profile = UserProfile.objects.first()
+        inactive_profile.is_active = False
+        inactive_profile.save()
+
+        response = self.client.get('{creator_url}'.format(
+            creator_url=reverse('creators-list')
         ))
         search_results = json.loads(str(response.content, 'utf-8'))['results']
+        list_of_profile_ids = [profile['profile_id'] for profile in search_results]
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(search_results, [])
+        self.assertIn(profile.id, list_of_profile_ids)
+        self.assertNotIn(inactive_profile.id, list_of_profile_ids)
