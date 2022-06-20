@@ -511,6 +511,8 @@ class TestProfileView(PulseMemberTestCase):
         request to the profile endpoint with the '?is_active' filter set to
         'True', then checking if any returned profiles are set to 'False'.
         """
+        active_profile = BasicUserProfileFactory.create(is_active=True)
+        active_profile.save()
         inactive_profile = BasicUserProfileFactory.create(is_active=False)
         inactive_profile.save()
 
@@ -521,3 +523,22 @@ class TestProfileView(PulseMemberTestCase):
         num_of_inactive_profiles = sum(profile['is_active'] is False for profile in entriesjson)
 
         self.assertEqual(num_of_inactive_profiles, 0)
+
+    def test_profile_view_is_inactive_filter(self):
+        """
+        Similar to 'test_profile_view_is_active_filter',
+        this time setting the filter to FALSE. The API should then return a
+        list only inactive profiles. Which we double check using 'num_of_active_profiles'.
+        """
+        active_profile = BasicUserProfileFactory.create(is_active=True)
+        active_profile.save()
+        inactive_profile = BasicUserProfileFactory.create(is_active=False)
+        inactive_profile.save()
+
+        profile_url = reverse('profile_list')
+        url = ('{url}?is_active=False').format(url=profile_url)
+        response = self.client.get(url)
+        entriesjson = json.loads(str(response.content, 'utf-8'))
+        num_of_active_profiles = sum(profile['is_active'] is True for profile in entriesjson)
+
+        self.assertEqual(num_of_active_profiles, 0)
