@@ -18,7 +18,7 @@ class TestEntryCreatorViews(PulseStaffTestCase):
         page = CreatorsPagination()
         expected_data = CreatorSerializer(
             page.paginate_queryset(
-                UserProfile.objects.all().order_by('id'),
+                UserProfile.objects.active().order_by('id'),  # Filtering for active profiles only
                 request=Request(request=HttpRequest())  # mock request to satisfy the required arguments
             ),
             many=True
@@ -37,6 +37,10 @@ class TestEntryCreatorViews(PulseStaffTestCase):
     def test_creator_filtering(self):
         """search creators, for autocomplete"""
         profile = UserProfile.objects.last()
+        # Setting this profile's "is_active" flag to true, as the API is
+        # set up to only return active profiles.
+        profile.is_active = True
+        profile.save()
 
         response = self.client.get('{creator_url}?name={search}'.format(
             creator_url=reverse('creators-list'),
@@ -46,3 +50,23 @@ class TestEntryCreatorViews(PulseStaffTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(profile.id, response_creator['creator_id'])
+
+    def test_hiding_inactive_profiles(self):
+        """Testing that inactive profiles are not returned in the creator view"""
+        profile = UserProfile.objects.last()
+        profile.is_active = True
+        profile.save()
+
+        inactive_profile = UserProfile.objects.first()
+        inactive_profile.is_active = False
+        inactive_profile.save()
+
+        response = self.client.get('{creator_url}'.format(
+            creator_url=reverse('creators-list')
+        ))
+        search_results = json.loads(str(response.content, 'utf-8'))['results']
+        list_of_profile_ids = [profile['profile_id'] for profile in search_results]
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(profile.id, list_of_profile_ids)
+        self.assertNotIn(inactive_profile.id, list_of_profile_ids)

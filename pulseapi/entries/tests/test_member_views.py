@@ -5,6 +5,7 @@ from pulseapi.entries.models import Entry, ModerationState
 from pulseapi.creators.models import EntryCreator
 from pulseapi.tags.models import Tag
 from pulseapi.tests import PulseMemberTestCase
+from pulseapi.users.factory import BasicEmailUserFactory
 
 
 class TestMemberEntryView(PulseMemberTestCase):
@@ -148,3 +149,28 @@ class TestEntryAPIJSONView(PulseMemberTestCase):
         response_data = json.loads(str(response.content, 'utf-8'))
         count = response_data['count']
         self.assertEqual(count, 1)
+
+    def test_inactive_profile_entry_is_hidden(self):
+        """
+        Creating two entries of the same name, to test that the
+        entry created by an inactive profile will be hidden from results.
+        """
+        entry_name = 'test_entry'
+
+        test_entry = Entry.objects.create(title=entry_name, entry_type='news', published_by=self.user)
+        test_entry.set_moderation_state('Approved')
+        test_entry.save()
+
+        inactive_profile_user = BasicEmailUserFactory.create(active=False)
+        inactive_profile_entry = Entry.objects.create(
+            title=entry_name, entry_type='news', published_by=inactive_profile_user)
+        inactive_profile_entry.set_moderation_state('Approved')
+        inactive_profile_entry.save()
+
+        response = self.client.get(f'/api/pulse/entries/?search={test_entry}&format=json')
+        self.assertEqual(response.status_code, 200)
+        response_data = json.loads(str(response.content, 'utf-8'))
+        count = response_data['count']
+        returned_entry = response_data['results'][0]
+        self.assertEqual(count, 1)
+        self.assertNotEqual(inactive_profile_entry.id, returned_entry['id'])
