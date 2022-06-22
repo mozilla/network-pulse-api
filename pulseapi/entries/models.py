@@ -68,6 +68,12 @@ class EntryQuerySet(models.query.QuerySet):
             'related_entry_creators__profile__related_user',
         )
 
+    def by_active_profile(self):
+        """
+        Return all entries that have been created by pulse users who's profiles are set to "Active" by moderator.
+        """
+        return self.filter(published_by__profile__is_active=True)
+
 
 class Entry(models.Model):
     """

@@ -27,7 +27,7 @@ from pulseapi.profiles.serializers import (
     UserProfileBasicSerializer,
     UserProfileListSerializer,
 )
-from pulseapi.profiles.factory import UserBookmarksFactory, ExtendedUserProfileFactory
+from pulseapi.profiles.factory import BasicUserProfileFactory, UserBookmarksFactory, ExtendedUserProfileFactory
 
 
 class TestProfileView(PulseMemberTestCase):
@@ -432,6 +432,7 @@ class TestProfileView(PulseMemberTestCase):
                     (program_year, _) = ProgramYear.objects.get_or_create(value=v3)
                     profile = UserProfile.objects.create()
                     profile.enable_extended_information = True
+                    profile.is_active = True
                     profile.profile_type = profile_type
                     profile.program_type = program_type
                     profile.program_year = program_year
@@ -478,8 +479,6 @@ class TestProfileView(PulseMemberTestCase):
         self.run_test_profile_list(
             api_version=settings.API_VERSIONS['version_2'],
             profile_serializer_class=UserProfilePublicSerializer,
-            profile_params={'is_active': True},
-            query_dict={'is_active': True},
         )
 
     def test_profile_list_search_v3(self):
@@ -505,3 +504,47 @@ class TestProfileView(PulseMemberTestCase):
         self.assertListEqual(categories['profile_types'], list(ProfileType.objects.values_list('value', flat=True)))
         self.assertListEqual(categories['program_types'], list(ProgramType.objects.values_list('value', flat=True)))
         self.assertListEqual(categories['program_years'], list(ProgramYear.objects.values_list('value', flat=True)))
+
+    def test_profile_view_is_active_filter(self):
+        """
+        Creating and saving an inactive profile, then preforming a GET
+        request to the profile endpoint with the '?is_active' filter set to
+        'True', then checking if any returned profiles are set to 'False'.
+        """
+        active_profile = BasicUserProfileFactory.create(is_active=True)
+        active_profile.save()
+        inactive_profile = BasicUserProfileFactory.create(is_active=False)
+        inactive_profile.save()
+
+        profile_url = reverse('profile_list')
+        url = ('{url}?is_active=True').format(url=profile_url)
+        response = self.client.get(url)
+        entriesjson = json.loads(str(response.content, 'utf-8'))
+        num_of_inactive_profiles = sum(profile['is_active'] is False for profile in entriesjson)
+        list_of_returned_profile_ids = [profile['profile_id'] for profile in entriesjson]
+
+        self.assertEqual(num_of_inactive_profiles, 0)
+        self.assertIn(active_profile.id, list_of_returned_profile_ids)
+        self.assertNotIn(inactive_profile.id, list_of_returned_profile_ids)
+
+    def test_profile_view_is_inactive_filter(self):
+        """
+        Similar to 'test_profile_view_is_active_filter',
+        this time setting the filter to FALSE. The API should then return a
+        list only inactive profiles. Which we double check using 'num_of_active_profiles'.
+        """
+        active_profile = BasicUserProfileFactory.create(is_active=True)
+        active_profile.save()
+        inactive_profile = BasicUserProfileFactory.create(is_active=False)
+        inactive_profile.save()
+
+        profile_url = reverse('profile_list')
+        url = ('{url}?is_active=False').format(url=profile_url)
+        response = self.client.get(url)
+        entriesjson = json.loads(str(response.content, 'utf-8'))
+        num_of_active_profiles = sum(profile['is_active'] is True for profile in entriesjson)
+        list_of_returned_profile_ids = [profile['profile_id'] for profile in entriesjson]
+
+        self.assertEqual(num_of_active_profiles, 0)
+        self.assertIn(inactive_profile.id, list_of_returned_profile_ids)
+        self.assertNotIn(active_profile.id, list_of_returned_profile_ids)
