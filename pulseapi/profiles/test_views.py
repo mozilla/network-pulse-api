@@ -521,8 +521,11 @@ class TestProfileView(PulseMemberTestCase):
         response = self.client.get(url)
         entriesjson = json.loads(str(response.content, 'utf-8'))
         num_of_inactive_profiles = sum(profile['is_active'] is False for profile in entriesjson)
+        list_of_returned_profile_ids = [profile['profile_id'] for profile in entriesjson]
 
         self.assertEqual(num_of_inactive_profiles, 0)
+        self.assertIn(active_profile.id, list_of_returned_profile_ids)
+        self.assertNotIn(inactive_profile.id, list_of_returned_profile_ids)
 
     def test_profile_view_is_inactive_filter(self):
         """
@@ -540,5 +543,8 @@ class TestProfileView(PulseMemberTestCase):
         response = self.client.get(url)
         entriesjson = json.loads(str(response.content, 'utf-8'))
         num_of_active_profiles = sum(profile['is_active'] is True for profile in entriesjson)
+        list_of_returned_profile_ids = [profile['profile_id'] for profile in entriesjson]
 
         self.assertEqual(num_of_active_profiles, 0)
+        self.assertIn(inactive_profile.id, list_of_returned_profile_ids)
+        self.assertNotIn(active_profile.id, list_of_returned_profile_ids)
