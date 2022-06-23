@@ -102,13 +102,17 @@ class JSONDefaultClient(Client):
         )
 
 
-def create_logged_in_user(test, name, email, password="password1234", is_moderator=False):
+def create_logged_in_user(test, name, email, password="password1234", is_moderator=False, is_active=False):
     test.name = name
 
     # create use instance
     User = EmailUser
     user = User.objects.create_user(name=name, email=email, password=password)
     user.save()
+
+    if is_active:
+        user.profile.is_active = True
+        user.profile.save()
 
     # make sure this user is in the staff group, too
     if is_staff_address(email):
@@ -151,14 +155,16 @@ def generate_payload(test, data={}, exclude={}, payload=False):
     return json.dumps(payload)
 
 
-def boostrap(test, name, email, is_moderator=False):
+def boostrap(test, name, email, is_moderator=False, is_active=False):
     setup_groups()
     create_logged_in_user(
         test,
         name=name,
         email=email,
-        is_moderator=is_moderator
+        is_moderator=is_moderator,
+        is_active=is_active
     )
+
     setup_users_with_profiles(test)
     setup_entries(test, creator_users=test.users_with_profiles)
 
@@ -173,7 +179,8 @@ class PulseMemberTestCase(TestCase):
         boostrap(
             self,
             name="plain user",
-            email="test@example.org"
+            email="test@example.org",
+            is_active=True
         )
 
     def generatePostPayload(self, data={}, exclude=[]):
@@ -190,7 +197,8 @@ class PulseStaffTestCase(TestCase):
         boostrap(
             self,
             name="staff user",
-            email="test@mozillafoundation.org"
+            email="test@mozillafoundation.org",
+            is_active=True
         )
 
     def generatePostPayload(self, data={}, exclude=[]):
@@ -206,7 +214,8 @@ class PulseModeratorTestCase(TestCase):
             self,
             name="Moderator user",
             email="moderator@example.org",
-            is_moderator=True
+            is_moderator=True,
+            is_active=True
         )
 
     def generatePostPayload(self, data={}, exclude=[]):
