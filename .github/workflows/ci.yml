@@ -28,10 +28,10 @@ jobs:
       SECRET_KEY: BetPHpGoUXUwjaAXm6ArIhV95xLdDZtu8QEGnNXY3eTknIkD
       AUTH_STAFF_EMAIL_DOMAINS: mozillafoundation.org
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v4
       with:
-        python-version: 3.7
+        python-version: 3.11
     - name: Install Python Dependencies
       run: |
         pip install -r requirements.txt -r dev-requirements.txt
