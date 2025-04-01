@@ -48,6 +48,7 @@ jobs:
       run: pip install wheel
     - name: Install Python Dependencies (no build isolation)
       run: |
+        pip install --no-binary psycopg2-binary psycopg2-binary
         pip install --no-build-isolation -r requirements.txt -r dev-requirements.txt
         python manage.py migrate
     - name: Run Tests
