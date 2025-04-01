@@ -240,17 +240,25 @@ WSGI_APPLICATION = 'pulseapi.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
+# Try to get DATABASE_URL from the environment (e.g. .env file or CI env vars)
 DATABASE_URL = env('DATABASE_URL')
 
-if DATABASE_URL is not None:
-    DATABASES['default'].update(dj_database_url.config())
+if DATABASE_URL:
+    # If DATABASE_URL is provided, use it to configure the default database
+    # This will typically be a Postgres database in production or CI
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL)
+    }
+else:
+    # If DATABASE_URL is not set, fall back to using SQLite
+    # This is a good default for local development environments
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
+
 
 
 # Password validation
