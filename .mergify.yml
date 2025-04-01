@@ -1,33 +1,34 @@
 queue_rules:
   - name: dependabot
-    conditions:
-      - "status-success=continuous-integration/travis-ci/push"
-      - "status-success=continuous-integration/travis-ci/pr"
-
-  - name: ready-to-merge
-    conditions:
-      - "status-success=Continuous Integration / Node CI (pull_request)"
-      - "status-success=Continuous Integration / Wagtail CI (pull_request)"
-
-pull_request_rules:
-  - name: Automatic merge for dependabot PRs
-    conditions:
+    queue_conditions:
       - "#approved-reviews-by>=1"
       - author~=^dependabot(|-preview)\[bot\]$
       - "status-success=continuous-integration/travis-ci/push"
       - "status-success=continuous-integration/travis-ci/pr"
-    actions:
-      queue:
-        method: squash
-        name: dependabot
-
-  - name: Automatic merge for PRs labelled "ready to merge"
-    conditions:
+    merge_conditions:
+      - "status-success=continuous-integration/travis-ci/push"
+      - "status-success=continuous-integration/travis-ci/pr"
+    merge_method: squash
+  - name: ready-to-merge
+    queue_conditions:
       - "#approved-reviews-by>=1"
       - "status-success=continuous-integration/travis-ci/pr"
       - "status-success=continuous-integration/travis-ci/push"
       - "label=ready-to-merge"
+    merge_conditions:
+      - "status-success=Continuous Integration / Node CI (pull_request)"
+      - "status-success=Continuous Integration / Wagtail CI (pull_request)"
+    merge_method: squash
+
+pull_request_rules:
+  - name: Automatic merge for PRs labelled "ready to merge" + Automatic merge for
+      dependabot PRs
+    conditions: []
     actions:
       queue:
-        method: squash
-        name: ready-to-merge
+priority_rules:
+  - name: priority for queue `dependabot`
+    conditions:
+      - "status-success=continuous-integration/travis-ci/push"
+      - "status-success=continuous-integration/travis-ci/pr"
+    priority: 2250
