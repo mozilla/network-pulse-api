@@ -36,9 +36,9 @@ jobs:
     # See https://github.com/pypa/setuptools/issues/3772
     - name: Install setuptools 65.5.1 for compatibility with django-allauth
       run: pip install "setuptools==65.5.1"
-    - name: Install Python Dependencies
+    - name: Install Python Dependencies (no build isolation)
       run: |
-        pip install -r requirements.txt -r dev-requirements.txt
+        pip install --no-build-isolation -r requirements.txt -r dev-requirements.txt
         python manage.py migrate
     - name: Run Tests
       run: |
