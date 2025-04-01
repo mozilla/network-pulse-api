@@ -36,6 +36,8 @@ jobs:
     # See https://github.com/pypa/setuptools/issues/3772
     - name: Install setuptools 65.5.1 for compatibility with django-allauth
       run: pip install "setuptools==65.5.1"
+    - name: Install wheel for building packages like cffi
+      run: pip install wheel
     - name: Install Python Dependencies (no build isolation)
       run: |
         pip install --no-build-isolation -r requirements.txt -r dev-requirements.txt
