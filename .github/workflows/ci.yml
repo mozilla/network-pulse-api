@@ -31,7 +31,11 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
       with:
-        python-version: 3.7
+        python-version: 3.9.18
+    - name: Install wheel and pin setuptools for compatibility
+      run: |
+        pip install wheel
+        pip install "setuptools==65.5.1"
     - name: Install Python Dependencies
       run: |
         pip install -r requirements.txt -r dev-requirements.txt
