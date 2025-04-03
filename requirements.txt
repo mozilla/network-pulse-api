@@ -4,6 +4,11 @@
 #
 #    pip-compile
 #
+
+# Required on Heroku to prevent build failures with legacy packages like django-allauth
+# Ensures build dependencies (e.g. setuptools, wheel) are installed before other packages
+-r build-requirements.txt
+
 boto3==1.16.26
     # via -r requirements.in
 botocore==1.19.26
