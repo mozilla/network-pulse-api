@@ -5,9 +5,11 @@
 #    pip-compile
 #
 
-# Required on Heroku to prevent build failures with legacy packages like django-allauth
-# Ensures build dependencies (e.g. setuptools, wheel) are installed before other packages
--r build-requirements.txt
+# The two lines below are needed for Heroku compatibility.
+# `setuptools==65.5.1` ensures compatibility with legacy packages like django-allauth,
+# and `wheel` is needed for building packages from source.
+setuptools==65.5.1
+wheel
 
 boto3==1.16.26
     # via -r requirements.in
@@ -161,6 +163,3 @@ urllib3==1.25.9
     #   requests
 whitenoise==5.2.0
     # via -r requirements.in
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools
