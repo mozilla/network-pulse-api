@@ -1,7 +1,7 @@
 boto3
 dj-database-url
 django-ajax-selects==1.9.1
-django-allauth==0.48.0
+django-allauth>=0.54.0
 django-cors-headers
 django-debug-toolbar
 django-environ
